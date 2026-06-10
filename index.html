@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>TourFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--ink:#1a1410;--paper:#f5f0e8;--brass:#b08d57;--slate:#6b5f4e;--fog:#ddd5c8;--mist:#ede6db;--card:#fffdf8;--hdr:#080c10}
+body{font-family:'Jost',system-ui,sans-serif;background:var(--paper);color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
+input,button,textarea,select{font-family:inherit}
+.hdr{background:var(--hdr);padding:13px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--hdr);border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:200}
+.nb{flex:1;padding:10px 4px 12px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+.nl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
+.nl.on{color:#b08d57;font-weight:500}
+.nd{width:20px;height:1.5px;background:#b08d57;border-radius:1px;margin-top:1px}
+.wrap{padding:20px 18px 80px}
+.card{background:var(--card);border-radius:12px;border:1px solid var(--fog);padding:16px;margin-bottom:14px}
+.lbl{font-size:10px;font-weight:500;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
+.inp:focus{border-color:var(--brass)}
+.ins{padding:9px 11px;font-size:14px}
+.btn{width:100%;padding:13px 18px;background:var(--hdr);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.btn-g{background:transparent;color:var(--ink);border:1.5px solid var(--fog)}
+.btn-b{background:linear-gradient(135deg,#c9993a,#8a6020);color:#fff}
+.btn-sm{padding:7px 14px;font-size:12px;width:auto;border-radius:8px;margin-bottom:0}
+.btn-add{background:transparent;border:1.5px dashed var(--brass);color:var(--brass);border-radius:9px;padding:11px;width:100%;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.bico{background:none;border:none;color:#c8bfb0;font-size:18px;cursor:pointer;padding:4px;line-height:1}
+.bback{background:none;border:none;color:#9e9080;font-size:13px;cursor:pointer;padding:0 0 16px 0;display:block}
+.sec{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:300;color:var(--ink);margin-bottom:16px}
+.sec-sm{font-size:11px;font-weight:500;color:#9e9080;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;display:inline-block}
+.pill-br{background:#f5ede0;color:#8a6020}
+.pill-gr{background:#f0fdf4;color:#166534}
+.pill-bl{background:#eff6ff;color:#1d4ed8}
+.pill-am{background:#fef9ec;color:#92400e}
+.pill-gy{background:#f1f0ee;color:#6b5f4e}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tog{display:flex;background:var(--mist);border-radius:10px;padding:3px;margin-bottom:14px}
+.tb{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#9e9080;transition:all .15s}
+.tb.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ban{border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:12px;display:flex;align-items:center;gap:7px}
+.ban-gr{background:#f0fdf4;color:#166534}
+.ban-am{background:#fef9ec;color:#92400e}
+.emp{background:var(--mist);border-radius:16px;padding:40px 24px;text-align:center}
+.cc{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:15px 16px;margin-bottom:10px;cursor:pointer;display:flex;gap:12px;align-items:center}
+.av{width:44px;height:44px;border-radius:50%;background:var(--mist);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--brass);flex-shrink:0;border:1px solid var(--fog)}
+.dc{background:var(--card);border-radius:12px;border:1px solid var(--fog);padding:13px 15px;margin-bottom:8px;cursor:pointer}
+.pc{background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:10px;overflow:hidden}
+.oh{background:var(--hdr);padding:24px 22px}
+.or{padding:16px 22px;border-bottom:1px solid var(--fog)}
+.of{background:var(--mist);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.ibox{margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:11px 13px}
+@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash" style="position:fixed;inset:0;background:#080c10;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease;padding:48px;overflow:hidden">
+<style>
+#sm{opacity:0;transform:translateY(12px);transition:opacity 1s ease,transform 1s ease}
+#sn{opacity:0;transform:translateY(16px);transition:opacity 1s ease,transform 1s ease}
+#st{opacity:0;transform:translateY(8px);transition:opacity 1s ease,transform 1s ease}
+#sk{opacity:0;transition:opacity .8s ease}
+</style>
+<div style="position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(176,141,87,.12) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none"></div>
+<div style="position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(176,141,87,.07) 0%,transparent 70%);bottom:-80px;left:-80px;pointer-events:none"></div>
+<div id="sm" style="margin-bottom:36px;text-align:center">
+  <svg width="72" height="90" viewBox="0 0 72 90" style="display:block;margin:0 auto">
+    <defs><linearGradient id="pg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="50%" stop-color="#c49a38"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs>
+    <circle cx="36" cy="32" r="26" fill="none" stroke="url(#pg)" stroke-width="2.8"/>
+    <circle cx="36" cy="32" r="9" fill="url(#pg)"/>
+    <ellipse cx="29" cy="22" rx="8" ry="6" fill="#fff" opacity="0.12"/>
+    <path d="M 16 54 Q 36 82 56 54" fill="none" stroke="url(#pg)" stroke-width="2.8" stroke-linecap="round"/>
+  </svg>
+</div>
+<div id="sn" style="text-align:center;margin-bottom:20px">
+  <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:52px;font-weight:300;color:#fff;letter-spacing:4px;line-height:1">Tour<span style="color:#b08d57;font-style:italic;letter-spacing:0">Flow</span></div>
+</div>
+<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px">
+  <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(176,141,87,.4));width:40px"></div>
+  <div style="width:4px;height:4px;border-radius:50%;background:#b08d57;opacity:.6"></div>
+  <div style="height:1px;background:linear-gradient(270deg,transparent,rgba(176,141,87,.4));width:40px"></div>
+</div>
+<div id="st" style="text-align:center;margin-bottom:80px">
+  <div style="font-family:'Jost',sans-serif;font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.22em;text-transform:uppercase;font-weight:300">Organize viewings like a pro</div>
+</div>
+<div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.04)">
+  <div id="sp" style="height:100%;background:linear-gradient(90deg,transparent,#b08d57,#d4af7a);width:0%;transition:width 2.8s linear"></div>
+</div>
+<button id="sk" onclick="startApp()" style="position:absolute;bottom:24px;right:28px;background:none;border:none;color:rgba(255,255,255,.2);font-size:12px;cursor:pointer;font-family:'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase">skip</button>
+</div>
+
+<div id="shell" style="display:none;flex-direction:column;min-height:100vh">
+<div class="hdr">
+  <div style="width:30px;height:30px;display:flex;align-items:center;justify-content:center">
+    <svg width="26" height="34" viewBox="0 0 26 34"><defs><linearGradient id="hg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="13" cy="11" r="9" fill="none" stroke="url(#hg)" stroke-width="2"/><circle cx="13" cy="11" r="3.5" fill="url(#hg)"/><path d="M 5 18 Q 13 30 21 18" fill="none" stroke="url(#hg)" stroke-width="2" stroke-linecap="round"/></svg>
+  </div>
+  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;font-weight:400;letter-spacing:.5px">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span>
+</div>
+<div id="app"></div>
+<div class="nav">
+  <button class="nb" onclick="showTab('home')"><span style="font-size:19px">&#127968;</span><span class="nl on" id="nl-home">Home</span><div class="nd" id="nd-home"></div></button>
+  <button class="nb" onclick="showTab('clients')"><span style="font-size:19px">&#128100;</span><span class="nl" id="nl-clients">Clients</span><div class="nd" id="nd-clients" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('days')"><span style="font-size:19px">&#128197;</span><span class="nl" id="nl-days">Days</span><div class="nd" id="nd-days" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('settings')"><span style="font-size:19px">&#9881;</span><span class="nl" id="nl-settings">Settings</span><div class="nd" id="nd-settings" style="display:none"></div></button>
+</div>
+</div>
+
+<script>
+var STORE="tf-v2";
+function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
+function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function today(){return new Date().toISOString().slice(0,10);}
+function fmtDate(d){if(!d)return"";try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}catch(e){return d;}}
+function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function getDomain(url){try{return new URL(url).hostname.replace("www.","");}catch(e){return url||"";}}
+function gv(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+function initials(n){return(n||"?").split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();}
+function dayStatus(date){if(!date)return"upcoming";var t=today();if(date===t)return"today";if(date<t)return"done";return"upcoming";}
+function statusBadge(s){if(s==="today")return'<span class="pill pill-br">Today</span>';if(s==="done")return'<span class="pill pill-gy">Completed</span>';return'<span class="pill pill-bl">Upcoming</span>';}
+
+var ET=[
+  {key:"lunch",icon:"&#127869;",label:"Lunch",col:"#f0fdf4",brd:"#86efac",txt:"#166534"},
+  {key:"coffee",icon:"&#9749;",label:"Coffee break",col:"#fffbeb",brd:"#fde68a",txt:"#92400e"},
+  {key:"drive",icon:"&#128663;",label:"Drive / Travel",col:"#eff6ff",brd:"#93c5fd",txt:"#1d4ed8"},
+  {key:"meeting",icon:"&#128083;",label:"Meeting",col:"#faf5ff",brd:"#d8b4fe",txt:"#7e22ce"},
+  {key:"other",icon:"&#128204;",label:"Other",col:"#f1f5f9",brd:"#cbd5e1",txt:"#475569"}
+];
+function getET(k){for(var i=0;i<ET.length;i++){if(ET[i].key===k)return ET[i];}return ET[4];}
+
+var DEMO_C=[
+  {id:"c1",name:"Erik Svensson",phone:"+46 70 111 22 33",email:"erik@email.com",nationality:"Swedish",budget:"200-400k EUR",notes:"Looking for 3+ bed, pool preferred"},
+  {id:"c2",name:"Anna Lindqvist",phone:"+46 73 222 33 44",email:"",nationality:"Swedish",budget:"150-250k EUR",notes:"Holiday home, La Zenia area"},
+  {id:"c3",name:"James Wilson",phone:"+44 77 333 44 55",email:"james@email.com",nationality:"British",budget:"300-500k EUR",notes:"Permanent residence"}
+];
+var DEMO_D=[
+  {id:"d1",clientId:"c1",date:"2026-06-17",properties:[
+    {id:"p1",url:"https://www.comaskeys.com/property/2082220",time:"10:00",title:"Bright 2-bed apartment",address:"Calle del Mar 12, La Zenia",price:"175,000 EUR",rooms:"2 bed",sqm:"78 m2",mapsUrl:"https://maps.google.com/?q=Calle+del+Mar+12+La+Zenia",commission:"2.5%",contact:"Maria Garcia",firm:"Costa Realty",location:"Key at front desk",note:""},
+    {id:"p2",url:"https://www.idealista.com/inmueble/98765432/",time:"12:30",title:"Modern villa with pool",address:"Avenida del Sol 45, Torrevieja",price:"320,000 EUR",rooms:"4 bed",sqm:"160 m2",mapsUrl:"https://maps.google.com/?q=Avenida+del+Sol+45+Torrevieja",commission:"3%",contact:"Juan Perez",firm:"Inmobiliaria Sol",location:"Gated community, bring ID",note:"Pool heated Oct-May"}
+  ],events:[{id:"e1",type:"lunch",time:"13:30",title:"Lunch",note:"La Zenia Boulevard"}]},
+  {id:"d2",clientId:"c1",date:"2026-05-10",properties:[{id:"p3",url:"https://www.hemnet.se/bostad/123",time:"11:00",title:"Townhouse near golf",address:"Calle Verde 3, Orihuela",price:"210,000 EUR",rooms:"3 bed",sqm:"105 m2",mapsUrl:"",commission:"2%",contact:"Sofia Ruiz",firm:"Golf Properties",location:"Key with neighbour no.5",note:""}],events:[]},
+  {id:"d3",clientId:"c2",date:"2026-06-20",properties:[{id:"p4",url:"https://www.comaskeys.com/property/999",time:"10:30",title:"Studio apartment",address:"Avenida del Mar 8, La Zenia",price:"95,000 EUR",rooms:"Studio",sqm:"45 m2",mapsUrl:"",commission:"2%",contact:"Carlos Ruiz",firm:"La Zenia Homes",location:"Meet agent outside",note:""}],events:[]}
+];
+
+var d0=load();
+var S={
+  tab:"home",screen:"home",
+  cid:null,did:null,
+  viewMode:"client",
+  epid:null,eiid:null,
+  addEv:false,
+  clients:d0.clients||[],
+  days:d0.days||[],
+  cfg:d0.cfg||{agency:"",agent:"",phone:"",email:"",logo:""}
+};
+function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
+function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
+function curD(){return S.days.find(function(d){return d.id===S.did;});}
+function cDays(cId){return S.days.filter(function(d){return d.clientId===cId;}).sort(function(a,b){return b.date.localeCompare(a.date);});}
+
+function go(screen,extra){if(extra)Object.assign(S,extra);S.screen=screen;S.addEv=false;render();}
+
+function showTab(tab){
+  S.tab=tab;S.screen=tab;S.cid=null;S.did=null;
+  ["home","clients","days","settings"].forEach(function(t){
+    document.getElementById("nl-"+t).className="nl"+(t===tab?" on":"");
+    document.getElementById("nd-"+t).style.display=t===tab?"block":"none";
+  });
+  render();
+}
+
+function render(){
+  var el=document.getElementById("app");
+  var s=S.screen;
+  if(s==="pick-client")      {el.innerHTML=pgPickClient();return;}
+  if(s==="add-client")       {el.innerHTML=pgAddClient();return;}
+  if(s==="edit-client")      {el.innerHTML=pgEditClient();return;}
+  if(s==="client-detail")    {el.innerHTML=pgClientDetail();return;}
+  if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
+  if(s==="add-prop")         {el.innerHTML=pgAddProp();return;}
+  if(s==="output")           {el.innerHTML=pgOutput();return;}
+  if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
+  if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
+  if(S.tab==="days")         {el.innerHTML=pgDays();return;}
+  el.innerHTML=pgHome();
+}
+
+// ── MUTATIONS ─────────────────────────────────────────────────────────────────
+function addClient(data){var c=Object.assign({id:uid()},data);S.clients=[c].concat(S.clients);persist();return c.id;}
+function updateClient(id,ch){S.clients=S.clients.map(function(c){return c.id===id?Object.assign({},c,ch):c;});persist();}
+function delClient(id){S.clients=S.clients.filter(function(c){return c.id!==id;});S.days=S.days.filter(function(d){return d.clientId!==id;});persist();}
+function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();return d.id;}
+function updateDay(id,ch){S.days=S.days.map(function(d){return d.id===id?Object.assign({},d,ch):d;});persist();}
+function delDay(id){S.days=S.days.filter(function(d){return d.id!==id;});persist();}
+function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();}
+function updProp(did,pid,ch){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.map(function(p){return p.id===pid?Object.assign({},p,ch):p;})}):d;});persist();}
+function delProp(did,pid){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.filter(function(p){return p.id!==pid;})}):d;});persist();}
+function addEv(did,ev){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.concat([Object.assign({id:uid()},ev)])}):d;});persist();}
+function delEv(did,eid){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.filter(function(ev){return ev.id!==eid;})}):d;});persist();}
+
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function pgHome(){
+  var up=S.days.filter(function(d){return dayStatus(d.date)!=="done";}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,3);
+  var rc=S.clients.slice(0,4);
+  var upHtml=up.length?up.map(function(d){
+    var c=S.clients.find(function(c){return c.id===d.clientId;})||{name:"Unknown"};
+    return '<div class="dc" onclick="go(\'day-detail\',{did:\''+d.id+'\',cid:\''+d.clientId+'\'})">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+      '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:var(--ink);margin-bottom:2px">'+fmtDate(d.date)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate)">&#128100; '+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div></div>'+
+      statusBadge(dayStatus(d.date))+'</div></div>';
+  }).join(""):'<div style="font-size:13px;color:#9e9080;padding:8px 0">No upcoming days</div>';
+
+  var rcHtml=rc.map(function(c){
+    var cd=cDays(c.id);
+    return '<div class="cc" onclick="go(\'client-detail\',{cid:\''+c.id+'\'})">'+
+      '<div class="av">'+esc(initials(c.name))+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+      '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px">'+esc(c.name)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate)">'+cd.length+' day'+(cd.length===1?"":"s")+
+      (cd[0]?' &middot; '+fmtDate(cd[0].date):'')+'</div></div>'+
+      '<span style="color:#c8bfb0;font-size:18px">&#8250;</span></div>';
+  }).join("");
+
+  return '<div class="wrap">'+
+    '<div style="margin-bottom:24px">'+
+    '<div style="font-size:11px;color:#9e9080;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px">Welcome back</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:var(--ink)">'+(S.cfg.agent||"Your Dashboard")+'</div></div>'+
+    '<div class="g2" style="margin-bottom:24px">'+
+    '<button style="background:linear-gradient(135deg,#0f1923,#1a2535);border-radius:16px;padding:22px 18px;cursor:pointer;border:none;text-align:left;width:100%;display:flex;flex-direction:column;gap:8px" onclick="go(\'add-client\')">'+
+    '<div style="font-size:24px">&#128100;</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:#fff">New Client</div>'+
+    '<div style="font-size:11px;color:rgba(255,255,255,.4);font-weight:300;line-height:1.5">Add a client and plan viewings</div></button>'+
+    '<button style="background:linear-gradient(135deg,#8a6020,#c9993a);border-radius:16px;padding:22px 18px;cursor:pointer;border:none;text-align:left;width:100%;display:flex;flex-direction:column;gap:8px" onclick="quickDay()">'+
+    '<div style="font-size:24px">&#128197;</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:#fff">New Day</div>'+
+    '<div style="font-size:11px;color:rgba(255,255,255,.55);font-weight:300;line-height:1.5">Schedule a viewing day</div></button></div>'+
+    '<div class="sec-sm">Upcoming viewings</div>'+upHtml+
+    '<div style="margin-top:18px"></div>'+
+    '<div class="sec-sm">Recent clients</div>'+rcHtml+'</div>';
+}
+function quickDay(){
+  if(S.clients.length===0){go("add-client");return;}
+  if(S.clients.length===1){
+    var id=addDay(S.clients[0].id);
+    go("day-detail",{did:id,cid:S.clients[0].id});
+    return;
+  }
+  go("pick-client");
+}
+
+// ── CLIENTS ───────────────────────────────────────────────────────────────────
+function pgClients(){
+  var h='<div class="wrap">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px">'+
+    '<div class="sec" style="margin-bottom:0">Clients</div>'+
+    '<button class="btn btn-sm" onclick="go(\'add-client\')">+ New client</button></div>';
+  if(S.clients.length===0){
+    h+='<div class="emp"><div style="font-size:40px;margin-bottom:12px">&#128100;</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;margin-bottom:6px">No clients yet</div>'+
+      '<div style="font-size:14px;color:var(--slate);margin-bottom:24px">Add your first client to get started</div>'+
+      '<button class="btn" style="width:auto;padding:12px 24px" onclick="go(\'add-client\')">Add client</button></div>';
+  } else {
+    h+=S.clients.map(function(c){
+      var cd=cDays(c.id);
+      var upc=cd.filter(function(d){return dayStatus(d.date)!=="done";});
+      return '<div class="cc" onclick="go(\'client-detail\',{cid:\''+c.id+'\'})">'+
+        '<div class="av">'+esc(initials(c.name))+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:15px;font-weight:500;color:var(--ink);margin-bottom:3px">'+esc(c.name)+'</div>'+
+        '<div style="font-size:12px;color:var(--slate);margin-bottom:5px">'+esc(c.phone||"")+(c.nationality?' &middot; '+esc(c.nationality):'')+'</div>'+
+        '<div style="display:flex;gap:7px;flex-wrap:wrap">'+
+        (upc.length?'<span class="pill pill-bl">'+upc.length+' upcoming</span>':'')+
+        '<span class="pill">'+cd.length+' day'+(cd.length===1?"":"s")+'</span>'+
+        (c.budget?'<span class="pill pill-br">'+esc(c.budget)+'</span>':'')+
+        '</div></div>'+
+        '<span style="color:#c8bfb0;font-size:18px">&#8250;</span></div>';
+    }).join("");
+  }
+  return h+'</div>';
+}
+
+// ── CLIENT DETAIL ─────────────────────────────────────────────────────────────
+function pgClientDetail(){
+  var c=curC();if(!c)return"";
+  var cd=cDays(c.id);
+  var up=cd.filter(function(d){return dayStatus(d.date)!=="done";});
+  var dn=cd.filter(function(d){return dayStatus(d.date)==="done";});
+  function drow(d){
+    return '<div class="dc" onclick="go(\'day-detail\',{did:\''+d.id+'\',cid:\''+c.id+'\'})">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+      '<div><div style="font-size:14px;font-weight:500;color:var(--ink)">'+fmtDate(d.date)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate);margin-top:2px">'+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div></div>'+
+      '<div style="display:flex;gap:8px;align-items:center">'+statusBadge(dayStatus(d.date))+
+      '<button class="bico" onclick="event.stopPropagation();if(confirm(\'Delete this day?\'))delDay(\''+d.id+'\');render()">&#215;</button></div></div>'+
+      (d.properties.length>0?'<div style="display:flex;gap:6px;margin-top:9px;overflow-x:auto">'+
+        d.properties.slice(0,3).map(function(p){
+          return '<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--slate);white-space:nowrap">'+
+            (p.time?'<span style="font-weight:600;color:var(--ink);margin-right:3px">'+esc(p.time)+'</span>':'')+
+            esc(p.title?p.title.slice(0,20)+(p.title.length>20?"...":""):getDomain(p.url))+'</div>';
+        }).join("")+(d.properties.length>3?'<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:#9e9080">+'+(d.properties.length-3)+' more</div>':'')
+      +'</div>':'')+'</div>';
+  }
+  return '<div class="wrap">'+
+    '<button class="bback" onclick="showTab(\'clients\')">&#8592; All clients</button>'+
+    '<div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">'+
+    '<div style="width:52px;height:52px;border-radius:50%;background:var(--mist);border:1px solid var(--fog);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--brass);flex-shrink:0">'+esc(initials(c.name))+'</div>'+
+    '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
+    '<div style="font-size:13px;color:var(--slate)">'+esc(c.phone||"")+'</div></div>'+
+    '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="go(\'edit-client\')">Edit</button>'+
+    '<button class="bico" onclick="if(confirm(\'Delete client and all their days?\'))delClient(\''+c.id+'\');showTab(\'clients\')">&#215;</button></div>'+
+    '<div class="card" style="margin-bottom:18px">'+
+    '<div class="g2">'+
+    '<div><label class="lbl">Budget</label><div style="font-size:14px">'+esc(c.budget||"&#8212;")+'</div></div>'+
+    '<div><label class="lbl">Nationality</label><div style="font-size:14px">'+esc(c.nationality||"&#8212;")+'</div></div>'+
+    '</div>'+
+    (c.notes?'<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog)"><label class="lbl">Notes</label><div style="font-size:13px;color:var(--slate);line-height:1.6">'+esc(c.notes)+'</div></div>':'')+
+    '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog);display:flex;gap:14px">'+
+    (c.phone?'<a href="tel:'+esc(c.phone)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#128222; Call</a>':'')+
+    (c.email?'<a href="mailto:'+esc(c.email)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#9993; Email</a>':'')+
+    '</div></div>'+
+    '<button class="btn btn-b" onclick="newDayFor(\''+c.id+'\')">+ New viewing day</button>'+
+    (up.length?'<div class="sec-sm" style="margin-top:4px">Upcoming</div>'+up.map(drow).join(""):"")+
+    (dn.length?'<div class="sec-sm" style="margin-top:16px">Completed</div>'+dn.map(drow).join(""):"")+
+    (cd.length===0?'<div class="emp" style="margin-top:8px"><div style="font-size:32px;margin-bottom:10px">&#128197;</div><div style="font-size:14px;color:var(--slate)">No viewing days yet</div></div>':"")+
+    '</div>';
+}
+function newDayFor(cId){var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
+
+// ── ADD CLIENT ────────────────────────────────────────────────────────────────
+function pgPickClient(){
+  var rows=S.clients.map(function(c){
+    var cd=cDays(c.id);
+    return '<div class="cc" onclick="newDayFor(\''+c.id+'\')">'+
+      '<div class="av">'+esc(initials(c.name))+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+      '<div style="font-size:15px;font-weight:500;color:var(--ink);margin-bottom:2px">'+esc(c.name)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate)">'+cd.length+' day'+(cd.length===1?"":"s")+
+      (c.nationality?' &middot; '+esc(c.nationality):'')+'</div></div>'+
+      '<span style="color:#b08d57;font-size:18px">+</span></div>';
+  }).join("");
+  return '<div class="wrap">'+
+    '<button class="bback" onclick="showTab(\'home\')">&#8592; Cancel</button>'+
+    '<div class="sec">Choose client</div>'+
+    '<div style="margin-bottom:14px">'+rows+'</div>'+
+    '<div style="border-top:1px solid var(--fog);padding-top:14px">'+
+    '<button class="btn btn-g" onclick="go(\'add-client\')">+ New client instead</button>'+
+    '</div></div>';
+}
+function pgAddClient(){
+  return '<div class="wrap">'+
+    '<button class="bback" onclick="showTab(\'clients\')">&#8592; Cancel</button>'+
+    '<div class="sec">New Client</div>'+
+    '<div class="card">'+
+    '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Erik Svensson"/></div>'+
+    '<div style="margin-bottom:13px"><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ac-phone" placeholder="+46 70 000 00 00"/></div>'+
+    '<div style="margin-bottom:13px"><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="erik@email.com"/></div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+    '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Swedish"/></div>'+
+    '<div><label class="lbl">Budget</label><input class="inp" id="ac-bud" placeholder="200-400k EUR"/></div>'+
+    '</div>'+
+    '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Preferences, requirements..."/></div>'+
+    '</div>'+
+    '<button class="btn" onclick="saveAddClient()">Save client</button></div>';
+}
+function saveAddClient(){
+  var n=gv("ac-name");if(!n){alert("Please enter a name.");return;}
+  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),budget:gv("ac-bud"),notes:gv("ac-notes")});
+  go("client-detail",{cid:id});
+}
+
+// ── EDIT CLIENT ───────────────────────────────────────────────────────────────
+function pgEditClient(){
+  var c=curC();if(!c)return"";
+  return '<div class="wrap">'+
+    '<button class="bback" onclick="go(\'client-detail\')">&#8592; Cancel</button>'+
+    '<div class="sec">Edit Client</div>'+
+    '<div class="card">'+
+    '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ec-name" value="'+esc(c.name||'')+'"/></div>'+
+    '<div style="margin-bottom:13px"><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'" placeholder="+46 70 000 00 00"/></div>'+
+    '<div style="margin-bottom:13px"><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'" placeholder="erik@email.com"/></div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+    '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" value="'+esc(c.nationality||'')+'" placeholder="Swedish"/></div>'+
+    '<div><label class="lbl">Budget</label><input class="inp" id="ec-bud" value="'+esc(c.budget||'')+'" placeholder="200-400k EUR"/></div>'+
+    '</div>'+
+    '<div><label class="lbl">Notes</label><input class="inp" id="ec-notes" value="'+esc(c.notes||'')+'" placeholder="Preferences, requirements..."/></div>'+
+    '</div>'+
+    '<button class="btn" onclick="saveEditClient()">Save changes</button></div>';
+}
+function saveEditClient(){
+  var n=gv("ec-name");if(!n){alert("Please enter a name.");return;}
+  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),budget:gv("ec-bud"),notes:gv("ec-notes")});
+  go("client-detail");
+}
+
+// ── ALL DAYS ──────────────────────────────────────────────────────────────────
+function pgDays(){
+  var sorted=[].concat(S.days).sort(function(a,b){return a.date.localeCompare(b.date);});
+  var up=sorted.filter(function(d){return dayStatus(d.date)!=="done";});
+  var dn=sorted.filter(function(d){return dayStatus(d.date)==="done";});
+  function drow(d){
+    var c=S.clients.find(function(c){return c.id===d.clientId;})||{name:"Unknown"};
+    return '<div class="dc" onclick="go(\'day-detail\',{did:\''+d.id+'\',cid:\''+d.clientId+'\'})">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+      '<div><div style="font-size:14px;font-weight:500;color:var(--ink)">'+fmtDate(d.date)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate);margin-top:1px">&#128100; '+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div></div>'+
+      statusBadge(dayStatus(d.date))+'</div></div>';
+  }
+  return '<div class="wrap">'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px">'+
+    '<div class="sec" style="margin-bottom:0">All Days</div>'+
+    '<button class="btn btn-sm" onclick="quickDay()">+ New day</button></div>'+
+    (up.length?'<div class="sec-sm">Upcoming</div>'+up.map(drow).join(""):"")+
+    (dn.length?'<div class="sec-sm" style="margin-top:16px">Completed</div>'+dn.map(drow).join(""):"")+
+    (S.days.length===0?'<div class="emp"><div style="font-size:40px;margin-bottom:12px">&#128197;</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;margin-bottom:6px">No viewing days yet</div>'+
+      '<div style="font-size:14px;color:var(--slate)">Create a client first, then add a viewing day.</div></div>':"")+
+    '</div>';
+}
+
+// ── DAY DETAIL ────────────────────────────────────────────────────────────────
+function pgDayDetail(){
+  var day=curD();var c=curC();if(!day)return"";
+  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var evs=day.events||[];
+
+  var pCards=props.map(function(p){
+    var io=S.epid===p.id,ii=S.eiid===p.id;
+    var ep="";
+    if(io){
+      var bf=[["Title","title","Bright 2-bed apartment"],["Address","address","Calle del Mar 12"],["Bedrooms","rooms","2 bedrooms"],["Size","sqm","78 m2"]];
+      var iff=[["Commission","commission","2.5%"],["Contact","contact","Maria Garcia"],["Firm","firm","Costa Realty"],["Location/access","location","Key at front desk"],["Notes","note","Other info"]];
+      ep='<div style="padding:0 14px 14px;border-top:1px solid var(--fog)">'+
+        '<div class="g2" style="margin:12px 0 10px">'+
+        '<div><label class="lbl">Time</label><input type="time" class="inp ins" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
+        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:this.value})"/></div></div>'+
+        bf.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
+          '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
+        '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
+        '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
+        (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
+        '</div>'+
+        '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
+        '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
+        '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
+        '<span style="background:#fef9ec;color:#92400e;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:600">Not shown to client</span></div>'+
+        '<span style="color:#c8bfb0">'+(ii?"&#9650;":"&#9660;")+'</span></button>'+
+        (ii?'<div style="background:#fffbf0;border-radius:0 0 8px 8px;padding:10px 12px">'+
+          iff.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
+            '<input class="inp ins" style="background:#fffbf0" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
+          '</div>':'')+
+        '</div>';
+    }
+    return '<div class="pc">'+
+      '<div style="padding:12px 14px;display:flex;gap:10px;align-items:flex-start">'+
+      '<div style="flex:1;min-width:0">'+
+      (p.time?'<div style="font-weight:600;font-size:14px;color:var(--ink);margin-bottom:2px">'+esc(p.time)+'</div>':'')+
+      (p.ogImage?'<div style="height:90px;background:var(--mist);border-radius:8px;overflow:hidden;margin-bottom:8px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
+      '<div style="font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.title||p.address||getDomain(p.url))+'</div>'+
+      '<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+
+      (p.price?'<span class="pill pill-br">'+esc(p.price)+'</span>':'')+
+      (p.rooms?'<span class="pill">'+esc(p.rooms)+'</span>':'')+
+      (p.url?'<a style="font-size:10px;color:var(--brass);font-weight:500;text-decoration:none" href="'+esc(p.url)+'" target="_blank" onclick="event.stopPropagation()">&#128279; '+esc(getDomain(p.url))+'</a>':'')+
+      (p.mapsUrl?'<a style="font-size:10px;color:#1a73e8;font-weight:500;text-decoration:none" href="'+esc(p.mapsUrl)+'" target="_blank" onclick="event.stopPropagation()">&#128205; Maps</a>':'')+
+      '</div></div>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="S.epid=S.epid===\''+p.id+'\'?null:\''+p.id+'\';S.eiid=null;render()">'+(io?"&#9650;":"Edit")+'</button>'+
+      '<button class="bico" onclick="delProp(\''+day.id+'\',\''+p.id+'\');render()">&#215;</button>'+
+      '</div></div>'+ep+'</div>';
+  }).join("");
+
+  var eCards=evs.map(function(ev){
+    var et=getET(ev.type);
+    return '<div style="background:'+et.col+';border:1px solid '+et.brd+';border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px;align-items:center">'+
+      '<span style="font-size:18px">'+et.icon+'</span>'+
+      '<div style="flex:1">'+(ev.time?'<span style="font-weight:600;font-size:13px;color:'+et.txt+'">'+esc(ev.time)+'</span> ':'')+
+      '<span style="font-size:13px;color:'+et.txt+';font-weight:500">'+esc(ev.title||et.label)+'</span>'+
+      (ev.note?'<div style="font-size:11px;color:#888;margin-top:2px">'+esc(ev.note)+'</div>':'')+
+      '</div><button class="bico" onclick="delEv(\''+day.id+'\',\''+ev.id+'\');render()">&#215;</button></div>';
+  }).join("");
+
+  var evOpts=ET.map(function(t){return'<option value="'+t.key+'">'+t.label+'</option>';}).join("");
+  var addEvPnl=S.addEv?'<div style="background:var(--card);border-radius:14px;border:1.5px solid var(--brass);padding:16px;margin-bottom:10px">'+
+    '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:14px">Add schedule item</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Type</label><select class="inp ins" id="ev-type">'+evOpts+'</select></div>'+
+    '<div><label class="lbl">Time</label><input type="time" class="inp ins" id="ev-time"/></div></div>'+
+    '<div style="margin-bottom:10px"><label class="lbl">Title</label><input class="inp" id="ev-title" placeholder="e.g. Lunch at La Zenia Boulevard"/></div>'+
+    '<div style="margin-bottom:14px"><label class="lbl">Note</label><input class="inp" id="ev-note" placeholder="e.g. Booked at Restaurante Sol"/></div>'+
+    '<div style="display:flex;gap:9px">'+
+    '<button class="btn btn-g btn-sm" style="flex:1;margin-bottom:0" onclick="S.addEv=false;render()">Cancel</button>'+
+    '<button class="btn btn-sm" style="flex:2;margin-bottom:0" onclick="saveEv(\''+day.id+'\')">Add</button>'+
+    '</div></div>':'';
+
+  var back=c?'go(\'client-detail\',{cid:\''+c.id+'\'})':'showTab(\'days\')';
+  var backLbl=c?'&#8592; '+esc(c.name):'&#8592; All days';
+
+  return '<div class="wrap">'+
+    '<button class="bback" onclick="'+back+'">'+backLbl+'</button>'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'+
+    '<div>'+(c?'<div style="font-size:11px;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300">'+fmtDate(day.date)+'</div></div>'+
+    statusBadge(dayStatus(day.date))+'</div>'+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Date</label><input type="date" class="inp" value="'+esc(day.date)+'" oninput="updateDay(\''+day.id+'\',{date:this.value});render()"/>'+
+    '</div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+    '<div style="font-size:13px;font-weight:500;color:var(--ink)">'+props.length+' propert'+(props.length===1?"y":"ies")+
+    (evs.length?' &middot; '+evs.length+' event'+(evs.length===1?"":"s"):'')+'</div>'+
+    '<button class="btn btn-b btn-sm" onclick="go(\'add-prop\')">+ Add listing</button></div>'+
+    (props.length===0&&evs.length===0?'<div style="background:var(--mist);border-radius:12px;padding:24px 20px;text-align:center;margin-bottom:10px">'+
+      '<div style="font-size:24px;margin-bottom:8px">&#127968;</div>'+
+      '<div style="font-size:14px;color:var(--slate)">No properties yet</div></div>':"")+
+    pCards+
+    (evs.length?'<div class="sec-sm" style="margin-top:12px;margin-bottom:8px">Schedule items</div>'+eCards:"")+
+    addEvPnl+
+    '<button class="btn-add" onclick="S.addEv=!S.addEv;render()">+ Add schedule item (lunch, travel...)</button>'+
+    (props.length>0?
+      '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
+      '<button class="btn btn-g" onclick="copyWA()">&#128228; Copy WhatsApp message</button>':'')+
+    '</div>';
+}
+function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note")});S.addEv=false;render();}
+
+// ── WHATSAPP ──────────────────────────────────────────────────────────────────
+function copyWA(){
+  var day=curD();if(!day)return;
+  var c=curC();
+  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
+  var div="---------------------";
+  var blocks=props.map(function(p,i){
+    var area=p.address?p.address.split(",").slice(-2).join(",").trim():getDomain(p.url);
+    var b=(i+1)+". *"+(p.time?p.time+" - ":"")+area+"*\n";
+    if(p.title)b+=p.title+"\n";
+    var meta=[p.price,p.rooms,p.sqm].filter(Boolean).join(" - ");
+    if(meta)b+="&#x1F4B0; "+meta+"\n";
+    if(p.url)b+="&#x1F517; "+p.url.replace(/^https?:\/\//,"")+"\n";
+    if(p.mapsUrl)b+="&#x1F4CD; "+p.mapsUrl.replace(/^https?:\/\//,"");
+    return b.trim();
+  }).join("\n"+div+"\n");
+  var cfg=S.cfg;
+  var header="&#x1F3E0; *Viewing Day - "+fmtDate(day.date)+"*"+(c?"\nHi *"+c.name+"*! Here are your properties for the day.":"");
+  var footer=(cfg.agent||cfg.agency)?"&#x1F4DE; "+(cfg.agent||cfg.agency)+(cfg.phone?" - "+cfg.phone:""):"";
+  var msg=header+"\n\n"+div+"\n"+blocks+"\n"+div+(footer?"\n"+footer:"");
+  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){alert("Copied! Paste into WhatsApp.");});}
+  else{var ta=document.createElement("textarea");ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("Copied!");}
+}
+
+// ── ADD PROPERTY ──────────────────────────────────────────────────────────────
+function pgAddProp(){
+  var day=curD();if(!day)return"";
+  var bf=[["Title","ap-title","Bright 2-bed apartment"],["Address","ap-addr","Calle del Mar 12"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Size","ap-sqm","78 m2"]];
+  var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Notes","ap-note","Bring ID"]];
+  return '<div class="wrap">'+
+    '<button class="bback" onclick="go(\'day-detail\')">&#8592; Cancel</button>'+
+    '<div class="sec">Add Property</div>'+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Listing URL *</label>'+
+    '<input class="inp" id="ap-url" placeholder="https://hemnet.se/bostad/..." onblur="fetchOg(this.value)"/>'+
+    '<div id="ap-og-status" style="margin-top:4px"></div>'+
+    '<div style="font-size:11px;color:#9e9080;margin-top:6px">Paste URL — preview loads automatically.</div></div>'+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Viewing time</label>'+
+    '<input type="time" class="inp" id="ap-time" style="width:160px"/></div>'+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details (optional)</div>'+
+    bf.map(function(f){return'<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';}).join("")+
+    '<div><label class="lbl">Google Maps link</label>'+
+    '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
+    '<div id="maps-prev"></div></div></div>'+
+    '<div style="background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:18px;overflow:hidden">'+
+    '<button style="width:100%;padding:13px 14px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="togInt()">'+
+    '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
+    '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
+    '<span style="background:#fef9ec;color:#92400e;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:600">Not shown to client</span></div>'+
+    '<span style="color:#c8bfb0" id="ai-arr">&#9660;</span></button>'+
+    '<div id="ai-body" style="display:none;padding:0 14px 14px;background:#fffbf0">'+
+    iff.map(function(f){return'<div style="margin-top:11px"><label class="lbl">'+f[0]+'</label><input class="inp" style="background:#fffbf0" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';}).join("")+
+    '</div></div>'+
+    '<button class="btn" onclick="saveProp(\''+day.id+'\')">Add to viewing day</button></div>';
+}
+var _intOpen=false;
+function togInt(){_intOpen=!_intOpen;var b=document.getElementById("ai-body"),a=document.getElementById("ai-arr");if(b)b.style.display=_intOpen?"block":"none";if(a)a.innerHTML=_intOpen?"&#9650;":"&#9660;";}
+function prevMaps(v){var el=document.getElementById("maps-prev");if(!el)return;el.innerHTML=v?'<a href="'+esc(v)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':"";}
+function fetchOg(url, did) {
+  if (!url) return;
+  // Show loading state on the URL field
+  var statusEl = document.getElementById("ap-og-status");
+  if (statusEl) { statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">&#8987; Fetching preview...</span>'; }
+
+  fetch("/.netlify/functions/og?url=" + encodeURIComponent(url))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (statusEl) {
+        if (data.image) {
+          statusEl.innerHTML = '<div style="margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid var(--fog)">' +
+            '<img src="' + data.image + '" style="width:100%;height:140px;object-fit:cover;display:block"/>' +
+            '<div style="padding:8px 10px;background:var(--mist)">' +
+            (data.title ? '<div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + data.title.slice(0,60) + '</div>' : '') +
+            (data.price ? '<div style="font-size:12px;color:var(--brass);font-weight:500">' + data.price + '</div>' : '') +
+            '</div></div>' +
+            '<div style="font-size:11px;color:#4ade80;margin-top:6px">&#10003; Preview loaded</div>';
+          // Auto-fill title if empty
+          var titleEl = document.getElementById("ap-title");
+          if (titleEl && !titleEl.value && data.title) titleEl.value = data.title.slice(0,80);
+          // Auto-fill price if empty
+          var priceEl = document.getElementById("ap-price");
+          if (priceEl && !priceEl.value && data.price) priceEl.value = data.price;
+          // Store image URL for later
+          window._ogImage = data.image;
+        } else {
+          statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">No preview image found — you can add one manually below.</span>';
+          window._ogImage = null;
+        }
+      }
+    })
+    .catch(function(){
+      if (statusEl) statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">Could not load preview.</span>';
+      window._ogImage = null;
+    });
+}
+
+function saveProp(did){
+  var url=gv("ap-url");if(!url){alert("Please enter a listing URL.");return;}
+  addProp(did,{url:url,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),commission:gv("ap-comm"),contact:gv("ap-cont"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note"),ogImage:window._ogImage||""});
+  window._ogImage=null;
+  _intOpen=false;go("day-detail");
+}
+
+// ── OUTPUT ────────────────────────────────────────────────────────────────────
+function pgOutput(){
+  var day=curD();if(!day)return"";
+  var c=curC();
+  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var evs=[].concat(day.events||[]);
+  var isAg=S.viewMode==="agent";
+  var cfg=S.cfg;
+  var all=props.map(function(p){return{k:"p",t:p.time||"",d:p};}).concat(evs.map(function(e){return{k:"e",t:e.time||"",d:e};})).sort(function(a,b){return(a.t||"zz").localeCompare(b.t||"zz");});
+  var pi=0;
+  var rows=all.map(function(item){
+    if(item.k==="e"){
+      var e=item.d,et=getET(e.type);
+      return'<div style="padding:13px 22px;border-bottom:1px solid var(--fog);display:flex;align-items:center;gap:12px;background:'+et.col+'">'+
+        '<span style="font-size:20px">'+et.icon+'</span><div>'+
+        (e.time?'<span style="font-weight:600;font-size:14px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
+        '<span style="font-size:14px;color:'+et.txt+';font-weight:500">'+esc(e.title||et.label)+'</span>'+
+        (e.note?'<div style="font-size:12px;color:#888;margin-top:1px">'+esc(e.note)+'</div>':'')+
+        '</div></div>';
+    }
+    var p=item.d,i=pi++;
+    var ib="";
+    if(isAg&&(p.commission||p.contact||p.location||p.note)){
+      ib='<div class="ibox"><div style="font-size:9px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">INTERNAL &#8212; NOT FOR CLIENT</div>'+
+        [["Commission",p.commission],["Contact",p.contact?(p.contact+(p.firm?" - "+p.firm:"")):""],["Access",p.location],["Note",p.note]]
+        .filter(function(r){return r[1];})
+        .map(function(r){return'<div style="display:flex;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:#78350f;font-weight:600;min-width:88px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e">'+esc(r[1])+'</span></div>';}).join("")+'</div>';
+    }
+    return'<div class="or">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+      '<div style="display:flex;align-items:center;gap:11px">'+
+      '<div style="width:34px;height:34px;border-radius:50%;background:var(--hdr);display:flex;align-items:center;justify-content:center;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-weight:500;font-size:15px;flex-shrink:0">'+(i+1)+'</div>'+
+      '<div>'+(p.time?'<div style="font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-.2px">'+esc(p.time)+'</div>':'')+
+      '<div style="font-size:11px;color:#9e9080">Viewing '+(i+1)+' of '+props.length+'</div></div></div>'+
+      (p.price?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:var(--brass);font-weight:400">'+esc(p.price)+'</div>':'')+
+      '</div><div style="padding-left:45px">'+
+      (p.ogImage?'<div style="height:160px;border-radius:8px;overflow:hidden;margin-bottom:12px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:var(--ink);margin-bottom:3px">'+esc(p.title)+'</div>':'')+
+      (p.address?'<div style="font-size:13px;color:var(--slate);margin-bottom:9px">&#128205; '+esc(p.address)+'</div>':'')+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'+
+      (p.rooms?'<span class="pill">'+esc(p.rooms)+'</span>':'')+
+      (p.sqm?'<span class="pill">'+esc(p.sqm)+'</span>':'')+
+      '</div><div style="display:flex;gap:14px;flex-wrap:wrap">'+
+      (p.url?'<a href="'+esc(p.url)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#128279; '+esc(getDomain(p.url))+'</a>':'')+
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="font-size:12px;color:#1a73e8;font-weight:500;text-decoration:none">&#128205; Open in Maps</a>':'')+
+      '</div>'+ib+'</div></div>';
+  }).join("");
+
+  var logo=cfg.logo?'<img src="'+cfg.logo+'" style="height:34px;max-width:100px;object-fit:contain;filter:brightness(0) invert(1);opacity:.85"/>':
+    '<svg width="22" height="28" viewBox="0 0 22 28"><defs><linearGradient id="og" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="11" cy="10" r="8" fill="none" stroke="url(#og)" stroke-width="2"/><circle cx="11" cy="10" r="3" fill="url(#og)"/><path d="M 4 16 Q 11 26 18 16" fill="none" stroke="url(#og)" stroke-width="2" stroke-linecap="round"/></svg>';
+  var ft=props.length>0&&props[0].time?props[0].time:"";
+  var lt=props.length>1&&props[props.length-1].time?props[props.length-1].time:"";
+
+  var hdr='<div class="oh">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px">'+
+    '<div style="display:flex;align-items:center;gap:10px">'+logo+
+    '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#fff;font-weight:300">'+esc(cfg.agency||"Your Agency")+'</div>'+
+    (cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(cfg.agent)+'</div>':'')+
+    '</div></div><div style="text-align:right">'+
+    (cfg.phone?'<div style="font-size:12px;color:rgba(255,255,255,.45)">'+esc(cfg.phone)+'</div>':'')+
+    (cfg.email?'<div style="font-size:12px;color:rgba(255,255,255,.45)">'+esc(cfg.email)+'</div>':'')+
+    '</div></div>'+
+    '<div style="border-top:1px solid rgba(255,255,255,.1);padding-top:22px">'+
+    (isAg?'<div style="font-size:9px;font-weight:600;color:#b08d57;text-transform:uppercase;letter-spacing:.15em;margin-bottom:8px">AGENT COPY</div>':'')+
+    '<div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.15em;margin-bottom:6px">Viewing Schedule</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#fff;font-weight:300;margin-bottom:4px">'+fmtDate(day.date)+'</div>'+
+    (c?'<div style="font-size:13px;color:rgba(255,255,255,.5)">Prepared for <span style="color:#fff;font-weight:400">'+esc(c.name)+'</span></div>':'')+
+    '</div>'+
+    '<div style="display:flex;gap:24px;margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,.07)">'+
+    '<div><div style="font-size:20px;font-weight:600;color:#b08d57;font-family:\'Cormorant Garamond\',serif">'+props.length+'</div>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em">Propert'+(props.length===1?"y":"ies")+'</div></div>'+
+    (ft?'<div><div style="font-size:20px;font-weight:600;color:#b08d57;font-family:\'Cormorant Garamond\',serif">'+esc(ft)+'</div>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em">First viewing</div></div>':'')+
+    (lt&&props.length>1?'<div><div style="font-size:20px;font-weight:600;color:#b08d57;font-family:\'Cormorant Garamond\',serif">'+esc(lt)+'</div>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.07em">Last viewing</div></div>':'')+
+    '</div></div>';
+
+  return'<div class="wrap">'+
+    '<button class="bback" onclick="go(\'day-detail\')">&#8592; Edit day</button>'+
+    '<div class="tog">'+
+    '<button class="tb'+(S.viewMode==="client"?" on":"")+'" onclick="S.viewMode=\'client\';render()">&#128196; Client view</button>'+
+    '<button class="tb'+(S.viewMode==="agent"?" on":"")+'" onclick="S.viewMode=\'agent\';render()">&#128274; Agent view</button>'+
+    '</div>'+
+    '<div class="ban '+(isAg?"ban-am":"ban-gr")+'">'+
+    (isAg?"&#128274; Commission, contacts &amp; access shown. Keep for yourself.":"&#9989; No internal info. Safe to share with client.")+
+    '</div>'+
+    '<div style="background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--fog);margin-bottom:18px;box-shadow:0 4px 24px rgba(0,0,0,.06)">'+
+    hdr+rows+
+    '<div class="of"><div>'+
+    '<div style="font-size:12px;font-weight:600;color:var(--ink)">'+esc(cfg.agency||"Your Agency")+'</div>'+
+    (cfg.agent?'<div style="font-size:11px;color:var(--slate)">'+esc(cfg.agent)+'</div>':'')+
+    '</div><div style="text-align:right">'+
+    (cfg.phone?'<div style="font-size:11px;color:var(--slate)">'+esc(cfg.phone)+'</div>':'')+
+    (cfg.email?'<div style="font-size:11px;color:var(--slate)">'+esc(cfg.email)+'</div>':'')+
+    '</div></div></div>'+
+    '<button class="btn" onclick="window.print()">&#128424; Print / Save as PDF</button>'+
+    '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
+    '</div>';
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function pgSettings(){
+  var cfg=S.cfg;
+  return'<div class="wrap"><div class="sec">Settings</div><div class="card">'+
+    '<div style="margin-bottom:18px"><label class="lbl">Logo</label>'+
+    '<div style="display:flex;gap:14px;align-items:center">'+
+    '<div style="width:64px;height:64px;border-radius:10px;border:2px dashed var(--fog);display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);flex-shrink:0">'+
+    (cfg.logo?'<img src="'+cfg.logo+'" style="width:100%;height:100%;object-fit:contain"/>':'<span style="font-size:24px">&#127968;</span>')+
+    '</div><div>'+
+    '<label style="display:inline-block;padding:8px 14px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer">'+
+    'Upload logo<input type="file" accept="image/*" style="display:none" onchange="upLogo(this)"/></label>'+
+    (cfg.logo?'<button onclick="S.cfg.logo=\'\';persist();render()" style="display:block;margin-top:7px;background:none;border:none;color:#f87171;font-size:12px;cursor:pointer;padding:0">Remove</button>':'')+
+    '<div style="font-size:11px;color:#9e9080;margin-top:5px">PNG recommended</div>'+
+    '</div></div></div>'+
+    [["Agency name","agency","Costa Home Realty"],["Your name","agent","Maria Garcia"],["Phone","phone","+34 600 000 000"],["Email","email","maria@agency.com"]].map(function(f){
+      return'<div style="margin-bottom:14px"><label class="lbl">'+f[0]+'</label>'+
+        '<input class="inp" value="'+esc(cfg[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="S.cfg[\''+f[1]+'\']=this.value;persist()"/></div>';
+    }).join("")+
+    '<div style="font-size:12px;color:#9e9080;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
+    '</div></div>';
+}
+function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
+
+// ── SPLASH ────────────────────────────────────────────────────────────────────
+function startApp(){
+  var s=document.getElementById("splash");
+  s.style.opacity="0";
+  setTimeout(function(){
+    s.style.display="none";
+    document.getElementById("shell").style.display="flex";
+    showTab("home");
+  },700);
+}
+(function(){
+  setTimeout(function(){var m=document.getElementById("sm");if(m){m.style.opacity="1";m.style.transform="translateY(0)";}},150);
+  setTimeout(function(){var n=document.getElementById("sn");if(n){n.style.opacity="1";n.style.transform="translateY(0)";}},550);
+  setTimeout(function(){var t=document.getElementById("st");if(t){t.style.opacity="1";t.style.transform="translateY(0)";}},1050);
+  setTimeout(function(){var p=document.getElementById("sp");if(p)p.style.width="100%";var sk=document.getElementById("sk");if(sk)sk.style.opacity="1";},1300);
+  setTimeout(startApp,3800);
+})();
+</script>
+</body>
+</html>
