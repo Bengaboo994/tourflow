@@ -158,6 +158,130 @@ var S={
   days:d0.days||DEMO_D,
   cfg:d0.cfg||{agency:"",agent:"",phone:"",email:"",logo:""}
 };
+
+function reqFormHtml(r){
+  r=r||{};
+  function sel(id,opts,val,label){
+    var op=opts.map(function(o){return'<option value="'+o.v+'"'+(val===o.v?' selected':'')+'>'+o.l+'</option>';}).join('');
+    return'<div style="margin-bottom:11px"><label class="lbl">'+label+'</label><select class="inp" id="'+id+'" style="appearance:none;-webkit-appearance:none;background:var(--card) url(\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>\') no-repeat right 12px center;padding-right:32px">'+op+'</select></div>';
+  }
+  function pri(id,val,label){
+    var levels=[{v:'',l:'Not specified'},{v:'must',l:'✓ Must Have'},{v:'important',l:'◎ Important'},{v:'nice',l:'◇ Nice to Have'}];
+    return sel(id,levels,val,label);
+  }
+  var budgets=[{v:'',l:'Not specified'},{v:'u100',l:'Under €100,000'},{v:'100-200',l:'€100k – €200k'},{v:'200-300',l:'€200k – €300k'},{v:'300-500',l:'€300k – €500k'},{v:'500-800',l:'€500k – €800k'},{v:'800k+',l:'€800,000+'}];
+  var roomOpts=[{v:'',l:'Not specified'},{v:'studio',l:'Studio'},{v:'1',l:'1 Bedroom'},{v:'2',l:'2 Bedrooms'},{v:'3',l:'3 Bedrooms'},{v:'4',l:'4+ Bedrooms'}];
+  var types=[{v:'',l:'Not specified'},{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'house',l:'Townhouse / Semi-detached'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'},{v:'any',l:'Any type'}];
+  var views=[{v:'',l:'Not specified'},{v:'sea',l:'Sea view'},{v:'golf',l:'Golf view'},{v:'garden',l:'Garden / Private'},{v:'no',l:'No preference'}];
+  var purpose=[{v:'',l:'Not specified'},{v:'perm',l:'Permanent residence'},{v:'holiday',l:'Holiday home'},{v:'invest',l:'Investment / Rental'},{v:'mixed',l:'Mixed use'}];
+  function chk(key,label,val){
+    return'<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--fog)">'+
+      '<span style="font-size:13px;color:var(--ink)">'+label+'</span>'+
+      '<select class="inp" id="req-'+key+'" style="width:auto;max-width:148px;font-size:11px;appearance:none;-webkit-appearance:none;padding:5px 28px 5px 10px;background:var(--card) url(\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>\') no-repeat right 8px center">'+
+      [{v:'',l:'—'},{v:'must',l:'✓ Must Have'},{v:'important',l:'◎ Important'},{v:'nice',l:'◇ Nice to Have'}].map(function(o){return'<option value="'+o.v+'"'+((val||'')==o.v?' selected':'')+'>'+o.l+'</option>';}).join('')+
+      '</select></div>';
+  }
+  var req=r.req||{};
+  return'<div style="margin-bottom:11px">'+sel('req-budget',budgets,req.budget||'','Budget range')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-minrooms',roomOpts,req.minrooms||'','Minimum bedrooms')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-type',types,req.type||'','Property type')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-view',views,req.view||'','View preference')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-purpose',purpose,req.purpose||'','Purpose')+'</div>'+
+    '<div style="margin-top:6px;margin-bottom:6px;font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em">Features & priorities</div>'+
+    chk('pool','Swimming pool',req.pool)+
+    chk('garage','Garage / Parking',req.garage)+
+    chk('garden','Garden / Terrace',req.garden)+
+    chk('beach','Walking distance to beach',req.beach)+
+    chk('restaurants','Walking distance to restaurants',req.restaurants)+
+    chk('golf','Near golf course',req.golf)+
+    chk('newbuild','New build only',req.newbuild)+
+    chk('community','Gated community',req.community);
+}
+function readReq(){
+  var keys=['pool','garage','garden','beach','restaurants','golf','newbuild','community'];
+  var req={};
+  ['budget','minrooms','type','view','purpose'].forEach(function(k){req[k]=gv('req-'+k)||'';});
+  keys.forEach(function(k){req[k]=gv('req-'+k)||'';});
+  return req;
+}
+
+function matchScore(c,p){
+  if(!c||!c.req)return null;
+  var req=c.req;
+  var results=[];
+  var rawPrice=parseFloat((p.price||'').replace(/[^0-9.]/g,''))||0;
+  var budgetMap={'u100':100,'100-200':200,'200-300':300,'300-500':500,'500-800':800,'800k+':9999};
+  var roomMap={'studio':0,'1':1,'2':2,'3':3,'4':4};
+  function score(key,label,pass){
+    if(!req[key])return;
+    results.push({label:label,pass:pass,level:req[key]});
+  }
+  // Budget
+  if(req.budget&&rawPrice>0){
+    var bMax=budgetMap[req.budget]||9999;
+    score('budget','Budget',rawPrice/1000<=bMax);
+  }
+  // Bedrooms
+  if(req.minrooms&&p.rooms){
+    var reqR=roomMap[req.minrooms]||0;
+    var propR=parseInt(p.rooms)||0;
+    score('minrooms','Bedrooms',propR>=reqR);
+  }
+  // Property type
+  if(req.type&&req.type!=='any'&&p.title){
+    var tmap={apt:'apartment',villa:'villa',house:'townhouse',bungalow:'bungalow',penthouse:'penthouse'};
+    var keyword=(tmap[req.type]||req.type).toLowerCase();
+    score('type','Property type',(p.title+' '+(p.address||'')).toLowerCase().indexOf(keyword)>=0);
+  }
+  // Area notes / features — checked against agentRec + areaNote + title
+  var searchText=(p.agentRec||'')+' '+(p.areaNote||'')+' '+(p.title||'')+' '+(p.address||'');
+  var sl=searchText.toLowerCase();
+  var feats={
+    pool:['pool','piscina'],beach:['beach','sea','costa','mar','playa'],
+    restaurants:['restaurant','dining','gastronomy'],golf:['golf'],
+    garden:['garden','terrace','outdoor','terraza'],garage:['garage','parking'],
+    newbuild:['new build','newbuild','new development','obra nueva'],
+    community:['gated','community','urbanizaci']
+  };
+  Object.keys(feats).forEach(function(k){
+    if(!req[k])return;
+    var found=feats[k].some(function(w){return sl.indexOf(w)>=0;});
+    var labels={pool:'Pool',beach:'Near beach',restaurants:'Near restaurants',golf:'Near golf',garden:'Garden/Terrace',garage:'Parking',newbuild:'New build',community:'Gated community'};
+    score(k,labels[k],found);
+  });
+
+  if(!results.length)return null;
+  var weights={must:3,important:2,nice:1};
+  var total=0,got=0;
+  results.forEach(function(r){var w=weights[r.level]||1;total+=w;if(r.pass)got+=w;});
+  var pct=total>0?Math.round(got/total*100):0;
+  return{score:pct,results:results,got:got,total:total};
+}
+function scoreBadge(ms){
+  if(!ms)return'';
+  var s=ms.score;
+  var col=s>=90?'#059669':s>=75?'#0284c7':s>=60?'#d97706':'#dc2626';
+  var bg=s>=90?'#ecfdf5':s>=75?'#eff6ff':s>=60?'#fffbeb':'#fef2f2';
+  var label=s>=90?'Excellent Match':s>=75?'Strong Match':s>=60?'Possible Match':'Weak Match';
+  return'<div style="display:inline-flex;align-items:center;gap:6px;background:'+bg+';border:1px solid '+col+'33;border-radius:8px;padding:5px 11px">'+
+    '<div style="font-size:16px;font-weight:700;color:'+col+'">'+s+'</div>'+
+    '<div><div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.08em">'+label+'</div>'+
+    '<div style="font-size:9px;color:#9e9080">Match Score</div></div>'+
+    '</div>';
+}
+function scoreBreakdown(ms){
+  if(!ms||!ms.results.length)return'';
+  var passed=ms.results.filter(function(r){return r.pass;});
+  var failed=ms.results.filter(function(r){return!r.pass;});
+  var lvlIcon={must:'✓',important:'◎',nice:'◇'};
+  var rows='';
+  if(passed.length)rows+=passed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#059669;font-size:14px">&#10003;</span><span style="font-size:12px;color:#2a1f14">'+r.label+'</span><span style="font-size:10px;color:#9e9080">('+r.level+')</span></div>';}).join('');
+  if(failed.length)rows+=failed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#dc2626;font-size:14px">&#10005;</span><span style="font-size:12px;color:#9e9080">'+r.label+'</span><span style="font-size:10px;color:#9e9080">('+r.level+')</span></div>';}).join('');
+  return'<div style="margin-top:10px;padding:12px;background:#f9f7f4;border-radius:8px">'+
+    '<div style="font-size:9px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Requirements breakdown</div>'+
+    rows+'</div>';
+}
+
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
@@ -428,15 +552,17 @@ function pgAddClient(){
     '<div style="margin-bottom:13px"><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="erik@email.com"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
     '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Swedish"/></div>'+
-    '<div><label class="lbl">Budget</label><input class="inp" id="ac-bud" placeholder="200-400k EUR"/></div>'+
+    '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Brief notes..."/></div>'+
     '</div>'+
-    '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Preferences, requirements..."/></div>'+
+    '</div>'+
+    '<div class="sec-sm" style="margin-top:4px;margin-bottom:8px">Requirements profile</div>'+
+    '<div class="card">'+reqFormHtml()+
     '</div>'+
     '<button class="btn" onclick="saveAddClient()">Save client</button></div>';
 }
 function saveAddClient(){
   var n=gv("ac-name");if(!n){alert("Please enter a name.");return;}
-  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),budget:gv("ac-bud"),notes:gv("ac-notes")});
+  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),notes:gv("ac-notes"),req:readReq()});
   go("client-detail",{cid:id});
 }
 
@@ -452,15 +578,16 @@ function pgEditClient(){
     '<div style="margin-bottom:13px"><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'" placeholder="erik@email.com"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
     '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" value="'+esc(c.nationality||'')+'" placeholder="Swedish"/></div>'+
-    '<div><label class="lbl">Budget</label><input class="inp" id="ec-bud" value="'+esc(c.budget||'')+'" placeholder="200-400k EUR"/></div>'+
-    '</div>'+
-    '<div><label class="lbl">Notes</label><input class="inp" id="ec-notes" value="'+esc(c.notes||'')+'" placeholder="Preferences, requirements..."/></div>'+
+    '<div><label class="lbl">Notes</label><input class="inp" id="ec-notes" value="'+esc(c.notes||'')+'" placeholder="Brief notes..."/></div>'+
+    '</div></div>'+
+    '<div class="sec-sm" style="margin-top:4px;margin-bottom:8px">Requirements profile</div>'+
+    '<div class="card">'+reqFormHtml(c)+
     '</div>'+
     '<button class="btn" onclick="saveEditClient()">Save changes</button></div>';
 }
 function saveEditClient(){
   var n=gv("ec-name");if(!n){alert("Please enter a name.");return;}
-  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),budget:gv("ec-bud"),notes:gv("ec-notes")});
+  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),notes:gv("ec-notes"),req:readReq()});
   go("client-detail");
 }
 
@@ -510,6 +637,27 @@ function pgDayDetail(){
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
         '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
         (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
+        '</div>'+
+        '<div style="margin-bottom:9px"><label class="lbl">Agent recommendation</label>'+
+        '<textarea class="inp ins" rows="2" placeholder="Why I selected this property..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
+        '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
+        '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
+        '<div style="font-size:11px;color:#9e9080">Highlight this property for the client</div></div>'+
+        '<button onclick="var d=curD();d.properties.forEach(function(x){x.topPick=false;});var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp)pp.topPick=!pp.topPick;persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#b08d57':'#e0d8c8')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">'+
+        '<div><label class="lbl">Travel time</label>'+
+        '<input class="inp ins" value="'+esc(p.travelTime||'')+'" placeholder="12 min drive" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{travelTime:this.value})"/></div>'+
+        '<div><label class="lbl">Area highlight</label>'+
+        '<input class="inp ins" value="'+esc(p.areaNote||'')+'" placeholder="Beachfront area" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{areaNote:this.value})"/></div>'+
+        '</div>'+
+        '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
+        (p.ogImage
+          ?'<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:4px;border:1px solid var(--fog)"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit">Remove</button></div>'
+          :'<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+          '<span style="font-size:12px;color:var(--slate)">Upload property photo</span>'+
+          '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
         '</div>'+
         '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
         '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
@@ -587,6 +735,16 @@ function pgDayDetail(){
     addEvPnl+
     '<button class="btn-add" onclick="S.addEv=!S.addEv;render()">+ Add schedule item (lunch, travel...)</button>'+
     (props.length>0?
+      '<div style="height:1px;background:var(--fog);margin:6px 0 14px"></div>'+
+      '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
+      '<div style="margin-bottom:11px"><label class="lbl">Personal welcome message</label>'+
+      '<textarea class="inp" rows="3" placeholder="Dear [Name], I am excited to show you these carefully selected properties..." style="resize:none;line-height:1.5" oninput="curD().welcomeMsg=this.value;persist()">'+(curD().welcomeMsg||'')+'</textarea></div>'+
+      '<div style="margin-bottom:11px"><label class="lbl">Client requirements <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
+      '<textarea class="inp" rows="4" placeholder="2-3 Bedrooms&#10;Walking distance to restaurants&#10;Outdoor space&#10;Budget €350,000" style="resize:none;line-height:1.6" oninput="curD().requirements=this.value;persist()">'+(curD().requirements||'')+'</textarea></div>'+
+      '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
+      '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
+      '<div style="margin-bottom:11px"><label class="lbl">Agency website <span style="color:#9e9080;font-weight:300;font-size:10px">optional</span></label>'+
+      '<input class="inp" placeholder="https://www.youragency.com" value="'+(curD().agencyWeb||'')+'" oninput="curD().agencyWeb=this.value;persist()"/></div>'+
       '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
       '<button class="btn btn-g" onclick="copyWA()">&#128228; Copy WhatsApp message</button>':'')+
     '</div>';
@@ -639,6 +797,17 @@ function pgAddProp(){
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
     '<div id="maps-prev"></div></div>'+
+    '<div style="height:1px;background:var(--fog);margin:16px 0 14px"></div>'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Agent recommendation</label>'+
+    '<textarea class="inp" id="ap-rec" rows="3" placeholder="Why I selected this property for you..." style="resize:none;line-height:1.5"></textarea></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px">'+
+    '<div><label class="lbl">Travel time from prev.</label>'+
+    '<input class="inp" id="ap-travel" placeholder="e.g. 12 min drive"/></div>'+
+    '<div><label class="lbl">Area highlight</label>'+
+    '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area"/></div>'+
+    '</div>'+
+    '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
     '<div><label class="lbl">Hero image</label>'+
     '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
@@ -724,7 +893,7 @@ function saveProp(did){
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),travelTime:gv("ap-travel"),areaNote:gv("ap-area"),commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
   _intOpen=false;go("day-detail");
 }
 
@@ -738,6 +907,7 @@ function pgOutput(){
   var cfg=S.cfg;
   var all=props.map(function(p){return{k:"p",t:p.time||"",d:p};}).concat(evs.map(function(e){return{k:"e",t:e.time||"",d:e};})).sort(function(a,b){return(a.t||"zz").localeCompare(b.t||"zz");});
   var pi=0;
+  var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
 
   var rows=all.map(function(item){
     if(item.k==="e"){
@@ -755,13 +925,14 @@ function pgOutput(){
     var imgHtml=p.ogImage
       ?'<div style="height:280px;overflow:hidden;border-radius:10px;margin-bottom:18px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>'
       :'<div style="height:120px;background:linear-gradient(160deg,#1a2535,#0a0f14);border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:rgba(176,141,87,.3)">'+(i+1)+'</div></div>';
+    var ms=matchScore(dayClient,p);
     var ibox="";
     if(isAg&&(p.commission||p.contact||p.location||p.note)){
       ibox='<div style="margin-top:16px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:13px 16px">'+
         '<div style="font-size:9px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Internal — not for client</div>'+
-        [["Commission",p.commission],["Contact",p.contact?(p.contact+(p.firm?" · "+p.firm:"")):""],["Phone",p.contactPhone||""],["Access",p.location],["Note",p.note]]
+        [["Commission",p.commission],["Contact",p.contact?(p.contact+(p.firm?" · "+p.firm:"")):""],["Phone",p.contactPhone?"<a href='tel:"+p.contactPhone+"' style='color:#92400e;text-decoration:none;font-weight:700'>"+p.contactPhone+"</a>":"",1],["Access",p.location],["Note",p.note]]
         .filter(function(r){return r[1];})
-        .map(function(r){return'<div style="display:flex;gap:10px;margin-bottom:5px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:88px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.5">'+esc(r[1])+'</span></div>';}).join("")+'</div>';
+        .map(function(r){return'<div style="display:flex;gap:10px;margin-bottom:5px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:88px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.5">'+(r[2]?r[1]:esc(r[1]))+'</span></div>';}).join("")+'</div>';
     }
     // Extract area (last part of address)
     var area="";var street="";
@@ -775,12 +946,33 @@ function pgOutput(){
       }
     }
 
-    return '<div style="padding:32px 28px;border-bottom:1px solid #ede8e0">'+
+    // Area highlights lines
+    var areaLines=p.areaNote?p.areaNote.split('\n').filter(function(x){return x.trim();}).map(function(x){return x.trim();}).slice(0,5):[];
+
+    // Top pick badge (client only)
+    var topPickBadge=(!isAg&&p.topPick)?
+      '<div style="background:linear-gradient(90deg,#b08d57,#d4a84b);padding:12px 20px;display:flex;align-items:center;gap:10px;margin-bottom:0">'+
+      '<span style="font-size:18px">&#11088;</span>'+
+      '<div><div style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.12em">'+esc(cfg.agent||'Agent')+' Top Pick</div>'+
+      '<div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:1px">Best overall match based on your requirements</div></div>'+
+      '</div>':'';
+
+    // Travel time divider (client only, not first property)
+    var travelDiv=(!isAg&&p.travelTime&&i>0)?
+      '<div style="display:flex;align-items:center;gap:12px;padding:14px 28px;background:#f5f2ec;border-bottom:1px solid #ede8e0">'+
+      '<div style="width:28px;height:28px;border-radius:50%;background:#fff;border:1px solid #e0d8c8;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#128664;</div>'+
+      '<div style="font-size:12px;font-weight:600;color:#6b5f4e">'+esc(p.travelTime)+' to next property</div>'+
+      '</div>':'';
+
+    return travelDiv+
+      '<div style="border-bottom:1px solid #ede8e0">'+
+      topPickBadge+
+      '<div style="padding:32px 28px 28px">'+
       imgHtml+
-      // Property number + time row
+      // Number + time + price
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
       '<div style="display:flex;align-items:center;gap:10px">'+
-      '<div style="width:32px;height:32px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-weight:500;font-size:14px;flex-shrink:0">'+(i+1)+'</div>'+
+      '<div style="width:30px;height:30px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-weight:500;font-size:13px;flex-shrink:0">'+(i+1)+'</div>'+
       (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:400;color:#0e1520">'+esc(p.time)+'</div>':'')+
       '</div>'+
       (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#b08d57;font-weight:400">'+esc(fmtPrice)+'</div>':'')+
@@ -789,17 +981,41 @@ function pgOutput(){
       (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#0e1520;font-weight:400;margin-bottom:8px;line-height:1.25">'+esc(p.title)+'</div>':'')+
       // Area (primary) + street (secondary)
       (area?'<div style="font-size:14px;font-weight:600;color:#4a3e30;margin-bottom:2px">'+esc(area)+'</div>':'')+
-      (street?'<div style="font-size:12px;color:#9e9080;margin-bottom:14px">'+esc(street)+'</div>':'<div style="margin-bottom:14px"></div>')+
+      (street?'<div style="font-size:12px;color:#9e9080;margin-bottom:16px">'+esc(street)+'</div>':'<div style="margin-bottom:16px"></div>')+
       // Specs pills
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">'+
       (p.rooms?'<span style="background:#f5f0e8;color:#4a3e30;font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:1px solid #e8e0d4">'+esc(p.rooms)+'</span>':'')+
       (p.sqm?'<span style="background:#f5f0e8;color:#4a3e30;font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:1px solid #e8e0d4">'+esc(p.sqm)+'</span>':'')+
       '</div>'+
       // Buttons
-      '<div style="display:flex;gap:16px;flex-wrap:wrap">'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">'+
       (p.url?'<a href="'+esc(p.url)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#b08d57;text-decoration:none;border:1px solid rgba(176,141,87,.35);border-radius:6px;padding:7px 14px">&#128279; View Listing</a>':'')+
       (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1a73e8;text-decoration:none;border:1px solid rgba(26,115,232,.25);border-radius:6px;padding:7px 14px">&#128205; Directions</a>':'')+
-      '</div>'+ibox+'</div>';
+      '</div>'+
+      // Match score (agent view only in viewing list)
+      (isAg&&ms?'<div style="margin-top:14px">'+scoreBadge(ms)+scoreBreakdown(ms)+'</div>':'')+
+      // Area highlights card (client only)
+      (!isAg&&areaLines.length?
+        '<div style="background:#f5f2ec;border-radius:10px;padding:16px 18px;margin-bottom:18px">'+
+        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px">&#128205; '+esc(area||'Area highlights')+'</div>'+
+        areaLines.map(function(line){
+          var icons=['&#127958;','&#127869;','&#9971;','&#127965;','&#127757;','&#127754;','&#129362;','&#127795;'];
+          var m=line.match(/^([^\s]+)\s+(.*)/);
+          var icon=m&&m[1]?m[1]:'&#8226;';
+          var txt=m&&m[2]?m[2]:line;
+          return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:15px;width:22px;text-align:center">'+icon+'</span><span style="font-size:12px;color:#4a3e30;font-weight:500">'+esc(txt)+'</span></div>';
+        }).join('')+
+        '</div>':'<div></div>')+
+      // Why I chose this property (client only)
+      (!isAg&&p.agentRec?
+        '<div style="background:linear-gradient(135deg,#0e1520 0%,#162030 100%);border-radius:10px;padding:22px 22px 18px">'+
+        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:12px">Why I chose this property</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.7;font-style:italic">&ldquo;'+esc(p.agentRec)+'&rdquo;</div>'+
+        '<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">'+
+        (cfg.photo?'<div style="width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid rgba(176,141,87,.3)"><img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
+        '<span style="font-size:11px;color:rgba(176,141,87,.8);font-weight:500">&mdash; '+esc(cfg.agent||cfg.agency||'Your Agent')+'</span>'+
+        '</div></div>':'')+
+      ibox+'</div></div>';
   }).join("");
 
   var logoHtml=cfg.logo
@@ -890,7 +1106,52 @@ function pgOutput(){
     (isAg?"&#128274; Internal info visible. Keep for yourself.":"&#9989; Clean client version. Safe to share.")+
     '</div>'+
     '<div style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--fog);margin-bottom:18px;box-shadow:0 8px 32px rgba(0,0,0,.08)">'+
-    coverHdr+'<div style="background:#fff">'+rows+'</div>'+footerHtml+
+    coverHdr+
+    (!isAg&&day.welcomeMsg?'<div style="background:#faf8f4;padding:28px;border-bottom:1px solid #ede8e0">'+
+    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">A personal note</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#2a1f14;line-height:1.7;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
+    '<div style="margin-top:14px;font-size:12px;color:#9e9080">'+esc(cfg.agent||cfg.agency||'')+'</div>'+
+    '</div>':'')+
+    (!isAg&&day.requirements?(function(){
+      var reqs=day.requirements.split('\n').map(function(x){return x.trim();}).filter(function(x){return x;});
+      if(!reqs.length)return'';
+      return'<div style="background:#fff;padding:28px;border-bottom:1px solid #ede8e0">'+
+        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px">Your Requirements</div>'+
+        reqs.map(function(r){return'<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">'+
+          '<span style="color:#b08d57;font-size:15px;margin-top:1px">&#10003;</span>'+
+          '<span style="font-size:14px;color:#2a1f14;line-height:1.4">'+esc(r)+'</span>'+
+          '</div>';}).join('')+
+        '</div>';
+    })():'')+ 
+    '<div style="background:#fff">'+rows+'</div>'+
+    (!isAg&&day.nextSteps?(function(){
+      var steps=day.nextSteps.split('\n').map(function(x){return x.trim();}).filter(function(x){return x;});
+      if(!steps.length)return'';
+      return'<div style="background:#faf8f4;padding:28px;border-top:1px solid #ede8e0">'+
+        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px">After Today</div>'+
+        steps.map(function(s,si){return'<div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:12px">'+
+          '<div style="width:24px;height:24px;border-radius:50%;background:#0e1520;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">'+(si+1)+'</div>'+
+          '<span style="font-size:13px;color:#2a1f14;line-height:1.5;padding-top:4px">'+esc(s)+'</span>'+
+          '</div>';}).join('')+
+        '</div>';
+    })():'')+
+    (function(){
+      var wa=cfg.phone?'https://wa.me/'+cfg.phone.replace(/[^0-9]/g,''):'';
+      return'<div style="background:#0e1824;padding:24px 28px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">'+
+        '<div style="display:flex;align-items:center;gap:12px">'+
+        (cfg.photo?'<div style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(176,141,87,.4)"><img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
+        '<div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#fff;font-weight:300">'+esc(cfg.agency||'Your Agency')+'</div>'+
+        (cfg.agent?'<div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px">'+esc(cfg.agent)+'</div>':'')+
+        '</div></div>'+
+        '<div style="display:flex;flex-direction:column;gap:8px;text-align:right">'+
+        (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:#25d366;text-decoration:none;font-weight:500">&#128241; WhatsApp</a>':'')+
+        (cfg.email?'<a href="mailto:'+esc(cfg.email)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;font-weight:500">&#9993; '+esc(cfg.email)+'</a>':'')+
+        (day.agencyWeb?'<a href="'+esc(day.agencyWeb)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(176,141,87,.7);text-decoration:none;font-weight:500">&#127758; '+esc(day.agencyWeb.replace(/https?:\/\//,''))+'</a>':
+         (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;font-weight:500">&#128222; '+esc(cfg.phone)+'</a>':''))+
+        '</div></div></div>';
+    })()+
     '</div>'+
     '<button class="btn" onclick="window.print()" style="margin-bottom:10px">&#128424; Save as PDF</button>'+
     '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
