@@ -526,7 +526,7 @@ function pgDayDetail(){
       '<div style="padding:12px 14px;display:flex;gap:10px;align-items:flex-start">'+
       '<div style="flex:1;min-width:0">'+
       (p.time?'<div style="font-weight:600;font-size:14px;color:var(--ink);margin-bottom:2px">'+esc(p.time)+'</div>':'')+
-      (p.ogImage?'<div style="height:90px;background:var(--mist);border-radius:8px;overflow:hidden;margin-bottom:8px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
+      (p.ogImage?'<div style="height:160px;background:var(--mist);border-radius:8px;overflow:hidden;margin-bottom:8px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
       '<div style="font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.title||p.address||getDomain(p.url))+'</div>'+
       '<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+
       (p.price?'<span class="pill pill-br">'+esc(p.price)+'</span>':'')+
@@ -663,8 +663,11 @@ function uploadPropImg(input){
   var reader=new FileReader();
   reader.onload=function(e){
     window._ogImage=e.target.result;
+    // Store in hidden input as backup
+    var hidden=document.getElementById("ap-img-data");
+    if(hidden)hidden.value=e.target.result;
     var el=document.getElementById("prop-img-prev");
-    if(el)el.innerHTML='<div style="position:relative;height:100px;border-radius:8px;overflow:hidden;margin-top:6px"><img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/></div><div style="font-size:11px;color:#166534;margin-top:4px">&#10003; Image ready</div>';
+    if(el)el.innerHTML='<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:8px;border:1px solid var(--fog)"><img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/><div style="position:absolute;bottom:6px;left:8px;background:rgba(22,101,52,.9);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px">&#10003; Image ready</div></div>';
   };
   reader.readAsDataURL(file);
 }
@@ -718,9 +721,10 @@ function fetchOg(url, did) {
 
 function saveProp(did){
   var url=gv("ap-url");if(!url){alert("Please enter a listing URL.");return;}
-  var imgUrl=window._ogImage||"";window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note"),ogImage:window._ogImage||""});
+  var hiddenImg=document.getElementById("ap-img-data");
+  var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
   _intOpen=false;go("day-detail");
 }
 
@@ -749,7 +753,7 @@ function pgOutput(){
     var rawPrice=p.price||"";
     var fmtPrice=rawPrice.replace(/(\d[\d\s,.]*)[\s]*EUR/i,"€$1").replace(/(\d[\d\s,.]*)[\s]*SEK/i,"$1 kr").trim()||rawPrice;
     var imgHtml=p.ogImage
-      ?'<div style="height:200px;overflow:hidden;border-radius:10px;margin-bottom:18px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>'
+      ?'<div style="height:280px;overflow:hidden;border-radius:10px;margin-bottom:18px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>'
       :'<div style="height:120px;background:linear-gradient(160deg,#1a2535,#0a0f14);border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:rgba(176,141,87,.3)">'+(i+1)+'</div></div>';
     var ibox="";
     if(isAg&&(p.commission||p.contact||p.location||p.note)){
