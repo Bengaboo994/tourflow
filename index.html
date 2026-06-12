@@ -763,23 +763,42 @@ function pgOutput(){
         .filter(function(r){return r[1];})
         .map(function(r){return'<div style="display:flex;gap:10px;margin-bottom:5px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:88px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.5">'+esc(r[1])+'</span></div>';}).join("")+'</div>';
     }
-    return '<div style="padding:28px;border-bottom:1px solid #e8e4dd">'+
+    // Extract area (last part of address)
+    var area="";var street="";
+    if(p.address){
+      var addrParts=p.address.split(",");
+      if(addrParts.length>1){
+        area=addrParts[addrParts.length-1].trim();
+        street=addrParts.slice(0,addrParts.length-1).join(",").trim();
+      } else {
+        area=p.address.trim();
+      }
+    }
+
+    return '<div style="padding:32px 28px;border-bottom:1px solid #ede8e0">'+
       imgHtml+
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'+
-      '<div style="display:flex;align-items:center;gap:12px">'+
-      '<div style="width:38px;height:38px;border-radius:50%;background:#080c10;display:flex;align-items:center;justify-content:center;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-weight:500;font-size:16px;flex-shrink:0">'+(i+1)+'</div>'+
-      '<div>'+(p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:400;color:#080c10">'+esc(p.time)+'</div>':'')+'</div></div>'+
-      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#b08d57;font-weight:400">'+esc(fmtPrice)+'</div>':'')+
+      // Property number + time row
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+      '<div style="width:32px;height:32px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-weight:500;font-size:14px;flex-shrink:0">'+(i+1)+'</div>'+
+      (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:400;color:#0e1520">'+esc(p.time)+'</div>':'')+
       '</div>'+
-      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#080c10;font-weight:400;margin-bottom:6px;line-height:1.3">'+esc(p.title)+'</div>':'')+
-      (p.address?'<div style="font-size:13px;color:#6b5f4e;margin-bottom:12px;display:flex;align-items:center;gap:6px"><span style="color:#b08d57">&#9679;</span>'+esc(p.address)+'</div>':'')+
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'+
-      (p.rooms?'<span style="background:#f0ede7;color:#4a5568;font-size:11px;font-weight:600;padding:5px 12px;border-radius:100px">'+esc(p.rooms)+'</span>':'')+
-      (p.sqm?'<span style="background:#f0ede7;color:#4a5568;font-size:11px;font-weight:600;padding:5px 12px;border-radius:100px">'+esc(p.sqm)+'</span>':'')+
+      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#b08d57;font-weight:400">'+esc(fmtPrice)+'</div>':'')+
       '</div>'+
-      '<div style="display:flex;gap:18px;flex-wrap:wrap">'+
-      (p.url?'<a href="'+esc(p.url)+'" style="font-size:12px;color:#b08d57;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(176,141,87,.3);padding-bottom:1px">&#128279; View listing</a>':'')+
-      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="font-size:12px;color:#1a73e8;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(26,115,232,.3);padding-bottom:1px">&#128205; Directions</a>':'')+
+      // Title
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#0e1520;font-weight:400;margin-bottom:8px;line-height:1.25">'+esc(p.title)+'</div>':'')+
+      // Area (primary) + street (secondary)
+      (area?'<div style="font-size:14px;font-weight:600;color:#4a3e30;margin-bottom:2px">'+esc(area)+'</div>':'')+
+      (street?'<div style="font-size:12px;color:#9e9080;margin-bottom:14px">'+esc(street)+'</div>':'<div style="margin-bottom:14px"></div>')+
+      // Specs pills
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">'+
+      (p.rooms?'<span style="background:#f5f0e8;color:#4a3e30;font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:1px solid #e8e0d4">'+esc(p.rooms)+'</span>':'')+
+      (p.sqm?'<span style="background:#f5f0e8;color:#4a3e30;font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:1px solid #e8e0d4">'+esc(p.sqm)+'</span>':'')+
+      '</div>'+
+      // Buttons
+      '<div style="display:flex;gap:16px;flex-wrap:wrap">'+
+      (p.url?'<a href="'+esc(p.url)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#b08d57;text-decoration:none;border:1px solid rgba(176,141,87,.35);border-radius:6px;padding:7px 14px">&#128279; View Listing</a>':'')+
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1a73e8;text-decoration:none;border:1px solid rgba(26,115,232,.25);border-radius:6px;padding:7px 14px">&#128205; Directions</a>':'')+
       '</div>'+ibox+'</div>';
   }).join("");
 
@@ -788,21 +807,67 @@ function pgOutput(){
     :'<div style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 20 26"><defs><linearGradient id="og3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="10" cy="9" r="7" fill="none" stroke="url(#og3)" stroke-width="1.8"/><circle cx="10" cy="9" r="3" fill="url(#og3)"/><path d="M 4 15 Q 10 24 16 15" fill="none" stroke="url(#og3)" stroke-width="1.8" stroke-linecap="round"/></svg><span style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#fff;font-weight:400;letter-spacing:.5px">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span></div>';
   var ft=props.length>0&&props[0].time?props[0].time:"";
   var lt=props.length>1&&props[props.length-1].time?props[props.length-1].time:"";
-  var coverHdr='<div style="background:#0e1824;padding:32px 28px">'+
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">'+logoHtml+
+  // Build location list for cover summary
+  var coverLocs=[];
+  props.forEach(function(p){
+    if(p.address){
+      var parts=p.address.split(",");
+      var loc=parts[parts.length-1]?parts[parts.length-1].trim():(parts[0]?parts[0].trim():"");
+      if(loc&&coverLocs.indexOf(loc)===-1&&coverLocs.length<4)coverLocs.push(loc);
+    }
+  });
+  var coverLocsHtml=coverLocs.length?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;letter-spacing:.04em">'+coverLocs.join(" &middot; ")+'</div>':'';
+
+  // Duration estimate
+  var durationStr="";
+  if(ft&&lt&&ft!==lt){
+    durationStr=ft+" – "+lt;
+  } else if(ft){
+    durationStr="From "+ft;
+  }
+
+  var coverHdr='<div style="background:#0e1824">'+
+    // Header bar with logo + contact
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:24px 28px 0">'+
+    logoHtml+
     '<div style="text-align:right">'+
-    (cfg.phone?'<div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:3px">'+esc(cfg.phone)+'</div>':'')+
-    (cfg.email?'<div style="font-size:12px;color:rgba(255,255,255,.45)">'+esc(cfg.email)+'</div>':'')+
+    (cfg.phone?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:2px">'+esc(cfg.phone)+'</div>':'')+
+    (cfg.email?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(cfg.email)+'</div>':'')+
     '</div></div>'+
-    '<div style="width:100%;height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:28px"></div>'+
-    (isAg?'<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.2em;margin-bottom:10px">Agent copy</div>':'')+
-    '<div style="font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.2em;margin-bottom:10px">Viewing Schedule</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;color:#fff;font-weight:300;margin-bottom:8px;line-height:1.1">'+fmtDate(day.date)+'</div>'+
-    (c?'<div style="font-size:14px;color:rgba(255,255,255,.5)">Prepared exclusively for <span style="color:#fff;font-weight:400">'+esc(c.name)+'</span></div>':'')+
-    '<div style="display:flex;gap:28px;margin-top:24px;padding-top:24px;border-top:1px solid rgba(255,255,255,.06)">'+
-    '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#b08d57">'+props.length+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(props.length===1?"y":"ies")+'</div></div>'+
-    (ft?'<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#b08d57">'+esc(ft)+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First viewing</div></div>':'')+
-    (lt&&props.length>1?'<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#b08d57">'+esc(lt)+'</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last viewing</div></div>':'')+
+    // Gold divider
+    '<div style="margin:20px 28px 0;height:1px;background:linear-gradient(90deg,rgba(176,141,87,.5),transparent)"></div>'+
+    // Hero cover text
+    '<div style="padding:28px 28px 32px">'+
+    (isAg?'<div style="display:inline-block;font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;background:rgba(176,141,87,.1);border:1px solid rgba(176,141,87,.2);border-radius:4px;padding:3px 8px;margin-bottom:16px">Agent Copy</div>':'')+
+    '<div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px;font-weight:500">Your Viewing Day</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:6px">'+fmtDate(day.date)+'</div>'+
+    (c?'<div style="font-size:14px;color:rgba(255,255,255,.55);margin-bottom:4px">Prepared for <span style="color:#fff;font-weight:500">'+esc(c.name)+'</span></div>':'')+
+    coverLocsHtml+
+    // Summary stats row
+    '<div style="display:flex;gap:0;margin-top:28px;border-top:1px solid rgba(255,255,255,.07);padding-top:24px">'+
+    '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:20px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:400;color:#b08d57;line-height:1">'+props.length+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:5px">Propert'+(props.length===1?"y":"ies")+'</div>'+
+    '</div>'+
+    (ft?'<div style="flex:1;padding-left:20px"+'+(lt&&props.length>1?'";border-right:1px solid rgba(255,255,255,.07);padding-right:20px"':"'")+'>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:400;color:#b08d57;line-height:1">'+esc(ft)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:5px">First Viewing</div>'+
+    '</div>':'')+
+    (lt&&props.length>1?'<div style="flex:1;padding-left:20px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:400;color:#b08d57;line-height:1">'+esc(lt)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:5px">Last Viewing</div>'+
+    '</div>':'')+
+    '</div>'+
+    // Hosted by
+    '<div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07)">'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">Hosted by</div>'+
+    '<div style="display:flex;align-items:center;gap:12px">'+
+    (cfg.photo?'<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid rgba(176,141,87,.3)"><img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
+    '<div>'+
+    '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(cfg.agent||cfg.agency||"Your Agent")+'</div>'+
+    (cfg.agency&&cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">'+esc(cfg.agency)+'</div>':'')+
+    '</div></div>'+
+    '</div>'+
     '</div></div>';
   var footerHtml='<div style="background:#0e1824;padding:20px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">'+
     '<div style="display:flex;align-items:center;gap:12px">'+
@@ -861,11 +926,11 @@ function pgSettings(){
     '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upLogo(this)"/></label>'+
     rmLogo+
     '<div style="font-size:10px;color:#9e9080;margin-top:5px">PNG recommended</div></div>'+
-    '<div><label class="lbl">Profile photo <span style="color:#9e9080;font-weight:300;font-size:10px">(optional)</span></label>'+
+    '<div><label class="lbl">Profile photo</label>'+
     '<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+pb+'</div>'+
     '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upPhoto(this)"/></label>'+
     rmPhoto+
-    '<div style="font-size:10px;color:#9e9080;margin-top:5px">Shows on PDF</div></div>'+
+    '<div style="font-size:10px;color:#9e9080;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
     '</div>'+
     fRows+
     '<div style="font-size:12px;color:#9e9080;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
