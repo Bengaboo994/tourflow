@@ -125,6 +125,7 @@ function dayStatus(date){if(!date)return"upcoming";var t=today();if(date===t)ret
 function statusBadge(s){if(s==="today")return'<span class="pill pill-br">Today</span>';if(s==="done")return'<span class="pill pill-gy">Completed</span>';return'<span class="pill pill-bl">Upcoming</span>';}
 
 var ET=[
+  {key:"meetingpoint",icon:"&#128205;",label:"Meeting Point",col:"#fef3e2",brd:"#f5a623",txt:"#92400e",isMeetingPoint:true},
   {key:"lunch",icon:"&#127869;",label:"Lunch",col:"#f0fdf4",brd:"#86efac",txt:"#166534"},
   {key:"coffee",icon:"&#9749;",label:"Coffee break",col:"#fffbeb",brd:"#fde68a",txt:"#92400e"},
   {key:"drive",icon:"&#128663;",label:"Drive / Travel",col:"#eff6ff",brd:"#93c5fd",txt:"#1d4ed8"},
@@ -194,7 +195,7 @@ function reqFormHtml(r){
     chk('beach','Walking distance to beach',req.beach)+
     chk('restaurants','Walking distance to restaurants',req.restaurants)+
     chk('golf','Near golf course',req.golf)+
-    chk('newbuild','New build only',req.newbuild)+
+    chk('newbuild','New build',req.newbuild,'nb')+
     chk('community','Gated community',req.community);
 }
 function readReq(){
@@ -282,9 +283,75 @@ function scoreBreakdown(ms){
     rows+'</div>';
 }
 
+
+// ── Drive Time ──────────────────────────────────────────────────
+var _dtCache={};   // cache key "from||to" → result
+var _dtPending={}; // in-flight promises
+
+function dtKey(a,b){return(a||'')+'||'+(b||'');}
+
+function calcDriveTimes(day,onDone){
+  var locs=[];
+  // Use Meeting Point schedule item as starting location if present
+  var mpEv=(day.events||[]).find(function(e){return e.type==='meetingpoint';});
+  if(mpEv&&(mpEv.title||mpEv.note))locs.push(mpEv.title||(mpEv.note||''));
+  var props=[].concat(day.properties||[]).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
+  props.forEach(function(p){locs.push(p.mapsUrl||p.address||'');});
+  locs=locs.filter(function(x){return x&&x.trim();});
+  if(locs.length<2){if(onDone)onDone();return;}
+
+  var segments=[];
+  for(var i=0;i<locs.length-1;i++){
+    var k=dtKey(locs[i],locs[i+1]);
+    if(!_dtCache[k])segments.push({from:locs[i],to:locs[i+1]});
+  }
+  if(!segments.length){if(onDone)onDone();return;}
+
+  fetch('/.netlify/functions/drivetime',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({segments:segments})
+  }).then(function(r){return r.json();}).then(function(data){
+    if(data.results){
+      data.results.forEach(function(r){
+        var k=dtKey(r.from,r.to);
+        _dtCache[k]=r;
+      });
+    }
+    if(onDone)onDone();
+  }).catch(function(){
+    if(onDone)onDone();
+  });
+}
+
+function getDriveTime(from,to){
+  if(!from||!to)return null;
+  return _dtCache[dtKey(from,to)]||null;
+}
+
+function driveTimeHtml(from,to){
+  var dt=getDriveTime(from,to);
+  if(!dt)return'';
+  if(!dt.ok)return'<div style="display:flex;align-items:center;gap:10px;padding:10px 28px;background:#f5f2ec;border-bottom:1px solid #ede8e0"><span style="font-size:11px;color:#9e9080">Drive time unavailable</span></div>';
+  return'<div style="display:flex;align-items:center;gap:14px;padding:12px 28px;background:#f5f2ec;border-bottom:1px solid #ede8e0">'+
+    '<div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e0d8c8;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#128664;</div>'+
+    '<div style="display:flex;gap:16px;align-items:center">'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2a1f14">'+dt.durationMin+' min</div><div style="font-size:10px;color:#9e9080">drive</div></div>'+
+    '<div style="width:1px;height:24px;background:#e0d8c8"></div>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2a1f14">'+dt.distanceKm+' km</div><div style="font-size:10px;color:#9e9080">distance</div></div>'+
+    '</div></div>';
+}
+// ─────────────────────────────────────────────────────────────────
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
+function openDay(did,cid){
+  S.did=did;S.cid=cid;
+  go('day-detail');
+  // pre-fetch drive times in background
+  var d=curD();
+  if(d)calcDriveTimes(d,function(){render();});
+}
 function cDays(cId){return S.days.filter(function(d){return d.clientId===cId;}).sort(function(a,b){return b.date.localeCompare(a.date);});}
 
 function go(screen,extra){if(extra)Object.assign(S,extra);S.screen=screen;S.addEv=false;render();}
@@ -367,7 +434,7 @@ function pgHome(){
       locHtml+
       '</div>'+
       '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">'+
-      '<button onclick="go(\'day-detail\',{did:\''+d.id+'\',cid:\''+d.clientId+'\'})" style="padding:8px 14px;background:var(--ink);color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;white-space:nowrap">Open &#8250;</button>'+
+      '<button onclick="openDay(\''+d.id+'\',\''+d.clientId+'\')" style="padding:8px 14px;background:var(--ink);color:#fff;border:none;border-radius:7px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;white-space:nowrap">Open &#8250;</button>'+
       '<button class="bico" onclick="event.stopPropagation();if(confirm(\'Delete?\'))delDay(\''+d.id+'\');render()">&#215;</button>'+
       '</div></div></div>';
   }).join("");
@@ -482,7 +549,7 @@ function pgClientDetail(){
   var up=cd.filter(function(d){return dayStatus(d.date)!=="done";});
   var dn=cd.filter(function(d){return dayStatus(d.date)==="done";});
   function drow(d){
-    return '<div class="dc" onclick="go(\'day-detail\',{did:\''+d.id+'\',cid:\''+c.id+'\'})">'+
+    return '<div class="dc" onclick="openDay(\''+d.id+'\',\''+c.id+'\')">'+
       '<div style="display:flex;justify-content:space-between;align-items:center">'+
       '<div><div style="font-size:14px;font-weight:500;color:var(--ink)">'+fmtDate(d.date)+'</div>'+
       '<div style="font-size:12px;color:var(--slate);margin-top:2px">'+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div></div>'+
@@ -562,7 +629,9 @@ function pgAddClient(){
 }
 function saveAddClient(){
   var n=gv("ac-name");if(!n){alert("Please enter a name.");return;}
-  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),notes:gv("ac-notes"),req:readReq()});
+  var rq=readReq();
+  var budgetLabels={'u100':'Under €100k','100-200':'€100k–€200k','200-300':'€200k–€300k','300-500':'€300k–€500k','500-800':'€500k–€800k','800k+':'€800k+'};
+  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),notes:gv("ac-notes"),budget:budgetLabels[rq.budget]||'',req:rq});
   go("client-detail",{cid:id});
 }
 
@@ -587,7 +656,9 @@ function pgEditClient(){
 }
 function saveEditClient(){
   var n=gv("ec-name");if(!n){alert("Please enter a name.");return;}
-  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),notes:gv("ec-notes"),req:readReq()});
+  var rq=readReq();
+  var budgetLabels={'u100':'Under €100k','100-200':'€100k–€200k','200-300':'€200k–€300k','300-500':'€300k–€500k','500-800':'€500k–€800k','800k+':'€800k+'};
+  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),notes:gv("ec-notes"),budget:budgetLabels[rq.budget]||'',req:rq});
   go("client-detail");
 }
 
@@ -598,7 +669,7 @@ function pgDays(){
   var dn=sorted.filter(function(d){return dayStatus(d.date)==="done";});
   function drow(d){
     var c=S.clients.find(function(c){return c.id===d.clientId;})||{name:"Unknown"};
-    return '<div class="dc" onclick="go(\'day-detail\',{did:\''+d.id+'\',cid:\''+d.clientId+'\'})">'+
+    return '<div class="dc" onclick="openDay(\''+d.id+'\',\''+d.clientId+'\')">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
       '<div><div style="font-size:14px;font-weight:500;color:var(--ink)">'+fmtDate(d.date)+'</div>'+
       '<div style="font-size:12px;color:var(--slate);margin-top:1px">&#128100; '+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div></div>'+
@@ -801,12 +872,8 @@ function pgAddProp(){
     '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Agent recommendation</label>'+
     '<textarea class="inp" id="ap-rec" rows="3" placeholder="Why I selected this property for you..." style="resize:none;line-height:1.5"></textarea></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px">'+
-    '<div><label class="lbl">Travel time from prev.</label>'+
-    '<input class="inp" id="ap-travel" placeholder="e.g. 12 min drive"/></div>'+
-    '<div><label class="lbl">Area highlight</label>'+
-    '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area"/></div>'+
-    '</div>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
+    '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
     '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
     '<div><label class="lbl">Hero image</label>'+
     '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
@@ -893,7 +960,7 @@ function saveProp(did){
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),travelTime:gv("ap-travel"),areaNote:gv("ap-area"),commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
   _intOpen=false;go("day-detail");
 }
 
@@ -909,9 +976,25 @@ function pgOutput(){
   var pi=0;
   var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
 
+  // Ordered locations for drive time: [meetingPoint?, prop0, prop1...]
+  var orderedLocs=[];
+  var mpEvOut=(day.events||[]).find(function(e){return e.type==='meetingpoint';});
+  if(mpEvOut&&(mpEvOut.title||mpEvOut.note))orderedLocs.push(mpEvOut.title||(mpEvOut.note||''));
+  props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
+
   var rows=all.map(function(item){
     if(item.k==="e"){
       var e=item.d,et=getET(e.type);
+      if(et.isMeetingPoint){
+        return '<div style="background:#0e1520;padding:16px 28px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px">'+
+          '<div style="width:32px;height:32px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px">&#128205;</div>'+
+          '<div>'+
+          '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:3px">Meeting Point</div>'+
+          '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
+          (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">'+esc(e.time)+'</div>':'')+
+          (e.note?'<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px">'+esc(e.note)+'</div>':'')+
+          '</div></div>';
+      }
       return '<div style="padding:16px 28px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
         '<span style="font-size:22px">'+et.icon+'</span><div>'+
         (e.time?'<span style="font-weight:700;font-size:15px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
@@ -920,6 +1003,10 @@ function pgOutput(){
         '</div></div>';
     }
     var p=item.d;var i=pi++;
+    // Drive time from previous stop
+    var prevLoc=orderedLocs[i]||'';
+    var thisLoc=orderedLocs[i+1]||'';
+    var dtBlock=(!isAg&&prevLoc&&thisLoc)?driveTimeHtml(prevLoc,thisLoc):'';
     var rawPrice=p.price||"";
     var fmtPrice=rawPrice.replace(/(\d[\d\s,.]*)[\s]*EUR/i,"€$1").replace(/(\d[\d\s,.]*)[\s]*SEK/i,"$1 kr").trim()||rawPrice;
     var imgHtml=p.ogImage
@@ -957,14 +1044,7 @@ function pgOutput(){
       '<div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:1px">Best overall match based on your requirements</div></div>'+
       '</div>':'';
 
-    // Travel time divider (client only, not first property)
-    var travelDiv=(!isAg&&p.travelTime&&i>0)?
-      '<div style="display:flex;align-items:center;gap:12px;padding:14px 28px;background:#f5f2ec;border-bottom:1px solid #ede8e0">'+
-      '<div style="width:28px;height:28px;border-radius:50%;background:#fff;border:1px solid #e0d8c8;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">&#128664;</div>'+
-      '<div style="font-size:12px;font-weight:600;color:#6b5f4e">'+esc(p.travelTime)+' to next property</div>'+
-      '</div>':'';
-
-    return travelDiv+
+    return dtBlock+
       '<div style="border-bottom:1px solid #ede8e0">'+
       topPickBadge+
       '<div style="padding:32px 28px 28px">'+
@@ -993,7 +1073,7 @@ function pgOutput(){
       (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1a73e8;text-decoration:none;border:1px solid rgba(26,115,232,.25);border-radius:6px;padding:7px 14px">&#128205; Directions</a>':'')+
       '</div>'+
       // Match score (agent view only in viewing list)
-      (isAg&&ms?'<div style="margin-top:14px">'+scoreBadge(ms)+scoreBreakdown(ms)+'</div>':'')+
+      (ms?'<div style="margin-top:14px">'+scoreBadge(ms)+(isAg?scoreBreakdown(ms):'')+'</div>':'')+
       // Area highlights card (client only)
       (!isAg&&areaLines.length?
         '<div style="background:#f5f2ec;border-radius:10px;padding:16px 18px;margin-bottom:18px">'+
@@ -1107,6 +1187,7 @@ function pgOutput(){
     '</div>'+
     '<div style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--fog);margin-bottom:18px;box-shadow:0 8px 32px rgba(0,0,0,.08)">'+
     coverHdr+
+
     (!isAg&&day.welcomeMsg?'<div style="background:#faf8f4;padding:28px;border-bottom:1px solid #ede8e0">'+
     '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">A personal note</div>'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#2a1f14;line-height:1.7;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
