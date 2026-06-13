@@ -56,7 +56,7 @@ input,button,textarea,select{font-family:inherit}
 .or{padding:16px 22px;border-bottom:1px solid var(--fog)}
 .of{background:var(--mist);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .ibox{margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:11px 13px}
-@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}}
+@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add,button{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}img{max-width:100%}a{color:inherit!important;text-decoration:none!important}}
 </style>
 </head>
 <body>
@@ -1476,7 +1476,18 @@ function pgOutput(){
       :'<div style="flex:4"></div>')+
       '</div>';
   })();
-  var printStyle='<style id="ps">@media print{.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}div{break-inside:avoid}}</style>';
+  var printStyle='<style id="ps">'+
+    '@media print{'+
+    '.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr,button{display:none!important}'+
+    '.wrap{padding:0!important}'+
+    'body{background:#fff!important;max-width:100%!important;font-size:12px}'+
+    '#app{padding-bottom:0!important}'+
+    'div{break-inside:avoid}'+
+    '.prop-card,.card{page-break-inside:avoid}'+
+    'img{max-width:100%}'+
+    'a{color:inherit!important;text-decoration:none!important}'+
+    '}'+ 
+    '</style>';
   return printStyle+
     '<div class="wrap">'+
     '<button class="bback" onclick="go(\'day-detail\')">&#8592; Edit day</button>'+
