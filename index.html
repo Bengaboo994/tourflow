@@ -7,6 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.ms-modal{position:fixed;inset:0;z-index:900;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.ms-modal-inner{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 24px 36px;max-height:80vh;overflow-y:auto}
+.ms-modal-hide{display:none}
 :root{--ink:#1c1a16;--paper:#f8f3ea;--brass:#b08d57;--slate:#6b5f4e;--fog:#e0d8c8;--mist:#f0ead0;--card:#fffef9;--hdr:#0e1520}
 body{font-family:'Jost',system-ui,sans-serif;background:var(--paper);color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
 input,button,textarea,select{font-family:inherit}
@@ -57,6 +60,9 @@ input,button,textarea,select{font-family:inherit}
 </style>
 </head>
 <body>
+<div id="ms-modal" class="ms-modal ms-modal-hide" onclick="closeMatchModal()">
+  <div id="ms-modal-inner" class="ms-modal-inner" onclick="event.stopPropagation()"></div>
+</div>
 
 <!-- SPLASH -->
 <div id="splash" style="position:fixed;inset:0;background:#080c10;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease;padding:48px;overflow:hidden">
@@ -416,6 +422,68 @@ function hlPickerHtml(dayId,propId,selected){
   return html;
 }
 
+
+function showMatchModal(propId){
+  var day=S._lastDay||curD();
+  if(!day){
+    // fallback: search all days
+    for(var di=0;di<S.days.length;di++){
+      var dp=S.days[di].properties||[];
+      if(dp.find(function(x){return x.id===propId;})){day=S.days[di];break;}
+    }
+  }
+  if(!day)return;
+  var p=day.properties.find(function(x){return x.id===propId;});
+  var c=S.clients.find(function(x){return x.id===(day.clientId||S.cid);});
+  if(!p)return;
+  var ms=matchScore(c,p);
+  var hl=p.highlights||[];
+
+  var col=ms&&ms.score>=90?'#059669':ms&&ms.score>=75?'#b08d57':ms&&ms.score>=60?'#d97706':'#dc2626';
+  var label=ms&&ms.score>=90?'Excellent Match':ms&&ms.score>=75?'Good Match':ms&&ms.score>=60?'Fair Match':'Low Match';
+
+  var passed=ms?ms.results.filter(function(r){return r.pass;}).map(function(r){
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#059669;font-size:16px">&#10003;</span><span style="font-size:13px;color:#1c1a16">'+r.label+'</span></div>';
+  }).join(''):'';
+  var failed=ms?ms.results.filter(function(r){return!r.pass;}).map(function(r){
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#dc2626;font-size:16px">&#10005;</span><span style="font-size:13px;color:#9e9080">'+r.label+'</span></div>';
+  }).join(''):'';
+  var hlHtml=hl.length?'<div style="margin-top:16px"><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Property Highlights</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+    hl.map(function(hlLabel){
+      var h=HIGHLIGHTS.find(function(x){return x[2]===hlLabel;})||['','&#9679;',hlLabel];
+      return'<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:#f5f0e8;border:1px solid #e0d8c8;font-size:11px;font-weight:500;color:#4a3e30">'+h[1]+' '+esc(hlLabel)+'</span>';
+    }).join('')+'</div></div>':'';
+
+  var inner=document.getElementById('ms-modal-inner');
+  if(!inner)return;
+  inner.innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'+
+    '<div>'+
+    '<div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px">Client Match</div>'+
+    (ms&&ms.score!=null?
+      '<div style="font-size:32px;font-weight:700;color:'+col+';line-height:1">'+ms.score+'<span style="font-size:14px;font-weight:400;color:#9e9080">/100</span></div>'
+    :
+      '<div style="margin-top:4px;padding:14px;background:#faf8f4;border-radius:10px;border:1px solid #e0d8c8">'+
+      '<div style="font-size:13px;font-weight:500;color:#2a1f14;margin-bottom:6px">No requirements profile yet</div>'+
+      '<div style="font-size:12px;color:#9e9080;margin-bottom:12px;line-height:1.5">Add client requirements to see an accurate match score for this property.</div>'+
+      (c?'<button onclick="closeMatchModal();go(\'edit-client\',{cid:\''+c.id+'\'})" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#0e1520;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">Add requirements &#8250;</button>':'')+
+      '</div>'
+    )+
+    (ms&&ms.score!=null?'<div style="font-size:11px;color:'+col+';font-weight:600;margin-top:2px">'+label+'</div>':'')+
+    '</div>'+
+    '<button onclick="closeMatchModal()" style="width:36px;height:36px;border-radius:50%;background:#f0ead0;border:none;cursor:pointer;font-size:18px;color:#6b5f4e;display:flex;align-items:center;justify-content:center">&#10005;</button>'+
+    '</div>'+
+    (ms&&ms.score!=null?'<div style="height:6px;background:#f0ead0;border-radius:3px;margin-bottom:20px"><div style="height:100%;width:'+ms.score+'%;background:'+col+';border-radius:3px;transition:width .4s"></div></div>':'')+
+    (passed?'<div style="margin-bottom:4px"><div style="font-size:9px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Matched</div>'+passed+'</div>':'')+
+    (failed?'<div style="margin-top:12px"><div style="font-size:9px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Missing</div>'+failed+'</div>':'')+
+    hlHtml;
+
+  document.getElementById('ms-modal').classList.remove('ms-modal-hide');
+}
+function closeMatchModal(){
+  document.getElementById('ms-modal').classList.add('ms-modal-hide');
+}
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
@@ -783,8 +851,9 @@ function pgDayDetail(){
         '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
         (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
         '</div>'+
-        '<div style="margin-bottom:9px"><label class="lbl">Agent recommendation</label>'+
-        '<textarea class="inp ins" rows="2" placeholder="Why I selected this property..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
+        hlPickerHtml(day.id,p.id,p.highlights)+
+        '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9080;font-weight:300;font-size:10px\">optional</span></label>'+
+        '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
         '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
         '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
         '<div style="font-size:11px;color:#9e9080">Highlight this property for the client</div></div>'+
@@ -1083,10 +1152,36 @@ function pgOutput(){
     var dtBlock=(!isAg&&prevLoc&&thisLoc)?driveTimeHtml(prevLoc,thisLoc):'';
     var rawPrice=p.price||"";
     var fmtPrice=rawPrice.replace(/(\d[\d\s,.]*)[\s]*EUR/i,"€$1").replace(/(\d[\d\s,.]*)[\s]*SEK/i,"$1 kr").trim()||rawPrice;
-    var imgHtml=p.ogImage
-      ?'<div style="height:280px;overflow:hidden;border-radius:10px;margin-bottom:18px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>'
-      :'<div style="height:120px;background:linear-gradient(160deg,#1a2535,#0a0f14);border-radius:10px;margin-bottom:18px;display:flex;align-items:center;justify-content:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:rgba(176,141,87,.3)">'+(i+1)+'</div></div>';
     var ms=matchScore(dayClient,p);
+    var badgeCol=ms&&ms.score>=90?'#059669':ms&&ms.score>=75?'#b08d57':ms&&ms.score>=60?'#d97706':'#dc2626';
+    var badgeLabel=ms&&ms.score>=90?'EXCELLENT':ms&&ms.score>=75?'GOOD MATCH':ms&&ms.score>=60?'FAIR MATCH':'LOW MATCH';
+    // If no req-based score, derive score from highlights count (max 10 highlights = 100%)
+    var displayScore=null;
+    var displayLabel='';
+    var displayCol='#b08d57';
+    if(ms&&ms.score!=null){
+      displayScore=ms.score;
+    } else if(p.highlights&&p.highlights.length>0){
+      displayScore=Math.min(100,Math.round(p.highlights.length/10*100));
+    }
+    if(displayScore!=null){
+      displayCol=displayScore>=90?'#059669':displayScore>=75?'#b08d57':displayScore>=60?'#d97706':'#dc2626';
+      displayLabel=displayScore>=90?'EXCELLENT':displayScore>=75?'GOOD MATCH':displayScore>=60?'FAIR MATCH':'LOW MATCH';
+    }
+    var msBadge=displayScore!=null?
+      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:7px 11px;cursor:pointer;text-align:right;box-shadow:0 2px 12px rgba(0,0,0,.3);z-index:10">'+
+      '<div style="font-size:16px;font-weight:700;color:'+displayCol+';line-height:1">'+displayScore+'%</div>'+
+      '<div style="font-size:8px;font-weight:700;color:'+displayCol+';text-transform:uppercase;letter-spacing:.08em;margin-top:2px">'+displayLabel+'</div>'+
+      '</button>':'';
+    var imgHtml=p.ogImage
+      ?'<div style="position:relative;height:280px;overflow:hidden;margin:0 -28px 22px -28px">'+
+        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
+        msBadge+
+        '</div>'
+      :'<div style="position:relative;height:120px;background:linear-gradient(160deg,#1a2535,#0a0f14);margin:0 -28px 22px -28px;display:flex;align-items:center;justify-content:center">'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:rgba(176,141,87,.3)">'+(i+1)+'</div>'+
+        msBadge+
+        '</div>';
     var ibox="";
     if(isAg&&(p.commission||p.contact||p.location||p.note)){
       ibox='<div style="margin-top:16px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:13px 16px">'+
@@ -1147,7 +1242,7 @@ function pgOutput(){
       (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1a73e8;text-decoration:none;border:1px solid rgba(26,115,232,.25);border-radius:6px;padding:7px 14px">&#128205; Directions</a>':'')+
       '</div>'+
       // Match score (agent view only in viewing list)
-      (ms?'<div style="margin-top:14px">'+scoreBadge(ms)+(isAg?scoreBreakdown(ms):'')+'</div>':'')+
+
       // Property Highlights (client only)
       (!isAg&&p.highlights&&p.highlights.length?
         '<div style="margin-top:20px">'+
@@ -1243,27 +1338,37 @@ function pgOutput(){
     '<div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:5px">Last Viewing</div>'+
     '</div>':'')+
     '</div>'+
-    // Hosted by
-    '<div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.07)">'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">Hosted by</div>'+
-    '<div style="display:flex;align-items:center;gap:12px">'+
-    (cfg.photo?'<div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid rgba(176,141,87,.3)"><img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
-    '<div>'+
-    '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(cfg.agent||cfg.agency||"Your Agent")+'</div>'+
-    (cfg.agency&&cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">'+esc(cfg.agency)+'</div>':'')+
-    '</div></div>'+
-    '</div>'+
     '</div></div>';
-  var footerHtml='<div style="background:#0e1824;padding:20px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">'+
-    '<div style="display:flex;align-items:center;gap:12px">'+
-    (cfg.photo?'<div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(176,141,87,.4)"><img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
-    '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#fff;font-weight:300;margin-bottom:2px">'+esc(cfg.agency||"Your Agency")+'</div>'+
-    (cfg.agent?'<div style="font-size:12px;color:rgba(255,255,255,.45)">'+esc(cfg.agent)+'</div>':'')+
-    '</div></div>'+
-    '<div style="text-align:right">'+
-    (cfg.phone?'<div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:2px">'+esc(cfg.phone)+'</div>':'')+
-    (cfg.email?'<div style="font-size:12px;color:rgba(255,255,255,.45)">'+esc(cfg.email)+'</div>':'')+
-    '</div></div>';
+  var footerHtml=(function(){
+    var wa=cfg.phone?'https://wa.me/'+cfg.phone.replace(/[^0-9]/g,''):'';
+    // 70/30 layout — left: contact info, right: portrait photo full bleed
+    return'<div style="background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:160px">'+
+      // LEFT 70% — contact info
+      '<div style="flex:6;padding:24px 22px;display:flex;flex-direction:column;justify-content:center;gap:0">'+
+      '<div style="font-size:8px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Your Property Consultant</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:2px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
+      (cfg.agency&&cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px">'+esc(cfg.agency)+'</div>':'<div style="margin-bottom:14px"></div>')+
+      (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:#25d36618;border:1px solid #25d36640;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#128241;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:#25d366;line-height:1.1">WhatsApp</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':
+        (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(176,141,87,.12);border:1px solid rgba(176,141,87,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#128222;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:rgba(176,141,87,.85);line-height:1.1">Call</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':''))+
+      (cfg.email?'<a href="mailto:'+esc(cfg.email)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(176,141,87,.12);border:1px solid rgba(176,141,87,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#9993;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:rgba(176,141,87,.85);line-height:1.1">Email</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.email)+'</div></div></a>':'')+
+      '</div>'+
+      // RIGHT 30% — portrait photo, full bleed rectangle
+      (cfg.photo?
+        '<div style="flex:4;position:relative;overflow:hidden">'+
+        '<img src="'+cfg.photo+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center"/>'+
+        '</div>'
+      :'<div style="flex:4"></div>')+
+      '</div>';
+  })();
   var printStyle='<style id="ps">@media print{.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}div{break-inside:avoid}}</style>';
   return printStyle+
     '<div class="wrap">'+
@@ -1317,22 +1422,7 @@ function pgOutput(){
           '</div>';}).join('')+
         '</div>';
     })():'')+
-    (function(){
-      var wa=cfg.phone?'https://wa.me/'+cfg.phone.replace(/[^0-9]/g,''):'';
-      return'<div style="background:#0e1824;padding:24px 28px">'+
-        '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">'+
-        '<div style="display:flex;align-items:center;gap:12px">'+
-        (cfg.photo?'<div style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1.5px solid rgba(176,141,87,.4)"><img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
-        '<div>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#fff;font-weight:300">'+esc(cfg.agency||'Your Agency')+'</div>'+
-        (cfg.agent?'<div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px">'+esc(cfg.agent)+'</div>':'')+
-        '</div></div>'+
-        '<div style="display:flex;flex-direction:column;gap:8px;text-align:right">'+
-        (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:#25d366;text-decoration:none;font-weight:500">&#128241; WhatsApp</a>':'')+
-        (cfg.email?'<a href="mailto:'+esc(cfg.email)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;font-weight:500">&#9993; '+esc(cfg.email)+'</a>':'')+
-        (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;font-weight:500">&#128222; '+esc(cfg.phone)+'</a>':'')+
-        '</div></div></div>';
-    })()+
+    footerHtml+
     '</div>'+
     '<button class="btn" onclick="window.print()" style="margin-bottom:10px">&#128424; Save as PDF</button>'+
     '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
