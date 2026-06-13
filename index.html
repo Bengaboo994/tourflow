@@ -879,49 +879,99 @@ function pgDayDetail(){
     var io=S.epid===p.id,ii=S.eiid===p.id;
     var ep="";
     if(io){
-      var bf=[["Title","title","Bright 2-bed apartment"],["Address","address","Calle del Mar 12"],["Bedrooms","rooms","2 bedrooms"],["Size","sqm","78 m2"]];
-      var iff=[["Commission","commission","2.5%"],["Contact","contact","Maria Garcia"],["Phone","contactPhone","+34 600 000 000"],["Firm","firm","Costa Realty"],["Location/access","location","Key at front desk"],["Notes","note","Other info"]];
-      ep='<div style="padding:0 14px 14px;border-top:1px solid var(--fog)">'+
-        '<div class="g2" style="margin:12px 0 10px">'+
+      var updP=function(k,v){var ch={};ch[k]=v;updProp(day.id,p.id,ch);};
+      function fld(label,key,ph,type){
+        return '<div style="margin-bottom:10px"><label class="lbl">'+label+'</label>'+
+          '<input'+(type?' type="'+type+'"':'')+' class="inp ins" value="'+esc(p[key]||'')+'" placeholder="'+ph+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+key+':this.value})"/></div>';
+      }
+      function sec(label){
+        return '<div style="font-size:9px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin:16px 0 10px;padding-top:14px;border-top:1px solid var(--fog)">'+label+'</div>';
+      }
+
+      ep='<div style="padding:0 14px 16px;border-top:1px solid var(--fog)">'+
+
+        // ── SECTION 1: Property Information ──
+        sec('Property Information')+
+        '<div class="g2" style="margin-bottom:10px">'+
         '<div><label class="lbl">Time</label><input type="time" class="inp ins" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
-        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:this.value})"/></div></div>'+
-        bf.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
-          '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
-        '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
-        '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
-        (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
+        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:this.value})"/></div>'+
         '</div>'+
-        hlPickerHtml(day.id,p.id,p.highlights)+
-        '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9080;font-weight:300;font-size:10px\">optional</span></label>'+
-        '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
-        '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
-        '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
-        '<div style="font-size:11px;color:#9e9080">Highlight this property for the client</div></div>'+
-        '<button onclick="var d=curD();d.properties.forEach(function(x){x.topPick=false;});var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp)pp.topPick=!pp.topPick;persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#b08d57':'#e0d8c8')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
+        fld('Property Title','title','Sun-Filled Apartment in La Zenia','')+
+        fld('Area / Location','address','La Zenia, Orihuela Costa, Alicante','')+
+        '<div class="g2" style="margin-bottom:10px">'+
+        '<div>'+fld('Bedrooms','rooms','2 bedrooms','')+'</div>'+
+        '<div>'+fld('Built Area','sqm','78 m2','')+'</div>'+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">'+
-        '<div><label class="lbl">Travel time</label>'+
-        '<input class="inp ins" value="'+esc(p.travelTime||'')+'" placeholder="12 min drive" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{travelTime:this.value})"/></div>'+
-        '<div><label class="lbl">Area highlight</label>'+
-        '<input class="inp ins" value="'+esc(p.areaNote||'')+'" placeholder="Beachfront area" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{areaNote:this.value})"/></div>'+
-        '</div>'+
-        '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
+
+        // ── SECTION 2: Property Image ──
+        sec('Property Image')+
         (p.ogImage
-          ?'<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:4px;border:1px solid var(--fog)"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit">Remove</button></div>'
-          :'<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
-          '<span style="font-size:12px;color:var(--slate)">Upload property photo</span>'+
-          '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
+          ?'<div style="position:relative;height:160px;border-radius:10px;overflow:hidden;margin-bottom:10px;border:1px solid var(--fog)">'+
+            '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
+            '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:6px;font-size:11px;padding:4px 9px;cursor:pointer;font-family:inherit">Remove</button>'+
+            '</div>'
+          :'<label style="display:flex;align-items:center;gap:10px;padding:14px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:10px;cursor:pointer;margin-bottom:10px">'+
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+            '<div><div style="font-size:13px;font-weight:500;color:var(--ink)">Upload property photo</div>'+
+            '<div style="font-size:11px;color:#9e9080;margin-top:1px">JPG or PNG, shown as hero image</div></div>'+
+            '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
+
+        // ── SECTION 3: Property Presentation ──
+        sec('Property Presentation')+
+
+        // Top Pick toggle
+        '<div style="display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:9px;padding:11px 13px;margin-bottom:10px">'+
+        '<div>'+
+        '<div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
+        '<div style="font-size:11px;color:#9e9080;margin-top:1px">Mark as the standout property today</div>'+
         '</div>'+
-        '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
+        '<button onclick="toggleTopPick(\''+p.id+'\')" style="padding:7px 15px;border-radius:7px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#b08d57':'#e0d8c8')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+
+        (p.topPick?'&#10003; Selected':'Select')+'</button>'+
+        '</div>'+
+
+        // Why I Recommend
+        '<div style="margin-bottom:10px"><label class="lbl">Why I recommend this property <span style="color:#9e9080;font-weight:300;font-size:10px">shown on viewing list</span></label>'+
+        '<textarea class="inp ins" rows="2" placeholder="e.g. This property stands out for its south-facing terrace and excellent value in La Zenia..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
+
+        // Agent Comment
+        '<div style="margin-bottom:10px"><label class="lbl">Personal comment <span style="color:#9e9080;font-weight:300;font-size:10px">shown in dark box</span></label>'+
+        '<textarea class="inp ins" rows="2" placeholder="e.g. This is the one I would personally prioritise today due to the location and value..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentComment:this.value})">'+esc(p.agentComment||'')+'</textarea></div>'+
+
+        // Match score badge (area note)
+        '<div style="margin-bottom:10px"><label class="lbl">Area highlight <span style="color:#9e9080;font-weight:300;font-size:10px">optional note about the area</span></label>'+
+        '<input class="inp ins" value="'+esc(p.areaNote||'')+'" placeholder="e.g. Beachfront area, quiet urbanisation" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{areaNote:this.value})"/></div>'+
+
+        // ── SECTION 4: Property Highlights ──
+        sec('Property Highlights')+
+        hlPickerHtml(day.id,p.id,p.highlights)+
+
+        // ── SECTION 5: Links ──
+        sec('Links')+
+        '<div style="margin-bottom:10px"><label class="lbl">Listing URL</label>'+
+        '<input class="inp ins" value="'+esc(p.url||'')+'" placeholder="https://idealista.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{url:this.value})"/>'+
+        (p.url?'<a href="'+esc(p.url)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128279; Open listing</a>':'')+
+        '</div>'+
+        '<div style="margin-bottom:10px"><label class="lbl">Directions URL</label>'+
+        '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
+        (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test directions</a>':'')+
+        '</div>'+
+
+        // ── SECTION 6: Internal (agent only) ──
+        '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog);margin-top:6px" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
         '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
         '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
         '<span style="background:#fef9ec;color:#92400e;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:600">Not shown to client</span></div>'+
-        '<span style="color:#c8bfb0">'+(ii?"&#9650;":"&#9660;")+'</span></button>'+
-        (ii?'<div style="background:#fffbf0;border-radius:0 0 8px 8px;padding:10px 12px">'+
-          iff.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
-            '<input class="inp ins" style="background:#fffbf0" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
+        '<span style="color:#c8bfb0">'+(S.eiid===p.id?"&#9650;":"&#9660;")+'</span></button>'+
+        (S.eiid===p.id?
+          '<div style="background:#fffbf0;padding:12px 0 4px">'+
+          [["Commission","commission","2.5%"],["Contact person","contact","Maria Garcia"],
+           ["Contact phone","contactPhone","+34 600 000 000"],["Their firm","firm","Costa Realty SL"],
+           ["Location/access","location","Key at front desk"],["Notes","note","Bring ID"]]
+          .map(function(f){return'<div style="margin-bottom:10px"><label class="lbl">'+f[0]+'</label>'+
+            '<input class="inp ins" style="background:#fffbf0" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';})
+          .join('')+
           '</div>':'')+
+
         '</div>';
     }
     return '<div class="pc">'+
@@ -1176,11 +1226,15 @@ function pgOutput(){
 
   // Drive time locations
   var orderedLocs=[];
-  var mpEvOut=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
-  if(mpEvOut&&(mpEvOut.title||mpEvOut.note))orderedLocs.push(mpEvOut.title||(mpEvOut.note||''));
+  var mpEv=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
+  if(mpEv&&(mpEv.title||mpEv.note))orderedLocs.push(mpEv.title||mpEv.note||'');
   props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
 
-  // Icon map — HTML entities only
+  // Ordinal labels for viewing sequence
+  var ORDINALS=['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth'];
+  var totalProps=props.length;
+
+  // Icon map
   var ICON={
     'Pool':'&#127946;','Walking distance to beach':'&#127958;','South facing':'&#9728;',
     'Within budget':'&#128176;','Near golf':'&#9971;','Key ready':'&#128273;',
@@ -1192,47 +1246,22 @@ function pgOutput(){
     'Everything within walking distance':'&#127937;','Close to amenities':'&#127869;'
   };
 
-  // Rec phrase map
-  var REC={
-    'Pool':'a private pool','Walking distance to beach':'walking distance to the beach',
-    'South facing':'a south-facing orientation with excellent natural light',
-    'Within budget':'excellent value within your budget','Near golf':'proximity to golf',
-    'Key ready':'immediate availability','Recently renovated':'a fully renovated interior',
-    'Private garden':'private outdoor space','Sea view':'impressive sea views',
-    'Rental potential':'strong rental income potential',
-    'Holiday home potential':'strong appeal as a holiday retreat',
-    'Quiet area':'a calm residential setting','Prime location':'a prime location',
-    'Gated community':'the security of a gated community',
-    'Large terrace':'generous terrace space','Excellent value':'outstanding value for money',
-    'Garage':'dedicated parking','Close to amenities':'everything within easy reach'
-  };
-
-  // Comment templates — personal advisor tone
-  var COMMENTS=[
-    'The combination of location and price here is genuinely strong. Of all the properties today, this is the one I would personally look at most carefully.',
-    'Properties like this at this price point are increasingly rare in this area. I would not leave today without a second opinion on it.',
-    'The outdoor space here is difficult to find at this price. It is one of the details that tends to matter most once clients move in.',
-    'From an investment perspective, this one stands out. The area has been performing consistently well and I expect that to continue.',
-    'This is the type of home that tends to move quickly. If it resonates with you today, I would not wait to act.',
-    'I have shown many properties in this area and this one genuinely stands out for what you get at the price.'
-  ];
-
   var rows=all.map(function(item){
     if(item.k==="e"){
       var e=item.d, et=getET(e.type);
       if(et.isMeetingPoint){
-        return '<div style="background:#0e1520;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
-          '<div style="width:30px;height:30px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px">&#128205;</div>'+
-          '<div><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:2px">Meeting Point</div>'+
-          '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
-          (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">'+esc(e.time)+'</div>':'')+
+        return '<div style="background:#0e1520;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:11px">'+
+          '<div style="width:26px;height:26px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px">&#128205;</div>'+
+          '<div><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:1px">Meeting Point</div>'+
+          '<div style="font-size:13px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
+          (e.time?'<div style="font-size:10px;color:rgba(255,255,255,.38)">'+esc(e.time)+'</div>':'')+
           '</div></div>';
       }
-      return '<div style="padding:14px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
-        '<span style="font-size:20px">'+et.icon+'</span>'+
-        '<div>'+(e.time?'<span style="font-weight:700;font-size:14px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
-        '<span style="font-size:14px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
-        (e.note?'<div style="font-size:11px;color:#888;margin-top:2px">'+esc(e.note)+'</div>':'')+
+      return '<div style="padding:11px 20px;display:flex;align-items:center;gap:11px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
+        '<span style="font-size:18px">'+et.icon+'</span>'+
+        '<div>'+(e.time?'<span style="font-weight:700;font-size:13px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
+        '<span style="font-size:13px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
+        (e.note?'<span style="font-size:11px;color:'+et.txt+';opacity:.65"> &middot; '+esc(e.note)+'</span>':'')+
         '</div></div>';
     }
 
@@ -1242,200 +1271,130 @@ function pgOutput(){
     // Price
     var fmtPrice=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').replace(/(\d[\d\s,.]*)[\s]*SEK/i,'$1 kr').trim()||p.price||'';
 
-    // Match score
+    // Match score — simplified: "88% Match"
     var ms=matchScore(dayClient,p);
-    var dScore=null, dCol='#b08d57', dLabel='', dSub='';
+    var dScore=null, dCol='#b08d57', dLabel='', dCircle='&#x1F7E1;';
     if(ms&&ms.score!=null){dScore=ms.score;}
     else if(p.highlights&&p.highlights.length){dScore=Math.min(100,Math.round(p.highlights.length/10*100));}
     if(dScore!=null){
-      if(dScore>=90){dCol='#059669';dLabel='Excellent Match';}
-      else if(dScore>=80){dCol='#0284c7';dLabel='Recommended';}
-      else if(dScore>=70){dCol='#b08d57';dLabel='Strong Match';}
-      else if(dScore>=55){dCol='#d97706';dLabel='Good Potential';}
-      else{dCol='#9e9080';dLabel='Worth Viewing';}
-    }
-    if(ms&&ms.results&&ms.results.length){
-      dSub='Matches '+ms.results.filter(function(r){return r.pass;}).length+'/'+ms.results.length+' preferences';
-    } else if(dScore!=null){
-      dSub=dScore+'% match';
+      if(dScore>=85){dCol='#059669';dLabel=dScore+'% Match';dCircle='&#x1F7E2;';}
+      else if(dScore>=70){dCol='#b08d57';dLabel=dScore+'% Match';dCircle='&#x1F7E1;';}
+      else if(dScore>=55){dCol='#d97706';dLabel=dScore+'% Match';dCircle='&#x1F7E1;';}
+      else{dCol='#9e9080';dLabel=dScore+'% Match';dCircle='&#x26AA;';}
     }
 
-    // Match badge
-    var msBadge=dScore!=null?
-      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(10,14,22,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:6px 11px;cursor:pointer;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:10">'+
-      '<div style="font-size:12px;font-weight:700;color:'+dCol+';line-height:1;letter-spacing:-.1px">'+dLabel+'</div>'+
-      '<div style="font-size:9px;color:rgba(255,255,255,.45);margin-top:2px">'+dSub+'</div>'+
-      '</button>':'';
+    // ── Viewing order label — SINGLE PROPERTY MODE ──
+    var orderLabel='';
+    if(totalProps===1){
+      orderLabel='Private Viewing';
+    } else {
+      var ordWord=ORDINALS[idx]||('Viewing '+(idx+1));
+      orderLabel=ordWord+' Viewing \u00B7 '+(idx+1)+' of '+totalProps;
+    }
 
-    // Top pick badge
+    // Top Pick badge — upper left on image
     var tpBadge=(!isAg&&p.topPick)?
-      '<div style="position:absolute;bottom:12px;left:12px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:5px;box-shadow:0 2px 10px rgba(0,0,0,.3)">'+
-      '<span style="font-size:10px">&#11088;</span><span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.08em;text-transform:uppercase">Top Pick</span></div>':'';
+      '<div style="position:absolute;top:11px;left:11px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:3px 9px;display:flex;align-items:center;gap:4px">'+
+      '<span style="font-size:9px;color:#fff">&#9733;</span>'+
+      '<span style="font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.1em">Top Pick</span>'+
+      '</div>':'';
 
-    // Hero
+    // Hero image — price overlaid at bottom
     var imgHtml=p.ogImage
-      ?'<div style="position:relative;height:255px;overflow:hidden">'+
-        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
-        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.28) 100%)"></div>'+
-        msBadge+tpBadge+'</div>'
-      :'<div style="position:relative;height:130px;background:linear-gradient(160deg,#1a2535,#0a0f14);display:flex;align-items:center;justify-content:center">'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:48px;font-weight:300;color:rgba(176,141,87,.12)">'+(idx+1)+'</div>'+
-        msBadge+tpBadge+'</div>';
+      ?'<div style="position:relative;height:235px;overflow:hidden">'+
+        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover;display:block"/>'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 28%,rgba(0,0,0,.68) 100%)"></div>'+
+        tpBadge+
+        (fmtPrice?'<div style="position:absolute;bottom:13px;left:17px">'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-bottom:1px">Asking price</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:#fff;line-height:1;letter-spacing:-.5px;text-shadow:0 2px 14px rgba(0,0,0,.5)">'+esc(fmtPrice)+'</div>'+
+        '</div>':'')+
+        '</div>'
+      :'<div style="position:relative;height:100px;background:linear-gradient(135deg,#1a2535,#0e1520);display:flex;align-items:center;justify-content:center">'+
+        tpBadge+
+        (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#b08d57;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+'</div>';
 
-    // Location — area is hero, street hidden
+    // Location
     var addrParts=(p.address||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
     var area=addrParts.length>0?addrParts[addrParts.length-1]:'';
     var town=addrParts.length>1?addrParts[addrParts.length-2]:'';
     var displayArea=town||area;
     var regionLine=town&&area&&town!==area?area:'';
 
-    // AI-style title generation if title looks generic
-    var displayTitle=p.title||'';
-    if(displayTitle){
-      // Detect generic portal titles and enhance
-      var lower=displayTitle.toLowerCase();
-      var isGeneric=(lower.match(/^\d/))||(lower.indexOf('ref:')>=0)||(lower.length<8);
-      if(isGeneric&&displayArea){
-        displayTitle='Property in '+displayArea;
-      }
-    }
-
     // Highlights
     var hl=p.highlights||[];
-    var rec=p.agentRec||'';
-    var agentComment=p.agentComment||'';
-
-    // Auto recommendation
-    var autoRec='';
-    if(hl.length>=3){
-      autoRec='This property stands out for '+
-        (REC[hl[0]]||hl[0].toLowerCase())+', '+
-        (REC[hl[1]]||hl[1].toLowerCase())+' and '+
-        (REC[hl[2]]||hl[2].toLowerCase())+
-        '. A strong option worth prioritising today.';
-    } else if(hl.length===2){
-      autoRec='This property combines '+(REC[hl[0]]||hl[0].toLowerCase())+
-        ' with '+(REC[hl[1]]||hl[1].toLowerCase())+
-        ' \u2014 making it one of the stronger options on today\'s schedule.';
-    } else if(hl.length===1){
-      autoRec='Notably offers '+(REC[hl[0]]||hl[0].toLowerCase())+', which is difficult to find at this price point.';
-    }
-    var displayRec=rec||autoRec;
-
-    // Agent comment
-    var autoComment=agentComment||(hl.length?COMMENTS[idx%COMMENTS.length]:'');
-    var agentFirstName=S.cfg.agent?(S.cfg.agent.split(' ')[0]):'Your Agent';
-
-    // Highlight chips — max 4, rest behind button
-    var visHl=hl.slice(0,4); var hidHl=hl.slice(4);
-    var chips=visHl.map(function(h){
-      return '<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 10px 3px 7px;font-size:11px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
-        '<span style="font-size:12px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';
+    var vis=hl.slice(0,4); var hid=hl.slice(4);
+    var chips=vis.map(function(h){
+      return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 8px 2px 5px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
+        '<span style="font-size:11px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';
     }).join('');
-
-    // Hidden chips stored in a data-div, revealed by button
-    var hiddenDiv=''; var showBtn='';
-    if(hidHl.length){
-      hiddenDiv='<div id="hx-'+p.id+'" style="display:none;flex-wrap:wrap;gap:5px;margin-top:5px">'+
-        hidHl.map(function(h){
-          return '<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 10px 3px 7px;font-size:11px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
-            '<span style="font-size:12px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';
-        }).join('')+'</div>';
-      showBtn='<button onclick="'+
-        'var hx=document.getElementById(\'hx-'+p.id+'\');'+
-        'hx.style.display=\'flex\';'+
-        'this.style.display=\'none\''+
-        '" style="font-size:11px;color:#b08d57;background:none;border:none;cursor:pointer;font-family:inherit;padding:3px 0">+'+hidHl.length+' more</button>';
+    var hidDiv=''; var showBtn='';
+    if(hid.length){
+      hidDiv='<div id="hx-'+p.id+'" style="display:none;flex-wrap:wrap;gap:4px;margin-top:4px">'+
+        hid.map(function(h){return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 8px 2px 5px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap"><span style="font-size:11px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';}).join('')+'</div>';
+      showBtn='<button onclick="document.getElementById(\'hx-'+p.id+'\').style.display=\'flex\';this.style.display=\'none\'" style="font-size:10px;color:#9e9080;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;margin-top:3px">+'+hid.length+' more</button>';
     }
 
-    // Internal box
+    // Internal agent box
     var ibox='';
     if(isAg&&(p.commission||p.contact||p.location||p.note)){
-      ibox='<div style="margin-top:14px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:12px 14px">'+
-        '<div style="font-size:9px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Internal \u2014 not for client</div>'+
+      ibox='<div style="margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 7px 7px 0;padding:10px 12px">'+
+        '<div style="font-size:9px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Internal</div>'+
         [['Commission',p.commission],['Contact',p.contact?(p.contact+(p.firm?' \u00B7 '+p.firm:'')):''],
-         ['Phone',p.contactPhone?'<a href="tel:'+p.contactPhone+'" style="color:#92400e;text-decoration:none;font-weight:700">'+p.contactPhone+'</a>':'',1],
+         ['Phone',p.contactPhone?'<a href="tel:'+p.contactPhone+'" style="color:#92400e;font-weight:700;text-decoration:none">'+p.contactPhone+'</a>':'',1],
          ['Access',p.location],['Note',p.note]]
         .filter(function(r){return r[1];})
-        .map(function(r){return'<div style="display:flex;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:76px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.5">'+(r[2]?r[1]:esc(r[1]))+'</span></div>';})
+        .map(function(r){return'<div style="display:flex;gap:8px;margin-bottom:3px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:70px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.4">'+(r[2]?r[1]:esc(r[1]))+'</span></div>';})
         .join('')+'</div>';
     }
 
     return dtBlock+
-      '<div style="border-bottom:1px solid #ede8e0">'+
-      imgHtml+
-      '<div style="padding:18px 20px 22px">'+
+      '<div style="background:#fff;border-bottom:2px solid #ede8e0">'+
 
-      // Row: number + time + price
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+
-      '<div style="display:flex;align-items:center;gap:8px">'+
-      '<div style="width:24px;height:24px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-size:11px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
-      (p.time?'<span style="font-size:13px;font-weight:500;color:#6b5f4e">'+esc(p.time)+'</span>':'')+
+      // ── Viewing header — light, elegant ──
+      '<div style="padding:11px 17px 10px;display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #f0ece4">'+
+      '<div>'+
+      '<div style="font-size:9px;font-weight:600;color:#9e9080;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px">'+orderLabel+'</div>'+
+      (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:400;color:#0e1520;line-height:1;letter-spacing:-.3px">'+esc(p.time)+'</div>':'<div style="height:6px"></div>')+
       '</div>'+
-      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#b08d57;font-weight:300;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
+      (dScore!=null&&!isAg?'<div style="font-size:12px;font-weight:700;color:'+dCol+'">'+dCircle+' '+esc(dLabel)+'</div>':'')+
       '</div>'+
+
+      // ── Hero image (price overlaid) ──
+      imgHtml+
+
+      // ── Card body ──
+      '<div style="padding:13px 17px 16px">'+
+
+      // Area badge — dominant, above title
+      (displayArea?'<div style="margin-bottom:5px">'+
+      '<span style="font-size:10px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em">'+esc(displayArea)+'</span>'+
+      (regionLine?'<span style="font-size:10px;color:#b08d57;opacity:.6;letter-spacing:.08em"> &middot; '+esc(regionLine)+'</span>':'')+
+      '</div>':'')+
 
       // Title
-      (displayTitle?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;color:#0e1520;font-weight:400;margin-bottom:7px;line-height:1.18;letter-spacing:-.2px">'+esc(displayTitle)+'</div>':'')+
-
-      // Location — area bold, region muted
-      '<div style="margin-bottom:13px">'+
-      '<div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">'+
-      '<svg width="10" height="13" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
-      '<span style="font-size:14px;font-weight:700;color:#1c1a16">'+esc(displayArea)+'</span>'+
-      '</div>'+
-      (regionLine?'<div style="font-size:11px;color:#9e9080;padding-left:15px">'+esc(regionLine)+'</div>':'')+
-      '</div>'+
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:400;color:#0e1520;line-height:1.15;margin-bottom:10px;letter-spacing:-.2px">'+esc(p.title)+'</div>':
+      '<div style="margin-bottom:10px"></div>')+
 
       // Specs
       (p.rooms||p.sqm?
-        '<div style="display:flex;gap:6px;margin-bottom:13px">'+
-        (p.rooms?'<div style="display:flex;align-items:center;gap:5px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:7px;padding:5px 10px">'+
-          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2" stroke-linecap="round"><path d="M2 9V5a2 2 0 012-2h16a2 2 0 012 2v4"/><path d="M2 9h20v11H2z"/></svg>'+
+        '<div style="display:flex;gap:5px;margin-bottom:11px">'+
+        (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M2 9V5a2 2 0 012-2h16a2 2 0 012 2v4"/><path d="M2 9h20v11H2z"/></svg>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span></div>':'')+
-        (p.sqm?'<div style="display:flex;align-items:center;gap:5px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:7px;padding:5px 10px">'+
-          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>'+
+        (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.sqm)+'</span></div>':'')+
         '</div>':'')+
 
-      // Buttons
-      '<div style="display:flex;gap:8px;margin-bottom:16px">'+
-      (p.url?'<a href="'+esc(p.url)+'" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;background:#0e1520;border-radius:9px;padding:11px 14px;letter-spacing:.03em">Full Details &#8250;</a>':'')+
-      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="flex:'+(p.url?'0.65':'1')+';display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:9px;padding:10px 12px;background:#faf8f4">'+
-        '<svg width="10" height="12" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Directions</a>':'')+
+      // Buttons — "View Full Listing" primary, "Directions" secondary
+      '<div style="display:flex;gap:7px;margin-bottom:'+(hl.length?'10':'0')+'px">'+
+      (p.url?'<a href="'+esc(p.url)+'" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;text-decoration:none;background:#0e1520;border-radius:8px;padding:11px 13px;letter-spacing:.03em;font-family:\'Jost\',sans-serif">View Full Listing &#8250;</a>':'')+
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:8px;padding:10px 13px;background:#faf8f4;font-family:\'Jost\',sans-serif"><svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Directions</a>':'')+
       '</div>'+
 
-      // Why I Recommend section
-      (!isAg&&(hl.length||rec||autoComment)?
-        '<div style="border-top:1px solid #ede8e0;padding-top:14px">'+
-
-        // Header
-        '<div style="display:flex;align-items:center;gap:5px;margin-bottom:8px">'+
-        '<svg width="11" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'+
-        '<span style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em">Why I recommend this property</span>'+
-        '</div>'+
-
-        // Rec text
-        (displayRec?'<div style="font-size:13px;color:#3a2e20;line-height:1.65;margin-bottom:11px;font-style:italic">'+esc(displayRec)+'</div>':'')+
-
-        // Chips
-        (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+chips+'</div>'+hiddenDiv+showBtn:'<div></div>')+
-
-        // Agent signature on manual rec
-        (rec&&(S.cfg.agent||S.cfg.agency)?
-          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;margin-top:4px">'+
-          (S.cfg.photo?'<div style="width:18px;height:18px;border-radius:50%;overflow:hidden;flex-shrink:0"><img src="'+S.cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
-          '<span style="font-size:10px;color:#9e9080">\u2014 '+esc(S.cfg.agent||S.cfg.agency)+'</span>'+
-          '</div>':'')+
-
-        // Agent comment — dark premium box
-        (autoComment?
-          '<div style="background:#0e1520;border-radius:9px;padding:13px 15px;margin-top:6px">'+
-          '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:7px">&#128172; '+esc(agentFirstName)+'\'s Comment</div>'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:rgba(255,255,255,.85);line-height:1.65;font-style:italic">\u201C'+esc(autoComment)+'\u201D</div>'+
-          '</div>':'')+
-
-        '</div>':'<div></div>')+
+      // Highlights
+      (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:4px">'+chips+'</div>'+hidDiv+showBtn:'')+
 
       ibox+'</div></div>';
 
@@ -1465,39 +1424,28 @@ function pgOutput(){
     durationStr="From "+ft;
   }
 
-  var coverHdr='<div style="background:#0e1824">'+
-    // Header bar with logo + contact
-    '<div style="display:flex;align-items:center;justify-content:space-between;padding:24px 28px 0">'+
-    logoHtml+
-    '<div style="text-align:right">'+
-    (cfg.phone?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:2px">'+esc(cfg.phone)+'</div>':'')+
-    (cfg.email?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(cfg.email)+'</div>':'')+
-    '</div></div>'+
-    // Gold divider
-    '<div style="margin:20px 28px 0;height:1px;background:linear-gradient(90deg,rgba(176,141,87,.5),transparent)"></div>'+
-    // Hero cover text
-    '<div style="padding:28px 28px 32px">'+
-    (isAg?'<div style="display:inline-block;font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;background:rgba(176,141,87,.1);border:1px solid rgba(176,141,87,.2);border-radius:4px;padding:3px 8px;margin-bottom:16px">Agent Copy</div>':'')+
-    '<div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px;font-weight:500">Your Viewing Day</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:6px">'+fmtDate(day.date)+'</div>'+
-    (c?'<div style="font-size:14px;color:rgba(255,255,255,.55);margin-bottom:4px">Prepared for <span style="color:#fff;font-weight:500">'+esc(c.name)+'</span></div>':'')+
-    coverLocsHtml+
-    // Summary stats row
-    '<div style="display:flex;gap:0;margin-top:28px;border-top:1px solid rgba(255,255,255,.07);padding-top:24px">'+
-    '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:20px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:400;color:#b08d57;line-height:1">'+props.length+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:5px">Propert'+(props.length===1?"y":"ies")+'</div>'+
+  var coverHdr=
+    '<div style="background:#0e1520;padding:26px 22px 28px">'+
+    // NO logo here — lives in nav only
+    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
+    (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1.0;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
+    '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:18px"></div>'+
+    '<div style="display:flex;gap:0">'+
+    '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#b08d57;line-height:1">'+props.length+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(props.length===1?'y':'ies')+'</div>'+
     '</div>'+
-    (ft?'<div style="flex:1;padding-left:20px"+'+(lt&&props.length>1?'";border-right:1px solid rgba(255,255,255,.07);padding-right:20px"':"'")+'>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:400;color:#b08d57;line-height:1">'+esc(ft)+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:5px">First Viewing</div>'+
+    (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#b08d57;line-height:1">'+esc(ft)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First Viewing</div>'+
     '</div>':'')+
-    (lt&&props.length>1?'<div style="flex:1;padding-left:20px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:400;color:#b08d57;line-height:1">'+esc(lt)+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-top:5px">Last Viewing</div>'+
+    (lt&&props.length>1?'<div style="flex:1">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#b08d57;line-height:1">'+esc(lt)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last Viewing</div>'+
     '</div>':'')+
     '</div>'+
-    '</div></div>';
+    '</div>';
   var footerHtml=(function(){
     var wa=cfg.phone?'https://wa.me/'+cfg.phone.replace(/[^0-9]/g,''):'';
     // 70/30 layout — left: contact info, right: portrait photo full bleed
