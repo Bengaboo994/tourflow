@@ -484,6 +484,46 @@ function showMatchModal(propId){
 function closeMatchModal(){
   document.getElementById('ms-modal').classList.add('ms-modal-hide');
 }
+
+function generateWelcomeMsg(v){
+  var c=curC();var d=curD();if(!c||!d)return;
+  var firstName=c.name?c.name.split(" ")[0]:"";
+  var agentName=S.cfg.agent||"";
+  var req=c.req||{};
+  var purpose=req.purpose||"";
+  var props=[].concat(d.properties||[]).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var n=props.length;
+  var t=purpose==="holiday"?"holiday home":purpose==="invest"?"investment":purpose==="perm"?"permanent home":"property";
+  var v2=(v!=null?v:Math.floor(Math.random()*3))%3;
+  var sig=agentName?"\n\n"+agentName:"";
+  var msgs=[
+    "Dear "+firstName+",\n\nI have selected "+n+" propert"+(n===1?"y":"ies")+" based on the criteria we discussed. Each offers unique strengths and potential.\n\nI look forward to showing them to you today and helping you find the right "+t+"."+sig,
+    "Dear "+firstName+",\n\nWelcome to your personalised viewing day. The "+n+" properties I have chosen all meet your key requirements \u2014 I am confident at least one will feel right.\n\nI am here throughout the day to answer any questions."+sig,
+    "Dear "+firstName+",\n\nToday I will guide you through "+n+" carefully selected propert"+(n===1?"y":"ies")+". Each has been chosen with your specific needs in mind.\n\nMy goal is to help you find not just a property, but the right one."+sig
+  ];
+  d.welcomeMsg=msgs[v2];
+  persist();
+  var ta=document.getElementById("welcome-ta");
+  if(ta)ta.value=d.welcomeMsg;
+}
+
+function toggleTopPick(pid){
+  var d=curD();if(!d)return;
+  var pp=d.properties.find(function(x){return x.id===pid;});
+  if(!pp)return;
+  var was=pp.topPick;
+  d.properties.forEach(function(x){x.topPick=false;});
+  pp.topPick=!was;
+  persist();render();
+}
+
+function uploadExistingPropImg(input,dayId,propId){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){updProp(dayId,propId,{ogImage:e.target.result});render();};
+  reader.readAsDataURL(file);
+}
+
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
@@ -951,14 +991,19 @@ function pgDayDetail(){
     (props.length>0?
       '<div style="height:1px;background:var(--fog);margin:6px 0 14px"></div>'+
       '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
-      '<div style="margin-bottom:11px"><label class="lbl">Personal welcome message</label>'+
-      '<textarea class="inp" rows="3" placeholder="Dear [Name], I am excited to show you these carefully selected properties..." style="resize:none;line-height:1.5" oninput="curD().welcomeMsg=this.value;persist()">'+(curD().welcomeMsg||'')+'</textarea></div>'+
+      '<div style="margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">'+
+      '<label class="lbl" style="margin-bottom:0">Welcome message</label>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button onclick="generateWelcomeMsg()" style="font-size:10px;font-weight:600;color:var(--brass);background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#10024; Generate</button>'+
+      '<button onclick="generateWelcomeMsg(Math.floor(Math.random()*3))" style="font-size:10px;color:#9e9080;background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#8635; New version</button>'+
+      '</div></div>'+
+      '<textarea id="welcome-ta" class="inp" rows="5" placeholder="Click Generate for an instant personalised welcome..." style="resize:none;line-height:1.6;margin-top:6px" oninput="curD().welcomeMsg=this.value;persist()">'+(curD().welcomeMsg||'')+'</textarea>'+
 
       '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
       '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
-      '<button class="btn btn-g" onclick="copyWA()">&#128228; Copy WhatsApp message</button>':'')+
+      '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Copy WhatsApp</button>':'')+
     '</div>';
 }
 function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note")});S.addEv=false;render();}
@@ -966,27 +1011,37 @@ function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),t
 // ── WHATSAPP ──────────────────────────────────────────────────────────────────
 function copyWA(){
   var day=curD();if(!day)return;
-  var c=curC();
+  var c=curC();var cfg=S.cfg;
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
-  var div="---------------------";
-  var blocks=props.map(function(p,i){
-    var area=p.address?p.address.split(",").slice(-2).join(",").trim():getDomain(p.url);
-    var b=(i+1)+". *"+(p.time?p.time+" - ":"")+area+"*\n";
-    if(p.title)b+=p.title+"\n";
-    var meta=[p.price,p.rooms,p.sqm].filter(Boolean).join(" - ");
-    if(meta)b+="&#x1F4B0; "+meta+"\n";
-    if(p.url)b+="&#x1F517; "+p.url.replace(/^https?:\/\//,"")+"\n";
-    if(p.mapsUrl)b+="&#x1F4CD; "+p.mapsUrl.replace(/^https?:\/\//,"");
-    return b.trim();
-  }).join("\n"+div+"\n");
-  var cfg=S.cfg;
-  var header="&#x1F3E0; *Viewing Day - "+fmtDate(day.date)+"*"+(c?"\nHi *"+c.name+"*! Here are your properties for the day.":"");
-  var footer=(cfg.agent||cfg.agency)?"&#x1F4DE; "+(cfg.agent||cfg.agency)+(cfg.phone?" - "+cfg.phone:""):"";
-  var msg=header+"\n\n"+div+"\n"+blocks+"\n"+div+(footer?"\n"+footer:"");
-  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(function(){alert("Copied! Paste into WhatsApp.");});}
-  else{var ta=document.createElement("textarea");ta.value=msg;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("Copied!");}
+  var line="---------------------";
+  var name=c?c.name.split(" ")[0]:"";
+  var greeting="Hi"+(name?" "+name+",":",")+"\n\nYour personalised viewing itinerary for *"+fmtDate(day.date)+"* is ready:\n";
+  var blocks=props.map(function(p,idx){
+    var area=p.address?p.address.split(",").slice(-1)[0].trim():getDomain(p.url);
+    var ls=["*Property "+(idx+1)+(p.topPick?" - TOP PICK":"")+":* "+(p.title||area)];
+    if(p.time)ls.push("Time: *"+p.time+"*");
+    if(area)ls.push(area);
+    var meta=[p.price,p.rooms,p.sqm].filter(Boolean);
+    if(meta.length)ls.push(meta.join(" - "));
+    if(p.highlights&&p.highlights.length)ls.push("Highlights: "+p.highlights.slice(0,3).join(", "));
+    if(p.agentRec)ls.push('"'+p.agentRec+'"');
+    if(p.url)ls.push(p.url);
+    if(p.mapsUrl)ls.push("Directions: "+p.mapsUrl);
+    return ls.join("\n");
+  }).join("\n\n"+line+"\n\n");
+  var footer="";
+  if(cfg.agent||cfg.agency){
+    footer="\n\n"+line+"\n"+(cfg.agent||cfg.agency);
+    if(cfg.agency&&cfg.agent)footer+="\n"+cfg.agency;
+    if(cfg.phone)footer+="\n"+cfg.phone;
+    if(cfg.email)footer+="\n"+cfg.email;
+  }
+  var msg=greeting+"\n"+line+"\n\n"+blocks+footer;
+  var btn=document.getElementById("wa-btn");
+  function done(){if(btn){btn.textContent="Copied!";btn.style.background="#128C4A";}setTimeout(function(){if(btn){btn.textContent="Copy WhatsApp";btn.style.background="#25D366";}},2500);}
+  function fb(t,cb){var ta=document.createElement("textarea");ta.value=t;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");cb();}catch(e){alert("Could not copy.");}document.body.removeChild(ta);}
+  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(done).catch(function(){fb(msg,done);});}else{fb(msg,done);}
 }
-
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
@@ -1119,167 +1174,271 @@ function pgOutput(){
   var pi=0;
   var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
 
-  // Ordered locations for drive time: [meetingPoint?, prop0, prop1...]
+  // Drive time locations
   var orderedLocs=[];
-  var mpEvOut=(day.events||[]).find(function(e){return e.type==='meetingpoint';});
+  var mpEvOut=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
   if(mpEvOut&&(mpEvOut.title||mpEvOut.note))orderedLocs.push(mpEvOut.title||(mpEvOut.note||''));
   props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
 
+  // Icon map — HTML entities only
+  var ICON={
+    'Pool':'&#127946;','Walking distance to beach':'&#127958;','South facing':'&#9728;',
+    'Within budget':'&#128176;','Near golf':'&#9971;','Key ready':'&#128273;',
+    'Recently renovated':'&#128296;','Private garden':'&#127807;','Garage':'&#128664;',
+    'Sea view':'&#127754;','Rental potential':'&#128200;','Excellent value':'&#11088;',
+    'Family friendly':'&#128106;','Holiday home potential':'&#127965;',
+    'Restaurants nearby':'&#127860;','Quiet area':'&#127807;','Prime location':'&#128205;',
+    'Gated community':'&#127968;','Large terrace':'&#127795;','Hot listing':'&#128293;',
+    'Everything within walking distance':'&#127937;','Close to amenities':'&#127869;'
+  };
+
+  // Rec phrase map
+  var REC={
+    'Pool':'a private pool','Walking distance to beach':'walking distance to the beach',
+    'South facing':'a south-facing orientation with excellent natural light',
+    'Within budget':'excellent value within your budget','Near golf':'proximity to golf',
+    'Key ready':'immediate availability','Recently renovated':'a fully renovated interior',
+    'Private garden':'private outdoor space','Sea view':'impressive sea views',
+    'Rental potential':'strong rental income potential',
+    'Holiday home potential':'strong appeal as a holiday retreat',
+    'Quiet area':'a calm residential setting','Prime location':'a prime location',
+    'Gated community':'the security of a gated community',
+    'Large terrace':'generous terrace space','Excellent value':'outstanding value for money',
+    'Garage':'dedicated parking','Close to amenities':'everything within easy reach'
+  };
+
+  // Comment templates — personal advisor tone
+  var COMMENTS=[
+    'The combination of location and price here is genuinely strong. Of all the properties today, this is the one I would personally look at most carefully.',
+    'Properties like this at this price point are increasingly rare in this area. I would not leave today without a second opinion on it.',
+    'The outdoor space here is difficult to find at this price. It is one of the details that tends to matter most once clients move in.',
+    'From an investment perspective, this one stands out. The area has been performing consistently well and I expect that to continue.',
+    'This is the type of home that tends to move quickly. If it resonates with you today, I would not wait to act.',
+    'I have shown many properties in this area and this one genuinely stands out for what you get at the price.'
+  ];
+
   var rows=all.map(function(item){
     if(item.k==="e"){
-      var e=item.d,et=getET(e.type);
+      var e=item.d, et=getET(e.type);
       if(et.isMeetingPoint){
-        return '<div style="background:#0e1520;padding:16px 28px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:14px">'+
-          '<div style="width:32px;height:32px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px">&#128205;</div>'+
-          '<div>'+
-          '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:3px">Meeting Point</div>'+
+        return '<div style="background:#0e1520;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+          '<div style="width:30px;height:30px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px">&#128205;</div>'+
+          '<div><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:2px">Meeting Point</div>'+
           '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
-          (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:2px">'+esc(e.time)+'</div>':'')+
-          (e.note?'<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:2px">'+esc(e.note)+'</div>':'')+
+          (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">'+esc(e.time)+'</div>':'')+
           '</div></div>';
       }
-      return '<div style="padding:16px 28px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
-        '<span style="font-size:22px">'+et.icon+'</span><div>'+
-        (e.time?'<span style="font-weight:700;font-size:15px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
+      return '<div style="padding:14px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
+        '<span style="font-size:20px">'+et.icon+'</span>'+
+        '<div>'+(e.time?'<span style="font-weight:700;font-size:14px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
         '<span style="font-size:14px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
-        (e.note?'<div style="font-size:12px;color:#888;margin-top:2px">'+esc(e.note)+'</div>':'')+
+        (e.note?'<div style="font-size:11px;color:#888;margin-top:2px">'+esc(e.note)+'</div>':'')+
         '</div></div>';
     }
-    var p=item.d;var i=pi++;
-    // Drive time from previous stop
-    var prevLoc=orderedLocs[i]||'';
-    var thisLoc=orderedLocs[i+1]||'';
-    var dtBlock=(!isAg&&prevLoc&&thisLoc)?driveTimeHtml(prevLoc,thisLoc):'';
-    var rawPrice=p.price||"";
-    var fmtPrice=rawPrice.replace(/(\d[\d\s,.]*)[\s]*EUR/i,"€$1").replace(/(\d[\d\s,.]*)[\s]*SEK/i,"$1 kr").trim()||rawPrice;
+
+    var p=item.d; var idx=pi++;
+    var dtBlock=(!isAg&&orderedLocs[idx]&&orderedLocs[idx+1])?driveTimeHtml(orderedLocs[idx],orderedLocs[idx+1]):'';
+
+    // Price
+    var fmtPrice=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').replace(/(\d[\d\s,.]*)[\s]*SEK/i,'$1 kr').trim()||p.price||'';
+
+    // Match score
     var ms=matchScore(dayClient,p);
-    var badgeCol=ms&&ms.score>=90?'#059669':ms&&ms.score>=75?'#b08d57':ms&&ms.score>=60?'#d97706':'#dc2626';
-    var badgeLabel=ms&&ms.score>=90?'EXCELLENT':ms&&ms.score>=75?'GOOD MATCH':ms&&ms.score>=60?'FAIR MATCH':'LOW MATCH';
-    // If no req-based score, derive score from highlights count (max 10 highlights = 100%)
-    var displayScore=null;
-    var displayLabel='';
-    var displayCol='#b08d57';
-    if(ms&&ms.score!=null){
-      displayScore=ms.score;
-    } else if(p.highlights&&p.highlights.length>0){
-      displayScore=Math.min(100,Math.round(p.highlights.length/10*100));
+    var dScore=null, dCol='#b08d57', dLabel='', dSub='';
+    if(ms&&ms.score!=null){dScore=ms.score;}
+    else if(p.highlights&&p.highlights.length){dScore=Math.min(100,Math.round(p.highlights.length/10*100));}
+    if(dScore!=null){
+      if(dScore>=90){dCol='#059669';dLabel='Excellent Match';}
+      else if(dScore>=80){dCol='#0284c7';dLabel='Recommended';}
+      else if(dScore>=70){dCol='#b08d57';dLabel='Strong Match';}
+      else if(dScore>=55){dCol='#d97706';dLabel='Good Potential';}
+      else{dCol='#9e9080';dLabel='Worth Viewing';}
     }
-    if(displayScore!=null){
-      displayCol=displayScore>=90?'#059669':displayScore>=75?'#b08d57':displayScore>=60?'#d97706':'#dc2626';
-      displayLabel=displayScore>=90?'EXCELLENT':displayScore>=75?'GOOD MATCH':displayScore>=60?'FAIR MATCH':'LOW MATCH';
+    if(ms&&ms.results&&ms.results.length){
+      dSub='Matches '+ms.results.filter(function(r){return r.pass;}).length+'/'+ms.results.length+' preferences';
+    } else if(dScore!=null){
+      dSub=dScore+'% match';
     }
-    var msBadge=displayScore!=null?
-      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:7px 11px;cursor:pointer;text-align:right;box-shadow:0 2px 12px rgba(0,0,0,.3);z-index:10">'+
-      '<div style="font-size:16px;font-weight:700;color:'+displayCol+';line-height:1">'+displayScore+'%</div>'+
-      '<div style="font-size:8px;font-weight:700;color:'+displayCol+';text-transform:uppercase;letter-spacing:.08em;margin-top:2px">'+displayLabel+'</div>'+
+
+    // Match badge
+    var msBadge=dScore!=null?
+      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(10,14,22,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:6px 11px;cursor:pointer;text-align:left;box-shadow:0 4px 16px rgba(0,0,0,.4);z-index:10">'+
+      '<div style="font-size:12px;font-weight:700;color:'+dCol+';line-height:1;letter-spacing:-.1px">'+dLabel+'</div>'+
+      '<div style="font-size:9px;color:rgba(255,255,255,.45);margin-top:2px">'+dSub+'</div>'+
       '</button>':'';
+
+    // Top pick badge
+    var tpBadge=(!isAg&&p.topPick)?
+      '<div style="position:absolute;bottom:12px;left:12px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:6px;padding:4px 10px;display:flex;align-items:center;gap:5px;box-shadow:0 2px 10px rgba(0,0,0,.3)">'+
+      '<span style="font-size:10px">&#11088;</span><span style="font-size:10px;font-weight:700;color:#fff;letter-spacing:.08em;text-transform:uppercase">Top Pick</span></div>':'';
+
+    // Hero
     var imgHtml=p.ogImage
-      ?'<div style="position:relative;height:280px;overflow:hidden;margin:0 -28px 22px -28px">'+
+      ?'<div style="position:relative;height:255px;overflow:hidden">'+
         '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
-        msBadge+
-        '</div>'
-      :'<div style="position:relative;height:120px;background:linear-gradient(160deg,#1a2535,#0a0f14);margin:0 -28px 22px -28px;display:flex;align-items:center;justify-content:center">'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:rgba(176,141,87,.3)">'+(i+1)+'</div>'+
-        msBadge+
-        '</div>';
-    var ibox="";
-    if(isAg&&(p.commission||p.contact||p.location||p.note)){
-      ibox='<div style="margin-top:16px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:13px 16px">'+
-        '<div style="font-size:9px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Internal — not for client</div>'+
-        [["Commission",p.commission],["Contact",p.contact?(p.contact+(p.firm?" · "+p.firm:"")):""],["Phone",p.contactPhone?"<a href='tel:"+p.contactPhone+"' style='color:#92400e;text-decoration:none;font-weight:700'>"+p.contactPhone+"</a>":"",1],["Access",p.location],["Note",p.note]]
-        .filter(function(r){return r[1];})
-        .map(function(r){return'<div style="display:flex;gap:10px;margin-bottom:5px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:88px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.5">'+(r[2]?r[1]:esc(r[1]))+'</span></div>';}).join("")+'</div>';
-    }
-    // Extract area (last part of address)
-    var area="";var street="";
-    if(p.address){
-      var addrParts=p.address.split(",");
-      if(addrParts.length>1){
-        area=addrParts[addrParts.length-1].trim();
-        street=addrParts.slice(0,addrParts.length-1).join(",").trim();
-      } else {
-        area=p.address.trim();
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.28) 100%)"></div>'+
+        msBadge+tpBadge+'</div>'
+      :'<div style="position:relative;height:130px;background:linear-gradient(160deg,#1a2535,#0a0f14);display:flex;align-items:center;justify-content:center">'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:48px;font-weight:300;color:rgba(176,141,87,.12)">'+(idx+1)+'</div>'+
+        msBadge+tpBadge+'</div>';
+
+    // Location — area is hero, street hidden
+    var addrParts=(p.address||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+    var area=addrParts.length>0?addrParts[addrParts.length-1]:'';
+    var town=addrParts.length>1?addrParts[addrParts.length-2]:'';
+    var displayArea=town||area;
+    var regionLine=town&&area&&town!==area?area:'';
+
+    // AI-style title generation if title looks generic
+    var displayTitle=p.title||'';
+    if(displayTitle){
+      // Detect generic portal titles and enhance
+      var lower=displayTitle.toLowerCase();
+      var isGeneric=(lower.match(/^\d/))||(lower.indexOf('ref:')>=0)||(lower.length<8);
+      if(isGeneric&&displayArea){
+        displayTitle='Property in '+displayArea;
       }
     }
 
-    // Area highlights lines
-    var areaLines=p.areaNote?p.areaNote.split('\n').filter(function(x){return x.trim();}).map(function(x){return x.trim();}).slice(0,5):[];
+    // Highlights
+    var hl=p.highlights||[];
+    var rec=p.agentRec||'';
+    var agentComment=p.agentComment||'';
 
-    // Top pick badge (client only)
-    var topPickBadge=(!isAg&&p.topPick)?
-      '<div style="background:linear-gradient(90deg,#b08d57,#d4a84b);padding:12px 20px;display:flex;align-items:center;gap:10px;margin-bottom:0">'+
-      '<span style="font-size:18px">&#11088;</span>'+
-      '<div><div style="font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.12em">'+esc(cfg.agent||'Agent')+' Top Pick</div>'+
-      '<div style="font-size:11px;color:rgba(255,255,255,.75);margin-top:1px">Best overall match based on your requirements</div></div>'+
-      '</div>':'';
+    // Auto recommendation
+    var autoRec='';
+    if(hl.length>=3){
+      autoRec='This property stands out for '+
+        (REC[hl[0]]||hl[0].toLowerCase())+', '+
+        (REC[hl[1]]||hl[1].toLowerCase())+' and '+
+        (REC[hl[2]]||hl[2].toLowerCase())+
+        '. A strong option worth prioritising today.';
+    } else if(hl.length===2){
+      autoRec='This property combines '+(REC[hl[0]]||hl[0].toLowerCase())+
+        ' with '+(REC[hl[1]]||hl[1].toLowerCase())+
+        ' \u2014 making it one of the stronger options on today\'s schedule.';
+    } else if(hl.length===1){
+      autoRec='Notably offers '+(REC[hl[0]]||hl[0].toLowerCase())+', which is difficult to find at this price point.';
+    }
+    var displayRec=rec||autoRec;
+
+    // Agent comment
+    var autoComment=agentComment||(hl.length?COMMENTS[idx%COMMENTS.length]:'');
+    var agentFirstName=S.cfg.agent?(S.cfg.agent.split(' ')[0]):'Your Agent';
+
+    // Highlight chips — max 4, rest behind button
+    var visHl=hl.slice(0,4); var hidHl=hl.slice(4);
+    var chips=visHl.map(function(h){
+      return '<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 10px 3px 7px;font-size:11px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
+        '<span style="font-size:12px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';
+    }).join('');
+
+    // Hidden chips stored in a data-div, revealed by button
+    var hiddenDiv=''; var showBtn='';
+    if(hidHl.length){
+      hiddenDiv='<div id="hx-'+p.id+'" style="display:none;flex-wrap:wrap;gap:5px;margin-top:5px">'+
+        hidHl.map(function(h){
+          return '<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 10px 3px 7px;font-size:11px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
+            '<span style="font-size:12px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';
+        }).join('')+'</div>';
+      showBtn='<button onclick="'+
+        'var hx=document.getElementById(\'hx-'+p.id+'\');'+
+        'hx.style.display=\'flex\';'+
+        'this.style.display=\'none\''+
+        '" style="font-size:11px;color:#b08d57;background:none;border:none;cursor:pointer;font-family:inherit;padding:3px 0">+'+hidHl.length+' more</button>';
+    }
+
+    // Internal box
+    var ibox='';
+    if(isAg&&(p.commission||p.contact||p.location||p.note)){
+      ibox='<div style="margin-top:14px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:12px 14px">'+
+        '<div style="font-size:9px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Internal \u2014 not for client</div>'+
+        [['Commission',p.commission],['Contact',p.contact?(p.contact+(p.firm?' \u00B7 '+p.firm:'')):''],
+         ['Phone',p.contactPhone?'<a href="tel:'+p.contactPhone+'" style="color:#92400e;text-decoration:none;font-weight:700">'+p.contactPhone+'</a>':'',1],
+         ['Access',p.location],['Note',p.note]]
+        .filter(function(r){return r[1];})
+        .map(function(r){return'<div style="display:flex;gap:8px;margin-bottom:4px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:76px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.5">'+(r[2]?r[1]:esc(r[1]))+'</span></div>';})
+        .join('')+'</div>';
+    }
 
     return dtBlock+
       '<div style="border-bottom:1px solid #ede8e0">'+
-      topPickBadge+
-      '<div style="padding:32px 28px 28px">'+
       imgHtml+
-      // Number + time + price
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
-      '<div style="display:flex;align-items:center;gap:10px">'+
-      '<div style="width:30px;height:30px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-weight:500;font-size:13px;flex-shrink:0">'+(i+1)+'</div>'+
-      (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:400;color:#0e1520">'+esc(p.time)+'</div>':'')+
-      '</div>'+
-      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#b08d57;font-weight:400">'+esc(fmtPrice)+'</div>':'')+
-      '</div>'+
-      // Title
-      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#0e1520;font-weight:400;margin-bottom:8px;line-height:1.25">'+esc(p.title)+'</div>':'')+
-      // Area (primary) + street (secondary)
-      (area?'<div style="font-size:14px;font-weight:600;color:#4a3e30;margin-bottom:2px">'+esc(area)+'</div>':'')+
-      (street?'<div style="font-size:12px;color:#9e9080;margin-bottom:16px">'+esc(street)+'</div>':'<div style="margin-bottom:16px"></div>')+
-      // Specs pills
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">'+
-      (p.rooms?'<span style="background:#f5f0e8;color:#4a3e30;font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:1px solid #e8e0d4">'+esc(p.rooms)+'</span>':'')+
-      (p.sqm?'<span style="background:#f5f0e8;color:#4a3e30;font-size:11px;font-weight:600;padding:5px 14px;border-radius:100px;border:1px solid #e8e0d4">'+esc(p.sqm)+'</span>':'')+
-      '</div>'+
-      // Buttons
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px">'+
-      (p.url?'<a href="'+esc(p.url)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#b08d57;text-decoration:none;border:1px solid rgba(176,141,87,.35);border-radius:6px;padding:7px 14px">&#128279; View Listing</a>':'')+
-      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#1a73e8;text-decoration:none;border:1px solid rgba(26,115,232,.25);border-radius:6px;padding:7px 14px">&#128205; Directions</a>':'')+
-      '</div>'+
-      // Match score (agent view only in viewing list)
+      '<div style="padding:18px 20px 22px">'+
 
-      // Property Highlights (client only)
-      (!isAg&&p.highlights&&p.highlights.length?
-        '<div style="margin-top:20px">'+
-        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px">&#11088; Property Highlights</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:7px">'+
-        (function(){
-          var out='';
-          p.highlights.forEach(function(label){
-            var hl=HIGHLIGHTS.find(function(h){return h[2]===label;})||['','&#9679;',label];
-            out+='<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;background:#f5f0e8;border:1px solid #e0d8c8;font-size:12px;font-weight:500;color:#4a3e30">'+
-              '<span>'+hl[1]+'</span><span>'+esc(label)+'</span></span>';
-          });
-          return out;
-        })()+
-        '</div></div>':'<div></div>')+
-      // Area highlights card (client only)
-      (!isAg&&areaLines.length?
-        '<div style="background:#f5f2ec;border-radius:10px;padding:16px 18px;margin-bottom:18px">'+
-        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px">&#128205; '+esc(area||'Area highlights')+'</div>'+
-        areaLines.map(function(line){
-          var icons=['&#127958;','&#127869;','&#9971;','&#127965;','&#127757;','&#127754;','&#129362;','&#127795;'];
-          var m=line.match(/^([^\s]+)\s+(.*)/);
-          var icon=m&&m[1]?m[1]:'&#8226;';
-          var txt=m&&m[2]?m[2]:line;
-          return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><span style="font-size:15px;width:22px;text-align:center">'+icon+'</span><span style="font-size:12px;color:#4a3e30;font-weight:500">'+esc(txt)+'</span></div>';
-        }).join('')+
+      // Row: number + time + price
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+      '<div style="width:24px;height:24px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-size:11px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
+      (p.time?'<span style="font-size:13px;font-weight:500;color:#6b5f4e">'+esc(p.time)+'</span>':'')+
+      '</div>'+
+      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#b08d57;font-weight:300;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
+      '</div>'+
+
+      // Title
+      (displayTitle?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;color:#0e1520;font-weight:400;margin-bottom:7px;line-height:1.18;letter-spacing:-.2px">'+esc(displayTitle)+'</div>':'')+
+
+      // Location — area bold, region muted
+      '<div style="margin-bottom:13px">'+
+      '<div style="display:flex;align-items:center;gap:5px;margin-bottom:1px">'+
+      '<svg width="10" height="13" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
+      '<span style="font-size:14px;font-weight:700;color:#1c1a16">'+esc(displayArea)+'</span>'+
+      '</div>'+
+      (regionLine?'<div style="font-size:11px;color:#9e9080;padding-left:15px">'+esc(regionLine)+'</div>':'')+
+      '</div>'+
+
+      // Specs
+      (p.rooms||p.sqm?
+        '<div style="display:flex;gap:6px;margin-bottom:13px">'+
+        (p.rooms?'<div style="display:flex;align-items:center;gap:5px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:7px;padding:5px 10px">'+
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2" stroke-linecap="round"><path d="M2 9V5a2 2 0 012-2h16a2 2 0 012 2v4"/><path d="M2 9h20v11H2z"/></svg>'+
+          '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span></div>':'')+
+        (p.sqm?'<div style="display:flex;align-items:center;gap:5px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:7px;padding:5px 10px">'+
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>'+
+          '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.sqm)+'</span></div>':'')+
+        '</div>':'')+
+
+      // Buttons
+      '<div style="display:flex;gap:8px;margin-bottom:16px">'+
+      (p.url?'<a href="'+esc(p.url)+'" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;background:#0e1520;border-radius:9px;padding:11px 14px;letter-spacing:.03em">Full Details &#8250;</a>':'')+
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="flex:'+(p.url?'0.65':'1')+';display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:9px;padding:10px 12px;background:#faf8f4">'+
+        '<svg width="10" height="12" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Directions</a>':'')+
+      '</div>'+
+
+      // Why I Recommend section
+      (!isAg&&(hl.length||rec||autoComment)?
+        '<div style="border-top:1px solid #ede8e0;padding-top:14px">'+
+
+        // Header
+        '<div style="display:flex;align-items:center;gap:5px;margin-bottom:8px">'+
+        '<svg width="11" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>'+
+        '<span style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em">Why I recommend this property</span>'+
+        '</div>'+
+
+        // Rec text
+        (displayRec?'<div style="font-size:13px;color:#3a2e20;line-height:1.65;margin-bottom:11px;font-style:italic">'+esc(displayRec)+'</div>':'')+
+
+        // Chips
+        (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+chips+'</div>'+hiddenDiv+showBtn:'<div></div>')+
+
+        // Agent signature on manual rec
+        (rec&&(S.cfg.agent||S.cfg.agency)?
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;margin-top:4px">'+
+          (S.cfg.photo?'<div style="width:18px;height:18px;border-radius:50%;overflow:hidden;flex-shrink:0"><img src="'+S.cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
+          '<span style="font-size:10px;color:#9e9080">\u2014 '+esc(S.cfg.agent||S.cfg.agency)+'</span>'+
+          '</div>':'')+
+
+        // Agent comment — dark premium box
+        (autoComment?
+          '<div style="background:#0e1520;border-radius:9px;padding:13px 15px;margin-top:6px">'+
+          '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:7px">&#128172; '+esc(agentFirstName)+'\'s Comment</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:rgba(255,255,255,.85);line-height:1.65;font-style:italic">\u201C'+esc(autoComment)+'\u201D</div>'+
+          '</div>':'')+
+
         '</div>':'<div></div>')+
-      // Why I chose this property (client only)
-      (!isAg&&p.agentRec?
-        '<div style="background:linear-gradient(135deg,#0e1520 0%,#162030 100%);border-radius:10px;padding:22px 22px 18px">'+
-        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:12px">Why I chose this property</div>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.7;font-style:italic">&ldquo;'+esc(p.agentRec)+'&rdquo;</div>'+
-        '<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">'+
-        (cfg.photo?'<div style="width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0;border:1px solid rgba(176,141,87,.3)"><img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
-        '<span style="font-size:11px;color:rgba(176,141,87,.8);font-weight:500">&mdash; '+esc(cfg.agent||cfg.agency||'Your Agent')+'</span>'+
-        '</div></div>':'')+
+
       ibox+'</div></div>';
+
   }).join("");
 
   var logoHtml=cfg.logo
