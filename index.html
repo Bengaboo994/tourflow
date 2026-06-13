@@ -234,9 +234,24 @@ function matchScore(c,p){
     var keyword=(tmap[req.type]||req.type).toLowerCase();
     score('type','Property type',(p.title+' '+(p.address||'')).toLowerCase().indexOf(keyword)>=0);
   }
-  // Area notes / features — checked against agentRec + areaNote + title
-  var searchText=(p.agentRec||'')+' '+(p.areaNote||'')+' '+(p.title||'')+' '+(p.address||'');
+  // Match against Property Highlights (structured) first, then text fallback
+  var hl=p.highlights||[];
+  var hlStr=hl.join(' ').toLowerCase();
+  var searchText=(p.agentRec||'')+' '+(p.areaNote||'')+' '+(p.title||'')+' '+(p.address||'')+' '+hlStr;
   var sl=searchText.toLowerCase();
+
+  // Highlight-to-requirement mapping
+  var hlMap={
+    pool:['Pool'],
+    beach:['Walking distance to beach'],
+    restaurants:['Restaurants nearby','Close to amenities','Everything within walking distance'],
+    golf:['Near golf'],
+    garden:['Large terrace','Private garden','South facing'],
+    garage:['Garage'],
+    newbuild:['Key ready','Recently renovated'],
+    community:['Prime location','Quiet area']
+  };
+
   var feats={
     pool:['pool','piscina'],beach:['beach','sea','costa','mar','playa'],
     restaurants:['restaurant','dining','gastronomy'],golf:['golf'],
@@ -244,14 +259,31 @@ function matchScore(c,p){
     newbuild:['new build','newbuild','new development','obra nueva'],
     community:['gated','community','urbanizaci']
   };
+
   Object.keys(feats).forEach(function(k){
     if(!req[k])return;
-    var found=feats[k].some(function(w){return sl.indexOf(w)>=0;});
+    // Check highlights array first (most reliable)
+    var hlMatch=(hlMap[k]||[]).some(function(h){
+      return hl.indexOf(h)>=0;
+    });
+    // Fallback to text search
+    var txtMatch=feats[k].some(function(w){return sl.indexOf(w)>=0;});
     var labels={pool:'Pool',beach:'Near beach',restaurants:'Near restaurants',golf:'Near golf',garden:'Garden/Terrace',garage:'Parking',newbuild:'New build',community:'Gated community'};
-    score(k,labels[k],found);
+    score(k,labels[k],hlMatch||txtMatch);
   });
 
-  if(!results.length)return null;
+  // Also score "Within budget" highlight against budget req
+  if(req.budget&&hl.indexOf('Within budget')>=0){
+    // Already covered above — but boost confidence if agent confirmed it
+  }
+
+  if(!results.length){
+    // No requirements set — show highlights count as soft score
+    if(hl.length>0){
+      return{score:null,results:[],highlights:hl};
+    }
+    return null;
+  }
   var weights={must:3,important:2,nice:1};
   var total=0,got=0;
   results.forEach(function(r){var w=weights[r.level]||1;total+=w;if(r.pass)got+=w;});
@@ -342,6 +374,48 @@ function driveTimeHtml(from,to){
     '</div></div>';
 }
 // ─────────────────────────────────────────────────────────────────
+var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"]];
+
+function toggleHighlight(dayId,propId,label){
+  if(dayId==='__new__'){
+    window._newHighlights=window._newHighlights||[];
+    var ni=window._newHighlights.indexOf(label);
+    if(ni>=0)window._newHighlights.splice(ni,1);
+    else window._newHighlights.push(label);
+    var wrap=document.getElementById('ap-hl-wrap');
+    if(wrap)wrap.innerHTML=hlPickerHtml('__new__','__new__',window._newHighlights);
+    return;
+  }
+  var d=S.days.find(function(x){return x.id===dayId;});
+  if(!d)return;
+  var p=d.properties.find(function(x){return x.id===propId;});
+  if(!p)return;
+  p.highlights=p.highlights||[];
+  var idx=p.highlights.indexOf(label);
+  if(idx>=0)p.highlights.splice(idx,1);
+  else p.highlights.push(label);
+  persist();render();
+}
+function hlPickerHtml(dayId,propId,selected){
+  selected=selected||[];
+  var cats={};
+  HIGHLIGHTS.forEach(function(h){cats[h[0]]=cats[h[0]]||[];cats[h[0]].push(h);});
+  var html='<div style="margin-bottom:9px"><label class="lbl">Property Highlights</label>';
+  Object.keys(cats).forEach(function(cat){
+    html+='<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px">'+cat+'</div>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    cats[cat].forEach(function(h){
+      var on=selected.indexOf(h[2])>=0;
+      html+='<button onclick="toggleHighlight(\''+dayId+'\',\''+propId+'\',\''+h[2]+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;border:1.5px solid '+(on?'#b08d57':'var(--fog)')+';background:'+(on?'#0e1520':'var(--mist)')+';color:'+(on?'#c9a84c':'var(--slate)')+';font-size:11px;font-weight:'+(on?'600':'400')+';cursor:pointer;font-family:inherit">'+
+        '<span>'+h[1]+'</span><span>'+h[2]+'</span>'+
+        '</button>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  return html;
+}
+
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
@@ -810,12 +884,10 @@ function pgDayDetail(){
       '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
       '<div style="margin-bottom:11px"><label class="lbl">Personal welcome message</label>'+
       '<textarea class="inp" rows="3" placeholder="Dear [Name], I am excited to show you these carefully selected properties..." style="resize:none;line-height:1.5" oninput="curD().welcomeMsg=this.value;persist()">'+(curD().welcomeMsg||'')+'</textarea></div>'+
-      '<div style="margin-bottom:11px"><label class="lbl">Client requirements <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
-      '<textarea class="inp" rows="4" placeholder="2-3 Bedrooms&#10;Walking distance to restaurants&#10;Outdoor space&#10;Budget €350,000" style="resize:none;line-height:1.6" oninput="curD().requirements=this.value;persist()">'+(curD().requirements||'')+'</textarea></div>'+
+
       '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
-      '<div style="margin-bottom:11px"><label class="lbl">Agency website <span style="color:#9e9080;font-weight:300;font-size:10px">optional</span></label>'+
-      '<input class="inp" placeholder="https://www.youragency.com" value="'+(curD().agencyWeb||'')+'" oninput="curD().agencyWeb=this.value;persist()"/></div>'+
+
       '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
       '<button class="btn btn-g" onclick="copyWA()">&#128228; Copy WhatsApp message</button>':'')+
     '</div>';
@@ -870,8 +942,9 @@ function pgAddProp(){
     '<div id="maps-prev"></div></div>'+
     '<div style="height:1px;background:var(--fog);margin:16px 0 14px"></div>'+
     '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
-    '<div style="margin-bottom:11px"><label class="lbl">Agent recommendation</label>'+
-    '<textarea class="inp" id="ap-rec" rows="3" placeholder="Why I selected this property for you..." style="resize:none;line-height:1.5"></textarea></div>'+
+    '<div id="ap-hl-wrap">'+hlPickerHtml('__new__','__new__',window._newHighlights||[])+'</div>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9080;font-weight:300;font-size:10px">optional</span></label>'+
+    '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
     '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
     '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
@@ -960,7 +1033,8 @@ function saveProp(did){
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  window._newHighlights=[];
   _intOpen=false;go("day-detail");
 }
 
@@ -1074,6 +1148,21 @@ function pgOutput(){
       '</div>'+
       // Match score (agent view only in viewing list)
       (ms?'<div style="margin-top:14px">'+scoreBadge(ms)+(isAg?scoreBreakdown(ms):'')+'</div>':'')+
+      // Property Highlights (client only)
+      (!isAg&&p.highlights&&p.highlights.length?
+        '<div style="margin-top:20px">'+
+        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:10px">&#11088; Property Highlights</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:7px">'+
+        (function(){
+          var out='';
+          p.highlights.forEach(function(label){
+            var hl=HIGHLIGHTS.find(function(h){return h[2]===label;})||['','&#9679;',label];
+            out+='<span style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;background:#f5f0e8;border:1px solid #e0d8c8;font-size:12px;font-weight:500;color:#4a3e30">'+
+              '<span>'+hl[1]+'</span><span>'+esc(label)+'</span></span>';
+          });
+          return out;
+        })()+
+        '</div></div>':'<div></div>')+
       // Area highlights card (client only)
       (!isAg&&areaLines.length?
         '<div style="background:#f5f2ec;border-radius:10px;padding:16px 18px;margin-bottom:18px">'+
@@ -1193,12 +1282,24 @@ function pgOutput(){
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#2a1f14;line-height:1.7;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
     '<div style="margin-top:14px;font-size:12px;color:#9e9080">'+esc(cfg.agent||cfg.agency||'')+'</div>'+
     '</div>':'')+
-    (!isAg&&day.requirements?(function(){
-      var reqs=day.requirements.split('\n').map(function(x){return x.trim();}).filter(function(x){return x;});
-      if(!reqs.length)return'';
+    (!isAg&&c&&c.req?(function(){
+      var req=c.req;
+      var budgetLabels={'u100':'Under €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'€800k+'};
+      var typeLabels={apt:'Apartment',villa:'Villa',house:'Townhouse',bungalow:'Bungalow',penthouse:'Penthouse',any:'Any type'};
+      var purposeLabels={perm:'Permanent residence',holiday:'Holiday home',invest:'Investment / Rental',mixed:'Mixed use'};
+      var nbLabels={must:'New build only',important:'New build or resale',nice:'Resale preferred'};
+      var lines=[];
+      if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
+      if(req.minrooms)lines.push(req.minrooms==='studio'?'Studio':req.minrooms+' bedroom'+(req.minrooms==='1'?'':'s')+' minimum');
+      if(req.type&&req.type!=='any')lines.push(typeLabels[req.type]||req.type);
+      if(req.purpose)lines.push(purposeLabels[req.purpose]||req.purpose);
+      if(req.newbuild)lines.push(nbLabels[req.newbuild]||req.newbuild);
+      var featureLabels={pool:'Swimming pool',garage:'Parking / Garage',garden:'Garden or terrace',beach:'Walking distance to beach',restaurants:'Walking distance to restaurants',golf:'Near golf course',community:'Gated community'};
+      Object.keys(featureLabels).forEach(function(k){if(req[k])lines.push(featureLabels[k]);});
+      if(!lines.length)return'';
       return'<div style="background:#fff;padding:28px;border-bottom:1px solid #ede8e0">'+
         '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px">Your Requirements</div>'+
-        reqs.map(function(r){return'<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">'+
+        lines.map(function(r){return'<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">'+
           '<span style="color:#b08d57;font-size:15px;margin-top:1px">&#10003;</span>'+
           '<span style="font-size:14px;color:#2a1f14;line-height:1.4">'+esc(r)+'</span>'+
           '</div>';}).join('')+
@@ -1229,8 +1330,7 @@ function pgOutput(){
         '<div style="display:flex;flex-direction:column;gap:8px;text-align:right">'+
         (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:#25d366;text-decoration:none;font-weight:500">&#128241; WhatsApp</a>':'')+
         (cfg.email?'<a href="mailto:'+esc(cfg.email)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;font-weight:500">&#9993; '+esc(cfg.email)+'</a>':'')+
-        (day.agencyWeb?'<a href="'+esc(day.agencyWeb)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(176,141,87,.7);text-decoration:none;font-weight:500">&#127758; '+esc(day.agencyWeb.replace(/https?:\/\//,''))+'</a>':
-         (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;font-weight:500">&#128222; '+esc(cfg.phone)+'</a>':''))+
+        (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;font-size:12px;color:rgba(255,255,255,.55);text-decoration:none;font-weight:500">&#128222; '+esc(cfg.phone)+'</a>':'')+
         '</div></div></div>';
     })()+
     '</div>'+
