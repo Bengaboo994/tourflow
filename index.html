@@ -879,25 +879,28 @@ function pgDayDetail(){
     var io=S.epid===p.id,ii=S.eiid===p.id;
     var ep="";
     if(io){
-      var bf=[["Title","title","Sun-Filled Apartment in La Zenia"],["Address","address","Calle del Mar 12"],["Area","area","La Zenia"],["Bedrooms","rooms","2 bedrooms"],["Size","sqm","78 m2"]];
+      var bf=[["Title","title","Sun-Filled Apartment in La Zenia"],["Address","address","Calle del Mar 12"],["Area","area","La Zenia"],["Bedrooms","rooms","2 bedrooms"],["Bathrooms","bathrooms","2 bathrooms"],["Size","sqm","78 m2"]];
       var iff=[["Commission","commission","2.5%"],["Contact","contact","Maria Garcia"],["Phone","contactPhone","+34 600 000 000"],["Firm","firm","Costa Realty"],["Location/access","location","Key at front desk"],["Notes","note","Other info"]];
       ep='<div style="padding:0 14px 14px;border-top:1px solid var(--fog)">'+
         '<div class="g2" style="margin:12px 0 10px">'+
         '<div><label class="lbl">Time</label><input type="time" class="inp ins" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
         '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:this.value})"/></div></div>'+
-        bf.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
-          '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
+        bf.map(function(f,fi){
+          var isAreaPair=f[1]==='area'&&bf[fi-1]&&bf[fi-1][1]==='address';
+          var isAddrField=f[1]==='address'&&bf[fi+1]&&bf[fi+1][1]==='area';
+          var isBathPair=f[1]==='bathrooms'&&bf[fi-1]&&bf[fi-1][1]==='rooms';
+          var isRoomsField=f[1]==='rooms'&&bf[fi+1]&&bf[fi+1][1]==='bathrooms';
+          var fld='<div><label class="lbl">'+f[0]+'</label>'+
+            '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';
+          if(isAddrField)return'<div class="g2" style="margin-bottom:9px">'+fld;
+          if(isAreaPair)return fld+'</div>';
+          if(isRoomsField)return'<div class="g2" style="margin-bottom:9px">'+fld;
+          if(isBathPair)return fld+'</div>';
+          return'<div style="margin-bottom:9px">'+fld+'</div>';
+        }).join("")+
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
         '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
         (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
-        '</div>'+
-        '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
-        (p.ogImage
-          ?'<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:4px;border:1px solid var(--fog)"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit">Remove</button></div>'
-          :'<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
-          '<span style="font-size:12px;color:var(--slate)">Upload property photo</span>'+
-          '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
         '</div>'+
         hlPickerHtml(day.id,p.id,p.highlights)+
         '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9080;font-weight:300;font-size:10px\">optional</span></label>'+
@@ -913,7 +916,15 @@ function pgDayDetail(){
         '<div><label class="lbl">Area highlight</label>'+
         '<input class="inp ins" value="'+esc(p.areaNote||'')+'" placeholder="Beachfront area" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{areaNote:this.value})"/></div>'+
         '</div>'+
-                '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
+        '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
+        (p.ogImage
+          ?'<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:4px;border:1px solid var(--fog)"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit">Remove</button></div>'
+          :'<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+          '<span style="font-size:12px;color:var(--slate)">Upload property photo</span>'+
+          '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
+        '</div>'+
+        '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
         '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
         '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
         '<span style="background:#fef9ec;color:#92400e;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:600">Not shown to client</span></div>'+
@@ -1053,7 +1064,7 @@ function pgAddProp(){
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL *</label>'+
     '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
-    ''+
+    '<div id="ap-og-status" style="margin-top:4px"></div>'+
     '<div style="font-size:11px;color:#9e9080;margin-top:6px">Paste listing URL</div></div>'+
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
@@ -1114,13 +1125,50 @@ function uploadExistingPropImg(input,dayId,propId){
   reader.readAsDataURL(file);
 }
 function prevMaps(v){var el=document.getElementById("maps-prev");if(!el)return;el.innerHTML=v?'<a href="'+esc(v)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':"";}
+function fetchOg(url, did) {
+  if (!url) return;
+  // Show loading state on the URL field
+  var statusEl = document.getElementById("ap-og-status");
+  if (statusEl) { statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">&#8987; Fetching preview...</span>'; }
+
+  fetch("/.netlify/functions/og?url=" + encodeURIComponent(url))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (statusEl) {
+        if (data.image) {
+          statusEl.innerHTML = '<div style="margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid var(--fog)">' +
+            '<img src="' + data.image + '" style="width:100%;height:140px;object-fit:cover;display:block"/>' +
+            '<div style="padding:8px 10px;background:var(--mist)">' +
+            (data.title ? '<div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + data.title.slice(0,60) + '</div>' : '') +
+            (data.price ? '<div style="font-size:12px;color:var(--brass);font-weight:500">' + data.price + '</div>' : '') +
+            '</div></div>' +
+            '<div style="font-size:11px;color:#4ade80;margin-top:6px">&#10003; Preview loaded</div>';
+          // Auto-fill title if empty
+          var titleEl = document.getElementById("ap-title");
+          if (titleEl && !titleEl.value && data.title) titleEl.value = data.title.slice(0,80);
+          // Auto-fill price if empty
+          var priceEl = document.getElementById("ap-price");
+          if (priceEl && !priceEl.value && data.price) priceEl.value = data.price;
+          // Store image URL for later
+          window._ogImage = data.image;
+        } else {
+          statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">No preview image found — you can add one manually below.</span>';
+          window._ogImage = null;
+        }
+      }
+    })
+    .catch(function(){
+      if (statusEl) statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">Could not load preview.</span>';
+      window._ogImage = null;
+    });
+}
 
 function saveProp(did){
   var url=gv("ap-url");if(!url){alert("Please enter a listing URL.");return;}
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),area:gv("ap-area2"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
   window._newHighlights=[];
   _intOpen=false;go("day-detail");
 }
@@ -1137,17 +1185,11 @@ function pgOutput(){
   var pi=0;
   var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
 
-  // Drive time locations
   var orderedLocs=[];
   var mpEv=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
   if(mpEv&&(mpEv.title||mpEv.note))orderedLocs.push(mpEv.title||mpEv.note||'');
   props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
 
-  // Ordinal labels for viewing sequence
-  var ORDINALS=['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth'];
-  var totalProps=props.length;
-
-  // Icon map
   var ICON={
     'Pool':'&#127946;','Walking distance to beach':'&#127958;','South facing':'&#9728;',
     'Within budget':'&#128176;','Near golf':'&#9971;','Key ready':'&#128273;',
@@ -1163,18 +1205,18 @@ function pgOutput(){
     if(item.k==="e"){
       var e=item.d, et=getET(e.type);
       if(et.isMeetingPoint){
-        return '<div style="background:#0e1520;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:11px">'+
-          '<div style="width:26px;height:26px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px">&#128205;</div>'+
-          '<div><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.14em;margin-bottom:1px">Meeting Point</div>'+
-          '<div style="font-size:13px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
-          (e.time?'<div style="font-size:10px;color:rgba(255,255,255,.38)">'+esc(e.time)+'</div>':'')+
+        return '<div style="background:#0e1520;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px">&#128205;</div>'+
+          '<div><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
+          '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
+          (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(e.time)+'</div>':'')+
           '</div></div>';
       }
-      return '<div style="padding:11px 20px;display:flex;align-items:center;gap:11px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
+      return '<div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
         '<span style="font-size:18px">'+et.icon+'</span>'+
         '<div>'+(e.time?'<span style="font-weight:700;font-size:13px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
         '<span style="font-size:13px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
-        (e.note?'<span style="font-size:11px;color:'+et.txt+';opacity:.65"> &middot; '+esc(e.note)+'</span>':'')+
+        (e.note?'<span style="font-size:12px;color:'+et.txt+';opacity:.7"> &middot; '+esc(e.note)+'</span>':'')+
         '</div></div>';
     }
 
@@ -1184,69 +1226,69 @@ function pgOutput(){
     // Price
     var fmtPrice=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').replace(/(\d[\d\s,.]*)[\s]*SEK/i,'$1 kr').trim()||p.price||'';
 
-    // Match score — simplified: "88% Match"
+    // Match score
     var ms=matchScore(dayClient,p);
-    var dScore=null, dCol='#b08d57', dLabel='', dCircle='&#x1F7E1;';
+    var dScore=null,dCol='#b08d57',dLabel='';
     if(ms&&ms.score!=null){dScore=ms.score;}
     else if(p.highlights&&p.highlights.length){dScore=Math.min(100,Math.round(p.highlights.length/10*100));}
     if(dScore!=null){
-      if(dScore>=85){dCol='#059669';dLabel=dScore+'% Match';dCircle='&#x1F7E2;';}
-      else if(dScore>=70){dCol='#b08d57';dLabel=dScore+'% Match';dCircle='&#x1F7E1;';}
-      else if(dScore>=55){dCol='#d97706';dLabel=dScore+'% Match';dCircle='&#x1F7E1;';}
-      else{dCol='#9e9080';dLabel=dScore+'% Match';dCircle='&#x26AA;';}
+      if(dScore>=90){dCol='#059669';dLabel='Excellent Match';}
+      else if(dScore>=80){dCol='#0284c7';dLabel='Recommended';}
+      else if(dScore>=70){dCol='#b08d57';dLabel='Strong Match';}
+      else if(dScore>=55){dCol='#d97706';dLabel='Good Potential';}
+      else{dCol='#9e9080';dLabel='Worth Viewing';}
     }
+    var dSub='';
+    if(ms&&ms.results&&ms.results.length){
+      dSub='Matches '+ms.results.filter(function(r){return r.pass;}).length+'/'+ms.results.length+' preferences';
+    } else if(dScore!=null){dSub=dScore+'%';}
 
-    // ── Viewing order label — SINGLE PROPERTY MODE ──
-    var orderLabel='';
-    if(totalProps===1){
-      orderLabel='Private Viewing';
-    } else {
-      var ordWord=ORDINALS[idx]||('Viewing '+(idx+1));
-      orderLabel=ordWord+' Viewing \u00B7 '+(idx+1)+' of '+totalProps;
-    }
+    // Badge — compact
+    var msBadge=dScore!=null?
+      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:10px;right:10px;background:rgba(10,14,22,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:5px 9px;cursor:pointer;text-align:left;z-index:10">'+
+      '<div style="font-size:11px;font-weight:700;color:'+dCol+';line-height:1">'+dLabel+'</div>'+
+      '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:1px">'+dSub+'</div>'+
+      '</button>':'';
 
-    // Top Pick badge — upper left on image
+    // Top pick
     var tpBadge=(!isAg&&p.topPick)?
-      '<div style="position:absolute;top:11px;left:11px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:3px 9px;display:flex;align-items:center;gap:4px">'+
-      '<span style="font-size:9px;color:#fff">&#9733;</span>'+
-      '<span style="font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.1em">Top Pick</span>'+
+      '<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:3px 8px;display:flex;align-items:center;gap:4px">'+
+      '<span style="font-size:9px">&#11088;</span>'+
+      '<span style="font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.08em">Top Pick</span>'+
       '</div>':'';
 
-    // Hero image — price overlaid at bottom
+    // Hero image
     var imgHtml=p.ogImage
-      ?'<div style="position:relative;height:235px;overflow:hidden">'+
-        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover;display:block"/>'+
-        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 28%,rgba(0,0,0,.68) 100%)"></div>'+
-        tpBadge+
-        (fmtPrice?'<div style="position:absolute;bottom:13px;left:17px">'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:#fff;line-height:1;letter-spacing:-.5px;text-shadow:0 2px 14px rgba(0,0,0,.5)">'+esc(fmtPrice)+'</div>'+
-        '</div>':'')+
-        '</div>'
-      :'<div style="position:relative;height:100px;background:linear-gradient(135deg,#1a2535,#0e1520);display:flex;align-items:center;justify-content:center">'+
-        tpBadge+
-        (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#b08d57;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+'</div>';
+      ?'<div style="position:relative;height:220px;overflow:hidden">'+
+        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.22) 100%)"></div>'+
+        msBadge+tpBadge+'</div>'
+      :'<div style="position:relative;height:80px;background:linear-gradient(135deg,#1a2535,#0e1520);display:flex;align-items:center;justify-content:center">'+
+        msBadge+tpBadge+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(176,141,87,.1)">'+(idx+1)+'</div>'+
+        '</div>';
 
     // Location
-    var addrParts2=(p.address||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
-    var displayArea=p.area||(addrParts2.length>1?addrParts2[addrParts2.length-2]:addrParts2[0])||'';
+    var displayArea=p.area||'';
     var street=p.address||'';
     var regionLine='';
 
-    // Highlights
+    // Highlights — max 4, compact
     var hl=p.highlights||[];
     var vis=hl.slice(0,4); var hid=hl.slice(4);
     var chips=vis.map(function(h){
-      return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 8px 2px 5px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
+      return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 8px 2px 6px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
         '<span style="font-size:11px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';
     }).join('');
     var hidDiv=''; var showBtn='';
     if(hid.length){
       hidDiv='<div id="hx-'+p.id+'" style="display:none;flex-wrap:wrap;gap:4px;margin-top:4px">'+
-        hid.map(function(h){return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 8px 2px 5px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap"><span style="font-size:11px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';}).join('')+'</div>';
-      showBtn='<button onclick="document.getElementById(\'hx-'+p.id+'\').style.display=\'flex\';this.style.display=\'none\'" style="font-size:10px;color:#9e9080;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;margin-top:3px">+'+hid.length+' more</button>';
+        hid.map(function(h){return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 8px 2px 6px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap">'+
+          '<span style="font-size:11px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';}).join('')+'</div>';
+      showBtn='<button onclick="document.getElementById(\'hx-'+p.id+'\').style.display=\'flex\';this.style.display=\'none\'" style="font-size:10px;color:#9e9080;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0">+'+hid.length+' more</button>';
     }
 
-    // Internal agent box
+    // Internal box (agent only)
     var ibox='';
     if(isAg&&(p.commission||p.contact||p.location||p.note)){
       ibox='<div style="margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 7px 7px 0;padding:10px 12px">'+
@@ -1260,37 +1302,32 @@ function pgOutput(){
     }
 
     return dtBlock+
-      '<div style="background:#fff;border-bottom:2px solid #ede8e0">'+
-
-      // ── Viewing header — light, elegant ──
-      '<div style="padding:11px 17px 10px;display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #f0ece4">'+
-      '<div>'+
-      '<div style="font-size:9px;font-weight:600;color:#9e9080;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px">'+orderLabel+'</div>'+
-      (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:400;color:#0e1520;line-height:1;letter-spacing:-.3px">'+esc(p.time)+'</div>':'<div style="height:6px"></div>')+
-      '</div>'+
-      (dScore!=null&&!isAg?'<div style="font-size:12px;font-weight:700;color:'+dCol+'">'+dCircle+' '+esc(dLabel)+'</div>':'')+
-      '</div>'+
-
-      // ── Hero image (price overlaid) ──
+      '<div style="border-bottom:1px solid #ede8e0">'+
       imgHtml+
+      '<div style="padding:14px 16px 18px">'+
 
-      // ── Card body ──
-      '<div style="padding:13px 17px 16px">'+
+      // Number + time + price
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+      '<div style="display:flex;align-items:center;gap:7px">'+
+      '<div style="width:22px;height:22px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-size:10px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
+      (p.time?'<span style="font-size:13px;font-weight:600;color:#1c1a16">'+esc(p.time)+'</span>':'')+
+      '</div>'+
+      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#b08d57;font-weight:300;letter-spacing:-.2px">'+esc(fmtPrice)+'</div>':'')+
+      '</div>'+
 
       // Title
-      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:400;color:#0e1520;line-height:1.15;margin-bottom:5px;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#0e1520;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
 
-      // Location: Area | Street
-      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:11px">'+
-      '<svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
-      '<span style="font-size:13px;font-weight:700;color:#1c1a16">'+esc(displayArea)+'</span>'+
-      (street?'<span style="font-size:13px;color:#9e9080;font-weight:400"> &nbsp;|&nbsp; '+esc(street)+'</span>':
-       regionLine?'<span style="font-size:11px;color:#9e9080"> &middot; '+esc(regionLine)+'</span>':'')+
+      // Location
+      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:12px">'+
+      '<svg width="9" height="12" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
+      (displayArea?'<span style="font-size:13px;font-weight:700;color:#1c1a16">'+esc(displayArea)+'</span>':'')+
+      (street?'<span style="font-size:13px;color:#9e9080"> &nbsp;|&nbsp; '+esc(street)+'</span>':'')+
       '</div>'+
 
-      // Specs
+      // Specs row
       (p.rooms||p.sqm?
-        '<div style="display:flex;gap:5px;margin-bottom:11px">'+
+        '<div style="display:flex;gap:6px;margin-bottom:12px">'+
         (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
           '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M2 9V5a2 2 0 012-2h16a2 2 0 012 2v4"/><path d="M2 9h20v11H2z"/></svg>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span></div>':'')+
@@ -1299,14 +1336,21 @@ function pgOutput(){
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.sqm)+'</span></div>':'')+
         '</div>':'')+
 
-      // Buttons — "View Full Listing" primary, "Directions" secondary
-      '<div style="display:flex;gap:7px;margin-bottom:'+(hl.length?'10':'0')+'px">'+
-      (p.url?'<a href="'+esc(p.url)+'" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;text-decoration:none;background:#0e1520;border-radius:8px;padding:11px 13px;letter-spacing:.03em;font-family:\'Jost\',sans-serif">View Full Listing &#8250;</a>':'')+
-      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:8px;padding:10px 13px;background:#faf8f4;font-family:\'Jost\',sans-serif"><svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Directions</a>':'')+
+      // Buttons — Full Details + Directions
+      '<div style="display:flex;gap:8px;margin-bottom:'+(hl.length?'12':'0')+'px">'+
+      (p.url?'<a href="'+esc(p.url)+'" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;text-decoration:none;background:#0e1520;border-radius:8px;padding:10px 12px;letter-spacing:.03em">Full Details &#8250;</a>':'')+
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="flex:'+(p.url?'0.6':'1')+';display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:8px;padding:9px 10px;background:#faf8f4">'+
+        '<svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Directions</a>':'')+
       '</div>'+
 
-      // Highlights
-      (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:4px">'+chips+'</div>'+hidDiv+showBtn:'')+
+      // Highlights — only if set
+      (!isAg&&hl.length?
+        '<div style="display:flex;flex-wrap:wrap;gap:4px">'+chips+'</div>'+hidDiv+showBtn
+        :'')+
+
+      // Agent rec — only if manually written (not auto)
+      (!isAg&&p.agentRec?
+        '<div style="margin-top:10px;border-top:1px solid #ede8e0;padding-top:10px;font-size:12px;color:#4a3e30;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
 
       ibox+'</div></div>';
 
