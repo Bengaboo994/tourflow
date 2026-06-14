@@ -56,7 +56,7 @@ input,button,textarea,select{font-family:inherit}
 .or{padding:16px 22px;border-bottom:1px solid var(--fog)}
 .of{background:var(--mist);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .ibox{margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:11px 13px}
-@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}}
+@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}img{display:block!important;max-width:100%!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
 </style>
 </head>
 <body>
@@ -118,6 +118,7 @@ input,button,textarea,select{font-family:inherit}
 
 <script>
 var STORE="tf-v2";
+function triggerPrint(){window.print();}
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
 function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
 function uid(){return Math.random().toString(36).slice(2,9);}
@@ -1013,8 +1014,7 @@ function pgDayDetail(){
       '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
-      '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
-      '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Copy WhatsApp</button>':'')+
+      '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>':'')+
     '</div>';
 }
 function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note")});S.addEv=false;render();}
@@ -1446,6 +1446,7 @@ function pgOutput(){
     '.pdf-page:last-child{page-break-after:auto;break-after:auto}'+
     '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
     'a{text-decoration:none!important}'+
+    '.pdf-view img{display:block!important;visibility:visible!important;opacity:1!important;max-width:100%!important;-webkit-print-color-adjust:exact!important}'+
     '}'+
     '</style>';
 
@@ -1689,7 +1690,8 @@ function pgOutput(){
     })():'')+
     footerHtml+
     '</div>'+
-    '<button onclick="window.print()" style="width:100%;padding:14px;background:#0e1520;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:Jost,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">&#128424; Save as PDF</button>'+
+    '<button onclick="triggerPrint()" style="width:100%;padding:14px;background:#0e1520;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:Jost,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">&#128279; Share PDF</button>'+
+    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:Jost,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">&#128241; Copy WhatsApp</button>'+
     '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
     '</div></div>';
 }
