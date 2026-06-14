@@ -1432,9 +1432,211 @@ function pgOutput(){
       :'<div style="flex:4"></div>')+
       '</div>';
   })();
-  var printStyle='<style id="ps">@media print{.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}div{break-inside:avoid}}</style>';
-  return printStyle+
-    '<div class="wrap">'+
+  var printStyle='<style id="ps">'+
+    '.pdf-view{display:none}'+
+    '@media print{'+
+    '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
+    '.mobile-view,.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr,button{display:none!important}'+
+    '.pdf-view{display:block!important;font-family:Jost,sans-serif}'+
+    '.pdf-page{page-break-after:always;break-after:page}'+
+    '.pdf-page:last-child{page-break-after:auto;break-after:auto}'+
+    '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
+    'body{margin:0;padding:0;background:#fff!important;font-family:Jost,sans-serif}'+
+    '.pdf-page{page-break-after:always;break-after:page}'+
+    '.pdf-page:last-child{page-break-after:auto;break-after:auto}'+
+    '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
+    'a{text-decoration:none!important}'+
+    '}'+
+    '</style>';
+
+  // ── BUILD PDF (Elegant Magazine Style) ──────────────────────────────────
+  var pdfHtml=(function(){
+    var cfg=S.cfg;
+    var isAg2=S.viewMode==='agent';
+
+    // Requirements
+    var req=c&&c.req?c.req:{};
+    var BM={'u100':'Under \u20AC100k','100-200':'\u20AC100k\u2013200k','200-300':'\u20AC200k\u2013300k','300-500':'\u20AC300k\u2013500k','500-800':'\u20AC500k\u2013800k','800k+':'Above \u20AC800k'};
+    var PM={perm:'Permanent residence',holiday:'Holiday home',invest:'Investment/rental',mixed:'Mixed use'};
+    var FM={pool:'Swimming pool',garage:'Garage/parking',garden:'Garden or terrace',beach:'Walking distance to beach',restaurants:'Near restaurants',golf:'Near golf',community:'Gated community'};
+    var reqItems=[];
+    if(req.budget)reqItems.push(BM[req.budget]||req.budget);
+    if(req.minrooms)reqItems.push(req.minrooms==='studio'?'Studio':req.minrooms+' bedrooms minimum');
+    if(req.purpose)reqItems.push(PM[req.purpose]||req.purpose);
+    Object.keys(FM).forEach(function(k){if(req[k])reqItems.push(FM[k]);});
+
+    var ORDS=['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth'];
+
+    // Schedule rows
+    var schedRows=props.map(function(p,idx){
+      var fp=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').trim()||p.price||'\u2014';
+      var ms2=matchScore(c,p);
+      var sc=ms2&&ms2.score!=null?ms2.score:(p.highlights&&p.highlights.length?Math.min(100,Math.round(p.highlights.length/10*100)):null);
+      var scCol=sc!=null&&sc>=85?'#059669':sc!=null&&sc>=70?'#b08d57':'#9e9080';
+      var area=p.area||'';
+      return '<tr style="border-bottom:1px solid #f0ece4">'+
+        '<td style="padding:8px 12px;font-size:12px;font-weight:700;color:#0e1520;white-space:nowrap">'+(p.time||'\u2014')+'</td>'+
+        '<td style="padding:8px 12px;font-size:12px;font-weight:600;color:#1c1a16">'+esc(area)+'</td>'+
+        '<td style="padding:8px 12px;font-size:12px;color:#4a3e30">'+esc((p.title||'').slice(0,45))+'</td>'+
+        '<td style="padding:8px 12px;font-size:12px;font-weight:600;color:#b08d57;white-space:nowrap">'+esc(fp)+'</td>'+
+        '<td style="padding:8px 12px;font-size:12px;font-weight:700;color:'+scCol+';white-space:nowrap">'+(sc!=null?sc+'%':'\u2014')+'</td>'+
+        '</tr>';
+    }).join('');
+
+    // ── PAGE 1: Cover + Note + Schedule ──
+    var page1=
+      '<div class="pdf-page" style="background:#fff">'+
+
+      // Dark cover section
+      '<div style="background:#0e1520;padding:44px 52px 40px">'+
+      '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:14px">Personalised Viewing Day</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:56px;font-weight:300;color:#fff;line-height:.92;letter-spacing:-.5px;margin-bottom:6px">'+(c?esc(c.name):'Your Viewing Day')+'</div>'+
+      '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:28px;font-weight:300">'+fmtDate(day.date)+'</div>'+
+      '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.5),transparent);margin-bottom:22px"></div>'+
+      '<div style="display:flex;gap:0">'+
+      '<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:22px;margin-right:22px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#b08d57;font-weight:300;line-height:1">'+props.length+'</div>'+
+      '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(props.length===1?'y':'ies')+'</div>'+
+      '</div>'+
+      (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:22px;margin-right:22px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#b08d57;font-weight:300;line-height:1">'+esc(ft)+'</div>'+
+      '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First Viewing</div>'+
+      '</div>':'')+
+      (lt&&props.length>1?'<div style="flex:1">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#b08d57;font-weight:300;line-height:1">'+esc(lt)+'</div>'+
+      '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last Viewing</div>'+
+      '</div>':'')+
+      '</div></div>'+
+
+      // Personal note
+      (day.welcomeMsg?
+        '<div style="padding:20px 52px;background:#f8f3ea;border-bottom:2px solid #ede8e0">'+
+        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:8px">A personal note</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:#2a1f14;line-height:1.7;font-style:italic">'+esc(day.welcomeMsg)+'</div>'+
+        (cfg.agent?'<div style="font-size:11px;color:#9e9080;margin-top:7px">\u2014 '+esc(cfg.agent)+(cfg.agency?' &middot; '+esc(cfg.agency):'')+'</div>':'')+
+        '</div>':'')+
+
+      // Requirements
+      (reqItems.length?
+        '<div style="padding:16px 52px;background:#fff;border-bottom:1px solid #ede8e0">'+
+        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:8px">Your Requirements</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+        reqItems.map(function(r){return'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 12px;font-size:11px;font-weight:500;color:#4a3e30">'+esc(r)+'</span>';}).join('')+
+        '</div></div>':'')+
+
+      // Schedule table
+      '<div style="padding:20px 52px">'+
+      '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Today\'s Viewing Schedule</div>'+
+      '<table style="width:100%;border-collapse:collapse;border:1px solid #e0d8c8;border-radius:6px;overflow:hidden">'+
+      '<thead><tr style="background:#f5f0e8">'+
+      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Time</th>'+
+      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Area</th>'+
+      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Property</th>'+
+      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Price</th>'+
+      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Match</th>'+
+      '</tr></thead>'+
+      '<tbody>'+schedRows+'</tbody>'+
+      '</table></div>'+
+      '</div>';
+
+    // ── PROPERTY PAGES: one per page ──
+    var propPages=props.map(function(p,idx){
+      var fp=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').trim()||p.price||'';
+      var ms3=matchScore(c,p);
+      var sc3=ms3&&ms3.score!=null?ms3.score:(p.highlights&&p.highlights.length?Math.min(100,Math.round(p.highlights.length/10*100)):null);
+      var sc3col=sc3!=null&&sc3>=85?'#059669':sc3!=null&&sc3>=70?'#b08d57':'#9e9080';
+      var sc3lbl=sc3!=null&&sc3>=85?'Excellent Match':sc3!=null&&sc3>=70?'Strong Match':sc3!=null&&sc3>=55?'Good Potential':'Worth Viewing';
+      var hl=p.highlights||[];
+      var orderLbl=props.length===1?'Private Viewing':((ORDS[idx]||'Viewing '+(idx+1))+' Viewing \u00B7 '+(idx+1)+' of '+props.length);
+      var displayArea=p.area||'';
+      var street=p.address||'';
+
+      return '<div class="pdf-prop pdf-page" style="background:#fff">'+
+
+        // Property image — full width
+        (p.ogImage?
+          '<div style="position:relative;height:300px;overflow:hidden">'+
+          '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover;display:block"/>'+
+          '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.65) 100%)"></div>'+
+          (p.topPick?'<div style="position:absolute;top:16px;left:20px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:4px 12px;font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.1em">\u2605 Top Pick</div>':'')+
+          (sc3!=null?'<div style="position:absolute;top:16px;right:20px;background:rgba(10,14,22,.78);border-radius:8px;padding:6px 12px;text-align:right">'+
+          '<div style="font-size:16px;font-weight:700;color:'+sc3col+';line-height:1">'+sc3+'%</div>'+
+          '<div style="font-size:8px;color:rgba(255,255,255,.45);margin-top:2px;text-transform:uppercase;letter-spacing:.08em">'+sc3lbl+'</div>'+
+          '</div>':'')+
+          '</div>'
+        :
+          // No image — dark banner
+          '<div style="background:#0e1520;height:120px;display:flex;align-items:center;padding:0 52px;justify-content:space-between">'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:48px;font-weight:300;color:rgba(176,141,87,.2)">'+(idx+1)+'</div>'+
+          (sc3!=null?'<div style="font-size:22px;font-weight:700;color:'+sc3col+'">'+sc3+'% Match</div>':'')+
+          '</div>')+
+
+        // Property body
+        '<div style="padding:28px 52px 32px">'+
+
+        // Order + time row
+        '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">'+
+        '<div>'+
+        '<div style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.14em;margin-bottom:3px">'+orderLbl+'</div>'+
+        (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;font-weight:300;color:#0e1520;line-height:1;letter-spacing:-.3px">'+esc(p.time)+'</div>':'')+ 
+        '</div>'+
+        (fp?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;font-weight:300;color:#b08d57;letter-spacing:-.3px">'+esc(fp)+'</div>':'')+
+        '</div>'+
+
+        // Area badge + title
+        (displayArea?'<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:5px">'+esc(displayArea)+(street?' &nbsp;|&nbsp; <span style="opacity:.6;font-style:normal">'+esc(street)+'</span>':'')+'</div>':'')+
+        (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:400;color:#0e1520;line-height:1.12;margin-bottom:14px;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
+
+        // Specs row
+        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'+
+        (p.rooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span>':'')+
+        (p.bathrooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.bathrooms)+' bath</span>':'')+
+        (p.sqm?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.sqm)+'</span>':'')+
+        '</div>'+
+
+        // Links
+        (p.url||p.mapsUrl?'<div style="display:flex;gap:16px;margin-bottom:16px">'+
+        (p.url?'<a href="'+esc(p.url)+'" style="font-size:12px;font-weight:600;color:#b08d57">\uD83D\uDD17 View Full Listing</a>':'')+
+        (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="font-size:12px;font-weight:500;color:#6b5f4e">\uD83D\uDCCD Directions</a>':'')+
+        '</div>':'')+
+
+        // Highlights
+        (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+
+        hl.map(function(h){return'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 11px;font-size:10px;font-weight:500;color:#4a3e30">'+esc(h)+'</span>';}).join('')+
+        '</div>':'')+
+
+        // Agent rec
+        (p.agentRec?'<div style="border-left:2px solid #e5ddd0;padding-left:12px;font-family:\'Cormorant Garamond\',serif;font-size:14px;font-style:italic;color:#4a3e30;line-height:1.6">'+esc(p.agentRec)+'</div>':'')+
+
+        // Internal (agent view only)
+        (isAg2&&(p.commission||p.contact)?
+          '<div style="margin-top:14px;background:#fef9ec;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:0 6px 6px 0;font-size:11px;color:#92400e">'+
+          (p.commission?'<strong>Commission:</strong> '+esc(p.commission)+'&nbsp;&nbsp;':'')+(p.contact?'<strong>Contact:</strong> '+esc(p.contact):'')+'</div>':'')+
+
+        '</div>'+
+
+        // Agent footer on last property
+        (idx===props.length-1?
+          '<div style="background:#0e1520;padding:18px 52px;display:flex;align-items:center;justify-content:space-between">'+
+          '<div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
+          (cfg.agency&&cfg.agent?'<div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px">'+esc(cfg.agency)+'</div>':'')+
+          '</div>'+
+          '<div style="text-align:right">'+
+          (cfg.phone?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.phone)+'</div>':'')+
+          (cfg.email?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.email)+'</div>':'')+
+          '</div>'+
+          '</div>':'')+
+
+        '</div>';
+    }).join('');
+
+    return '<div class="pdf-view" style="display:none">'+
+      page1+propPages+
+      '</div>';
+  })();
+  return printStyle+pdfHtml+
+    '<div class="mobile-view"><div class="wrap">'+
     '<button class="bback" onclick="go(\'day-detail\')">&#8592; Edit day</button>'+
     '<div class="tog">'+
     '<button class="tb'+(S.viewMode==="client"?" on":"")+'" onclick="S.viewMode=\'client\';render()">&#128196; Client view</button>'+
@@ -1487,9 +1689,9 @@ function pgOutput(){
     })():'')+
     footerHtml+
     '</div>'+
-    '<button class="btn" onclick="window.print()" style="margin-bottom:10px">&#128424; Save as PDF</button>'+
+    '<button onclick="window.print()" style="width:100%;padding:14px;background:#0e1520;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:Jost,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">&#128424; Save as PDF</button>'+
     '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
-    '</div>';
+    '</div></div>';
 }
 
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
