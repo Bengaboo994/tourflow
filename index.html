@@ -119,16 +119,38 @@ input,button,textarea,select{font-family:inherit}
 <script>
 var STORE="tf-v2";
 function triggerPrint(){
-  var imgs=document.querySelectorAll('.pdf-view img');
-  if(imgs.length===0){window.print();return;}
-  var loaded=0;
-  var total=imgs.length;
-  function tryPrint(){loaded++;if(loaded>=total)window.print();}
-  imgs.forEach(function(img){
-    if(img.complete){tryPrint();}
-    else{img.onload=tryPrint;img.onerror=tryPrint;}
-  });
-  setTimeout(function(){window.print();},1500);
+  var el=document.getElementById('app');
+  var pv=el?el.querySelector('.pdf-view'):null;
+  if(!pv){window.print();return;}
+  
+  // Open new window with just the PDF content
+  var w=window.open('','_blank','width=900,height=700');
+  if(!w){window.print();return;}
+  
+  w.document.write('<!DOCTYPE html><html><head>'+
+    '<meta charset="UTF-8"/>'+
+    '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>'+
+    '<style>'+
+    '*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
+    'body{font-family:Jost,sans-serif;background:#fff}'+
+    '@page{size:A4;margin:0}'+
+    '.pdf-page{page-break-after:always;break-after:page}'+
+    '.pdf-page:last-child{page-break-after:auto}'+
+    '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
+    'img{display:block;max-width:100%;-webkit-print-color-adjust:exact!important}'+
+    '</style></head><body>'+
+    pv.innerHTML+
+    '</body></html>');
+  w.document.close();
+  
+  // Wait for fonts and images then print
+  w.onload=function(){
+    setTimeout(function(){
+      w.focus();
+      w.print();
+    },600);
+  };
+  setTimeout(function(){w.focus();w.print();},1500);
 }
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
 function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
@@ -1444,7 +1466,7 @@ function pgOutput(){
       '</div>';
   })();
   var printStyle='<style id="ps">'+
-    '.pdf-view{display:none;visibility:hidden;position:absolute;left:-9999px}'+
+    '.pdf-view{display:none}'+
     '@media print{'+
     '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
     '.mobile-view,.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr,button{display:none!important}'+
