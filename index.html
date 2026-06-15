@@ -1380,11 +1380,9 @@ function pgOutput(){
     if(ms&&ms.score!=null){dScore=ms.score;}
     else if(p.highlights&&p.highlights.length){dScore=Math.min(100,Math.round(p.highlights.length/10*100));}
     if(dScore!=null){
-      if(dScore>=90){dCol='#059669';dLabel='Excellent Match';}
-      else if(dScore>=80){dCol='#0284c7';dLabel='Recommended';}
-      else if(dScore>=70){dCol='#b08d57';dLabel='Strong Match';}
-      else if(dScore>=55){dCol='#d97706';dLabel='Good Potential';}
-      else{dCol='#9e9080';dLabel='Worth Viewing';}
+      if(dScore>=85){dCol='#059669';dLabel='Excellent Match';}
+      else if(dScore>=70){dCol='#d97706';dLabel='Good Match';}
+      else{dCol='#dc2626';dLabel='Low Match';}
     }
     var dSub='';
     if(ms&&ms.results&&ms.results.length){
@@ -1393,9 +1391,9 @@ function pgOutput(){
 
     // Badge — compact
     var msBadge=dScore!=null?
-      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:10px;right:10px;background:rgba(10,14,22,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:5px 9px;cursor:pointer;text-align:left;z-index:10">'+
-      '<div style="font-size:11px;font-weight:700;color:'+dCol+';line-height:1">'+dLabel+'</div>'+
-      '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:1px">'+dSub+'</div>'+
+      '<button onclick="showMatchDetails(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.95);border:none;border-radius:10px;padding:7px 12px;cursor:pointer;text-align:center;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.18)">'+
+      '<div style="font-size:12px;font-weight:700;color:'+dCol+';line-height:1">'+dLabel+'</div>'+
+      '<div style="font-size:9px;color:#9e9080;margin-top:2px">'+dScore+'% match</div>'+
       '</button>':'';
 
     // Top pick
@@ -1407,7 +1405,7 @@ function pgOutput(){
 
     // Hero image
     var imgHtml=p.ogImage
-      ?'<div style="position:relative;height:220px;overflow:hidden">'+
+      ?'<div style="position:relative;height:280px;overflow:hidden;border-radius:0">'+
         '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
         '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.22) 100%)"></div>'+
         msBadge+tpBadge+'</div>'
@@ -1452,9 +1450,9 @@ function pgOutput(){
     }
 
     return dtBlock+
-      '<div style="border-bottom:1px solid #ede8e0">'+
+      '<div style="border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid #ede8e0;background:#fff">'+
       imgHtml+
-      '<div style="padding:14px 16px 18px">'+
+      '<div style="padding:16px 18px 20px">'+
 
       // Number + time + price
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
