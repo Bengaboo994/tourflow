@@ -1279,7 +1279,7 @@ function pgOutput(){
     var dtBlock=(!isAg&&orderedLocs[idx]&&orderedLocs[idx+1])?driveTimeHtml(orderedLocs[idx],orderedLocs[idx+1]):'';
 
     // Price
-    var fmtPrice=(function(){var pr=(p.price||'').trim();if(!pr)return'';pr=pr.replace(/EUR/i,'').replace(/SEK/i,'kr').trim();if(!pr)return'';if(pr.charAt(0)!=='\u20AC'&&!/[a-z]/i.test(pr))pr='\u20AC'+pr;return pr;})();
+    var fmtPrice=(function(){var pr=(p.price||'').trim();if(!pr)return'';pr=pr.replace(/EUR/i,'').replace(/kr$/,'').trim();pr=pr.replace(/\u20AC/g,'').trim();if(!pr)return'';return'\u20AC'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US');})();
 
     // Match score
     var ms=matchScore(dayClient,p);
@@ -1303,11 +1303,27 @@ function pgOutput(){
     } else if(dScore!=null){dSub=dScore+'%';}
 
     // Badge — compact
-    var msBadge=dScore!=null?
-      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.95);box-shadow:0 2px 12px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:5px 9px;cursor:pointer;text-align:left;z-index:10">'+
-      '<div style="font-size:11px;font-weight:700;color:'+dCol+';line-height:1;margin-bottom:4px">'+dLabel+'</div>'+
-      (dSub?'<div style="font-size:9px;color:#9e9080;line-height:1.3">'+dSub+'</div>':'<div style="font-size:9px;color:#9e9080">'+dScore+'%</div>')+
-      '</button>':'';
+    var dScoreBadge=(dScore!=null?'<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.18);border:none;border-radius:12px;padding:10px 12px;cursor:pointer;text-align:center;z-index:10;min-width:88px">'+
+      '<div style="font-size:11px;font-weight:700;color:'+dCol+';margin-bottom:6px;line-height:1">'+dLabel+'</div>'+
+      (function(){
+        var r=22;var circ=2*Math.PI*r;
+        var pct=dScore/100;
+        var dash=circ*pct;var gap=circ*(1-pct);
+        var ms=ms&&ms.results?ms.results:null;
+        var matched=ms?ms.filter(function(x){return x.pass;}).length:null;
+        var total=ms?ms.length:null;
+        var label=matched!=null?(matched+'/'+total):(dScore+'%');
+        return'<svg width="54" height="54" viewBox="0 0 54 54">'+
+          '<circle cx="27" cy="27" r="'+r+'" fill="none" stroke="#f0ece4" stroke-width="3"/>'+
+          '<circle cx="27" cy="27" r="'+r+'" fill="none" stroke="'+dCol+'" stroke-width="3"'+
+          ' stroke-dasharray="'+dash+' '+gap+'" stroke-linecap="round"'+
+          ' transform="rotate(-90 27 27)"/>'+
+          '<text x="27" y="27" text-anchor="middle" dominant-baseline="middle"'+
+          ' font-size="12" font-weight="700" fill="#0e1520" font-family="Jost,sans-serif">'+label+'</text>'+
+          '</svg>';
+      })()+
+      '<div style="font-size:8px;color:#9e9080;margin-top:4px;line-height:1.3">preferences<br/>matched</div>'+
+      '</button>':'');
 
     // Top pick
     var tpBadge=(!isAg&&p.topPick)?
@@ -1318,12 +1334,12 @@ function pgOutput(){
 
     // Hero image
     var imgHtml=p.ogImage
-      ?'<div style="position:relative;height:240px;overflow:hidden">'+
+      ?'<div style="position:relative;height:260px;overflow:hidden">'+
         '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
         '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.22) 100%)"></div>'+
-        msBadge+tpBadge+'</div>'
+        dScoreBadge+tpBadge+'</div>'
       :'<div style="position:relative;height:80px;background:linear-gradient(135deg,#1a2535,#0e1520);display:flex;align-items:center;justify-content:center">'+
-        msBadge+tpBadge+
+        dScoreBadge+tpBadge+
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(176,141,87,.1)">'+(idx+1)+'</div>'+
         '</div>';
 
