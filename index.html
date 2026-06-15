@@ -609,8 +609,8 @@ function pgPdfPreview(){
     '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:16px"></div>'+
     '<div style="display:flex">'+
     '<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:14px;margin-right:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+props.length+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(props.length===1?'y':'ies')+'</div></div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+(props?props.length:0)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(props&&props.length===1?'y':'ies')+'</div></div>'+
     (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:14px;margin-right:14px"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+esc(ft)+'</div><div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">First Viewing</div></div>':'')+
     (lt&&props.length>1?'<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+esc(lt)+'</div><div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Last Viewing</div></div>':'')+
     '</div></div>'+
@@ -1325,13 +1325,72 @@ function saveProp(did){
 function pgOutput(){
   var day=curD();if(!day)return"";
   var c=curC();
-  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var props=[].concat(day.properties||[]).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
   var evs=[].concat(day.events||[]);
   var isAg=S.viewMode==="agent";
   var cfg=S.cfg;
   var all=props.map(function(p){return{k:"p",t:p.time||"",d:p};}).concat(evs.map(function(e){return{k:"e",t:e.time||"",d:e};})).sort(function(a,b){return(a.t||"zz").localeCompare(b.t||"zz");});
   var pi=0;
   var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
+
+  var orderedLocs=[];
+  var mpEv=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
+  if(mpEv&&(mpEv.title||mpEv.note))orderedLocs.push(mpEv.title||mpEv.note||'');
+  props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
+
+  // Stats bar data
+  var sortedProps=[].concat(props).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
+  var firstTime=sortedProps.length?sortedProps[0].time:'';
+  var lastTime=sortedProps.length>1?sortedProps[sortedProps.length-1].time:'';
+  var totalDriveMin=0;
+  for(var _di=0;_di<orderedLocs.length-1;_di++){totalDriveMin+=12;}
+
+  // Stats bar HTML
+  var pLen=(props||[]).length;
+  var statsBar=!isAg?'<div style="background:#0e1520;padding:14px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="text-align:center">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+pLen+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(pLen===1?'y':'ies')+'</div>'+
+    '</div>'+
+    (firstTime?'<div style="text-align:center">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(firstTime)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Start time</div>'+
+    '</div>':'')+
+    (lastTime?'<div style="text-align:center">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(lastTime)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">End time</div>'+
+    '</div>':'')+
+    '</div>':'';
+
+  // Timeline HTML
+  var tlItems=[];
+  var mpEv2=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
+  if(mpEv2)tlItems.push({label:esc(mpEv2.title||'Meeting point'),sub:mpEv2.time||'',type:'mp'});
+  sortedProps.forEach(function(pp,ppi){
+    tlItems.push({label:esc(pp.area||pp.title||'Property'),sub:pp.time||'',num:ppi+1,type:'prop'});
+  });
+  tlItems.push({label:'End',sub:'End of tour',type:'end'});
+
+  var timelineHtml=!isAg&&tlItems.length>1?
+    '<div style="background:#0e1520;padding:14px 20px 16px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="display:flex;align-items:flex-start;min-width:max-content;gap:0">'+
+    tlItems.map(function(tl,tli){
+      var isLast=tli===tlItems.length-1;
+      var dot=tl.type==='prop'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:#b08d57;color:#0e1520;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
+        :tl.type==='mp'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(176,141,87,.2);border:1.5px solid #b08d57;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
+        :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
+      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(176,141,87,.25);margin-top:11px;min-width:20px"></div>':'';
+      return'<div style="display:flex;align-items:flex-start;gap:0">'+
+        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;max-width:70px">'+
+        dot+
+        '<div style="font-size:10px;font-weight:600;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
+        '<div style="font-size:9px;color:rgba(255,255,255,.45);text-align:center;line-height:1.2">'+tl.label+'</div>'+
+        '</div>'+line+
+        '</div>';
+    }).join('')+
+    '</div></div>':'';
 
   var orderedLocs=[];
   var mpEv=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
@@ -1503,7 +1562,20 @@ function pgOutput(){
       (!isAg&&p.agentRec?
         '<div style="margin-top:10px;border-top:1px solid #ede8e0;padding-top:10px;font-size:12px;color:#4a3e30;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
 
-      ibox+'</div></div>';
+      ibox+
+
+      // Status row
+      (isAg?'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 0;border-top:1px solid #f0ece4;margin-top:12px">'+
+      '<div style="font-size:11px;font-weight:600;color:#9e9080;text-transform:uppercase;letter-spacing:.08em">Status</div>'+
+      '<div style="display:flex;gap:6px">'+
+      ['Upcoming','Visited','Favourite','Rejected'].map(function(st){
+        var icons={'Upcoming':'○','Visited':'✓','Favourite':'♡','Rejected':'✕'};
+        var active=p.status===st;
+        return'<button onclick="setStatus(\''+day.id+'\',\''+p.id+'\',\''+st+'\')" style="border:none;background:'+(active?'#0e1520':'#f5f0e8')+';color:'+(active?'#fff':'#9e9080')+';border-radius:6px;padding:4px 8px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit">'+icons[st]+' '+st+'</button>';
+      }).join('')+
+      '</div></div>':'')
+
+      +'</div></div>';
 
   }).join("");
 
@@ -1535,6 +1607,7 @@ function pgOutput(){
     '<div style="background:#0e1520;padding:26px 22px 28px">'+
     // NO logo here — lives in nav only
     '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
+    '<button onclick="if(navigator.share)navigator.share({title:\'TourFlow Viewing Day\',url:window.location.href});" style="position:absolute;top:12px;right:16px;background:none;border:1.5px solid rgba(176,141,87,.5);border-radius:8px;padding:6px 12px;color:#b08d57;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px">&#11014; Share</button>'+
     (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1.0;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
     '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
     '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:18px"></div>'+
@@ -1793,6 +1866,8 @@ function pgOutput(){
     (isAg?"&#128274; Internal info visible. Keep for yourself.":"&#9989; Clean client version. Safe to share.")+
     '</div>'+
     '<div style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--fog);margin-bottom:18px;box-shadow:0 8px 32px rgba(0,0,0,.08)">'+
+    statsBar+
+    timelineHtml+
     coverHdr+
 
     (!isAg&&day.welcomeMsg?'<div style="background:#faf8f4;padding:28px;border-bottom:1px solid #ede8e0">'+
@@ -1838,6 +1913,7 @@ function pgOutput(){
     footerHtml+
     '</div>'+
     '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit">&#128241; Copy WhatsApp</button>'+
+    (isAg?'<button onclick="S.addProp=true;S.epid=null;go(\'add-prop\')" style="position:fixed;bottom:80px;right:20px;width:56px;height:56px;border-radius:50%;background:#b08d57;border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(176,141,87,.4);z-index:50;display:flex;align-items:center;justify-content:center">+</button>':'')+
     '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
     '</div></div>';
 }
