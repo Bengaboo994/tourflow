@@ -18,7 +18,7 @@ input,button,textarea,select{font-family:inherit}
 .nb{flex:1;padding:10px 4px 12px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
 .nl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
 .nl.on{color:#b08d57;font-weight:500}
-.nd{width:20px;height:1.5px;background:#b08d57;border-radius:1px;margin-top:1px}
+.nd{width:20px;height:2px;background:#b08d57;border-radius:1px;margin-top:2px}.nb-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .15s,border .15s}.nb.on .nb-ico{background:rgba(176,141,87,.2);border:1px solid rgba(176,141,87,.4)}
 .wrap{padding:20px 18px 80px}
 .card{background:var(--card);border-radius:12px;border:1px solid var(--fog);padding:16px;margin-bottom:14px}
 .lbl{font-size:10px;font-weight:500;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
@@ -56,7 +56,7 @@ input,button,textarea,select{font-family:inherit}
 .or{padding:16px 22px;border-bottom:1px solid var(--fog)}
 .of{background:var(--mist);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .ibox{margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:11px 13px}
-@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}img{display:block!important;max-width:100%!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -105,52 +105,31 @@ input,button,textarea,select{font-family:inherit}
   <div style="width:30px;height:30px;display:flex;align-items:center;justify-content:center">
     <svg width="29" height="38" viewBox="0 0 26 34"><defs><linearGradient id="hg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="13" cy="11" r="9" fill="none" stroke="url(#hg)" stroke-width="2"/><circle cx="13" cy="11" r="3.5" fill="url(#hg)"/><path d="M 5 18 Q 13 30 21 18" fill="none" stroke="url(#hg)" stroke-width="2" stroke-linecap="round"/></svg>
   </div>
-  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:400;letter-spacing:.5px">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span>
+  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:.5px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span>
 </div>
 <div id="app"></div>
 <div class="nav">
-  <button class="nb" onclick="showTab('home')"><span style="font-size:19px">&#127968;</span><span class="nl on" id="nl-home">Home</span><div class="nd" id="nd-home"></div></button>
-  <button class="nb" onclick="showTab('clients')"><span style="font-size:19px">&#128100;</span><span class="nl" id="nl-clients">Clients</span><div class="nd" id="nd-clients" style="display:none"></div></button>
-  <button class="nb" onclick="showTab('days')"><span style="font-size:19px">&#128197;</span><span class="nl" id="nl-days">Days</span><div class="nd" id="nd-days" style="display:none"></div></button>
-  <button class="nb" onclick="showTab('settings')"><span style="font-size:19px">&#9881;</span><span class="nl" id="nl-settings">Settings</span><div class="nd" id="nd-settings" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('home')"><div class="nb-ico"><i class="ti ti-home-2" style="font-size:18px"></i></div><span class="nl on" id="nl-home">Home</span><div class="nd" id="nd-home"></div></button>
+  <button class="nb" onclick="showTab('clients')"><div class="nb-ico"><i class="ti ti-user" style="font-size:18px"></i></div><span class="nl" id="nl-clients">Clients</span><div class="nd" id="nd-clients" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('days')"><div class="nb-ico"><i class="ti ti-calendar" style="font-size:18px"></i></div><span class="nl" id="nl-days">Days</span><div class="nd" id="nd-days" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('settings')"><div class="nb-ico"><i class="ti ti-settings" style="font-size:18px"></i></div><span class="nl" id="nl-settings">Settings</span><div class="nd" id="nd-settings" style="display:none"></div></button>
 </div>
 </div>
 
 <script>
 var STORE="tf-v2";
+function formatPrice(v){var n=v.replace(/[^0-9]/g,"");return n?"€ "+parseInt(n,10).toLocaleString("en-US"):""}
+function onPriceInput(el,did,pid){var f=formatPrice(el.value);el.value=f;updProp(did,pid,{price:f});}
+function onPriceInputAdd(el){el.value=formatPrice(el.value);}
 function triggerPrint(){
-  var el=document.getElementById('app');
-  var pv=el?el.querySelector('.pdf-view'):null;
-  if(!pv){window.print();return;}
-  
-  // Open new window with just the PDF content
-  var w=window.open('','_blank','width=900,height=700');
-  if(!w){window.print();return;}
-  
-  w.document.write('<!DOCTYPE html><html><head>'+
-    '<meta charset="UTF-8"/>'+
-    '<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>'+
-    '<style>'+
-    '*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
-    'body{font-family:Jost,sans-serif;background:#fff}'+
-    '@page{size:A4;margin:0}'+
-    '.pdf-page{page-break-after:always;break-after:page}'+
-    '.pdf-page:last-child{page-break-after:auto}'+
-    '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
-    'img{display:block;max-width:100%;-webkit-print-color-adjust:exact!important}'+
-    '</style></head><body>'+
-    pv.innerHTML+
-    '</body></html>');
-  w.document.close();
-  
-  // Wait for fonts and images then print
-  w.onload=function(){
-    setTimeout(function(){
-      w.focus();
-      w.print();
-    },600);
-  };
-  setTimeout(function(){w.focus();w.print();},1500);
+  if(navigator.share){
+    navigator.share({
+      title:'Viewing Day'+(curC()?' - '+curC().name:''),
+      url:window.location.href
+    });
+  } else {
+    window.print();
+  }
 }
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
 function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
@@ -558,6 +537,106 @@ function uploadExistingPropImg(input,dayId,propId){
   reader.readAsDataURL(file);
 }
 
+function pgPdfPreview(){
+  var day=curD();if(!day)return '<div class="wrap"><p>No day selected.</p></div>';
+  var c=curC();var cfg=S.cfg;
+  var props=[].concat(day.properties||[]).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
+  var ORDS=['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth'];
+  var ft=props.length?props[0].time:'';
+  var lt=props.length>1?props[props.length-1].time:'';
+
+  function row(p){
+    var fp=(p.price||'').replace(/(\d[\d\s,.]*)\s*EUR/i,'\u20AC$1').trim()||p.price||'\u2014';
+    var ms2=matchScore(c,p);var sc=ms2&&ms2.score!=null?ms2.score:null;
+    var col=sc!=null&&sc>=85?'#059669':sc!=null&&sc>=70?'#b08d57':'#9e9080';
+    return '<tr style="border-bottom:1px solid #f0ece4">'+
+      '<td style="padding:7px 10px;font-size:12px;font-weight:700;color:#0e1520">'+(p.time||'\u2014')+'</td>'+
+      '<td style="padding:7px 10px;font-size:12px;font-weight:600">'+esc(p.area||'')+'</td>'+
+      '<td style="padding:7px 10px;font-size:12px;color:#4a3e30">'+esc((p.title||'').slice(0,38))+'</td>'+
+      '<td style="padding:7px 10px;font-size:12px;color:#b08d57;font-weight:600">'+esc(fp)+'</td>'+
+      '<td style="padding:7px 10px;font-size:12px;font-weight:700;color:'+col+'">'+(sc!=null?sc+'%':'\u2014')+'</td></tr>';
+  }
+
+  function propSection(p,idx){
+    var fp=(p.price||'').replace(/(\d[\d\s,.]*)\s*EUR/i,'\u20AC$1').trim()||p.price||'';
+    var ms3=matchScore(c,p);var sc3=ms3&&ms3.score!=null?ms3.score:null;
+    var sc3c=sc3!=null&&sc3>=85?'#059669':sc3!=null&&sc3>=70?'#b08d57':'#9e9080';
+    var hl=p.highlights||[];
+    var ol=props.length===1?'Private Viewing':((ORDS[idx]||'Viewing '+(idx+1))+' Viewing \u00B7 '+(idx+1)+' of '+props.length);
+    return '<div style="margin-bottom:32px;border-bottom:2px solid #ede8e0;padding-bottom:28px">'+
+      (p.ogImage?'<div style="position:relative;height:260px;overflow:hidden">'+
+        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover;display:block"/>'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 35%,rgba(0,0,0,.65) 100%)"></div>'+
+        (p.topPick?'<div style="position:absolute;top:12px;left:16px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:3px 9px;font-size:9px;font-weight:700;color:#fff;text-transform:uppercase">★ Top Pick</div>':'')+
+        (sc3!=null?'<div style="position:absolute;top:12px;right:16px;background:rgba(10,14,22,.78);border-radius:7px;padding:5px 9px;text-align:center"><div style="font-size:15px;font-weight:700;color:'+sc3c+'">'+sc3+'%</div><div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em">Match</div></div>':'')+
+        '</div>':'<div style="background:#0e1520;height:90px;display:flex;align-items:center;justify-content:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:44px;font-weight:300;color:rgba(176,141,87,.15)">'+(idx+1)+'</div></div>')+
+      '<div style="padding:20px 24px 0">'+
+      '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px">'+
+      '<div><div style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px">'+ol+'</div>'+
+      (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#0e1520;line-height:1;letter-spacing:-.3px">'+esc(p.time)+'</div>':'')+
+      '</div>'+(fp?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#b08d57;letter-spacing:-.3px">'+esc(fp)+'</div>':'')+
+      '</div>'+
+      (p.area?'<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:4px">'+esc(p.area)+(p.address?' \u00B7 <span style="opacity:.55">'+esc(p.address)+'</span>':'')+'</div>':'')+
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#0e1520;line-height:1.15;margin-bottom:11px;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px">'+
+      (p.rooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase">'+esc(p.rooms)+'</span>':'')+
+      (p.bathrooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase">'+esc(p.bathrooms)+'</span>':'')+
+      (p.sqm?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase">'+esc(p.sqm)+'</span>':'')+
+      '</div>'+
+      (p.url||p.mapsUrl?'<div style="display:flex;gap:14px;margin-bottom:11px">'+
+      (p.url?'<a href="'+esc(p.url)+'" style="font-size:12px;font-weight:600;color:#b08d57">&#128279; View Full Listing</a>':'')+
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="font-size:12px;color:#6b5f4e">&#128205; Directions</a>':'')+
+      '</div>':'')+
+      (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:4px">'+
+      hl.map(function(h){return'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500;color:#4a3e30">'+esc(h)+'</span>';}).join('')+
+      '</div>':'')+
+      '</div></div>';
+  }
+
+  return '<div style="background:#f0ece4;min-height:100vh">'+
+    '<div style="background:#0e1520;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">'+
+    '<button onclick="go(\'output\')" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;font-family:inherit">&#8592; Back</button>'+
+    '<div style="font-size:10px;color:rgba(255,255,255,.4);text-align:center">Dela via Safari &#8250; Spara som PDF</div>'+
+    '<button onclick="window.print()" style="background:#b08d57;border:none;color:#fff;font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit">Print</button>'+
+    '</div>'+
+    '<div style="max-width:600px;margin:0 auto">'+
+    '<div style="background:#0e1520;padding:28px 24px 24px">'+
+    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:9px">Personalised Viewing Day</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:38px;font-weight:300;color:#fff;line-height:1;letter-spacing:-.3px;margin-bottom:3px">'+(c?esc(c.name):'Viewing Day')+'</div>'+
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:18px">'+fmtDate(day.date)+'</div>'+
+    '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:16px"></div>'+
+    '<div style="display:flex">'+
+    '<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:14px;margin-right:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+props.length+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(props.length===1?'y':'ies')+'</div></div>'+
+    (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:14px;margin-right:14px"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+esc(ft)+'</div><div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">First Viewing</div></div>':'')+
+    (lt&&props.length>1?'<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+esc(lt)+'</div><div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Last Viewing</div></div>':'')+
+    '</div></div>'+
+    (day.welcomeMsg?'<div style="background:#faf8f4;padding:14px 24px;border-bottom:1px solid #ede8e0">'+
+    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:6px">A personal note</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:14px;color:#2a1f14;line-height:1.65;font-style:italic">'+esc(day.welcomeMsg)+'</div>'+
+    (cfg.agent?'<div style="font-size:11px;color:#9e9080;margin-top:5px">\u2014 '+esc(cfg.agent)+'</div>':'')+
+    '</div>':'')+
+    '<div style="background:#fff;padding:14px 24px;border-bottom:1px solid #ede8e0">'+
+    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">Viewing Schedule</div>'+
+    '<table style="width:100%;border-collapse:collapse;border:1px solid #e0d8c8"><thead>'+
+    '<tr style="background:#f5f0e8"><th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Time</th>'+
+    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Area</th>'+
+    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Property</th>'+
+    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Price</th>'+
+    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Match</th>'+
+    '</tr></thead><tbody>'+props.map(row).join('')+'</tbody></table></div>'+
+    '<div style="background:#fff;padding:24px 0 8px">'+props.map(propSection).join('')+'</div>'+
+    (cfg.agent||cfg.agency?'<div style="background:#0e1520;padding:16px 24px;display:flex;align-items:center;justify-content:space-between">'+
+    '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:300;color:#fff">'+esc(cfg.agent||cfg.agency)+'</div>'+
+    (cfg.agency&&cfg.agent?'<div style="font-size:10px;color:rgba(255,255,255,.35)">'+esc(cfg.agency)+'</div>':'')+
+    '</div><div style="text-align:right">'+
+    (cfg.phone?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.phone)+'</div>':'')+
+    (cfg.email?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.email)+'</div>':'')+
+    '</div></div>':'')+
+    '</div></div>';
+}
+
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
@@ -592,6 +671,7 @@ function render(){
   if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
   if(s==="add-prop")         {el.innerHTML=pgAddProp();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
+  if(s==="pdf-preview")      {el.innerHTML=pgPdfPreview();return;}
   if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
   if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
   if(S.tab==="days")         {el.innerHTML=pgDays();return;}
@@ -675,7 +755,7 @@ function pgHome(){
     '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,16,26,.15) 0%,rgba(10,16,26,.65) 100%)"></div>'+
     '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 20px 20px">'+
     '<div style="font-size:11px;color:rgba(255,255,255,.65);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;text-shadow:0 1px 4px rgba(0,0,0,.4);font-weight:500">TourFlow</div>'+
-    '<div style="font-size:19px;font-weight:600;color:#fff;line-height:1.25;letter-spacing:-.2px;text-shadow:0 1px 8px rgba(0,0,0,.5)">Professional property tours<br/>made simple.</div>'+
+    '<div style="font-size:19px;font-weight:600;color:#fff;line-height:1.25;letter-spacing:-.2px;text-shadow:0 1px 8px rgba(0,0,0,.5);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility">Professional property tours<br/>made simple.</div>'+
     '</div></div>'+
 
     // SEPARATOR + ACTION CARDS on white bg
@@ -916,21 +996,29 @@ function pgDayDetail(){
       var bf=[["Title","title","Sun-Filled Apartment in La Zenia"],["Address","address","Calle del Mar 12"],["Area","area","La Zenia"],["Bedrooms","rooms","2 bedrooms"],["Bathrooms","bathrooms","2 bathrooms"],["Size","sqm","78 m2"]];
       var iff=[["Commission","commission","2.5%"],["Contact","contact","Maria Garcia"],["Phone","contactPhone","+34 600 000 000"],["Firm","firm","Costa Realty"],["Location/access","location","Key at front desk"],["Notes","note","Other info"]];
       ep='<div style="padding:0 14px 14px;border-top:1px solid var(--fog)">'+
+        '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
+        (p.ogImage
+          ?'<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:4px;border:1px solid var(--fog)"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit">Remove</button></div>'
+          :'<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+          '<span style="font-size:12px;color:var(--slate)">Upload property photo</span>'+
+          '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
+        '</div>'+
         '<div class="g2" style="margin:12px 0 10px">'+
         '<div><label class="lbl">Time</label><input type="time" class="inp ins" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
-        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:this.value})"/></div></div>'+
+        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)})"/></div></div>'+
         bf.map(function(f,fi){
-          var isAreaPair=f[1]==='area'&&bf[fi-1]&&bf[fi-1][1]==='address';
           var isAddrField=f[1]==='address'&&bf[fi+1]&&bf[fi+1][1]==='area';
-          var isBathPair=f[1]==='bathrooms'&&bf[fi-1]&&bf[fi-1][1]==='rooms';
+          var isAreaPair=f[1]==='area'&&bf[fi-1]&&bf[fi-1][1]==='address';
           var isRoomsField=f[1]==='rooms'&&bf[fi+1]&&bf[fi+1][1]==='bathrooms';
-          var fld='<div><label class="lbl">'+f[0]+'</label>'+
+          var isBathPair=f[1]==='bathrooms'&&bf[fi-1]&&bf[fi-1][1]==='rooms';
+          var inp='<div><label class="lbl">'+f[0]+'</label>'+
             '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';
-          if(isAddrField)return'<div class="g2" style="margin-bottom:9px">'+fld;
-          if(isAreaPair)return fld+'</div>';
-          if(isRoomsField)return'<div class="g2" style="margin-bottom:9px">'+fld;
-          if(isBathPair)return fld+'</div>';
-          return'<div style="margin-bottom:9px">'+fld+'</div>';
+          if(isAddrField)return'<div class="g2" style="margin-bottom:9px">'+inp;
+          if(isAreaPair)return inp+'</div>';
+          if(isRoomsField)return'<div class="g2" style="margin-bottom:9px">'+inp;
+          if(isBathPair)return inp+'</div>';
+          return'<div style="margin-bottom:9px">'+inp+'</div>';
         }).join("")+
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
         '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
@@ -950,14 +1038,6 @@ function pgDayDetail(){
         '<div><label class="lbl">Area highlight</label>'+
         '<input class="inp ins" value="'+esc(p.areaNote||'')+'" placeholder="Beachfront area" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{areaNote:this.value})"/></div>'+
         '</div>'+
-        '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
-        (p.ogImage
-          ?'<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:4px;border:1px solid var(--fog)"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit">Remove</button></div>'
-          :'<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
-          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
-          '<span style="font-size:12px;color:var(--slate)">Upload property photo</span>'+
-          '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
-        '</div>'+
         '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
         '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
         '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
@@ -973,7 +1053,6 @@ function pgDayDetail(){
       '<div style="padding:12px 14px;display:flex;gap:10px;align-items:flex-start">'+
       '<div style="flex:1;min-width:0">'+
       (p.time?'<div style="font-weight:600;font-size:14px;color:var(--ink);margin-bottom:2px">'+esc(p.time)+'</div>':'')+
-      (p.ogImage?'<div style="height:160px;background:var(--mist);border-radius:8px;overflow:hidden;margin-bottom:8px"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/></div>':'')+
       '<div style="font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.title||p.address||getDomain(p.url))+'</div>'+
       '<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+
       (p.price?'<span class="pill pill-br">'+esc(p.price)+'</span>':'')+
@@ -1047,7 +1126,8 @@ function pgDayDetail(){
       '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
-      '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>':'')+
+      '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
+      '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Copy WhatsApp</button>':'')+
     '</div>';
 }
 function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note")});S.addEv=false;render();}
@@ -1201,7 +1281,7 @@ function saveProp(did){
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),area:gv("ap-area2"),bathrooms:gv("ap-bath"),price:formatPrice(gv("ap-price"))||gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
   window._newHighlights=[];
   _intOpen=false;go("day-detail");
 }
@@ -1302,9 +1382,11 @@ function pgOutput(){
         '</div>';
 
     // Location
-    var displayArea=p.area||'';
-    var street=p.address||'';
-    var regionLine='';
+    var addrParts=(p.address||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
+    var area=addrParts.length>0?addrParts[addrParts.length-1]:'';
+    var town=addrParts.length>1?addrParts[addrParts.length-2]:'';
+    var displayArea=town||area;
+    var regionLine=town&&area&&town!==area?area:'';
 
     // Highlights — max 4, compact
     var hl=p.highlights||[];
@@ -1354,8 +1436,8 @@ function pgOutput(){
       // Location
       '<div style="display:flex;align-items:center;gap:4px;margin-bottom:12px">'+
       '<svg width="9" height="12" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
-      (displayArea?'<span style="font-size:13px;font-weight:700;color:#1c1a16">'+esc(displayArea)+'</span>':'')+
-      (street?'<span style="font-size:13px;color:#9e9080"> &nbsp;|&nbsp; '+esc(street)+'</span>':'')+
+      '<span style="font-size:13px;font-weight:600;color:#1c1a16">'+esc(displayArea)+'</span>'+
+      (regionLine?'<span style="font-size:11px;color:#9e9080"> &middot; '+esc(regionLine)+'</span>':'')+
       '</div>'+
 
       // Specs row
@@ -1470,16 +1552,12 @@ function pgOutput(){
     '@media print{'+
     '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
     '.mobile-view,.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr,button{display:none!important}'+
-    '.pdf-view{display:block!important;visibility:visible!important;position:static!important;left:auto!important;font-family:Jost,sans-serif}'+
-    '.pdf-page{page-break-after:always;break-after:page}'+
-    '.pdf-page:last-child{page-break-after:auto;break-after:auto}'+
-    '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
+    '.pdf-view{display:block!important}'+
     'body{margin:0;padding:0;background:#fff!important;font-family:Jost,sans-serif}'+
     '.pdf-page{page-break-after:always;break-after:page}'+
     '.pdf-page:last-child{page-break-after:auto;break-after:auto}'+
     '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
     'a{text-decoration:none!important}'+
-    '.pdf-view img{display:block!important;visibility:visible!important;opacity:1!important;max-width:100%!important;-webkit-print-color-adjust:exact!important}'+
     '}'+
     '</style>';
 
@@ -1723,8 +1801,7 @@ function pgOutput(){
     })():'')+
     footerHtml+
     '</div>'+
-    '<button onclick="triggerPrint()" style="width:100%;padding:14px;background:#0e1520;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:Jost,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">&#128279; Share PDF</button>'+
-    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:Jost,sans-serif;display:flex;align-items:center;justify-content:center;gap:8px">&#128241; Copy WhatsApp</button>'+
+    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit">&#128241; Copy WhatsApp</button>'+
     '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
     '</div></div>';
 }
@@ -1759,7 +1836,7 @@ function pgSettings(){
     rmLogo+
     '<div style="font-size:10px;color:#9e9080;margin-top:5px">PNG recommended</div></div>'+
     '<div><label class="lbl">Profile photo</label>'+
-    '<div style="width:64px;height:64px;border-radius:50%;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+pb+'</div>'+
+    '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+pb+'</div>'+
     '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upPhoto(this)"/></label>'+
     rmPhoto+
     '<div style="font-size:10px;color:#9e9080;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
