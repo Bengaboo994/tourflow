@@ -118,6 +118,7 @@ input,button,textarea,select{font-family:inherit}
 
 <script>
 var STORE="tf-v2";
+
 function formatPrice(v){var n=v.replace(/[^0-9]/g,"");return n?"€ "+parseInt(n,10).toLocaleString("en-US"):""}
 function onPriceInput(el,did,pid){var f=formatPrice(el.value);el.value=f;updProp(did,pid,{price:f});}
 function onPriceInputAdd(el){el.value=formatPrice(el.value);}
@@ -945,7 +946,9 @@ function pgEditClient(){
     '<div class="g2" style="margin-bottom:13px">'+
     '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" value="'+esc(c.nationality||'')+'" placeholder="Swedish"/></div>'+
     '<div><label class="lbl">Notes</label><input class="inp" id="ec-notes" value="'+esc(c.notes||'')+'" placeholder="Brief notes..."/></div>'+
-    '</div></div>'+
+    '</div>'+
+
+    '</div>'+
     '<div class="sec-sm" style="margin-top:4px;margin-bottom:8px">Requirements profile</div>'+
     '<div class="card">'+reqFormHtml(c)+
     '</div>'+
@@ -1013,8 +1016,11 @@ function pgDayDetail(){
           var isAreaPair=f[1]==='area'&&bf[fi-1]&&bf[fi-1][1]==='address';
           var isRoomsField=f[1]==='rooms'&&bf[fi+1]&&bf[fi+1][1]==='bathrooms';
           var isBathPair=f[1]==='bathrooms'&&bf[fi-1]&&bf[fi-1][1]==='rooms';
-          var inp='<div><label class="lbl">'+f[0]+'</label>'+
-            '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';
+          var isNumeric=f[1]==='rooms'||f[1]==='bathrooms'||f[1]==='sqm';
+          var isNumeric=f[1]==='rooms'||f[1]==='bathrooms'||f[1]==='sqm';
+          var maxLen=f[1]==='sqm'?'5':'2';
+          var numAttrs=isNumeric?' inputmode="numeric" maxlength="'+maxLen+'" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,'+maxLen+');updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"':' oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"';
+            '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'"'+numAttrs+'/></div>';
           if(isAddrField)return'<div class="g2" style="margin-bottom:9px">'+inp;
           if(isAreaPair)return inp+'</div>';
           if(isRoomsField)return'<div class="g2" style="margin-bottom:9px">'+inp;
@@ -1137,21 +1143,27 @@ function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),t
 function copyWA(){
   var day=curD();if(!day)return;
   var c=curC();var cfg=S.cfg;
+  var lang='en';
+  var isSv=lang==='sv';
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
   var line="---------------------";
   var name=c?c.name.split(" ")[0]:"";
-  var greeting="Hi"+(name?" "+name+",":",")+"\n\nYour personalised viewing itinerary for *"+fmtDate(day.date)+"* is ready:\n";
+  var greeting=isSv
+    ?"Hej"+(name?" "+name+",":",")+"\n\nDin personliga visningsplan för *"+fmtDate(day.date)+"* är redo:\n"
+    :"Hi"+(name?" "+name+",":",")+"\n\nYour personalised viewing itinerary for *"+fmtDate(day.date)+"* is ready:\n";
   var blocks=props.map(function(p,idx){
-    var area=p.address?p.address.split(",").slice(-1)[0].trim():getDomain(p.url);
-    var ls=["*Property "+(idx+1)+(p.topPick?" - TOP PICK":"")+":* "+(p.title||area)];
-    if(p.time)ls.push("Time: *"+p.time+"*");
+    var area=p.area||( p.address?p.address.split(",").slice(-1)[0].trim():getDomain(p.url));
+    var topLabel=isSv?" - TOPPVAL":" - TOP PICK";
+    var ls=["*"+(isSv?"Bostad":"Property")+" "+(idx+1)+(p.topPick?topLabel:"")+":* "+(p.title||area)];
+    if(p.time)ls.push((isSv?"Tid":"Time")+": *"+p.time+"*");
     if(area)ls.push(area);
-    var meta=[p.price,p.rooms,p.sqm].filter(Boolean);
+    if(p.address&&p.area)ls.push(p.address);
+    var meta=[p.price,p.rooms,p.bathrooms,p.sqm].filter(Boolean);
     if(meta.length)ls.push(meta.join(" - "));
-    if(p.highlights&&p.highlights.length)ls.push("Highlights: "+p.highlights.slice(0,3).join(", "));
+    if(p.highlights&&p.highlights.length)ls.push((isSv?"Höjdpunkter":"Highlights")+": "+p.highlights.slice(0,3).join(", "));
     if(p.agentRec)ls.push('"'+p.agentRec+'"');
     if(p.url)ls.push(p.url);
-    if(p.mapsUrl)ls.push("Directions: "+p.mapsUrl);
+    if(p.mapsUrl)ls.push((isSv?"Vägbeskrivning":"Directions")+": "+p.mapsUrl);
     return ls.join("\n");
   }).join("\n\n"+line+"\n\n");
   var footer="";
@@ -1161,7 +1173,6 @@ function copyWA(){
     if(cfg.phone)footer+="\n"+cfg.phone;
     if(cfg.email)footer+="\n"+cfg.email;
   }
-  // Add events sorted by time
   var evs=[].concat(day.events||[]).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
   var evTxt=evs.length?"\n"+line+"\n"+evs.map(function(ev){
     var icons={lunch:"🍽",pickup:"🚗",stop:"📍",other:"📌"};
@@ -1204,7 +1215,10 @@ function pgAddProp(){
     var isArea=f[1]==='ap-area2'&&bf[fi-1]&&bf[fi-1][1]==='ap-addr';
     var isBeds=f[1]==='ap-rooms'&&bf[fi+1]&&bf[fi+1][1]==='ap-bath';
     var isBath=f[1]==='ap-bath'&&bf[fi-1]&&bf[fi-1][1]==='ap-rooms';
-    var fld='<div><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+(f[1]==='ap-price'?' oninput="onPriceInputAdd(this)"':'')+' placeholder="'+f[2]+'"/></div>';
+    var isNumeric=f[1]==='ap-rooms'||f[1]==='ap-bath'||f[1]==='ap-sqm';
+    var maxLen=f[1]==='ap-sqm'?'5':'2';
+    var extra=isNumeric?' inputmode="numeric" maxlength="'+maxLen+'" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,'+maxLen+')"':f[1]==='ap-price'?' oninput="onPriceInputAdd(this)"':'';
+    var fld='<div><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+extra+' placeholder="'+f[2]+'"/></div>';
     if(isAddr)return'<div class="g2" style="margin-bottom:16px">'+fld;
     if(isArea)return fld+'</div>';
     if(isBeds)return'<div class="g2" style="margin-bottom:16px">'+fld;
@@ -1329,7 +1343,7 @@ function pgOutput(){
     'Family friendly':'&#128106;','Holiday home potential':'&#127965;',
     'Restaurants nearby':'&#127860;','Quiet area':'&#127807;','Prime location':'&#128205;',
     'Gated community':'&#127968;','Large terrace':'&#127795;','Hot listing':'&#128293;',
-    'Everything within walking distance':'&#127937;','Close to amenities':'&#127869;'
+    'Everything within walking distance':'&#127937;','Lift':'&#11014;','Close to amenities':'&#127869;'
   };
 
   var rows=all.map(function(item){
@@ -1462,10 +1476,10 @@ function pgOutput(){
       (p.rooms||p.sqm?
         '<div style="display:flex;gap:6px;margin-bottom:12px">'+
         (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
-          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M2 9V5a2 2 0 012-2h16a2 2 0 012 2v4"/><path d="M2 9h20v11H2z"/></svg>'+
+          '<span style="font-size:13px;line-height:1">&#x1F6CF;&#xFE0F;</span>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span></div>':'')+
         (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
-          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2" stroke-linecap="round"><path d="M4 12h16M4 12V6a2 2 0 012-2h3"/><path d="M4 12v5a2 2 0 002 2h12a2 2 0 002-2v-5"/><circle cx="7" cy="6" r="1"/></svg>'+
+          '<span style="font-size:13px;line-height:1">&#x1F6C1;</span>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.bathrooms)+'</span></div>':'')+
         (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
           '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>'+
@@ -1834,6 +1848,7 @@ function pgSettings(){
   var pb=cfg.photo?'<img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:22px">&#128100;</span>';
   var rmLogo=cfg.logo?'<button onclick="S.cfg.logo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
   var rmPhoto=cfg.photo?'<button onclick="S.cfg.photo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
+
   var fRows=[
     ["Agency name","agency","Costa Home Realty"],
     ["Your name","agent","Maria Garcia"],
@@ -1862,7 +1877,7 @@ function pgSettings(){
     rmPhoto+
     '<div style="font-size:10px;color:#9e9080;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
     '</div>'+
-    fRows+
+    langSel+fRows+
     '<div style="font-size:12px;color:#9e9080;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
     '</div></div>';
 }
