@@ -1098,7 +1098,7 @@ function pgDayDetail(){
     '<div>'+(c?'<div style="font-size:11px;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300">'+fmtDate(day.date)+'</div></div>'+
     statusBadge(dayStatus(day.date))+'</div>'+
-    '<div class="card" style="margin-bottom:14px">'+
+    '<div class="card" style="margin-bottom:18px">'+
     '<label class="lbl">Date</label><input type="date" class="inp" value="'+esc(day.date)+'" oninput="updateDay(\''+day.id+'\',{date:this.value});render()"/>'+
     '</div>'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
@@ -1169,23 +1169,42 @@ function copyWA(){
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
-  var bf=[["Title","ap-title","Bright 2-bed apartment"],["Address","ap-addr","Calle del Mar 12"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Size","ap-sqm","78 m2"]];
+  var bf=[["Title","ap-title","Sun-Filled Apartment in La Zenia"],["Address","ap-addr","Calle del Mar 12"],["Area","ap-area2","La Zenia"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Bathrooms","ap-bath","2 bathrooms"],["Size","ap-sqm","78 m2"]];
   var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Contact phone","ap-cph","+34 600 000 000"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Notes","ap-note","Bring ID"]];
   return '<div class="wrap">'+
     '<button class="bback" onclick="go(\'day-detail\')">&#8592; Cancel</button>'+
     '<div class="sec">Add Property</div>'+
-    '<div class="card" style="margin-bottom:14px">'+
+    '<div class="card" style="margin-bottom:18px">'+
     '<label class="lbl">Listing URL *</label>'+
     '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
     '<div id="ap-og-status" style="margin-top:4px"></div>'+
     '<div style="font-size:11px;color:#9e9080;margin-top:6px">Paste listing URL</div></div>'+
-    '<div class="card" style="margin-bottom:14px">'+
+    '<div class="card" style="margin-bottom:18px">'+
     '<label class="lbl">Viewing time</label>'+
     '<input type="time" class="inp" id="ap-time" style="width:160px"/></div>'+
-    '<div class="card" style="margin-bottom:14px">'+
+    '<div class="card" style="margin-bottom:18px">'+
     '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details (optional)</div>'+
-    bf.map(function(f){return'<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';}).join("")+
-    '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
+    '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
+    '<div><label class="lbl">Hero image</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+    '<span style="font-size:13px;color:var(--slate)">Upload property photo</span>'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadPropImg(this)"/></label>'+
+    '<div id="prop-img-prev"></div></div></div>'+
+    '<div style="background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:18px;overflow:hidden">'+
+    bf.map(function(f,fi){
+    var isAddr=f[1]==='ap-addr'&&bf[fi+1]&&bf[fi+1][1]==='ap-area2';
+    var isArea=f[1]==='ap-area2'&&bf[fi-1]&&bf[fi-1][1]==='ap-addr';
+    var isBeds=f[1]==='ap-rooms'&&bf[fi+1]&&bf[fi+1][1]==='ap-bath';
+    var isBath=f[1]==='ap-bath'&&bf[fi-1]&&bf[fi-1][1]==='ap-rooms';
+    var fld='<div><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+(f[1]==='ap-price'?' oninput="onPriceInputAdd(this)"':'')+' placeholder="'+f[2]+'"/></div>';
+    if(isAddr)return'<div class="g2" style="margin-bottom:16px">'+fld;
+    if(isArea)return fld+'</div>';
+    if(isBeds)return'<div class="g2" style="margin-bottom:16px">'+fld;
+    if(isBath)return fld+'</div>';
+    return'<div style="margin-bottom:16px">'+fld+'</div>';
+  }).join("")+
+    '<div style="margin-bottom:16px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
     '<div id="maps-prev"></div></div>'+
     '<div style="height:1px;background:var(--fog);margin:16px 0 14px"></div>'+
@@ -1195,14 +1214,6 @@ function pgAddProp(){
     '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
     '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
-    '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
-    '<div><label class="lbl">Hero image</label>'+
-    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
-    '<span style="font-size:13px;color:var(--slate)">Upload property photo</span>'+
-    '<input type="file" accept="image/*" style="display:none" onchange="uploadPropImg(this)"/></label>'+
-    '<div id="prop-img-prev"></div></div></div>'+
-    '<div style="background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:18px;overflow:hidden">'+
     '<button style="width:100%;padding:13px 14px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="togInt()">'+
     '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
     '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
@@ -1385,8 +1396,8 @@ function pgOutput(){
     var addrParts=(p.address||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
     var area=addrParts.length>0?addrParts[addrParts.length-1]:'';
     var town=addrParts.length>1?addrParts[addrParts.length-2]:'';
-    var displayArea=town||area;
-    var regionLine=town&&area&&town!==area?area:'';
+    var displayArea=p.area||(town||area)||'';
+    var street=p.address||'';
 
     // Highlights — max 4, compact
     var hl=p.highlights||[];
@@ -1434,11 +1445,11 @@ function pgOutput(){
       (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#0e1520;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
 
       // Location
-      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:12px">'+
-      '<svg width="9" height="12" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
-      '<span style="font-size:13px;font-weight:600;color:#1c1a16">'+esc(displayArea)+'</span>'+
-      (regionLine?'<span style="font-size:11px;color:#9e9080"> &middot; '+esc(regionLine)+'</span>':'')+
+      '<div style="margin-bottom:12px">'+
+      (displayArea?'<div style="font-size:15px;font-weight:700;color:#1c1a16;margin-bottom:1px">'+esc(displayArea)+'</div>':'')+
+      (street?'<div style="font-size:11px;color:#9e9080">'+esc(street)+'</div>':'')+
       '</div>'+
+
 
       // Specs row
       (p.rooms||p.sqm?
