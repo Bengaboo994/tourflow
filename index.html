@@ -18,7 +18,7 @@ input,button,textarea,select{font-family:inherit}
 .nb{flex:1;padding:10px 4px 12px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.45)}
 .nl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
 .nl.on{color:#b08d57;font-weight:500}
-.nd{width:20px;height:2px;background:#b08d57;border-radius:1px;margin-top:2px}.nb-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:background .15s,border .15s}.nb.on{color:#b08d57}.nb.on .nb-ico{background:rgba(176,141,87,.2);border:1px solid rgba(176,141,87,.4)}
+.nb.on{color:#b08d57}.nd{width:20px;height:2px;background:#b08d57;border-radius:1px;margin-top:2px}
 .wrap{padding:20px 18px 80px;min-height:calc(100vh - 60px)}
 .card{background:var(--card);border-radius:12px;border:1px solid var(--fog);padding:16px;margin-bottom:14px}
 .lbl{font-size:10px;font-weight:500;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
@@ -105,33 +105,23 @@ input,button,textarea,select{font-family:inherit}
   <div style="width:30px;height:30px;display:flex;align-items:center;justify-content:center">
     <svg width="29" height="38" viewBox="0 0 26 34"><defs><linearGradient id="hg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="13" cy="11" r="9" fill="none" stroke="url(#hg)" stroke-width="2"/><circle cx="13" cy="11" r="3.5" fill="url(#hg)"/><path d="M 5 18 Q 13 30 21 18" fill="none" stroke="url(#hg)" stroke-width="2" stroke-linecap="round"/></svg>
   </div>
-  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:.5px;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span>
+  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:.5px;-webkit-font-smoothing:antialiased">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span>
 </div>
 <div id="app"></div>
 <div class="nav">
-  <button class="nb" onclick="showTab('home')"><div class="nb-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg></div><span class="nl on" id="nl-home">Home</span><div class="nd" id="nd-home"></div></button>
-  <button class="nb" onclick="showTab('clients')"><div class="nb-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><span class="nl" id="nl-clients">Clients</span><div class="nd" id="nd-clients" style="display:none"></div></button>
-  <button class="nb" onclick="showTab('days')"><div class="nb-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="19" text-anchor="middle" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">17</text></svg></div><span class="nl" id="nl-days">Days</span><div class="nd" id="nd-days" style="display:none"></div></button>
-  <button class="nb" onclick="showTab('settings')"><div class="nb-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></div><span class="nl" id="nl-settings">Settings</span><div class="nd" id="nd-settings" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg><span class="nl on" id="nl-home">Home</span><div class="nd" id="nd-home"></div></button>
+  <button class="nb" onclick="showTab('clients')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nl" id="nl-clients">Clients</span><div class="nd" id="nd-clients" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('days')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="19" text-anchor="middle" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">17</text></svg><span class="nl" id="nl-days">Days</span><div class="nd" id="nd-days" style="display:none"></div></button>
+  <button class="nb" onclick="showTab('settings')"><span style="font-size:19px">&#9881;</span><span class="nl" id="nl-settings">Settings</span><div class="nd" id="nd-settings" style="display:none"></div></button>
 </div>
 </div>
 
 <script>
 var STORE="tf-v2";
-
-function formatPrice(v){var n=v.replace(/[^0-9]/g,"");return n?"€ "+parseInt(n,10).toLocaleString("en-US"):""}
-function onPriceInput(el,did,pid){var f=formatPrice(el.value);el.value=f;updProp(did,pid,{price:f});}
+function formatPrice(v){var n=v.replace(/[^0-9]/g,"");return n?"\u20AC"+parseInt(n,10).toLocaleString("en-US"):""}
 function onPriceInputAdd(el){el.value=formatPrice(el.value);}
-function triggerPrint(){
-  if(navigator.share){
-    navigator.share({
-      title:'Viewing Day'+(curC()?' - '+curC().name:''),
-      url:window.location.href
-    });
-  } else {
-    window.print();
-  }
-}
+function setStatus(did,pid,st){var day=S.days.find(function(d){return d.id===did;});if(!day)return;var p=day.properties.find(function(x){return x.id===pid;});if(!p)return;p.status=p.status===st?null:st;persist();render();}
+function triggerPrint(){go("pdf-preview");}
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
 function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
 function uid(){return Math.random().toString(36).slice(2,9);}
@@ -269,8 +259,7 @@ function matchScore(c,p){
     garden:['Large terrace','Private garden','South facing'],
     garage:['Garage'],
     newbuild:['Key ready','Recently renovated'],
-    community:['Prime location','Quiet area'],
-    lift:['Lift']
+    community:['Prime location','Quiet area']
   };
 
   var feats={
@@ -395,7 +384,7 @@ function driveTimeHtml(from,to){
     '</div></div>';
 }
 // ─────────────────────────────────────────────────────────────────
-var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"], ["Features", "&#11014;", "Lift"]];
+var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
 
 function toggleHighlight(dayId,propId,label){
   if(dayId==='__new__'){
@@ -539,106 +528,6 @@ function uploadExistingPropImg(input,dayId,propId){
   reader.readAsDataURL(file);
 }
 
-function pgPdfPreview(){
-  var day=curD();if(!day)return '<div class="wrap"><p>No day selected.</p></div>';
-  var c=curC();var cfg=S.cfg;
-  var props=[].concat(day.properties||[]).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
-  var ORDS=['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth'];
-  var ft=props.length?props[0].time:'';
-  var lt=props.length>1?props[props.length-1].time:'';
-
-  function row(p){
-    var fp=(p.price||'').replace(/(\d[\d\s,.]*)\s*EUR/i,'\u20AC$1').trim()||p.price||'\u2014';
-    var ms2=matchScore(c,p);var sc=ms2&&ms2.score!=null?ms2.score:null;
-    var col=sc!=null&&sc>=85?'#059669':sc!=null&&sc>=70?'#b08d57':'#9e9080';
-    return '<tr style="border-bottom:1px solid #f0ece4">'+
-      '<td style="padding:7px 10px;font-size:12px;font-weight:700;color:#0e1520">'+(p.time||'\u2014')+'</td>'+
-      '<td style="padding:7px 10px;font-size:12px;font-weight:600">'+esc(p.area||'')+'</td>'+
-      '<td style="padding:7px 10px;font-size:12px;color:#4a3e30">'+esc((p.title||'').slice(0,38))+'</td>'+
-      '<td style="padding:7px 10px;font-size:12px;color:#b08d57;font-weight:600">'+esc(fp)+'</td>'+
-      '<td style="padding:7px 10px;font-size:12px;font-weight:700;color:'+col+'">'+(sc!=null?sc+'%':'\u2014')+'</td></tr>';
-  }
-
-  function propSection(p,idx){
-    var fp=(p.price||'').replace(/(\d[\d\s,.]*)\s*EUR/i,'\u20AC$1').trim()||p.price||'';
-    var ms3=matchScore(c,p);var sc3=ms3&&ms3.score!=null?ms3.score:null;
-    var sc3c=sc3!=null&&sc3>=85?'#059669':sc3!=null&&sc3>=70?'#b08d57':'#9e9080';
-    var hl=p.highlights||[];
-    var ol=props.length===1?'Private Viewing':((ORDS[idx]||'Viewing '+(idx+1))+' Viewing \u00B7 '+(idx+1)+' of '+props.length);
-    return '<div style="margin-bottom:32px;border-bottom:2px solid #ede8e0;padding-bottom:28px">'+
-      (p.ogImage?'<div style="position:relative;height:260px;overflow:hidden">'+
-        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover;display:block"/>'+
-        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 35%,rgba(0,0,0,.65) 100%)"></div>'+
-        (p.topPick?'<div style="position:absolute;top:12px;left:16px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:3px 9px;font-size:9px;font-weight:700;color:#fff;text-transform:uppercase">★ Top Pick</div>':'')+
-        (sc3!=null?'<div style="position:absolute;top:12px;right:16px;background:rgba(10,14,22,.78);border-radius:7px;padding:5px 9px;text-align:center"><div style="font-size:15px;font-weight:700;color:'+sc3c+'">'+sc3+'%</div><div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em">Match</div></div>':'')+
-        '</div>':'<div style="background:#0e1520;height:90px;display:flex;align-items:center;justify-content:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:44px;font-weight:300;color:rgba(176,141,87,.15)">'+(idx+1)+'</div></div>')+
-      '<div style="padding:20px 24px 0">'+
-      '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px">'+
-      '<div><div style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px">'+ol+'</div>'+
-      (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#0e1520;line-height:1;letter-spacing:-.3px">'+esc(p.time)+'</div>':'')+
-      '</div>'+(fp?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#b08d57;letter-spacing:-.3px">'+esc(fp)+'</div>':'')+
-      '</div>'+
-      (p.area?'<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:4px">'+esc(p.area)+(p.address?' \u00B7 <span style="opacity:.55">'+esc(p.address)+'</span>':'')+'</div>':'')+
-      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#0e1520;line-height:1.15;margin-bottom:11px;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
-      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px">'+
-      (p.rooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase">'+esc(p.rooms)+'</span>':'')+
-      (p.bathrooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase">'+esc(p.bathrooms)+'</span>':'')+
-      (p.sqm?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase">'+esc(p.sqm)+'</span>':'')+
-      '</div>'+
-      (p.url||p.mapsUrl?'<div style="display:flex;gap:14px;margin-bottom:11px">'+
-      (p.url?'<a href="'+esc(p.url)+'" style="font-size:12px;font-weight:600;color:#b08d57">&#128279; View Full Listing</a>':'')+
-      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="font-size:12px;color:#6b5f4e">&#128205; Directions</a>':'')+
-      '</div>':'')+
-      (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:4px">'+
-      hl.map(function(h){return'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500;color:#4a3e30">'+esc(h)+'</span>';}).join('')+
-      '</div>':'')+
-      '</div></div>';
-  }
-
-  return '<div style="background:#f0ece4;min-height:100vh">'+
-    '<div style="background:#0e1520;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">'+
-    '<button onclick="go(\'output\')" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;font-family:inherit">&#8592; Back</button>'+
-    '<div style="font-size:10px;color:rgba(255,255,255,.4);text-align:center">Dela via Safari &#8250; Spara som PDF</div>'+
-    '<button onclick="window.print()" style="background:#b08d57;border:none;color:#fff;font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;cursor:pointer;font-family:inherit">Print</button>'+
-    '</div>'+
-    '<div style="max-width:600px;margin:0 auto">'+
-    '<div style="background:#0e1520;padding:28px 24px 24px">'+
-    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:9px">Personalised Viewing Day</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:38px;font-weight:300;color:#fff;line-height:1;letter-spacing:-.3px;margin-bottom:3px">'+(c?esc(c.name):'Viewing Day')+'</div>'+
-    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:18px">'+fmtDate(day.date)+'</div>'+
-    '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:16px"></div>'+
-    '<div style="display:flex">'+
-    '<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:14px;margin-right:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+(props?props.length:0)+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(props&&props.length===1?'y':'ies')+'</div></div>'+
-    (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:14px;margin-right:14px"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+esc(ft)+'</div><div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">First Viewing</div></div>':'')+
-    (lt&&props.length>1?'<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#b08d57;font-weight:300">'+esc(lt)+'</div><div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Last Viewing</div></div>':'')+
-    '</div></div>'+
-    (day.welcomeMsg?'<div style="background:#faf8f4;padding:14px 24px;border-bottom:1px solid #ede8e0">'+
-    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:6px">A personal note</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:14px;color:#2a1f14;line-height:1.65;font-style:italic">'+esc(day.welcomeMsg)+'</div>'+
-    (cfg.agent?'<div style="font-size:11px;color:#9e9080;margin-top:5px">\u2014 '+esc(cfg.agent)+'</div>':'')+
-    '</div>':'')+
-    '<div style="background:#fff;padding:14px 24px;border-bottom:1px solid #ede8e0">'+
-    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">Viewing Schedule</div>'+
-    '<table style="width:100%;border-collapse:collapse;border:1px solid #e0d8c8"><thead>'+
-    '<tr style="background:#f5f0e8"><th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Time</th>'+
-    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Area</th>'+
-    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Property</th>'+
-    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Price</th>'+
-    '<th style="padding:6px 10px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase">Match</th>'+
-    '</tr></thead><tbody>'+props.map(row).join('')+'</tbody></table></div>'+
-    '<div style="background:#fff;padding:24px 0 8px">'+props.map(propSection).join('')+'</div>'+
-    (cfg.agent||cfg.agency?'<div style="background:#0e1520;padding:16px 24px;display:flex;align-items:center;justify-content:space-between">'+
-    '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:300;color:#fff">'+esc(cfg.agent||cfg.agency)+'</div>'+
-    (cfg.agency&&cfg.agent?'<div style="font-size:10px;color:rgba(255,255,255,.35)">'+esc(cfg.agency)+'</div>':'')+
-    '</div><div style="text-align:right">'+
-    (cfg.phone?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.phone)+'</div>':'')+
-    (cfg.email?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.email)+'</div>':'')+
-    '</div></div>':'')+
-    '</div></div>';
-}
-
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
@@ -673,7 +562,6 @@ function render(){
   if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
   if(s==="add-prop")         {el.innerHTML=pgAddProp();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
-  if(s==="pdf-preview")      {el.innerHTML=pgPdfPreview();return;}
   if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
   if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
   if(S.tab==="days")         {el.innerHTML=pgDays();return;}
@@ -757,7 +645,7 @@ function pgHome(){
     '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,16,26,.15) 0%,rgba(10,16,26,.65) 100%)"></div>'+
     '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px 20px 20px">'+
     '<div style="font-size:11px;color:rgba(255,255,255,.65);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px;text-shadow:0 1px 4px rgba(0,0,0,.4);font-weight:500">TourFlow</div>'+
-    '<div style="font-size:19px;font-weight:600;color:#fff;line-height:1.25;letter-spacing:-.2px;text-shadow:0 1px 8px rgba(0,0,0,.5);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility">Professional property tours<br/>made simple.</div>'+
+    '<div style="font-size:19px;font-weight:600;color:#fff;line-height:1.25;letter-spacing:-.2px;text-shadow:0 1px 8px rgba(0,0,0,.5);-webkit-font-smoothing:antialiased">Professional property tours<br/>made simple.</div>'+
     '</div></div>'+
 
     // SEPARATOR + ACTION CARDS on white bg
@@ -946,9 +834,7 @@ function pgEditClient(){
     '<div class="g2" style="margin-bottom:13px">'+
     '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" value="'+esc(c.nationality||'')+'" placeholder="Swedish"/></div>'+
     '<div><label class="lbl">Notes</label><input class="inp" id="ec-notes" value="'+esc(c.notes||'')+'" placeholder="Brief notes..."/></div>'+
-    '</div>'+
-
-    '</div>'+
+    '</div></div>'+
     '<div class="sec-sm" style="margin-top:4px;margin-bottom:8px">Requirements profile</div>'+
     '<div class="card">'+reqFormHtml(c)+
     '</div>'+
@@ -1010,7 +896,7 @@ function pgDayDetail(){
         '</div>'+
         '<div class="g2" style="margin:12px 0 10px">'+
         '<div><label class="lbl">Time</label><input type="time" class="inp ins" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
-        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)})"/></div></div>'+
+        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)||this.value})"/></div></div>'+
         bf.map(function(f,fi){
           var isAddrField=f[1]==='address'&&bf[fi+1]&&bf[fi+1][1]==='area';
           var isAreaPair=f[1]==='area'&&bf[fi-1]&&bf[fi-1][1]==='address';
@@ -1024,7 +910,7 @@ function pgDayDetail(){
           if(isAreaPair)return inp+'</div>';
           if(isRoomsField)return'<div class="g2" style="margin-bottom:14px">'+inp;
           if(isBathPair)return inp+'</div>';
-          return'<div style="margin-bottom:14px">'+inp+'</div>';
+          return inp;
         }).join("")+
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
         '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
@@ -1059,6 +945,7 @@ function pgDayDetail(){
       '<div style="padding:12px 14px;display:flex;gap:10px;align-items:flex-start">'+
       '<div style="flex:1;min-width:0">'+
       (p.time?'<div style="font-weight:600;font-size:14px;color:var(--ink);margin-bottom:2px">'+esc(p.time)+'</div>':'')+
+      ('')+
       '<div style="font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.title||p.address||getDomain(p.url))+'</div>'+
       '<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+
       (p.price?'<span class="pill pill-br">'+esc(p.price)+'</span>':'')+
@@ -1104,7 +991,7 @@ function pgDayDetail(){
     '<div>'+(c?'<div style="font-size:11px;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300">'+fmtDate(day.date)+'</div></div>'+
     statusBadge(dayStatus(day.date))+'</div>'+
-    '<div class="card" style="margin-bottom:18px">'+
+    '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Date</label><input type="date" class="inp" value="'+esc(day.date)+'" oninput="updateDay(\''+day.id+'\',{date:this.value});render()"/>'+
     '</div>'+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
@@ -1142,31 +1029,21 @@ function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),t
 function copyWA(){
   var day=curD();if(!day)return;
   var c=curC();var cfg=S.cfg;
-  var lang='en';
-  var isSv=lang==='sv';
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
   var line="---------------------";
   var name=c?c.name.split(" ")[0]:"";
-  var greeting=isSv
-    ?"Hej"+(name?" "+name+",":",")+"\n\nDin personliga visningsplan för *"+fmtDate(day.date)+"* är redo:\n"
-    :"Hi"+(name?" "+name+",":",")+"\n\nYour personalised viewing itinerary for *"+fmtDate(day.date)+"* is ready:\n";
+  var greeting="Hi"+(name?" "+name+",":",")+"\n\nYour personalised viewing itinerary for *"+fmtDate(day.date)+"* is ready:\n";
   var blocks=props.map(function(p,idx){
-    var area=p.area||( p.address?p.address.split(",").slice(-1)[0].trim():getDomain(p.url));
-    var topLabel=isSv?" - TOPPVAL":" - TOP PICK";
-    var ls=["*"+(isSv?"Bostad":"Property")+" "+(idx+1)+(p.topPick?topLabel:"")+":* "+(p.title||area)];
-    if(p.time)ls.push((isSv?"Tid":"Time")+": *"+p.time+"*");
+    var area=p.address?p.address.split(",").slice(-1)[0].trim():getDomain(p.url);
+    var ls=["*Property "+(idx+1)+(p.topPick?" - TOP PICK":"")+":* "+(p.title||area)];
+    if(p.time)ls.push("Time: *"+p.time+"*");
     if(area)ls.push(area);
-    if(p.address&&p.area)ls.push(p.address);
-    var meta=[];
-    if(p.price)meta.push(p.price);
-    if(p.rooms)meta.push(p.rooms+(isNaN(p.rooms)?'':' bed'));
-    if(p.bathrooms)meta.push(p.bathrooms+(isNaN(p.bathrooms)?'':' bath'));
-    if(p.sqm)meta.push(p.sqm+'m²');
-    if(meta.length)ls.push(meta.join(' · '));
-    if(p.highlights&&p.highlights.length)ls.push((isSv?"Höjdpunkter":"Highlights")+": "+p.highlights.slice(0,3).join(", "));
+    var meta=[p.price,p.rooms,p.sqm].filter(Boolean);
+    if(meta.length)ls.push(meta.join(" - "));
+    if(p.highlights&&p.highlights.length)ls.push("Highlights: "+p.highlights.slice(0,3).join(", "));
     if(p.agentRec)ls.push('"'+p.agentRec+'"');
     if(p.url)ls.push(p.url);
-    if(p.mapsUrl)ls.push((isSv?"Vägbeskrivning":"Directions")+": "+p.mapsUrl);
+    if(p.mapsUrl)ls.push("Directions: "+p.mapsUrl);
     return ls.join("\n");
   }).join("\n\n"+line+"\n\n");
   var footer="";
@@ -1176,10 +1053,10 @@ function copyWA(){
     if(cfg.phone)footer+="\n"+cfg.phone;
     if(cfg.email)footer+="\n"+cfg.email;
   }
-  var evs=[].concat(day.events||[]).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
-  var evTxt=evs.length?"\n"+line+"\n"+evs.map(function(ev){
-    var icons={lunch:"🍽",pickup:"🚗",stop:"📍",other:"📌"};
-    return (icons[ev.type]||"📌")+" "+(ev.time?ev.time+" — ":"")+ev.title+(ev.note?"\n"+ev.note:"");
+  var evs2=[].concat(day.events||[]).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
+  var evTxt=evs2.length?"\n"+line+"\n"+evs2.map(function(ev){
+    var icons={lunch:"\uD83C\uDF7D",pickup:"\uD83D\uDE97",stop:"\uD83D\uDCCD",other:"\uD83D\uDCCC"};
+    return (icons[ev.type]||"\uD83D\uDCCC")+" "+(ev.time?ev.time+" — ":"")+ev.title+(ev.note?"\n"+ev.note:"");
   }).join("\n"):"";
   var msg=greeting+"\n"+line+"\n\n"+blocks+evTxt+footer;
   var btn=document.getElementById("wa-btn");
@@ -1190,45 +1067,23 @@ function copyWA(){
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
-  var bf=[["Title","ap-title","Sun-Filled Apartment in La Zenia"],["Address","ap-addr","Calle del Mar 12"],["Area","ap-area2","La Zenia"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Bathrooms","ap-bath","2 bathrooms"],["Built size","ap-sqm","78 m2"]];
+  var bf=[["Title","ap-title","Bright 2-bed apartment"],["Address","ap-addr","Calle del Mar 12"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Size","ap-sqm","78 m2"]];
   var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Contact phone","ap-cph","+34 600 000 000"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Notes","ap-note","Bring ID"]];
   return '<div class="wrap">'+
     '<button class="bback" onclick="go(\'day-detail\')">&#8592; Cancel</button>'+
     '<div class="sec">Add Property</div>'+
-    '<div class="card" style="margin-bottom:18px">'+
+    '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL *</label>'+
     '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
     '<div id="ap-og-status" style="margin-top:4px"></div>'+
     '<div style="font-size:11px;color:#9e9080;margin-top:6px">Paste listing URL</div></div>'+
-    '<div class="card" style="margin-bottom:18px">'+
+    '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
     '<input type="time" class="inp" id="ap-time" style="width:160px"/></div>'+
-    '<div class="card" style="margin-bottom:18px">'+
+    '<div class="card" style="margin-bottom:14px">'+
     '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details (optional)</div>'+
-    '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
-    '<div><label class="lbl">Hero image</label>'+
-    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
-    '<span style="font-size:13px;color:var(--slate)">Upload property photo</span>'+
-    '<input type="file" accept="image/*" style="display:none" onchange="uploadPropImg(this)"/></label>'+
-    '<div id="prop-img-prev"></div></div></div>'+
-    '<div style="background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:18px;overflow:hidden">'+
-    bf.map(function(f,fi){
-    var isAddr=f[1]==='ap-addr'&&bf[fi+1]&&bf[fi+1][1]==='ap-area2';
-    var isArea=f[1]==='ap-area2'&&bf[fi-1]&&bf[fi-1][1]==='ap-addr';
-    var isBeds=f[1]==='ap-rooms'&&bf[fi+1]&&bf[fi+1][1]==='ap-bath';
-    var isBath=f[1]==='ap-bath'&&bf[fi-1]&&bf[fi-1][1]==='ap-rooms';
-    var isNumeric=f[1]==='ap-rooms'||f[1]==='ap-bath'||f[1]==='ap-sqm';
-    var maxLen=f[1]==='ap-sqm'?'5':'2';
-    var extra=isNumeric?' inputmode="numeric" maxlength="'+maxLen+'" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,'+maxLen+')"':f[1]==='ap-price'?' oninput="onPriceInputAdd(this)"':'';
-    var fld='<div><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+extra+' placeholder="'+f[2]+'"/></div>';
-    if(isAddr)return'<div class="g2" style="margin-bottom:16px">'+fld;
-    if(isArea)return fld+'</div>';
-    if(isBeds)return'<div class="g2" style="margin-bottom:16px">'+fld;
-    if(isBath)return fld+'</div>';
-    return'<div style="margin-bottom:16px">'+fld+'</div>';
-  }).join("")+
-    '<div style="margin-bottom:16px"><label class="lbl">Google Maps link</label>'+
+    bf.map(function(f){return'<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';}).join("")+
+    '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
     '<div id="maps-prev"></div></div>'+
     '<div style="height:1px;background:var(--fog);margin:16px 0 14px"></div>'+
@@ -1238,6 +1093,14 @@ function pgAddProp(){
     '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
     '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
+    '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
+    '<div><label class="lbl">Hero image</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+    '<span style="font-size:13px;color:var(--slate)">Upload property photo</span>'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadPropImg(this)"/></label>'+
+    '<div id="prop-img-prev"></div></div></div>'+
+    '<div style="background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:18px;overflow:hidden">'+
     '<button style="width:100%;padding:13px 14px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="togInt()">'+
     '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
     '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
@@ -1316,7 +1179,7 @@ function saveProp(did){
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),area:gv("ap-area2"),bathrooms:gv("ap-bath"),price:formatPrice(gv("ap-price"))||gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),area:gv("ap-area2"),bathrooms:gv("ap-bath"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
   window._newHighlights=[];
   _intOpen=false;go("day-detail");
 }
@@ -1325,7 +1188,7 @@ function saveProp(did){
 function pgOutput(){
   var day=curD();if(!day)return"";
   var c=curC();
-  var props=[].concat(day.properties||[]).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
   var evs=[].concat(day.events||[]);
   var isAg=S.viewMode==="agent";
   var cfg=S.cfg;
@@ -1338,42 +1201,29 @@ function pgOutput(){
   if(mpEv&&(mpEv.title||mpEv.note))orderedLocs.push(mpEv.title||mpEv.note||'');
   props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
 
-  // Stats bar data
+  // Stats bar
   var sortedProps=[].concat(props).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
   var firstTime=sortedProps.length?sortedProps[0].time:'';
   var lastTime=sortedProps.length>1?sortedProps[sortedProps.length-1].time:'';
-  var totalDriveMin=0;
-  for(var _di=0;_di<orderedLocs.length-1;_di++){totalDriveMin+=12;}
-
-  // Stats bar HTML
   var pLen=(props||[]).length;
   var statsBar=!isAg?'<div style="background:#0e1520;padding:14px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
-    '<div style="text-align:center">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+pLen+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(pLen===1?'y':'ies')+'</div>'+
-    '</div>'+
-    (firstTime?'<div style="text-align:center">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(firstTime)+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Start time</div>'+
-    '</div>':'')+
-    (lastTime?'<div style="text-align:center">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(lastTime)+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">End time</div>'+
-    '</div>':'')+
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+pLen+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(pLen===1?'y':'ies')+'</div></div>'+
+    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(firstTime)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Start time</div></div>':'')+
+    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(lastTime)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">End time</div></div>':'')+
     '</div>':'';
 
-  // Timeline HTML
+  // Timeline
   var tlItems=[];
   var mpEv2=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
   if(mpEv2)tlItems.push({label:esc(mpEv2.title||'Meeting point'),sub:mpEv2.time||'',type:'mp'});
-  sortedProps.forEach(function(pp,ppi){
-    tlItems.push({label:esc(pp.area||pp.title||'Property'),sub:pp.time||'',num:ppi+1,type:'prop'});
-  });
+  sortedProps.forEach(function(pp,ppi){tlItems.push({label:esc(pp.area||pp.title||'Property'),sub:pp.time||'',num:ppi+1,type:'prop'});});
   tlItems.push({label:'End',sub:'End of tour',type:'end'});
-
   var timelineHtml=!isAg&&tlItems.length>1?
     '<div style="background:#0e1520;padding:14px 20px 16px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
-    '<div style="display:flex;align-items:flex-start;min-width:max-content;gap:0">'+
+    '<div style="display:flex;align-items:flex-start;min-width:max-content">'+
     tlItems.map(function(tl,tli){
       var isLast=tli===tlItems.length-1;
       var dot=tl.type==='prop'
@@ -1382,13 +1232,11 @@ function pgOutput(){
         ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(176,141,87,.2);border:1.5px solid #b08d57;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
         :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
       var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(176,141,87,.25);margin-top:11px;min-width:20px"></div>':'';
-      return'<div style="display:flex;align-items:flex-start;gap:0">'+
-        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;max-width:70px">'+
-        dot+
+      return'<div style="display:flex;align-items:flex-start">'+
+        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;max-width:70px">'+dot+
         '<div style="font-size:10px;font-weight:600;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
         '<div style="font-size:9px;color:rgba(255,255,255,.45);text-align:center;line-height:1.2">'+tl.label+'</div>'+
-        '</div>'+line+
-        '</div>';
+        '</div>'+line+'</div>';
     }).join('')+
     '</div></div>':'';
 
@@ -1431,7 +1279,7 @@ function pgOutput(){
     var dtBlock=(!isAg&&orderedLocs[idx]&&orderedLocs[idx+1])?driveTimeHtml(orderedLocs[idx],orderedLocs[idx+1]):'';
 
     // Price
-    var fmtPrice=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').replace(/(\d[\d\s,.]*)[\s]*SEK/i,'$1 kr').trim()||p.price||'';
+    var fmtPrice=(function(){var pr=(p.price||'').trim();if(!pr)return'';pr=pr.replace(/EUR/i,'').replace(/SEK/i,'kr').trim();if(!pr)return'';if(pr.charAt(0)!=='\u20AC'&&!/[a-z]/i.test(pr))pr='\u20AC'+pr;return pr;})();
 
     // Match score
     var ms=matchScore(dayClient,p);
@@ -1442,6 +1290,12 @@ function pgOutput(){
       if(dScore>=85){dCol='#059669';dLabel='Excellent Match';}
       else if(dScore>=70){dCol='#d97706';dLabel='Good Match';}
       else{dCol='#dc2626';dLabel='Low Match';}
+    } else if(p.highlights&&p.highlights.length>0){
+      dScore=Math.min(99,p.highlights.length*12);
+      dCol=dScore>=85?'#059669':dScore>=70?'#d97706':'#dc2626';
+      dLabel=dScore>=85?'Excellent Match':dScore>=70?'Good Match':'Good Potential';
+      if(false){
+    }
     }
     var dSub='';
     if(ms&&ms.results&&ms.results.length){
@@ -1450,9 +1304,9 @@ function pgOutput(){
 
     // Badge — compact
     var msBadge=dScore!=null?
-      '<button onclick="showMatchDetails(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.95);border:none;border-radius:10px;padding:7px 12px;cursor:pointer;text-align:center;z-index:10;box-shadow:0 2px 12px rgba(0,0,0,.18)">'+
-      '<div style="font-size:12px;font-weight:700;color:'+dCol+';line-height:1">'+dLabel+'</div>'+
-      '<div style="font-size:9px;color:#9e9080;margin-top:2px">'+dScore+'% match</div>'+
+      '<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.95);box-shadow:0 2px 12px rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.12);border-radius:7px;padding:5px 9px;cursor:pointer;text-align:left;z-index:10">'+
+      '<div style="font-size:11px;font-weight:700;color:'+dCol+';line-height:1;margin-bottom:4px">'+dLabel+'</div>'+
+      (dSub?'<div style="font-size:9px;color:#9e9080;line-height:1.3">'+dSub+'</div>':'<div style="font-size:9px;color:#9e9080">'+dScore+'%</div>')+
       '</button>':'';
 
     // Top pick
@@ -1464,7 +1318,7 @@ function pgOutput(){
 
     // Hero image
     var imgHtml=p.ogImage
-      ?'<div style="position:relative;height:280px;overflow:hidden;border-radius:0">'+
+      ?'<div style="position:relative;height:240px;overflow:hidden">'+
         '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
         '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.22) 100%)"></div>'+
         msBadge+tpBadge+'</div>'
@@ -1474,11 +1328,9 @@ function pgOutput(){
         '</div>';
 
     // Location
-    var addrParts=(p.address||'').split(',').map(function(x){return x.trim();}).filter(Boolean);
-    var area=addrParts.length>0?addrParts[addrParts.length-1]:'';
-    var town=addrParts.length>1?addrParts[addrParts.length-2]:'';
-    var displayArea=p.area||(town||area)||'';
+    var displayArea=p.area||'';
     var street=p.address||'';
+    var regionLine='';
 
     // Highlights — max 4, compact
     var hl=p.highlights||[];
@@ -1511,7 +1363,7 @@ function pgOutput(){
     return dtBlock+
       '<div style="border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid #ede8e0;background:#fff">'+
       imgHtml+
-      '<div style="padding:16px 18px 20px">'+
+      '<div style="padding:14px 16px 18px">'+
 
       // Number + time + price
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
@@ -1526,32 +1378,29 @@ function pgOutput(){
       (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#0e1520;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
 
       // Location
-      '<div style="margin-bottom:12px">'+
-      (displayArea?'<div style="font-size:15px;font-weight:700;color:#1c1a16;margin-bottom:1px">'+esc(displayArea)+'</div>':'')+
-      (street?'<div style="font-size:11px;color:#9e9080">'+esc(street)+'</div>':'')+
+      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:12px">'+
+      '<svg width="9" height="12" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
+      '<span style="font-size:13px;font-weight:600;color:#1c1a16">'+esc(displayArea)+'</span>'+
+      (regionLine?'<span style="font-size:11px;color:#9e9080"> &middot; '+esc(regionLine)+'</span>':'')+
       '</div>'+
-
 
       // Specs row
       (p.rooms||p.sqm?
         '<div style="display:flex;gap:6px;margin-bottom:12px">'+
         (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
-          '<span style="font-size:13px;line-height:1">&#x1F6CF;&#xFE0F;</span>'+
+          '&#x1F6CF;&#xFE0F;'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span></div>':'')+
-        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
-          '<span style="font-size:13px;line-height:1">&#x1F6C1;</span>'+
-          '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.bathrooms)+'</span></div>':'')+
         (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
           '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.sqm)+'</span></div>':'')+
         '</div>':'')+
 
-      // Buttons — Full Details + Directions
-      '<div style="display:flex;gap:8px;margin-bottom:'+(hl.length?'12':'0')+'px">'+
-      (p.url?'<a href="'+esc(p.url)+'" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;text-decoration:none;background:#0e1520;border-radius:8px;padding:10px 12px;letter-spacing:.03em">Full Details &#8250;</a>':'')+
-      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="flex:'+(p.url?'0.6':'1')+';display:flex;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:8px;padding:9px 10px;background:#faf8f4">'+
-        '<svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Directions</a>':'')+
-      '</div>'+
+      // Buttons
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+ 
+      (p.url?'<a href="'+esc(p.url)+'" style="display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#0e1520;border-radius:10px;padding:12px;letter-spacing:.03em;margin-bottom:10px">Full Details &#8250;</a>':'')+ 
+
+
+
 
       // Highlights — only if set
       (!isAg&&hl.length?
@@ -1563,19 +1412,16 @@ function pgOutput(){
         '<div style="margin-top:10px;border-top:1px solid #ede8e0;padding-top:10px;font-size:12px;color:#4a3e30;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
 
       ibox+
-
-      // Status row
-      (isAg?'<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 0;border-top:1px solid #f0ece4;margin-top:12px">'+
-      '<div style="font-size:11px;font-weight:600;color:#9e9080;text-transform:uppercase;letter-spacing:.08em">Status</div>'+
-      '<div style="display:flex;gap:6px">'+
-      ['Upcoming','Visited','Favourite','Rejected'].map(function(st){
-        var icons={'Upcoming':'○','Visited':'✓','Favourite':'♡','Rejected':'✕'};
-        var active=p.status===st;
-        return'<button onclick="setStatus(\''+day.id+'\',\''+p.id+'\',\''+st+'\')" style="border:none;background:'+(active?'#0e1520':'#f5f0e8')+';color:'+(active?'#fff':'#9e9080')+';border-radius:6px;padding:4px 8px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit">'+icons[st]+' '+st+'</button>';
+      '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 2px;border-top:1px solid #f0ece4;margin-top:10px">'+
+      '<span style="font-size:10px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.08em">Status</span>'+
+      '<div style="display:flex;gap:5px">'+
+      [['&#9675;','Upcoming'],['&#10003;','Visited'],['&#9825;','Favourite'],['&#10005;','Rejected']].map(function(s2){
+        var active=p.status===s2[1];
+        return'<button onclick="setStatus(\''+day.id+'\',\''+p.id+'\',\''+s2[1]+'\')" style="border:none;background:'+(active?'#0e1520':'#f0ece4')
+          +';color:'+(active?'#fff':'#9e9080')+';border-radius:6px;padding:3px 7px;font-size:9px;font-weight:600;cursor:pointer;font-family:inherit">'+s2[0]+' '+s2[1]+'</button>';
       }).join('')+
-      '</div></div>':'')
-
-      +'</div></div>';
+      '</div>'+
+      '</div></div>';
 
   }).join("");
 
@@ -1607,7 +1453,6 @@ function pgOutput(){
     '<div style="background:#0e1520;padding:26px 22px 28px">'+
     // NO logo here — lives in nav only
     '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
-    '<button onclick="if(navigator.share)navigator.share({title:\'TourFlow Viewing Day\',url:window.location.href});" style="position:absolute;top:12px;right:16px;background:none;border:1.5px solid rgba(176,141,87,.5);border-radius:8px;padding:6px 12px;color:#b08d57;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px">&#11014; Share</button>'+
     (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1.0;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
     '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
     '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:18px"></div>'+
@@ -1656,208 +1501,9 @@ function pgOutput(){
       :'<div style="flex:4"></div>')+
       '</div>';
   })();
-  var printStyle='<style id="ps">'+
-    '.pdf-view{display:none}'+
-    '@media print{'+
-    '*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}'+
-    '.mobile-view,.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr,button{display:none!important}'+
-    '.pdf-view{display:block!important}'+
-    'body{margin:0;padding:0;background:#fff!important;font-family:Jost,sans-serif}'+
-    '.pdf-page{page-break-after:always;break-after:page}'+
-    '.pdf-page:last-child{page-break-after:auto;break-after:auto}'+
-    '.pdf-prop{page-break-inside:avoid;break-inside:avoid}'+
-    'a{text-decoration:none!important}'+
-    '}'+
-    '</style>';
-
-  // ── BUILD PDF (Elegant Magazine Style) ──────────────────────────────────
-  var pdfHtml=(function(){
-    var cfg=S.cfg;
-    var isAg2=S.viewMode==='agent';
-
-    // Requirements
-    var req=c&&c.req?c.req:{};
-    var BM={'u100':'Under \u20AC100k','100-200':'\u20AC100k\u2013200k','200-300':'\u20AC200k\u2013300k','300-500':'\u20AC300k\u2013500k','500-800':'\u20AC500k\u2013800k','800k+':'Above \u20AC800k'};
-    var PM={perm:'Permanent residence',holiday:'Holiday home',invest:'Investment/rental',mixed:'Mixed use'};
-    var FM={pool:'Swimming pool',garage:'Garage/parking',garden:'Garden or terrace',beach:'Walking distance to beach',restaurants:'Near restaurants',golf:'Near golf',community:'Gated community'};
-    var reqItems=[];
-    if(req.budget)reqItems.push(BM[req.budget]||req.budget);
-    if(req.minrooms)reqItems.push(req.minrooms==='studio'?'Studio':req.minrooms+' bedrooms minimum');
-    if(req.purpose)reqItems.push(PM[req.purpose]||req.purpose);
-    Object.keys(FM).forEach(function(k){if(req[k])reqItems.push(FM[k]);});
-
-    var ORDS=['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth'];
-
-    // Schedule rows
-    var schedRows=props.map(function(p,idx){
-      var fp=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').trim()||p.price||'\u2014';
-      var ms2=matchScore(c,p);
-      var sc=ms2&&ms2.score!=null?ms2.score:(p.highlights&&p.highlights.length?Math.min(100,Math.round(p.highlights.length/10*100)):null);
-      var scCol=sc!=null&&sc>=85?'#059669':sc!=null&&sc>=70?'#b08d57':'#9e9080';
-      var area=p.area||'';
-      return '<tr style="border-bottom:1px solid #f0ece4">'+
-        '<td style="padding:8px 12px;font-size:12px;font-weight:700;color:#0e1520;white-space:nowrap">'+(p.time||'\u2014')+'</td>'+
-        '<td style="padding:8px 12px;font-size:12px;font-weight:600;color:#1c1a16">'+esc(area)+'</td>'+
-        '<td style="padding:8px 12px;font-size:12px;color:#4a3e30">'+esc((p.title||'').slice(0,45))+'</td>'+
-        '<td style="padding:8px 12px;font-size:12px;font-weight:600;color:#b08d57;white-space:nowrap">'+esc(fp)+'</td>'+
-        '<td style="padding:8px 12px;font-size:12px;font-weight:700;color:'+scCol+';white-space:nowrap">'+(sc!=null?sc+'%':'\u2014')+'</td>'+
-        '</tr>';
-    }).join('');
-
-    // ── PAGE 1: Cover + Note + Schedule ──
-    var page1=
-      '<div class="pdf-page" style="background:#fff">'+
-
-      // Dark cover section
-      '<div style="background:#0e1520;padding:44px 52px 40px">'+
-      '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:14px">Personalised Viewing Day</div>'+
-      '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:56px;font-weight:300;color:#fff;line-height:.92;letter-spacing:-.5px;margin-bottom:6px">'+(c?esc(c.name):'Your Viewing Day')+'</div>'+
-      '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:28px;font-weight:300">'+fmtDate(day.date)+'</div>'+
-      '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.5),transparent);margin-bottom:22px"></div>'+
-      '<div style="display:flex;gap:0">'+
-      '<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:22px;margin-right:22px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#b08d57;font-weight:300;line-height:1">'+props.length+'</div>'+
-      '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(props.length===1?'y':'ies')+'</div>'+
-      '</div>'+
-      (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.08);padding-right:22px;margin-right:22px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#b08d57;font-weight:300;line-height:1">'+esc(ft)+'</div>'+
-      '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First Viewing</div>'+
-      '</div>':'')+
-      (lt&&props.length>1?'<div style="flex:1">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#b08d57;font-weight:300;line-height:1">'+esc(lt)+'</div>'+
-      '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last Viewing</div>'+
-      '</div>':'')+
-      '</div></div>'+
-
-      // Personal note
-      (day.welcomeMsg?
-        '<div style="padding:20px 52px;background:#f8f3ea;border-bottom:2px solid #ede8e0">'+
-        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:8px">A personal note</div>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:#2a1f14;line-height:1.7;font-style:italic">'+esc(day.welcomeMsg)+'</div>'+
-        (cfg.agent?'<div style="font-size:11px;color:#9e9080;margin-top:7px">\u2014 '+esc(cfg.agent)+(cfg.agency?' &middot; '+esc(cfg.agency):'')+'</div>':'')+
-        '</div>':'')+
-
-      // Requirements
-      (reqItems.length?
-        '<div style="padding:16px 52px;background:#fff;border-bottom:1px solid #ede8e0">'+
-        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:8px">Your Requirements</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
-        reqItems.map(function(r){return'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 12px;font-size:11px;font-weight:500;color:#4a3e30">'+esc(r)+'</span>';}).join('')+
-        '</div></div>':'')+
-
-      // Schedule table
-      '<div style="padding:20px 52px">'+
-      '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Today\'s Viewing Schedule</div>'+
-      '<table style="width:100%;border-collapse:collapse;border:1px solid #e0d8c8;border-radius:6px;overflow:hidden">'+
-      '<thead><tr style="background:#f5f0e8">'+
-      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Time</th>'+
-      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Area</th>'+
-      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Property</th>'+
-      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Price</th>'+
-      '<th style="padding:7px 12px;font-size:9px;font-weight:700;color:#6b5f4e;text-align:left;text-transform:uppercase;letter-spacing:.08em">Match</th>'+
-      '</tr></thead>'+
-      '<tbody>'+schedRows+'</tbody>'+
-      '</table></div>'+
-      '</div>';
-
-    // ── PROPERTY PAGES: one per page ──
-    var propPages=props.map(function(p,idx){
-      var fp=(p.price||'').replace(/(\d[\d\s,.]*)[\s]*EUR/i,'\u20AC$1').trim()||p.price||'';
-      var ms3=matchScore(c,p);
-      var sc3=ms3&&ms3.score!=null?ms3.score:(p.highlights&&p.highlights.length?Math.min(100,Math.round(p.highlights.length/10*100)):null);
-      var sc3col=sc3!=null&&sc3>=85?'#059669':sc3!=null&&sc3>=70?'#b08d57':'#9e9080';
-      var sc3lbl=sc3!=null&&sc3>=85?'Excellent Match':sc3!=null&&sc3>=70?'Strong Match':sc3!=null&&sc3>=55?'Good Potential':'Worth Viewing';
-      var hl=p.highlights||[];
-      var orderLbl=props.length===1?'Private Viewing':((ORDS[idx]||'Viewing '+(idx+1))+' Viewing \u00B7 '+(idx+1)+' of '+props.length);
-      var displayArea=p.area||'';
-      var street=p.address||'';
-
-      return '<div class="pdf-prop pdf-page" style="background:#fff">'+
-
-        // Property image — full width
-        (p.ogImage?
-          '<div style="position:relative;height:300px;overflow:hidden">'+
-          '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover;display:block"/>'+
-          '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.65) 100%)"></div>'+
-          (p.topPick?'<div style="position:absolute;top:16px;left:20px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:4px 12px;font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.1em">\u2605 Top Pick</div>':'')+
-          (sc3!=null?'<div style="position:absolute;top:16px;right:20px;background:rgba(10,14,22,.78);border-radius:8px;padding:6px 12px;text-align:right">'+
-          '<div style="font-size:16px;font-weight:700;color:'+sc3col+';line-height:1">'+sc3+'%</div>'+
-          '<div style="font-size:8px;color:rgba(255,255,255,.45);margin-top:2px;text-transform:uppercase;letter-spacing:.08em">'+sc3lbl+'</div>'+
-          '</div>':'')+
-          '</div>'
-        :
-          // No image — dark banner
-          '<div style="background:#0e1520;height:120px;display:flex;align-items:center;padding:0 52px;justify-content:space-between">'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:48px;font-weight:300;color:rgba(176,141,87,.2)">'+(idx+1)+'</div>'+
-          (sc3!=null?'<div style="font-size:22px;font-weight:700;color:'+sc3col+'">'+sc3+'% Match</div>':'')+
-          '</div>')+
-
-        // Property body
-        '<div style="padding:28px 52px 32px">'+
-
-        // Order + time row
-        '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">'+
-        '<div>'+
-        '<div style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.14em;margin-bottom:3px">'+orderLbl+'</div>'+
-        (p.time?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;font-weight:300;color:#0e1520;line-height:1;letter-spacing:-.3px">'+esc(p.time)+'</div>':'')+ 
-        '</div>'+
-        (fp?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;font-weight:300;color:#b08d57;letter-spacing:-.3px">'+esc(fp)+'</div>':'')+
-        '</div>'+
-
-        // Area badge + title
-        (displayArea?'<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:5px">'+esc(displayArea)+(street?' &nbsp;|&nbsp; <span style="opacity:.6;font-style:normal">'+esc(street)+'</span>':'')+'</div>':'')+
-        (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:400;color:#0e1520;line-height:1.12;margin-bottom:14px;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
-
-        // Specs row
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">'+
-        (p.rooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span>':'')+
-        (p.bathrooms?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.bathrooms)+' bath</span>':'')+
-        (p.sqm?'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.sqm)+'</span>':'')+
-        '</div>'+
-
-        // Links
-        (p.url||p.mapsUrl?'<div style="display:flex;gap:16px;margin-bottom:16px">'+
-        (p.url?'<a href="'+esc(p.url)+'" style="font-size:12px;font-weight:600;color:#b08d57">\uD83D\uDD17 View Full Listing</a>':'')+
-        (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="font-size:12px;font-weight:500;color:#6b5f4e">\uD83D\uDCCD Directions</a>':'')+
-        '</div>':'')+
-
-        // Highlights
-        (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+
-        hl.map(function(h){return'<span style="background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 11px;font-size:10px;font-weight:500;color:#4a3e30">'+esc(h)+'</span>';}).join('')+
-        '</div>':'')+
-
-        // Agent rec
-        (p.agentRec?'<div style="border-left:2px solid #e5ddd0;padding-left:12px;font-family:\'Cormorant Garamond\',serif;font-size:14px;font-style:italic;color:#4a3e30;line-height:1.6">'+esc(p.agentRec)+'</div>':'')+
-
-        // Internal (agent view only)
-        (isAg2&&(p.commission||p.contact)?
-          '<div style="margin-top:14px;background:#fef9ec;border-left:3px solid #f59e0b;padding:10px 14px;border-radius:0 6px 6px 0;font-size:11px;color:#92400e">'+
-          (p.commission?'<strong>Commission:</strong> '+esc(p.commission)+'&nbsp;&nbsp;':'')+(p.contact?'<strong>Contact:</strong> '+esc(p.contact):'')+'</div>':'')+
-
-        '</div>'+
-
-        // Agent footer on last property
-        (idx===props.length-1?
-          '<div style="background:#0e1520;padding:18px 52px;display:flex;align-items:center;justify-content:space-between">'+
-          '<div>'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
-          (cfg.agency&&cfg.agent?'<div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px">'+esc(cfg.agency)+'</div>':'')+
-          '</div>'+
-          '<div style="text-align:right">'+
-          (cfg.phone?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.phone)+'</div>':'')+
-          (cfg.email?'<div style="font-size:11px;color:rgba(255,255,255,.5)">'+esc(cfg.email)+'</div>':'')+
-          '</div>'+
-          '</div>':'')+
-
-        '</div>';
-    }).join('');
-
-    return '<div class="pdf-view" style="display:none">'+
-      page1+propPages+
-      '</div>';
-  })();
-  return printStyle+pdfHtml+
-    '<div class="mobile-view"><div class="wrap">'+
+  var printStyle='<style id="ps">@media print{.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}div{break-inside:avoid}}</style>';
+  return printStyle+
+    '<div class="wrap">'+
     '<button class="bback" onclick="go(\'day-detail\')">&#8592; Edit day</button>'+
     '<div class="tog">'+
     '<button class="tb'+(S.viewMode==="client"?" on":"")+'" onclick="S.viewMode=\'client\';render()">&#128196; Client view</button>'+
@@ -1892,10 +1538,10 @@ function pgOutput(){
       if(!lines.length)return'';
       return'<div style="background:#fff;padding:28px;border-bottom:1px solid #ede8e0">'+
         '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px">Your Requirements</div>'+
-        lines.map(function(r){return'<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">'+
-          '<span style="color:#b08d57;font-size:15px;margin-top:1px">&#10003;</span>'+
-          '<span style="font-size:14px;color:#2a1f14;line-height:1.4">'+esc(r)+'</span>'+
-          '</div>';}).join('')+
+        '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">'+
+        lines.map(function(r){return'<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 10px;font-size:11px;color:#3a2e20">'+
+          '<span style="color:#b08d57;font-size:10px">&#10003;</span>'+esc(r)+'</span>';}).join('')+
+        '</div>'+
         '</div>';
     })():'')+ 
     '<div style="background:#fff">'+rows+'</div>'+
@@ -1913,9 +1559,8 @@ function pgOutput(){
     footerHtml+
     '</div>'+
     '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit">&#128241; Copy WhatsApp</button>'+
-    (isAg?'<button onclick="S.addProp=true;S.epid=null;go(\'add-prop\')" style="position:fixed;bottom:80px;right:20px;width:56px;height:56px;border-radius:50%;background:#b08d57;border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(176,141,87,.4);z-index:50;display:flex;align-items:center;justify-content:center">+</button>':'')+
     '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
-    '</div></div>';
+    '</div>';
 }
 
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
@@ -1925,7 +1570,6 @@ function pgSettings(){
   var pb=cfg.photo?'<img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:22px">&#128100;</span>';
   var rmLogo=cfg.logo?'<button onclick="S.cfg.logo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
   var rmPhoto=cfg.photo?'<button onclick="S.cfg.photo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
-
   var fRows=[
     ["Agency name","agency","Costa Home Realty"],
     ["Your name","agent","Maria Garcia"],
