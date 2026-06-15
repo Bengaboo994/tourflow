@@ -92,7 +92,7 @@ input,button,textarea,select{font-family:inherit}
   <div style="height:1px;background:linear-gradient(270deg,transparent,rgba(176,141,87,.4));width:40px"></div>
 </div>
 <div id="st" style="text-align:center;margin-bottom:80px">
-  <div style="font-family:'Jost',sans-serif;font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.22em;text-transform:uppercase;font-weight:300">Organize viewings like a pro</div>
+  <div style="font-family:'Jost',sans-serif;font-size:13px;color:rgba(255,255,255,.75);letter-spacing:.22em;text-transform:uppercase;font-weight:500">Organize viewings like a pro</div>
 </div>
 <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.04)">
   <div id="sp" style="height:100%;background:linear-gradient(90deg,transparent,#b08d57,#d4af7a);width:0%;transition:width 2.8s linear"></div>
@@ -268,7 +268,8 @@ function matchScore(c,p){
     garden:['Large terrace','Private garden','South facing'],
     garage:['Garage'],
     newbuild:['Key ready','Recently renovated'],
-    community:['Prime location','Quiet area']
+    community:['Prime location','Quiet area'],
+    lift:['Lift']
   };
 
   var feats={
@@ -393,7 +394,7 @@ function driveTimeHtml(from,to){
     '</div></div>';
 }
 // ─────────────────────────────────────────────────────────────────
-var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"]];
+var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"], ["Features", "&#11014;", "Lift"]];
 
 function toggleHighlight(dayId,propId,label){
   if(dayId==='__new__'){
@@ -1160,7 +1161,13 @@ function copyWA(){
     if(cfg.phone)footer+="\n"+cfg.phone;
     if(cfg.email)footer+="\n"+cfg.email;
   }
-  var msg=greeting+"\n"+line+"\n\n"+blocks+footer;
+  // Add events sorted by time
+  var evs=[].concat(day.events||[]).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
+  var evTxt=evs.length?"\n"+line+"\n"+evs.map(function(ev){
+    var icons={lunch:"🍽",pickup:"🚗",stop:"📍",other:"📌"};
+    return (icons[ev.type]||"📌")+" "+(ev.time?ev.time+" — ":"")+ev.title+(ev.note?"\n"+ev.note:"");
+  }).join("\n"):"";
+  var msg=greeting+"\n"+line+"\n\n"+blocks+evTxt+footer;
   var btn=document.getElementById("wa-btn");
   function done(){if(btn){btn.textContent="Copied!";btn.style.background="#128C4A";}setTimeout(function(){if(btn){btn.textContent="Copy WhatsApp";btn.style.background="#25D366";}},2500);}
   function fb(t,cb){var ta=document.createElement("textarea");ta.value=t;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");cb();}catch(e){alert("Could not copy.");}document.body.removeChild(ta);}
@@ -1457,6 +1464,9 @@ function pgOutput(){
         (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
           '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M2 9V5a2 2 0 012-2h16a2 2 0 012 2v4"/><path d="M2 9h20v11H2z"/></svg>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span></div>':'')+
+        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
+          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2" stroke-linecap="round"><path d="M4 12h16M4 12V6a2 2 0 012-2h3"/><path d="M4 12v5a2 2 0 002 2h12a2 2 0 002-2v-5"/><circle cx="7" cy="6" r="1"/></svg>'+
+          '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.bathrooms)+'</span></div>':'')+
         (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
           '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>'+
           '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.sqm)+'</span></div>':'')+
