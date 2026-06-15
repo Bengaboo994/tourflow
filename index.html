@@ -997,7 +997,7 @@ function pgDayDetail(){
     var io=S.epid===p.id,ii=S.eiid===p.id;
     var ep="";
     if(io){
-      var bf=[["Title","title","Sun-Filled Apartment in La Zenia"],["Address","address","Calle del Mar 12"],["Area","area","La Zenia"],["Bedrooms","rooms","2 bedrooms"],["Bathrooms","bathrooms","2 bathrooms"],["Size","sqm","78 m2"]];
+      var bf=[["Title","title","Sun-Filled Apartment in La Zenia"],["Address","address","Calle del Mar 12"],["Area","area","La Zenia"],["Bedrooms","rooms","2 bedrooms"],["Bathrooms","bathrooms","2 bathrooms"],["Built size","sqm","78 m2"]];
       var iff=[["Commission","commission","2.5%"],["Contact","contact","Maria Garcia"],["Phone","contactPhone","+34 600 000 000"],["Firm","firm","Costa Realty"],["Location/access","location","Key at front desk"],["Notes","note","Other info"]];
       ep='<div style="padding:0 14px 14px;border-top:1px solid var(--fog)">'+
         '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
@@ -1017,15 +1017,14 @@ function pgDayDetail(){
           var isRoomsField=f[1]==='rooms'&&bf[fi+1]&&bf[fi+1][1]==='bathrooms';
           var isBathPair=f[1]==='bathrooms'&&bf[fi-1]&&bf[fi-1][1]==='rooms';
           var isNumeric=f[1]==='rooms'||f[1]==='bathrooms'||f[1]==='sqm';
-          var isNumeric=f[1]==='rooms'||f[1]==='bathrooms'||f[1]==='sqm';
           var maxLen=f[1]==='sqm'?'5':'2';
           var numAttrs=isNumeric?' inputmode="numeric" maxlength="'+maxLen+'" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,'+maxLen+');updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"':' oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"';
-            '<input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'"'+numAttrs+'/></div>';
-          if(isAddrField)return'<div class="g2" style="margin-bottom:9px">'+inp;
+          var inp='<div style="margin-bottom:14px"><label class="lbl">'+f[0]+'</label><input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'"'+numAttrs+'/></div>';
+          if(isAddrField)return'<div class="g2" style="margin-bottom:14px">'+inp;
           if(isAreaPair)return inp+'</div>';
-          if(isRoomsField)return'<div class="g2" style="margin-bottom:9px">'+inp;
+          if(isRoomsField)return'<div class="g2" style="margin-bottom:14px">'+inp;
           if(isBathPair)return inp+'</div>';
-          return'<div style="margin-bottom:9px">'+inp+'</div>';
+          return'<div style="margin-bottom:14px">'+inp+'</div>';
         }).join("")+
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
         '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
@@ -1158,8 +1157,12 @@ function copyWA(){
     if(p.time)ls.push((isSv?"Tid":"Time")+": *"+p.time+"*");
     if(area)ls.push(area);
     if(p.address&&p.area)ls.push(p.address);
-    var meta=[p.price,p.rooms,p.bathrooms,p.sqm].filter(Boolean);
-    if(meta.length)ls.push(meta.join(" - "));
+    var meta=[];
+    if(p.price)meta.push(p.price);
+    if(p.rooms)meta.push(p.rooms+(isNaN(p.rooms)?'':' bed'));
+    if(p.bathrooms)meta.push(p.bathrooms+(isNaN(p.bathrooms)?'':' bath'));
+    if(p.sqm)meta.push(p.sqm+'m²');
+    if(meta.length)ls.push(meta.join(' · '));
     if(p.highlights&&p.highlights.length)ls.push((isSv?"Höjdpunkter":"Highlights")+": "+p.highlights.slice(0,3).join(", "));
     if(p.agentRec)ls.push('"'+p.agentRec+'"');
     if(p.url)ls.push(p.url);
@@ -1187,7 +1190,7 @@ function copyWA(){
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
-  var bf=[["Title","ap-title","Sun-Filled Apartment in La Zenia"],["Address","ap-addr","Calle del Mar 12"],["Area","ap-area2","La Zenia"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Bathrooms","ap-bath","2 bathrooms"],["Size","ap-sqm","78 m2"]];
+  var bf=[["Title","ap-title","Sun-Filled Apartment in La Zenia"],["Address","ap-addr","Calle del Mar 12"],["Area","ap-area2","La Zenia"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Bathrooms","ap-bath","2 bathrooms"],["Built size","ap-sqm","78 m2"]];
   var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Contact phone","ap-cph","+34 600 000 000"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Notes","ap-note","Bring ID"]];
   return '<div class="wrap">'+
     '<button class="bback" onclick="go(\'day-detail\')">&#8592; Cancel</button>'+
@@ -1877,7 +1880,7 @@ function pgSettings(){
     rmPhoto+
     '<div style="font-size:10px;color:#9e9080;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
     '</div>'+
-    langSel+fRows+
+    fRows+
     '<div style="font-size:12px;color:#9e9080;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
     '</div></div>';
 }
