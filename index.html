@@ -258,7 +258,18 @@ function toggleNewClientFeature(feat){
   } else {
     req.plus=req.plus.filter(function(x){return x!==feat;});
   }
+  // Save form values before re-render
+  var saved={};
+  ['ac-name','ac-phone','ac-email','ac-nat','ac-notes','ac-budget','ac-minrooms','ac-type'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) saved[id]=el.value;
+  });
   render();
+  // Restore form values after re-render
+  Object.keys(saved).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.value=saved[id];
+  });
 }
 
 function toggleClientFeature(cid, feat){
