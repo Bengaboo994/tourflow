@@ -948,7 +948,7 @@ function pgDayDetail(){
         '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
         '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
         '<div style="font-size:11px;color:#9e9080">Highlight this property for the client</div></div>'+
-        '<button onclick="var d=curD();d.properties.forEach(function(x){x.topPick=false;});var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp)pp.topPick=!pp.topPick;persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#b08d57':'#e0d8c8')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
+        '<button onclick="var d=curD();var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp){var was=pp.topPick;d.properties.forEach(function(x){x.topPick=false;});pp.topPick=!was;}persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#b08d57':'#e0d8c8')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
         '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">'+
         '<div><label class="lbl">Travel time</label>'+
@@ -1003,6 +1003,7 @@ function pgDayDetail(){
     '<div><label class="lbl">Time</label><input type="time" class="inp ins" id="ev-time"/></div></div>'+
     '<div style="margin-bottom:10px"><label class="lbl">Title</label><input class="inp" id="ev-title" placeholder="e.g. Lunch at La Zenia Boulevard"/></div>'+
     '<div style="margin-bottom:14px"><label class="lbl">Note</label><input class="inp" id="ev-note" placeholder="e.g. Booked at Restaurante Sol"/></div>'+
+    '<div style="margin-bottom:14px"><label class="lbl">Google Maps link</label><input class="inp" id="ev-maps" placeholder="https://maps.google.com/?q=..."/></div>'+
     '<div style="display:flex;gap:9px">'+
     '<button class="btn btn-g btn-sm" style="flex:1;margin-bottom:0" onclick="S.addEv=false;render()">Cancel</button>'+
     '<button class="btn btn-sm" style="flex:2;margin-bottom:0" onclick="saveEv(\''+day.id+'\')">Add</button>'+
@@ -1049,7 +1050,7 @@ function pgDayDetail(){
       '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Share via WhatsApp</button>':'')+
     '</div>';
 }
-function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note")});S.addEv=false;render();}
+function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note"),mapsUrl:gv("ev-maps")});S.addEv=false;render();}
 
 // ── WHATSAPP ──────────────────────────────────────────────────────────────────
 function copyWA(){
@@ -1309,7 +1310,25 @@ function pgOutput(){
   'Holiday home potential':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/><path d="M12 2 9.5 6h5L12 2z" fill="#b08d57" stroke="none"/></svg>',
   'Everything within walking distance':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="1"/><path d="m6.5 18.5 1-4.5 2 2 2-5 2 5 2-2 1 4.5"/><path d="M6 11.5c.5-1.5 2.5-3 6-3s5.5 1.5 6 3"/></svg>',
   'Walking distance to restaurants':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>',
-};
+
+  'Rental potential':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/><path d="M16 6v1m0 0a2 2 0 100 4 2 2 0 000-4z"/></svg>',
+  'Holiday rental potential':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/><path d="M16 6v1m0 0a2 2 0 100 4 2 2 0 000-4z"/></svg>',
+  'Family friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="2"/><path d="M9 9v4l-2 2M9 13l2 2"/><circle cx="16" cy="6" r="1.5"/><path d="M16 8v3l-1 1.5M16 11l1 1.5"/></svg>',
+  'Family-friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="2"/><path d="M9 9v4l-2 2M9 13l2 2"/><circle cx="16" cy="6" r="1.5"/><path d="M16 8v3l-1 1.5M16 11l1 1.5"/></svg>',
+  'New build':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="10" width="20" height="11" rx="1"/><path d="M2 10l10-7 10 7"/></svg>',
+  'Key ready':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
+  'Resale preferred':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16l-4-4 4-4M3 12h14a4 4 0 000-8h-1M17 8l4 4-4 4M21 12H7a4 4 0 000 8h1"/></svg>',
+  'Penthouse':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-8h6v8"/></svg>',
+  'Investment property':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+  'Low maintenance':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>',
+  'Move in ready':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
+  'Walking distance to golf':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#b08d57" stroke="none"/></svg>',
+  'Beachfront':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><circle cx="12" cy="8" r="4"/><path d="M12 4v-2"/></svg>',
+  'Mountain view':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l5-8 4 5 3-4 6 7H3z"/></svg>',
+  'City view':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="4" height="13"/><rect x="9" y="3" width="4" height="18"/><rect x="16" y="10" width="4" height="11"/></svg>',
+  'Panoramic view':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M2 12c4-4 8-6 10-6s6 2 10 6M2 12c4 4 8 6 10 6s6-2 10-6"/><circle cx="12" cy="12" r="3"/></svg>',
+  'Private pool':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M2 17c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><rect x="4" y="2" width="16" height="6" rx="1"/></svg>',
+  'Shared pool':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M2 19c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><circle cx="12" cy="6" r="3"/><path d="M12 3v6"/></svg>',};
 
 
 
@@ -1410,13 +1429,13 @@ function pgOutput(){
     var vis=hl.slice(0,4); var hid=hl.slice(4);
     var chips=vis.map(function(h){
       return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap;min-height:28px">'+
-        '<span style="font-size:11px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';
+        '<span style="font-size:11px">'+(ICON[h]?ICON[h]+' ':' ')+'</span>'+esc(h)+'</span>';
     }).join('');
     var hidDiv=''; var showBtn='';
     if(hid.length){
       hidDiv='<div id="hx-'+p.id+'" style="display:none;flex-wrap:wrap;gap:4px;margin-top:4px">'+
         hid.map(function(h){return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap;min-height:28px">'+
-          '<span style="font-size:11px">'+(ICON[h]||'&#8226;')+'</span>'+esc(h)+'</span>';}).join('')+'</div>';
+          '<span style="font-size:11px">'+(ICON[h]?ICON[h]+' ':' ')+'</span>'+esc(h)+'</span>';}).join('')+'</div>';
       showBtn='<button onclick="document.getElementById(\'hx-'+p.id+'\').style.display=\'flex\';this.style.display=\'none\'" style="font-size:10px;color:#9e9080;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0">+'+hid.length+' more</button>';
     }
 
@@ -1458,17 +1477,12 @@ function pgOutput(){
       '</div>'+
 
       // Specs row
-      (p.rooms||p.sqm?
-        '<div style="display:flex;gap:6px;margin-bottom:12px">'+
-        (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
-          '&#x1F6CF;&#xFE0F;'+
-          '<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.rooms)+'</span></div>':'')+
-        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">&#x1F6C1;<span style="font-size:11px;font-weight:700;color:#3a2e20;text-transform:uppercase;letter-spacing:.04em">'+esc(p.bathrooms)+'</span></div>':'')+ 
-        (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">'+
-          '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>'+
-          '<span style="font-size:11px;font-weight:700;color:#3a2e20;letter-spacing:.02em">'+esc((p.sqm||'').replace(/m2$/i,''))+'m²</span></div>':'')+
-        '</div>':'')+(p.highlights?p.highlights.filter(function(h){return['Pool','Large terrace','Garage','Sea view','Lift'].indexOf(h)>=0;}).slice(0,2).map(function(h){return'<div style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap;min-height:28px">'+(ICON[h]||'')+'<span>'+h+'</span></div>';}).join(''):'')+ 
-
+      (p.rooms||p.bathrooms||p.sqm?
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+ 
+        (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">&#x1F6CF;&#xFE0F;<span style="font-size:11px;font-weight:700;color:#3a2e20">'+esc(p.rooms)+'</span></div>':'')+ 
+        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">&#x1F6C1;<span style="font-size:11px;font-weight:700;color:#3a2e20">'+esc(p.bathrooms)+'</span></div>':'')+ 
+        (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg><span style="font-size:11px;font-weight:700;color:#3a2e20">'+esc((p.sqm||'').replace(/m2$/i,''))+'m²</span></div>':'')+ 
+        '</div>':'')+
       // Buttons
       (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+ 
       (p.url?'<a href="'+esc(p.url)+'" style="display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#0e1520;border-radius:10px;padding:12px;letter-spacing:.03em;margin-bottom:10px">Full Details &#8250;</a>':'')+ 
