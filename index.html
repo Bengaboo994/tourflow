@@ -243,6 +243,24 @@ function readReq(){
 }
 
 
+function toggleNewClientFeature(feat){
+  if(!window._newClientReq) window._newClientReq={mustHave:[],plus:[]};
+  var req=window._newClientReq;
+  req.mustHave=req.mustHave||[];
+  req.plus=req.plus||[];
+  var inMust=req.mustHave.indexOf(feat)>=0;
+  var inPlus=req.plus.indexOf(feat)>=0;
+  if(!inMust&&!inPlus){
+    req.mustHave.push(feat);
+  } else if(inMust){
+    req.mustHave=req.mustHave.filter(function(x){return x!==feat;});
+    req.plus.push(feat);
+  } else {
+    req.plus=req.plus.filter(function(x){return x!==feat;});
+  }
+  render();
+}
+
 function toggleClientFeature(cid, feat){
   var c=S.clients.find(function(x){return x.id===cid;});
   if(!c)return;
@@ -863,28 +881,98 @@ function pgPickClient(){
     '</div></div>';
 }
 function pgAddClient(){
+  // Temp storage for new client features before saving
+  if(!window._newClientReq) window._newClientReq={mustHave:[],plus:[]};
+  var req=window._newClientReq;
+  var mustHave=req.mustHave||[];
+  var plus=req.plus||[];
+
+  var features=[
+    ['Pool',''],['Walking distance to beach',''],['Sea view',''],
+    ['South facing',''],['Private garden',''],['Large terrace',''],
+    ['Quiet area',''],['Gated community',''],['Garage',''],
+    ['Near golf',''],['Prime location',''],['Close to amenities',''],
+    ['Restaurants nearby',''],['New build',''],['Key ready',''],
+    ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
+    ['Rental potential',''],['Family friendly',''],['Investment property','']
+  ];
+
+  function tempChip(name,emoji){
+    var inMust=mustHave.indexOf(name)>=0;
+    var inPlus=plus.indexOf(name)>=0;
+    var bg=inMust?'#0e1520':inPlus?'rgba(176,141,87,.12)':'var(--mist)';
+    var brd=inMust?'#b08d57':inPlus?'rgba(176,141,87,.5)':'var(--fog)';
+    var col=inMust?'#c9a84c':inPlus?'#b08d57':'var(--slate)';
+    var fw=inMust||inPlus?'600':'400';
+    var badge=inMust?' <span style="font-size:8px;background:#b08d57;color:#0e1520;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
+              :inPlus?' <span style="font-size:8px;color:#b08d57;font-weight:600">+</span>':'';
+    var icon=ICON[name]||(emoji||'');
+    return '<button onclick="toggleNewClientFeature(\''+name+'\')" style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:100px;border:1.5px solid '+brd+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;margin:2px;transition:all .1s">'+
+      '<span style="display:inline-flex;align-items:center;line-height:1">'+icon+'</span>'+
+      '<span>'+name+'</span>'+badge+
+      '</button>';
+  }
+
+  var chips=features.map(function(f){return tempChip(f[0],f[1]);}).join('');
+
+  var mustHtml=mustHave.length?
+    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var plusHtml=plus.length?
+    '<div><span style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var summary=(mustHtml||plusHtml)?
+    '<div style="background:#f5f0e8;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
+
+  var budgetOpts=['','u100','100-200','200-300','300-500','500-800','800k+'];
+  var budgetLabels={'':'Any','u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+  var roomOpts=['','studio','1','2','3','4','5+'];
+  var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
+  var typeOpts=['any','apt','villa','house','bungalow','penthouse'];
+  var typeLabels={'any':'Any type','apt':'Apartment','villa':'Villa','house':'House / Townhouse','bungalow':'Bungalow','penthouse':'Penthouse'};
+  function sel(id,opts,labels,val){
+    return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
+  }
+
   return '<div class="wrap">'+
-    '<button class="bback" onclick="showTab(\'clients\')">&#8592; Cancel</button>'+
+    '<button class="bback" onclick="window._newClientReq=null;showTab(\'clients\')">&#8592; Cancel</button>'+
     '<div class="sec">New Client</div>'+
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Erik Svensson"/></div>'+
-    '<div style="margin-bottom:13px"><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ac-phone" placeholder="+46 70 000 00 00"/></div>'+
-    '<div style="margin-bottom:13px"><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="erik@email.com"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-    '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Swedish"/></div>'+
-    '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Brief notes..."/></div>'+
+      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ac-phone" placeholder="+46 70 000 00 00"/></div>'+
+      '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="erik@email.com"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Swedish"/></div>'+
+      '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Brief notes..."/></div>'+
     '</div>'+
     '</div>'+
-    '<div class="sec-sm" style="margin-top:4px;margin-bottom:8px">Requirements profile</div>'+
-    '<div class="card">'+reqFormHtml()+
+    '<div style="border-top:none;padding-top:0;margin-top:16px">'+
+    '<div class="sec-sm" style="margin-bottom:12px">Essential Requirements</div>'+
+    '<div class="card">'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Budget (max)</label>'+sel('ac-budget',budgetOpts,budgetLabels,'')+'</div>'+
+      '<div><label class="lbl">Min bedrooms</label>'+sel('ac-minrooms',roomOpts,roomLabels,'')+'</div>'+
     '</div>'+
-    '<button class="btn" onclick="saveAddClient()">Save client</button></div>';
+    '<div><label class="lbl">Property type</label>'+sel('ac-type',typeOpts,typeLabels,'any')+'</div>'+
+    '</div>'+
+    '<div class="sec-sm" style="margin-top:16px;margin-bottom:2px">Wishlist</div>'+
+    '<div style="font-size:11px;color:var(--dust);margin-bottom:12px">Tap once = <b>Must Have</b> &nbsp;·&nbsp; Tap again = <b>+ Plus</b> &nbsp;·&nbsp; Tap again = Remove</div>'+
+    summary+
+    '<div style="display:flex;flex-wrap:wrap;margin-bottom:16px">'+chips+'</div>'+
+    '</div>'+
+    '<button class="btn" onclick="saveAddClient()">Save client</button>'+
+    '</div>';
 }
 function saveAddClient(){
   var n=gv("ac-name");if(!n){alert("Please enter a name.");return;}
-  var rq=readReq();
-  var budgetLabels={'u100':'Under €100k','100-200':'€100k–€200k','200-300':'€200k–€300k','300-500':'€300k–€500k','500-800':'€500k–€800k','800k+':'€800k+'};
-  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),notes:gv("ac-notes"),budget:budgetLabels[rq.budget]||'',req:rq});
+  var req=window._newClientReq||{mustHave:[],plus:[]};
+  req.budget=gv("ac-budget")||'';
+  req.minrooms=gv("ac-minrooms")||'';
+  req.type=gv("ac-type")||'any';
+  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),note:gv("ac-notes"),req:req});
+  window._newClientReq=null;
   go("client-detail",{cid:id});
 }
 
