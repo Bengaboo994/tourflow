@@ -242,85 +242,73 @@ function readReq(){
   return req;
 }
 
+
+function toggleClientFeature(cid, feat){
+  var c=S.clients.find(function(x){return x.id===cid;});
+  if(!c)return;
+  c.req=c.req||{};
+  c.req.mustHave=c.req.mustHave||[];
+  c.req.plus=c.req.plus||[];
+  var inMust=c.req.mustHave.indexOf(feat)>=0;
+  var inPlus=c.req.plus.indexOf(feat)>=0;
+  if(!inMust&&!inPlus){
+    // First tap → Must Have
+    c.req.mustHave.push(feat);
+  } else if(inMust){
+    // Second tap → move to Plus
+    c.req.mustHave=c.req.mustHave.filter(function(x){return x!==feat;});
+    c.req.plus.push(feat);
+  } else {
+    // Third tap → Remove
+    c.req.plus=c.req.plus.filter(function(x){return x!==feat;});
+  }
+  persist();render();
+}
 function matchScore(c,p){
   if(!c||!c.req)return null;
   var req=c.req;
+  var hl=p.highlights||[];
   var results=[];
-  var rawPrice=parseFloat((p.price||'').replace(/[^0-9.]/g,''))||0;
-  var budgetMap={'u100':100,'100-200':200,'200-300':300,'300-500':500,'500-800':800,'800k+':9999};
-  var roomMap={'studio':0,'1':1,'2':2,'3':3,'4':4};
-  function score(key,label,pass){
-    if(!req[key])return;
-    results.push({label:label,pass:pass,level:req[key]});
+
+  // Budget check
+  if(req.budget){
+    var rawPrice=parseFloat((p.price||'').replace(/[^0-9.]/g,''))||0;
+    var budgetMap={'u100':100000,'100-200':200000,'200-300':300000,'300-500':500000,'500-800':800000,'800k+':9999999};
+    var bMax=budgetMap[req.budget]||9999999;
+    if(rawPrice>0) results.push({label:'Budget',pass:rawPrice<=bMax,level:'must'});
   }
-  // Budget
-  if(req.budget&&rawPrice>0){
-    var bMax=budgetMap[req.budget]||9999;
-    score('budget','Budget',rawPrice/1000<=bMax);
-  }
-  // Bedrooms
-  if(req.minrooms&&p.rooms){
-    var reqR=roomMap[req.minrooms]||0;
+
+  // Bedrooms check
+  if(req.minrooms){
+    var roomMap={'studio':0,'1':1,'2':2,'3':3,'4':4,'5':5};
+    var reqR=roomMap[req.minrooms]||parseInt(req.minrooms)||0;
     var propR=parseInt(p.rooms)||0;
-    score('minrooms','Bedrooms',propR>=reqR);
+    if(p.rooms) results.push({label:'Bedrooms',pass:propR>=reqR,level:'must'});
   }
-  // Property type
+
+  // Property type check
   if(req.type&&req.type!=='any'&&p.title){
     var tmap={apt:'apartment',villa:'villa',house:'townhouse',bungalow:'bungalow',penthouse:'penthouse'};
     var keyword=(tmap[req.type]||req.type).toLowerCase();
-    score('type','Property type',(p.title+' '+(p.address||'')).toLowerCase().indexOf(keyword)>=0);
+    results.push({label:'Property type',pass:(p.title+' '+(p.address||'')).toLowerCase().indexOf(keyword)>=0,level:'must'});
   }
-  // Match against Property Highlights (structured) first, then text fallback
-  var hl=p.highlights||[];
-  var hlStr=hl.join(' ').toLowerCase();
-  var searchText=(p.agentRec||'')+' '+(p.areaNote||'')+' '+(p.title||'')+' '+(p.address||'')+' '+hlStr;
-  var sl=searchText.toLowerCase();
 
-  // Highlight-to-requirement mapping
-  var hlMap={
-    pool:['Pool'],
-    beach:['Walking distance to beach'],
-    restaurants:['Restaurants nearby','Close to amenities','Everything within walking distance'],
-    golf:['Near golf'],
-    garden:['Large terrace','Private garden','South facing'],
-    garage:['Garage'],
-    newbuild:['Key ready','Recently renovated'],
-    community:['Prime location','Quiet area']
-  };
-
-  var feats={
-    pool:['pool','piscina'],beach:['beach','sea','costa','mar','playa'],
-    restaurants:['restaurant','dining','gastronomy'],golf:['golf'],
-    garden:['garden','terrace','outdoor','terraza'],garage:['garage','parking'],
-    newbuild:['new build','newbuild','new development','obra nueva'],
-    community:['gated','community','urbanizaci']
-  };
-
-  Object.keys(feats).forEach(function(k){
-    if(!req[k])return;
-    // Check highlights array first (most reliable)
-    var hlMatch=(hlMap[k]||[]).some(function(h){
-      return hl.indexOf(h)>=0;
-    });
-    // Fallback to text search
-    var txtMatch=feats[k].some(function(w){return sl.indexOf(w)>=0;});
-    var labels={pool:'Pool',beach:'Near beach',restaurants:'Near restaurants',golf:'Near golf',garden:'Garden/Terrace',garage:'Parking',newbuild:'New build',community:'Gated community'};
-    score(k,labels[k],hlMatch||txtMatch);
+  // Must Have features
+  (req.mustHave||[]).forEach(function(feat){
+    results.push({label:feat,pass:hl.indexOf(feat)>=0,level:'must'});
   });
 
-  // Also score "Within budget" highlight against budget req
-  if(req.budget&&hl.indexOf('Within budget')>=0){
-    // Already covered above — but boost confidence if agent confirmed it
-  }
+  // Plus features
+  (req.plus||[]).forEach(function(feat){
+    results.push({label:feat,pass:hl.indexOf(feat)>=0,level:'plus'});
+  });
 
   if(!results.length){
-    // No requirements set — show highlights count as soft score
-    if(hl.length>0){
-      return{score:null,results:[],highlights:hl};
-    }
+    if(hl.length>0) return{score:Math.min(60,hl.length*10),results:[],highlights:hl};
     return null;
   }
-  var weights={must:3,important:2,nice:1};
+
+  var weights={must:3,plus:1};
   var total=0,got=0;
   results.forEach(function(r){var w=weights[r.level]||1;total+=w;if(r.pass)got+=w;});
   var pct=total>0?Math.round(got/total*100):0;
@@ -596,7 +584,21 @@ function render(){
 
 // ── MUTATIONS ─────────────────────────────────────────────────────────────────
 function addClient(data){var c=Object.assign({id:uid()},data);S.clients=[c].concat(S.clients);persist();return c.id;}
-function updateClient(id,ch){S.clients=S.clients.map(function(c){return c.id===id?Object.assign({},c,ch):c;});persist();}
+function updateClient(cid){
+  var c=S.clients.find(function(x){return x.id===cid;});
+  if(!c)return;
+  c.name=gv('ec-name')||c.name;
+  c.phone=gv('ec-phone')||'';
+  c.email=gv('ec-email')||'';
+  c.nationality=gv('ec-nat')||'';
+  c.note=gv('ec-note')||'';
+  c.req=c.req||{};
+  c.req.budget=gv('req-budget')||'';
+  c.req.minrooms=gv('req-minrooms')||'';
+  c.req.type=gv('req-type')||'';
+  // mustHave and plus are updated live via toggleClientFeature
+  persist();go('client-detail');
+}
 function delClient(id){S.clients=S.clients.filter(function(c){return c.id!==id;});S.days=S.days.filter(function(d){return d.clientId!==id;});persist();}
 function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();return d.id;}
 function updateDay(id,ch){S.days=S.days.map(function(d){return d.id===id?Object.assign({},d,ch):d;});persist();}
@@ -784,11 +786,50 @@ function pgClientDetail(){
     '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="go(\'edit-client\')">Edit</button>'+
     '<button class="bico" onclick="if(confirm(\'Delete client and all their days?\'))delClient(\''+c.id+'\');showTab(\'clients\')">&#215;</button></div>'+
     '<div class="card" style="margin-bottom:18px">'+
-    '<div class="g2">'+
-    '<div><label class="lbl">Budget</label><div style="font-size:14px">'+esc(c.budget||"&#8212;")+'</div></div>'+
-    '<div><label class="lbl">Nationality</label><div style="font-size:14px">'+esc(c.nationality||"&#8212;")+'</div></div>'+
-    '</div>'+
-    (c.notes?'<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog)"><label class="lbl">Notes</label><div style="font-size:13px;color:var(--slate);line-height:1.6">'+esc(c.notes)+'</div></div>':'')+
+    (function(){
+      var req=c.req||{};
+      var budgetLabels={'u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+      var budgetStr=req.budget?budgetLabels[req.budget]||req.budget:(c.budget||'');
+      var mustHave=req.mustHave||[];
+      var plus=req.plus||[];
+
+      var reqHtml='<div class="g2">'+
+        '<div><label class="lbl">Budget</label><div style="font-size:14px">'+esc(budgetStr||'&#8212;')+'</div></div>'+
+        '<div><label class="lbl">Nationality</label><div style="font-size:14px">'+esc(c.nationality||'&#8212;')+'</div></div>'+
+        '</div>';
+
+      // Must Have chips
+      if(mustHave.length){
+        reqHtml+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog)">'+
+          '<label class="lbl">Must Have</label>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'+
+          mustHave.map(function(f){
+            return '<span style="display:inline-flex;align-items:center;gap:4px;background:#0e1520;color:#c9a84c;border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600">'+
+              (ICON[f]?'<span style="display:inline-flex;align-items:center">'+ICON[f]+'</span>':'')+f+'</span>';
+          }).join('')+
+          '</div></div>';
+      }
+
+      // Plus chips
+      if(plus.length){
+        reqHtml+='<div style="margin-top:8px">'+
+          '<label class="lbl">Plus</label>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'+
+          plus.map(function(f){
+            return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(176,141,87,.1);color:#b08d57;border-radius:100px;padding:4px 10px;font-size:11px;border:1px solid rgba(176,141,87,.3)">'+
+              (ICON[f]?'<span style="display:inline-flex;align-items:center">'+ICON[f]+'</span>':'')+f+'</span>';
+          }).join('')+
+          '</div></div>';
+      }
+
+      // Notes (legacy)
+      if(c.notes&&!mustHave.length){
+        reqHtml+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog)"><label class="lbl">Notes</label><div style="font-size:13px;color:var(--slate);line-height:1.6">'+esc(c.notes)+'</div></div>';
+      } else if(c.note){
+        reqHtml+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--fog)"><label class="lbl">Notes</label><div style="font-size:13px;color:var(--slate);line-height:1.6">'+esc(c.note)+'</div></div>';
+      }
+      return reqHtml;
+    })()+
     '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog);display:flex;gap:14px">'+
     (c.phone?'<a href="tel:'+esc(c.phone)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#128222; Call</a>':'')+
     (c.email?'<a href="mailto:'+esc(c.email)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#9993; Email</a>':'')+
@@ -848,23 +889,95 @@ function saveAddClient(){
 }
 
 // ── EDIT CLIENT ───────────────────────────────────────────────────────────────
+function clientFeatureState(c,name){
+  var req=c.req||{};
+  var inMust=(req.mustHave||[]).indexOf(name)>=0;
+  var inPlus=(req.plus||[]).indexOf(name)>=0;
+  return inMust?'must':inPlus?'plus':'none';
+}
+function clientFeatureChip(c,name,emoji){
+  var state=clientFeatureState(c,name);
+  var isMust=state==='must', isPlus=state==='plus';
+  var bg=isMust?'#0e1520':isPlus?'rgba(176,141,87,.12)':'var(--mist)';
+  var brd=isMust?'#b08d57':isPlus?'rgba(176,141,87,.5)':'var(--fog)';
+  var col=isMust?'#c9a84c':isPlus?'#b08d57':'var(--slate)';
+  var fw=isMust||isPlus?'600':'400';
+  var badge=isMust?' <span style="font-size:8px;background:#b08d57;color:#0e1520;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
+            :isPlus?' <span style="font-size:8px;color:#b08d57;font-weight:600">+</span>':'';
+  var icon=ICON[name]||(emoji||'');
+  return '<button onclick="toggleClientFeature(\''+c.id+'\',\''+name+'\')" style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:100px;border:1.5px solid '+brd+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;margin:2px;transition:all .1s">'+
+    '<span style="display:inline-flex;align-items:center;line-height:1">'+icon+'</span>'+
+    '<span>'+name+'</span>'+badge+
+    '</button>';
+}
 function pgEditClient(){
   var c=curC();if(!c)return"";
+  var req=c.req||{};
+  var mustHave=req.mustHave||[];
+  var plus=req.plus||[];
+
+  var features=[
+    ['Pool',''],['Walking distance to beach',''],['Sea view',''],
+    ['South facing',''],['Private garden',''],['Large terrace',''],
+    ['Quiet area',''],['Gated community',''],['Garage',''],
+    ['Near golf',''],['Prime location',''],['Close to amenities',''],
+    ['Restaurants nearby',''],['New build',''],['Key ready',''],
+    ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
+    ['Rental potential',''],['Family friendly',''],['Investment property','']
+  ];
+
+  var chips=features.map(function(f){return clientFeatureChip(c,f[0],f[1]);}).join('');
+
+  var mustHtml=mustHave.length?
+    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var plusHtml=plus.length?
+    '<div style="margin-bottom:10px"><span style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var summary=(mustHtml||plusHtml)?
+    '<div style="background:#f5f0e8;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
+
+  var budgetOpts=['','u100','100-200','200-300','300-500','500-800','800k+'];
+  var budgetLabels={'':'Any','u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+  var roomOpts=['','studio','1','2','3','4','5+'];
+  var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
+  var typeOpts=['any','apt','villa','house','bungalow','penthouse'];
+  var typeLabels={'any':'Any type','apt':'Apartment','villa':'Villa','house':'House / Townhouse','bungalow':'Bungalow','penthouse':'Penthouse'};
+
+  function sel(id,opts,labels,val){
+    return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
+  }
+
   return '<div class="wrap">'+
     '<button class="bback" onclick="go(\'client-detail\')">&#8592; Cancel</button>'+
-    '<div class="sec">Edit Client</div>'+
+    '<div class="sec">Client Profile</div>'+
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ec-name" value="'+esc(c.name||'')+'"/></div>'+
-    '<div style="margin-bottom:13px"><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'" placeholder="+46 70 000 00 00"/></div>'+
-    '<div style="margin-bottom:13px"><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'" placeholder="erik@email.com"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-    '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" value="'+esc(c.nationality||'')+'" placeholder="Swedish"/></div>'+
-    '<div><label class="lbl">Notes</label><input class="inp" id="ec-notes" value="'+esc(c.notes||'')+'" placeholder="Brief notes..."/></div>'+
-    '</div></div>'+
-    '<div class="sec-sm" style="margin-top:4px;margin-bottom:8px">Requirements profile</div>'+
-    '<div class="card">'+reqFormHtml(c)+
+      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/></div>'+
+      '<div><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'"/></div>'+
     '</div>'+
-    '<button class="btn" onclick="saveEditClient()">Save changes</button></div>';
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" placeholder="Swedish" value="'+esc(c.nationality||'')+'"/></div>'+
+      '<div><label class="lbl">Notes</label><input class="inp" id="ec-note" value="'+esc(c.note||'')+'"/></div>'+
+    '</div>'+
+    '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
+    '<div class="sec-sm" style="margin-bottom:12px">Essential Requirements</div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Budget (max)</label>'+sel('req-budget',budgetOpts,budgetLabels,req.budget||'')+'</div>'+
+      '<div><label class="lbl">Min bedrooms</label>'+sel('req-minrooms',roomOpts,roomLabels,req.minrooms||'')+'</div>'+
+    '</div>'+
+    '<div style="margin-bottom:16px"><label class="lbl">Property type</label>'+sel('req-type',typeOpts,typeLabels,req.type||'any')+'</div>'+
+    '</div>'+
+    '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
+    '<div class="sec-sm" style="margin-bottom:2px">Wishlist</div>'+
+    '<div style="font-size:11px;color:var(--dust);margin-bottom:12px">Tap once = <b>Must Have</b> &nbsp;·&nbsp; Tap again = <b>+ Plus</b> &nbsp;·&nbsp; Tap again = Remove</div>'+
+    summary+
+    '<div style="display:flex;flex-wrap:wrap;margin-bottom:16px">'+chips+'</div>'+
+    '</div>'+
+    '<button class="btn" onclick="updateClient(\''+c.id+'\')" style="margin-top:8px">Save profile</button>'+
+    '</div>'+
+    '</div>';
 }
 function saveEditClient(){
   var n=gv("ec-name");if(!n){alert("Please enter a name.");return;}
@@ -1211,6 +1324,29 @@ function saveProp(did){
   _intOpen=false;go("day-detail");
 }
 
+var ICON={
+  'Walking distance to beach':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Swimming pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Parking / Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Near golf':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#b08d57" stroke="none"/></svg>',
+  'Near golf course':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#b08d57" stroke="none"/></svg>',
+  'Private garden':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
+  'Garden or terrace':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
+  'Large terrace':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18"/><path d="M3 12h18"/><rect x="5" y="3" width="14" height="7" rx="1"/></svg>',
+
+  'Quiet area':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+
+  'Family friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
+
+  'Family-friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
+
+  'Hot listing':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
+  'Excellent value':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 22L6 9M12 22l6-13"/></svg>',
+  'Restaurants nearby':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg>',
+  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>',};
+
 // ── OUTPUT ────────────────────────────────────────────────────────────────────
 function pgOutput(){
   var day=curD();if(!day)return"";
@@ -1286,28 +1422,7 @@ function pgOutput(){
   if(mpEv&&(mpEv.title||mpEv.note))orderedLocs.push(mpEv.title||mpEv.note||'');
   props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
 
-  var ICON={
-  'Walking distance to beach':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
-  'Pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
-  'Swimming pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
-  'Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
-  'Parking / Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
-  'Near golf':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#b08d57" stroke="none"/></svg>',
-  'Near golf course':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#b08d57" stroke="none"/></svg>',
-  'Private garden':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
-  'Garden or terrace':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
-  'Large terrace':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18"/><path d="M3 12h18"/><rect x="5" y="3" width="14" height="7" rx="1"/></svg>',
-
-  'Quiet area':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
-
-  'Family friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
-
-  'Family-friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
-
-  'Hot listing':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
-  'Excellent value':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 22L6 9M12 22l6-13"/></svg>',
-  'Restaurants nearby':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg>',
-  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>',};
+  
 
 
 
