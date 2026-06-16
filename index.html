@@ -1306,51 +1306,71 @@ function copyWA(){
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
-  var bf=[["Title","ap-title","Bright 2-bed apartment"],["Address","ap-addr","Calle del Mar 12"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","2 bedrooms"],["Size","ap-sqm","78 m2"]];
-  var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Contact phone","ap-cph","+34 600 000 000"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Notes","ap-note","Bring ID"]];
+  var bf=[["Title","ap-title","Bright 2-bed apartment"],["Address","ap-addr","Calle del Mar 12"],["Area","ap-area2","La Zenia"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","3"],["Bathrooms","ap-bath","2"],["Built size","ap-sqm","120"]];
+  var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Contact phone","ap-cph","+34 600 000 000"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Internal notes","ap-note","Other info"]];
+
+  var bfHtml=bf.map(function(f,fi){
+    var isAddr=f[1]==='ap-addr', isArea=f[1]==='ap-area2';
+    var isRooms=f[1]==='ap-rooms', isBath=f[1]==='ap-bath';
+    var isNum=f[1]==='ap-rooms'||f[1]==='ap-bath'||f[1]==='ap-sqm';
+    var numAttr=isNum?' inputmode="numeric" maxlength="'+(f[1]==='ap-sqm'?'5':'2')+'"':'';
+    var inp='<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+numAttr+' placeholder="'+f[2]+'"/></div>';
+    if(isAddr) return '<div class="g2" style="margin-bottom:0">'+inp;
+    if(isArea) return inp+'</div>';
+    if(isRooms) return '<div class="g2" style="margin-bottom:0">'+inp;
+    if(isBath) return inp+'</div>';
+    return inp;
+  }).join("");
+
+  var iffHtml=iff.map(function(f){
+    return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';
+  }).join("");
+
   return '<div class="wrap">'+
-    '<button class="bback" onclick="go(\'day-detail\')">&#8592; Cancel</button>'+
+    '<button class="bback" onclick="go(\'day-detail\')">&larr; Cancel</button>'+
     '<div class="sec">Add Property</div>'+
+
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL *</label>'+
     '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
     '<div id="ap-og-status" style="margin-top:4px"></div>'+
     '<div style="font-size:11px;color:#9e9080;margin-top:6px">Paste listing URL</div></div>'+
+
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
     '<input type="time" class="inp" id="ap-time" style="width:160px"/></div>'+
+
     '<div class="card" style="margin-bottom:14px">'+
-    '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details (optional)</div>'+
-    bf.map(function(f){return'<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';}).join("")+
+    '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+    '<span style="font-size:13px;color:var(--slate)">Upload property photo</span>'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadPropImg(this)"/></label>'+
+    '<div id="prop-img-prev"></div></div>'+
+    '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details</div>'+
+    bfHtml+
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
     '<div id="maps-prev"></div></div>'+
-    '<div style="height:1px;background:var(--fog);margin:16px 0 14px"></div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
     '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
     '<div id="ap-hl-wrap">'+hlPickerHtml('__new__','__new__',window._newHighlights||[])+'</div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9080;font-weight:300;font-size:10px">optional</span></label>'+
     '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
     '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
-    '<div style="height:1px;background:var(--fog);margin:4px 0 14px"></div>'+
-    '<div><label class="lbl">Hero image</label>'+
-    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
-    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
-    '<span style="font-size:13px;color:var(--slate)">Upload property photo</span>'+
-    '<input type="file" accept="image/*" style="display:none" onchange="uploadPropImg(this)"/></label>'+
-    '<div id="prop-img-prev"></div></div></div>'+
-    '<div style="background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:18px;overflow:hidden">'+
-    '<button style="width:100%;padding:13px 14px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="togInt()">'+
-    '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
-    '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
-    '<span style="background:#fef9ec;color:#92400e;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:600">Not shown to client</span></div>'+
-    '<span style="color:#c8bfb0" id="ai-arr">&#9660;</span></button>'+
-    '<div id="ai-body" style="display:none;padding:0 14px 14px;background:#fffbf0">'+
-    iff.map(function(f){return'<div style="margin-top:11px"><label class="lbl">'+f[0]+'</label><input class="inp" style="background:#fffbf0" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';}).join("")+
-    '</div></div>'+
-    '<button class="btn" onclick="saveProp(\''+day.id+'\')">Add to viewing day</button></div>';
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Agent Info (internal)</div>'+
+    iffHtml+
+    '</div>'+
+
+    '<button class="btn" onclick="saveProp(S.did)">Add to viewing day</button>'+
+    '</div>';
 }
-var _intOpen=false;
 function togInt(){_intOpen=!_intOpen;var b=document.getElementById("ai-body"),a=document.getElementById("ai-arr");if(b)b.style.display=_intOpen?"block":"none";if(a)a.innerHTML=_intOpen?"&#9650;":"&#9660;";}
 function uploadPropImg(input){
   var file=input.files[0];if(!file)return;
