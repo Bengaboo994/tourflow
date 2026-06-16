@@ -1253,21 +1253,37 @@ function pgOutput(){
   props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
 
   var ICON={
-    'Pool':'&#127946;','Walking distance to beach':'&#127958;','South facing':'&#9728;',
-    'Within budget':'&#128176;','Near golf':'&#9971;','Key ready':'&#128273;',
-    'Recently renovated':'&#128296;','Private garden':'&#127807;','Garage':'&#128664;',
-    'Sea view':'&#127754;','Rental potential':'&#128200;','Excellent value':'&#11088;',
-    'Family friendly':'&#128106;','Holiday home potential':'&#127965;',
-    'Restaurants nearby':'&#127860;','Quiet area':'&#127807;','Prime location':'&#128205;',
-    'Gated community':'&#127968;','Large terrace':'&#127795;','Hot listing':'&#128293;',
-    'Everything within walking distance':'&#127937;','Lift':'&#11014;','Close to amenities':'&#127869;'
-  };
+  'Walking distance to beach':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18c3-4 6-4 9 0s6 4 9 0"/><path d="M2 12c3-4 6-4 9 0s6 4 9 0"/></svg>',
+  'Pool':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M2 18c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M8 6l4-4 4 4"/></svg>',
+  'Garage':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="20" height="13" rx="1"/><path d="M2 8l10-5 10 5"/><path d="M9 21v-5h6v5"/></svg>',
+  'Parking / Garage':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="20" height="13" rx="1"/><path d="M2 8l10-5 10 5"/><path d="M9 21v-5h6v5"/></svg>',
+  'Near golf course':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="19" r="2"/><path d="M9 17V5l12-2v12"/><circle cx="21" cy="15" r="2"/></svg>',
+  'Near golf':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="19" r="2"/><path d="M9 17V5l12-2v12"/><circle cx="21" cy="15" r="2"/></svg>',
+  'Private garden':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M5 9c1.3-2.5 4-4 7-4s5.7 1.5 7 4"/><path d="M5 9c-1 2.5-.3 5.5 2 7l5-4 5 4c2.3-1.5 3-4.5 2-7"/></svg>',
+  'Garden or terrace':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M5 9c1.3-2.5 4-4 7-4s5.7 1.5 7 4"/><path d="M5 9c-1 2.5-.3 5.5 2 7l5-4 5 4c2.3-1.5 3-4.5 2-7"/></svg>',
+  'Large terrace':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 18h18M9 12V6M15 12V6M9 6h6"/></svg>',
+  'South facing':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>',
+  'Sea view':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c3-4 6-4 9 0s6 4 9 0"/><circle cx="12" cy="7" r="3"/></svg>',
+  'Sea View':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c3-4 6-4 9 0s6 4 9 0"/><circle cx="12" cy="7" r="3"/></svg>',
+  'Prime location':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>',
+  'Within budget':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>',
+  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>',
+  'Quiet area':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+  'Gated community':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>',
+  'Lift':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 10l3-3 3 3M9 14l3 3 3-3"/></svg>',
+  'Recently renovated':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+  'Holiday home potential':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>',
+  'Everything within walking distance':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><path d="M9 20l1-6 2 2 1-4"/><path d="M6 15l1-3 5-2 2 3-4 1"/></svg>',
+  'Walking distance to beach':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18c3-4 6-4 9 0s6 4 9 0"/><path d="M2 12c3-4 6-4 9 0s6 4 9 0"/></svg>',
+  'Walking distance to restaurants':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg>',
+  'Swimming pool':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M2 18c1.5-2 3-2 4.5 0s3 2 4.5 0 3-2 4.5 0 3 2 4.5 0"/><path d="M8 6l4-4 4 4"/></svg>'
+};
 
   var rows=all.map(function(item){
     if(item.k==="e"){
       var e=item.d, et=getET(e.type);
       if(et.isMeetingPoint){
-        return '<div style="background:#0e1520;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+        return '<div style="background:#0e1520;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
           '<div style="width:28px;height:28px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px">&#128205;</div>'+
           '<div><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
           '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
@@ -1311,7 +1327,7 @@ function pgOutput(){
 
     // Badge — compact
     var dScoreBadge=(dScore!=null?'<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:#fff;box-shadow:0 2px 16px rgba(0,0,0,.18);border:none;border-radius:12px;padding:10px 12px;cursor:pointer;text-align:center;z-index:10;min-width:88px">'+
-      '<div style="font-size:11px;font-weight:700;color:'+dCol+';margin-bottom:6px;line-height:1">'+dLabel+'</div>'+
+      '<div style="font-size:9px;font-weight:700;color:'+dCol+';letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;line-height:1">'+dLabel+'</div>'+
       (function(){
         var r=22;var circ=2*Math.PI*r;
         var pct=dScore/100;
@@ -1329,8 +1345,7 @@ function pgOutput(){
           ' font-size="12" font-weight="700" fill="#0e1520" font-family="Jost,sans-serif">'+label+'</text>'+
           '</svg>';
       })()+
-      '<div style="font-size:8px;color:#9e9080;margin-top:4px;line-height:1.3">preferences<br/>matched</div>'+
-      '</button>':'');
+            '</button>':'');
 
     // Top pick
     var tpBadge=(!isAg&&p.topPick)?
@@ -1394,7 +1409,7 @@ function pgOutput(){
       '<div style="width:22px;height:22px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-size:10px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
       (p.time?'<span style="font-size:13px;font-weight:600;color:#1c1a16">'+esc(p.time)+'</span>':'')+
       '</div>'+
-      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#b08d57;font-weight:300;letter-spacing:-.2px">'+esc(fmtPrice)+'</div>':'')+
+      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#b08d57;font-weight:600;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
       '</div>'+
 
       // Title
@@ -1436,15 +1451,6 @@ function pgOutput(){
         '<div style="margin-top:10px;border-top:1px solid #ede8e0;padding-top:10px;font-size:12px;color:#4a3e30;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
 
       ibox+
-      '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 2px;border-top:1px solid #f0ece4;margin-top:10px">'+
-      '<span style="font-size:10px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.08em">Status</span>'+
-      '<div style="display:flex;gap:5px">'+
-      [['&#9675;','Upcoming'],['&#10003;','Visited'],['&#9825;','Favourite'],['&#10005;','Rejected']].map(function(s2){
-        var active=p.status===s2[1];
-        return'<button onclick="setStatus(\''+day.id+'\',\''+p.id+'\',\''+s2[1]+'\')" style="border:none;background:'+(active?'#0e1520':'#f0ece4')
-          +';color:'+(active?'#fff':'#9e9080')+';border-radius:6px;padding:3px 7px;font-size:9px;font-weight:600;cursor:pointer;font-family:inherit">'+s2[0]+' '+s2[1]+'</button>';
-      }).join('')+
-      '</div>'+
       '</div></div>';
 
   }).join("");
