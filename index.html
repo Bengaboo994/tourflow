@@ -14,7 +14,7 @@
 :root{--ink:#1c1a16;--paper:#f8f3ea;--brass:#b08d57;--slate:#6b5f4e;--fog:#e0d8c8;--mist:#f0ead0;--card:#fffef9;--hdr:#0e1520}
 body{font-family:'Jost',system-ui,sans-serif;background:var(--paper);color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
 input,button,textarea,select{font-family:inherit}
-.hdr{background:#0e1520;padding:10px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200}
+.hdr{background:#0e1520;padding:10px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;display:none}.hdr.show{display:flex}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0e1520;border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:200}
 .nb{flex:1;padding:10px 4px 12px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.45)}
 .nl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
@@ -597,6 +597,9 @@ function showTab(tab){
 function render(){
   var el=document.getElementById("app");
   var s=S.screen;
+  // Show/hide top header bar — home has its own logo/nav
+  var hdrEl=document.querySelector('.hdr');
+  if(hdrEl) hdrEl.style.display=(s==='home'||!s)?'none':'flex';
 
   if(s==="pick-client")      {el.innerHTML=pgPickClient();return;}
   if(s==="add-client")       {el.innerHTML=pgAddClient();return;}
@@ -698,16 +701,27 @@ function pgHome(){
     var tLunch=hasLunch(todayDay);
     var tEvs=(todayDay.events||[]).filter(function(e){return e.type!=='meetingpoint';});
 
-    todayCard='<div style="margin-bottom:28px">'+
-      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">Today\'s Tour</div>'+
+    todayCard='<div style="margin-bottom:32px">'+
+      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today\'s Tour</div>'+
       '<div style="background:linear-gradient(145deg,#0e1a2e 0%,#071226 100%);border-radius:18px;padding:24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(7,18,38,.25)">'+
-      // Subtle texture dots
-      '<div style="position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(201,161,74,.06)"></div>'+
-      '<div style="position:absolute;right:20px;top:20px;width:60px;height:60px;border-radius:50%;background:rgba(201,161,74,.06)"></div>'+
+      // Route dots decoration (right side)
+      '<svg style="position:absolute;right:18px;top:16px;opacity:.5" width="80" height="140" viewBox="0 0 80 140" fill="none">'+
+      '<circle cx="60" cy="18" r="5" fill="#C9A14A"/>'+
+      '<path d="M60 23 Q55 50 45 65 Q38 75 30 90 Q22 105 20 125" stroke="#C9A14A" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>'+
+      '<circle cx="45" cy="65" r="3.5" fill="#C9A14A"/>'+
+      '<circle cx="28" cy="96" r="3.5" fill="#C9A14A"/>'+
+      '<path d="M55 10 L65 10 L60 4 Z" fill="#C9A14A"/>'+
+      '</svg>'+
       // Client name + time
-      '<div style="margin-bottom:16px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#fff;letter-spacing:-.2px;line-height:1.1;margin-bottom:4px">'+esc(tc.name)+'</div>'+
-      (tTime?'<div style="font-size:13px;color:rgba(201,161,74,.8);font-weight:500;letter-spacing:.02em">'+tTime+'</div>':'')+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">'+
+      '<div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#fff;letter-spacing:-.3px;line-height:1.1;margin-bottom:6px">'+esc(tc.name)+'</div>'+
+      (tTime?'<div style="font-size:15px;color:#C9A14A;font-weight:400;letter-spacing:.01em;font-family:\'Cormorant Garamond\',serif">'+tTime+'</div>':'')+
+      '</div>'+
+      (tProps.length&&tTime?'<div style="text-align:center;background:rgba(201,161,74,.1);border:1.5px solid rgba(201,161,74,.3);border-radius:50%;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#C9A14A;font-weight:400;line-height:1.1">'+esc(tTime.split('\u2013')[0].trim())+'</div>'+
+      '<div style="font-size:7px;color:rgba(201,161,74,.55);text-transform:uppercase;letter-spacing:.14em;margin-top:2px">START</div>'+
+      '</div>':'')+
       '</div>'+
       // Info pills
       '<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px">'+
@@ -743,18 +757,18 @@ function pgHome(){
   }
 
   // ── QUICK ACTIONS ────────────────────────────────────────────────────────
-  var quickActions='<div style="margin-bottom:28px">'+
-    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">Quick Actions</div>'+
+  var quickActions='<div style="margin-bottom:32px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Quick Actions</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-    '<button onclick="go(\'new-day\')" style="background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:16px;text-align:left;cursor:pointer;font-family:inherit">'+
+    '<button onclick="go(\'new-day\')" style="background:#fff;border:1px solid #ede8df;border-radius:14px;padding:18px 16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.04)">'+
       '<div style="width:36px;height:36px;background:#071226;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px">'+
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
       '<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">New Tour</div>'+
       '<div style="font-size:11px;color:#9e9080">Create a new tour</div>'+
     '</button>'+
-    '<button onclick="showTab(\'days\')" style="background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:16px;text-align:left;cursor:pointer;font-family:inherit">'+
+    '<button onclick="showTab(\'days\')" style="background:#fff;border:1px solid #ede8df;border-radius:14px;padding:18px 16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.04)">'+
       '<div style="width:36px;height:36px;background:#071226;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px">'+
-      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>'+
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>'+
       '<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">Open Existing</div>'+
       '<div style="font-size:11px;color:#9e9080">View your tours</div>'+
     '</button>'+
@@ -795,8 +809,8 @@ function pgHome(){
         var dateStr=fmtDate(d.date);
         return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="width:100%;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left">'+
           '<div style="text-align:center;min-width:32px">'+
-          '<div style="font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
-          '<div style="font-size:20px;font-weight:700;color:#2D2B28;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
+          '<div style="font-size:8px;font-weight:600;color:#9e9080;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
+          '<div style="font-size:20px;font-weight:600;color:#2D2B28;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
           '</div>'+
           '<div style="width:36px;height:36px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+initials(uc.name)+'</div>'+
           '<div style="flex:1;min-width:0">'+
@@ -810,18 +824,28 @@ function pgHome(){
   }
 
   // ── HEADER ───────────────────────────────────────────────────────────────
-  var header='<div style="background:#071226;padding:18px 20px 20px;margin:-20px -18px 24px;border-radius:0 0 20px 20px">'+
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;color:#fff">'+greeting+(agentName?', '+agentName:'')+'</div>'+
-    '<div style="width:36px;height:36px;border-radius:50%;background:#C9A14A;color:#071226;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">'+
-    (agentName?agentName.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF')+
+  var initAvatar=agentName?agentName.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
+
+  // Ivory nav bar — no dark background
+  var header='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 16px;margin:-20px -18px 0;padding-left:0;padding-right:0">'+
+    '<div style="display:flex;align-items:center;gap:7px">'+
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
     '</div>'+
+    '<div style="display:flex;align-items:center;gap:14px">'+
+    '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9e9080" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
+    '<div style="width:34px;height:34px;border-radius:50%;background:#C9A14A;color:#071226;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:.02em">'+initAvatar+'</div>'+
     '</div>'+
-    '<div style="font-size:12px;color:rgba(255,255,255,.45)">'+todayLabel+'</div>'+
     '</div>';
 
-  return '<div class="mobile-view"><div class="wrap" style="background:#F6F2E9;min-height:100vh">'+
+  var greeting_block='<div style="padding-bottom:20px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.3px;line-height:1.1;margin-bottom:4px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
+    '<div style="font-size:12px;color:#9e9080;font-weight:400">'+todayLabel+'</div>'+
+    '</div>';
+
+  return '<div class="mobile-view"><div class="wrap" style="background:#FCFBF7;min-height:100vh">'+
     header+
+    greeting_block+
     todayCard+
     noTourCard+
     (todayDay?quickActions:'')+
