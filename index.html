@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>TourFlow</title>
+<title>Viewing Day · TourFlow</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -159,14 +159,14 @@ function dayStatus(date){if(!date)return"upcoming";var t=today();if(date===t)ret
 function statusBadge(s){if(s==="today")return'<span class="pill pill-br">Today</span>';if(s==="done")return'<span class="pill pill-gy">Completed</span>';return'<span class="pill pill-bl">Upcoming</span>';}
 
 var ET=[
-  {key:"meetingpoint",icon:"&#128205;",label:"Meeting Point",col:"#fef3e2",brd:"#f5a623",txt:"#92400e",isMeetingPoint:true},
-  {key:"lunch",icon:"&#127869;",label:"Lunch",col:"#f0fdf4",brd:"#86efac",txt:"#166534"},
-  {key:"coffee",icon:"&#9749;",label:"Coffee break",col:"#fffbeb",brd:"#fde68a",txt:"#92400e"},
-  {key:"drive",icon:"&#128663;",label:"Drive / Travel",col:"#eff6ff",brd:"#93c5fd",txt:"#1d4ed8"},
-  {key:"meeting",icon:"&#128083;",label:"Meeting",col:"#faf5ff",brd:"#d8b4fe",txt:"#7e22ce"},
-  {key:"other",icon:"&#128204;",label:"Other",col:"#f1f5f9",brd:"#cbd5e1",txt:"#475569"},
-  {key:"pickup",icon:"&#128663;",label:"Pickup",col:"#eff6ff",brd:"#93c5fd",txt:"#1d4ed8"},
-  {key:"stop",icon:"&#128204;",label:"Stop",col:"#f1f5f9",brd:"#cbd5e1",txt:"#475569"}
+  {key:"meetingpoint",icon:"&#128205;",label:"Meeting Point",col:"#0e1520",brd:"#b08d57",txt:"#fff",isMeetingPoint:true},
+  {key:"lunch",icon:"&#127869;",label:"Lunch",col:"#f0fdf4",brd:"#bbf7d0",txt:"#14532d"},
+  {key:"coffee",icon:"&#9749;",label:"Coffee",col:"#fef9ee",brd:"#fde68a",txt:"#78350f"},
+  {key:"drive",icon:"&#128663;",label:"Drive",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
+  {key:"meeting",icon:"&#128083;",label:"Meeting",col:"#eff6ff",brd:"#bfdbfe",txt:"#1e40af"},
+  {key:"other",icon:"&#128204;",label:"Other",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
+  {key:"pickup",icon:"&#128663;",label:"Pickup",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
+  {key:"stop",icon:"&#128204;",label:"Stop",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"}
 ];
 function getET(k){for(var i=0;i<ET.length;i++){if(ET[i].key===k)return ET[i];}return ET[4];}
 
@@ -1046,7 +1046,7 @@ function pgDayDetail(){
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
       '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
-      '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Copy WhatsApp</button>':'')+
+      '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Share via WhatsApp</button>':'')+
     '</div>';
 }
 function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note")});S.addEv=false;render();}
@@ -1232,13 +1232,13 @@ function pgOutput(){
   var firstTime=sortedProps.length?sortedProps[0].time:'';
   var lastTime=sortedProps.length>1?sortedProps[sortedProps.length-1].time:'';
   var pLen=(props||[]).length;
-  var statsBar=!isAg?'<div style="background:#0e1520;padding:14px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
-    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+pLen+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Propert'+(pLen===1?'y':'ies')+'</div></div>'+
-    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(firstTime)+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Start time</div></div>':'')+
-    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#b08d57;line-height:1">'+esc(lastTime)+'</div>'+
-    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">End time</div></div>':'')+
+  var statsBar=!isAg?'<div style="background:#0e1520;padding:10px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#b08d57;line-height:1">'+pLen+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Propert'+(pLen===1?'y':'ies')+'</div></div>'+
+    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#b08d57;line-height:1">'+esc(firstTime)+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Start time</div></div>':'')+
+    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#b08d57;line-height:1">'+esc(lastTime)+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">End time</div></div>':'')+
     '</div>':'';
 
   // Timeline
@@ -1260,7 +1260,7 @@ function pgOutput(){
   });
   tlItems.push({label:'End',sub:'End of tour',type:'end'});
   var timelineHtml=!isAg&&tlItems.length>1?
-    '<div style="background:#0e1520;padding:14px 20px 16px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="background:#0e1520;padding:10px 20px 12px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
     '<div style="display:flex;align-items:flex-start;min-width:max-content">'+
     tlItems.map(function(tl,tli){
       var isLast=tli===tlItems.length-1;
@@ -1274,8 +1274,8 @@ function pgOutput(){
       var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(176,141,87,.25);margin-top:11px;min-width:20px"></div>':'';
       return'<div style="display:flex;align-items:flex-start">'+
         '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;max-width:70px">'+dot+
-        '<div style="font-size:10px;font-weight:600;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
-        '<div style="font-size:9px;color:rgba(255,255,255,.45);text-align:center;line-height:1.2">'+tl.label+'</div>'+
+        '<div style="font-size:9px;font-weight:600;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
+        '<div style="font-size:8px;color:rgba(255,255,255,.45);text-align:center;line-height:1.2">'+tl.label+'</div>'+
         '</div>'+line+'</div>';
     }).join('')+
     '</div></div>':'';
@@ -1344,8 +1344,9 @@ function pgOutput(){
     if(ms&&ms.score!=null){dScore=ms.score;}
     else if(p.highlights&&p.highlights.length){dScore=Math.min(100,Math.round(p.highlights.length/10*100));}
     if(dScore!=null){
-      if(dScore>=85){dCol='#059669';dLabel='Excellent Match';}
-      else if(dScore>=70){dCol='#d97706';dLabel='Good Match';}
+      if(dScore>=90){dCol='#059669';dLabel='Excellent Match';}
+      else if(dScore>=75){dCol='#b08d57';dLabel='Good Match';}
+      else if(dScore>=60){dCol='#d97706';dLabel='Possible Match';}
       else{dCol='#dc2626';dLabel='Low Match';}
     } else if(p.highlights&&p.highlights.length>0){
       dScore=Math.min(99,p.highlights.length*12);
@@ -1390,7 +1391,7 @@ function pgOutput(){
 
     // Hero image
     var imgHtml=p.ogImage
-      ?'<div style="position:relative;height:260px;overflow:hidden">'+
+      ?'<div style="position:relative;height:280px;overflow:hidden">'+
         '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
         '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.22) 100%)"></div>'+
         dScoreBadge+tpBadge+'</div>'
@@ -1519,7 +1520,12 @@ function pgOutput(){
     '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
     (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1.0;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
     '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
-    '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:18px"></div>'+
+    '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:14px"></div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+
+    (ft&&lt?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+esc(ft)+' – '+esc(lt)+'</span>':'')+ 
+    (props.length?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+props.length+' propert'+(props.length===1?'y':'ies')+'</span>':'')+ 
+    (day.events&&day.events.some(function(ev){return ev.type==='lunch';})?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">Lunch included</span>':'')+ 
+    '</div>'+
     '<div style="display:flex;gap:0">'+
     '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#b08d57;line-height:1">'+props.length+'</div>'+
@@ -1622,8 +1628,8 @@ function pgOutput(){
     })():'')+
     footerHtml+
     '</div>'+
-    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit">&#128241; Copy WhatsApp</button>'+
-    '<button class="btn btn-g" onclick="go(\'day-detail\')">&#8592; Back to editing</button>'+
+    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit">&#128241; Share via WhatsApp</button>'+
+    '<button class="btn btn-g" onclick="go(\'day-detail\')">&#9998; Edit Tour</button>'+
     '</div>';
 }
 
