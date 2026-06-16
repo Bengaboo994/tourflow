@@ -40,7 +40,7 @@ input,button,textarea,select{font-family:inherit}
 .pill-bl{background:#eff6ff;color:#1d4ed8}
 .pill-am{background:#fef9ec;color:#92400e}
 .pill-gy{background:#f1f0ee;color:#6b5f4e}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
 .tog{display:flex;background:var(--mist);border-radius:10px;padding:3px;margin-bottom:14px}
 .tb{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#9e9080;transition:all .15s}
 .tb.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.06)}
@@ -908,10 +908,10 @@ function pgDayDetail(){
           var maxLen=f[1]==='sqm'?'5':'2';
           var numAttrs=isNumeric?' inputmode="numeric" maxlength="'+maxLen+'" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,'+maxLen+');updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"':' oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"';
           var inp='<div style="margin-bottom:14px"><label class="lbl">'+f[0]+'</label><input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'"'+numAttrs+'/></div>';
-          if(isAddrField)return'<div class="g2" style="margin-bottom:14px">'+inp;
-          if(isAreaPair)return inp+'</div>';
-          if(isRoomsField)return'<div class="g2" style="margin-bottom:14px">'+inp;
-          if(isBathPair)return inp+'</div>';
+          if(isAddrField){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return'<div class="g2" style="margin-bottom:14px">'+inp2;}
+          if(isAreaPair){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return inp2+'</div>';}
+          if(isRoomsField){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return'<div class="g2" style="margin-bottom:14px">'+inp2;}
+          if(isBathPair){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return inp2+'</div>';}
           return inp;
         }).join("")+
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
@@ -1401,10 +1401,10 @@ function pgOutput(){
       (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#0e1520;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
 
       // Location
-      '<div style="display:flex;align-items:center;gap:4px;margin-bottom:12px">'+
-      '<svg width="9" height="12" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+
-      '<span style="font-size:13px;font-weight:600;color:#1c1a16">'+esc(displayArea)+'</span>'+
-      (regionLine?'<span style="font-size:11px;color:#9e9080"> &middot; '+esc(regionLine)+'</span>':'')+
+      '<div style="margin-bottom:12px">'+
+      (displayArea?'<span style="font-size:14px;font-weight:700;color:#1c1a16">'+esc(displayArea)+'</span>':'')+
+      (displayArea&&street?'<span style="font-size:13px;color:#9e9080;font-weight:400"> &nbsp;|&nbsp; </span>':'')+
+      (street?'<span style="font-size:13px;color:#9e9080">'+esc(street)+'</span>':'')+
       '</div>'+
 
       // Specs row
