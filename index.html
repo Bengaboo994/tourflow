@@ -40,9 +40,9 @@ input,button,textarea,select{font-family:inherit}
 .card{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .lbl{font-size:10px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
 .inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
-.inp:focus{border-color:var(--brass)}
+.inp:focus{border-color:#C9A14A}
 .ins{padding:9px 11px;font-size:14px}
-.btn{width:100%;padding:13px 18px;background:var(--hdr);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.btn{width:100%;padding:13px 18px;background:var(--hdr);color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
 .btn-g{background:transparent;color:var(--ink);border:1.5px solid var(--fog)}
 .btn-b{background:linear-gradient(135deg,#c9993a,#8a6020);color:#fff}
 .btn-sm{padding:7px 14px;font-size:12px;width:auto;border-radius:8px;margin-bottom:0}
@@ -837,22 +837,11 @@ function pgHome(){
   }
 
   // ── HEADER ───────────────────────────────────────────────────────────────
-  var initAvatar=agentName?agentName.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
-
-  // Ivory nav bar — no dark background
-  var header='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
-    '<div style="display:flex;align-items:center;gap:7px">'+
-    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
-    '</div>'+
-    '<div style="display:flex;align-items:center;gap:14px">'+
-    '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
-    '<div style="width:30px;height:30px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:.02em">'+initAvatar+'</div>'+
-    '</div>'+
-    '</div>';
+  // Use shared topNav for consistency
+  var header=topNav();
 
   var greeting_block='<div style="padding-bottom:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1.1;margin-bottom:3px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1.1;margin-bottom:3px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
     '<div style="font-size:12px;color:#9e9a94;font-weight:400">'+todayLabel+'</div>'+
     '</div>';
 
@@ -881,7 +870,7 @@ function quickDay(){
 function pgClients(){
   function pageHeader(title, actionLabel, actionFn){
     return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#2D2B28;letter-spacing:-.3px">'+title+'</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
       '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
       '</div>';
   }
@@ -950,7 +939,7 @@ function pgClientDetail(){
     topNav()+
     '<button class="bback" onclick="showTab(\'clients\')">&#8592; All clients</button>'+
     '<div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">'+
-    '<div style="width:52px;height:52px;border-radius:50%;background:var(--mist);border:1px solid var(--fog);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--brass);flex-shrink:0">'+esc(initials(c.name))+'</div>'+
+    '<div style="width:52px;height:52px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--brass);flex-shrink:0">'+esc(initials(c.name))+'</div>'+
     '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
     '<div style="font-size:13px;color:var(--slate)">'+esc(c.phone||"")+'</div></div>'+
     '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="go(\'edit-client\')">Edit</button>'+
@@ -1004,7 +993,7 @@ function pgClientDetail(){
     (c.phone?'<a href="tel:'+esc(c.phone)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#128222; Call</a>':'')+
     (c.email?'<a href="mailto:'+esc(c.email)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#9993; Email</a>':'')+
     '</div></div>'+
-    '<button class="btn btn-b" onclick="newDayFor(\''+c.id+'\')">+ New viewing day</button>'+
+    '<button class="btn" onclick="newDayFor(\''+c.id+'\')">+ New viewing day</button>'+
     (up.length?'<div class="sec-sm" style="margin-top:4px">Upcoming</div>'+up.map(drow).join(""):"")+
     (dn.length?'<div class="sec-sm" style="margin-top:16px">Completed</div>'+dn.map(drow).join(""):"")+
     (cd.length===0?'<div class="emp" style="margin-top:8px"><div style="font-size:32px;margin-bottom:10px">&#128197;</div><div style="font-size:14px;color:var(--slate)">No viewing days yet</div></div>':"")+
@@ -1237,7 +1226,7 @@ function pgDays(){
 
   function pageHeader(title, actionLabel, actionFn){
     return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#2D2B28;letter-spacing:-.3px">'+title+'</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
       '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
       '</div>';
   }
@@ -2055,6 +2044,31 @@ function pgOutput(){
 }
 
 
+
+
+function removeFromLibrary(pid){
+  if(!confirm('Remove this property from your library?\nThis will remove it from all tours.'))return;
+  S.days.forEach(function(d){
+    d.properties=(d.properties||[]).filter(function(x){return x.id!==pid;});
+  });
+  persist();
+  render();
+}
+
+function addFromLibrary(idx){
+  var item=(window._libProps||[])[idx];
+  if(!item)return;
+  var day=curD();
+  if(!day)return;
+  var np=JSON.parse(JSON.stringify(item.prop));
+  np.id='p'+Date.now();
+  np.time='';
+  day.properties=day.properties||[];
+  day.properties.push(np);
+  persist();
+  go('day-detail');
+}
+
 // ── PICK PROPERTY SOURCE ──────────────────────────────────────────────────────
 function pgPickPropSource(){
   var day=curD();if(!day)return"";
@@ -2139,23 +2153,20 @@ function pgFromLibrary(){
     go('day-detail');
   }
 
+  // Store in global so onclick can safely reference by index
+  window._libProps=libProps;
+
   return '<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
     '<button class="bback" onclick="go(\'pick-prop-source\')">&#8592; Back</button>'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin:16px 0 6px">Your Library</div>'+
     '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">Tap a property to add it to this tour</div>'+
-    libProps.map(function(item){
+    libProps.map(function(item, idx){
       var p=item.prop;
       var img=p.ogImage||p.img||'';
       var pr=(p.price||'').replace(/EUR/i,'').replace(/€/g,'').trim();
       var priceStr=pr?'€'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US'):'';
-      return '<button onclick="(function(){'+
-        'var day=curD();if(!day)return;'+
-        'var np=JSON.parse(JSON.stringify('+JSON.stringify(p)+'||{}));'+
-        'np.id=\'p\'+Date.now();np.time=\'\';'+
-        '(day.properties=day.properties||[]).push(np);'+
-        'persist();go(\'day-detail\');'+
-        '})()" style="width:100%;background:#fff;border:1px solid #edeae4;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;text-align:left;font-family:inherit;display:block">'+
+      return '<button onclick="addFromLibrary('+idx+')" style="width:100%;background:#fff;border:1px solid #edeae4;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;text-align:left;font-family:inherit;display:block">'+
         (img?'<div style="height:80px;overflow:hidden"><img src="'+img+'" style="width:100%;height:100%;object-fit:cover"/></div>':'<div style="height:80px;background:#f5f2ec"></div>')+
         '<div style="padding:11px 14px">'+
         '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:3px">'+esc(p.title||'Untitled')+'</div>'+
@@ -2232,9 +2243,7 @@ function pgProperties(){
       '<div style="display:flex;align-items:center;justify-content:space-between">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#a07830">'+priceStr+'</div>'+
       '<div style="display:flex;gap:5px;align-items:center">'+shownBadge+activeBadge+
-      '<button onclick="event.stopPropagation();if(confirm(\'Remove this property?\'))'+
-      '{S.days.forEach(function(d){d.properties=(d.properties||[]).filter(function(x){return x.id!==\''+pid+'\';});});persist();render();}" '+
-      'style="width:22px;height:22px;border-radius:50%;border:1px solid #edeae4;background:#fff;color:#9e9a94;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>'+
+      '<button onclick="event.stopPropagation();removeFromLibrary(\''+pid+'\')" style="width:22px;height:22px;border-radius:50%;border:1px solid #edeae4;background:#fff;color:#9e9a94;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>'+
       '</div></div></div>';
   }
 
@@ -2243,7 +2252,7 @@ function pgProperties(){
   var h='<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#2D2B28;letter-spacing:-.3px">Properties</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">Properties</div>'+
     '</div>'+
     statsHtml;
 
@@ -2280,7 +2289,7 @@ function pgSettings(){
       if(el)el.oninput=function(){S.cfg[k]=this.value;persist();};
     });
   },30);
-  return '<div class="wrap" style="background:#FCFBF7">'+topNav()+'<div class="sec">Settings</div><div class="card">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+topNav()+'<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;margin-bottom:20px">Settings</div><div class="card">'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">'+
     '<div><label class="lbl">Agency logo</label>'+
     '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+lb+'</div>'+
