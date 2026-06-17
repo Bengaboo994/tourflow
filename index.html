@@ -89,7 +89,7 @@ input,button,textarea,select{font-family:inherit}
 <div class="nav">
   <button class="nb" id="nl-home" onclick="showTab('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg><span class="nl-label">Home</span></button>
   <button class="nb" id="nl-clients" onclick="showTab('clients')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nl-label">Clients</span></button>
-  <button class="nb" id="nl-days" onclick="showTab('days')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="19" font-size="7" text-anchor="middle" fill="currentColor" font-family="Jost">17</text></svg><span class="nl-label">Days</span></button>
+  <button class="nb" id="nl-properties" onclick="showTab('properties')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/><path d="M6 7h1M6 11h1M6 15h1M17 12h1M17 16h1"/></svg><span class="nl-label">Properties</span></button>
   <button class="nb" id="nl-settings" onclick="showTab('settings')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nl-label">Settings</span></button>
 </div>
 
@@ -584,7 +584,7 @@ function go(screen,extra){if(extra)Object.assign(S,extra);S.screen=screen;S.addE
 
 function showTab(tab){
   S.tab=tab;S.screen=tab;S.cid=null;S.did=null;
-  ["home","clients","days","settings"].forEach(function(t){
+  ["home","clients","properties","settings"].forEach(function(t){
     var btn=document.getElementById("nl-"+t);
     if(btn)btn.className="nb"+(t===tab?" on":"");
   });
@@ -620,6 +620,8 @@ function render(){
   if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
   if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
   if(S.tab==="days")         {el.innerHTML=pgDays();return;}
+  if(S.tab==="properties")   {el.innerHTML=pgProperties();return;}
+  if(s==="edit-prop")        {el.innerHTML=pgDayDetail();return;}
   el.innerHTML=pgHome();
 }
 
@@ -2041,8 +2043,96 @@ function pgOutput(){
     '<div style="font-size:10px;color:#c8bfb0;letter-spacing:.1em;text-transform:uppercase;font-family:Jost,sans-serif">Created with TourFlow</div>'+
     '</div>'+
     '</div>'+
-
     '</div></div>';
+}
+
+// ── PROPERTIES ────────────────────────────────────────────────────────────────
+function pgProperties(){
+  var seen={};
+  var allProps=[];
+  S.days.forEach(function(d){
+    (d.properties||[]).forEach(function(p){
+      var key=p.url||p.title||p.id;
+      if(!seen[key]){
+        seen[key]=true;
+        var timesShown=S.days.filter(function(d2){
+          return (d2.properties||[]).some(function(p2){return(p2.url||p2.title||p2.id)===key;});
+        }).length;
+        // Find the day this property belongs to
+        var foundDayId='';
+        S.days.forEach(function(d2){
+          (d2.properties||[]).forEach(function(dp){
+            if((dp.url||dp.title||dp.id)===key) foundDayId=d2.id;
+          });
+        });
+        allProps.push({prop:p,timesShown:timesShown,sold:p.sold||false,dayId:foundDayId});
+      }
+    });
+  });
+  var active=allProps.filter(function(x){return !x.sold;});
+  var sold=allProps.filter(function(x){return x.sold;});
+
+  var totalDays=S.days.length;
+  var totalShowings=S.days.reduce(function(a,d){return a+(d.properties||[]).length;},0);
+  var totalClients=S.clients.length;
+  var totalProps=allProps.length;
+
+  var statsHtml='<div style="background:#071226;border-radius:16px;padding:20px;margin-bottom:24px">'+
+    '<div style="font-size:9px;font-weight:700;color:rgba(201,161,74,.7);text-transform:uppercase;letter-spacing:.18em;margin-bottom:16px">Your Stats</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+
+    stat(totalShowings,'Viewings')+stat(totalClients,'Clients')+
+    stat(totalProps,'Properties')+stat(totalDays,'Tours')+
+    '</div></div>';
+
+  function stat(n,lbl){
+    return '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;font-weight:300;color:#C9A14A;line-height:1">'+n+'</div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;text-transform:uppercase;letter-spacing:.08em">'+lbl+'</div></div>';
+  }
+
+  function propCard(item){
+    var p=item.prop;
+    var img=p.ogImage||p.img||'';
+    var imgHtml=img
+      ?'<div style="height:90px;overflow:hidden"><img src="'+img+'" style="width:100%;height:100%;object-fit:cover"/></div>'
+      :'<div style="height:90px;background:#f5f2ec;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+    var pr=(p.price||'').replace(/EUR/i,'').replace(/€/g,'').trim();
+    var priceStr=pr?('€'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US')):'';
+    var activeBadge=item.sold
+      ?'<span style="background:#f5f2ec;color:#9e9a94;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:600">Sold</span>'
+      :'<span style="background:#f0fdf4;color:#14532d;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:600">Active</span>';
+    var shownBadge=item.timesShown>1?'<span style="background:#f5f2ec;color:#6b6560;border-radius:100px;padding:2px 8px;font-size:9px">'+item.timesShown+'× shown</span>':'';
+    var dayId=item.dayId||'';
+    var pid=p.id||'';
+    return '<div onclick="S.did=\''+dayId+'\';S.epid=\''+pid+'\';go(\'edit-prop\')" style="background:#fff;border-radius:12px;border:1px solid #edeae4;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer">'+
+      imgHtml+
+      '<div style="padding:12px 14px">'+
+      '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:3px;line-height:1.3">'+esc(p.title||'Untitled')+'</div>'+
+      '<div style="font-size:11px;color:#9e9a94;margin-bottom:8px">'+[p.area,p.address].filter(Boolean).map(esc).join(' · ')+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#a07830">'+priceStr+'</div>'+
+      '<div style="display:flex;gap:5px">'+shownBadge+activeBadge+'</div>'+
+      '</div></div></div>';
+  }
+
+  function secLbl(t){return'<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">'+t+'</div>';}
+
+  var h='<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#2D2B28;letter-spacing:-.3px">Properties</div>'+
+    '</div>'+
+    statsHtml;
+
+  if(allProps.length===0){
+    h+='<div style="text-align:center;padding:40px 24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No properties yet</div>'+
+      '<div style="font-size:13px;color:#9e9a94">Properties you add to tours appear here automatically</div>'+
+      '</div>';
+  } else {
+    if(active.length)h+=secLbl('Active · '+active.length)+active.map(propCard).join('');
+    if(sold.length)h+='<div style="margin-top:20px">'+secLbl('Sold · '+sold.length)+sold.map(propCard).join('')+'</div>';
+  }
+  return h+'</div>';
 }
 
 function pgSettings(){
