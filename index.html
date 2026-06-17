@@ -11,18 +11,18 @@
 .ms-modal{position:fixed;inset:0;z-index:900;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
 .ms-modal-inner{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 24px 36px;max-height:80vh;overflow-y:auto}
 .ms-modal-hide{display:none}
-:root{--ink:#1c1a16;--paper:#f8f3ea;--brass:#b08d57;--slate:#6b5f4e;--fog:#e0d8c8;--mist:#f0ead0;--card:#fffef9;--hdr:#0e1520}
-body{font-family:'Jost',system-ui,sans-serif;background:#071226;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
+:root{--ink:#2D2B28;--paper:#FCFBF7;--brass:#C9A14A;--slate:#6b6560;--fog:#edeae4;--mist:#f5f2ec;--card:#ffffff;--hdr:#071226}
+body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
 input,button,textarea,select{font-family:inherit}
-.hdr{background:#0e1520;padding:10px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;display:none}.hdr.show{display:flex}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0e1520;border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:200}
+.hdr{display:none!important}.hdr.show{display:flex}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#071226;border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:200}
 .nb{flex:1;padding:10px 4px 12px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.45)}
 .nl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
-.nl.on{color:#b08d57;font-weight:500}
-.nb.on{color:#b08d57}.nd{width:20px;height:2px;background:#b08d57;border-radius:1px;margin-top:2px}
+.nl.on{color:#C9A14A;font-weight:500}
+.nb.on{color:#C9A14A}.nd{width:20px;height:2px;background:#C9A14A;border-radius:1px;margin-top:2px}
 .wrap{padding:20px 18px 80px;min-height:calc(100vh - 60px)}
-.card{background:var(--card);border-radius:12px;border:1px solid var(--fog);padding:16px;margin-bottom:14px}
-.lbl{font-size:10px;font-weight:500;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.card{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.lbl{font-size:10px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
 .inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
 .inp:focus{border-color:var(--brass)}
 .ins{padding:9px 11px;font-size:14px}
@@ -32,9 +32,9 @@ input,button,textarea,select{font-family:inherit}
 .btn-sm{padding:7px 14px;font-size:12px;width:auto;border-radius:8px;margin-bottom:0}
 .btn-add{background:transparent;border:1.5px dashed var(--brass);color:var(--brass);border-radius:9px;padding:11px;width:100%;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px}
 .bico{background:none;border:none;color:#c8bfb0;font-size:18px;cursor:pointer;padding:4px;line-height:1}
-.bback{background:none;border:none;color:#9e9080;font-size:13px;cursor:pointer;padding:0 0 16px 0;display:block}
+.bback{background:none;border:none;color:#9e9a94;font-size:13px;cursor:pointer;padding:0 0 16px 0;display:block}
 .sec{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:300;color:var(--ink);margin-bottom:16px}
-.sec-sm{font-size:11px;font-weight:500;color:#9e9080;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.sec-sm{font-size:11px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
 .pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;display:inline-block}
 .pill-br{background:#f5ede0;color:#8a6020}
 .pill-gr{background:#f0fdf4;color:#166534}
@@ -43,7 +43,7 @@ input,button,textarea,select{font-family:inherit}
 .pill-gy{background:#f1f0ee;color:#6b5f4e}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
 .tog{display:flex;background:var(--mist);border-radius:10px;padding:3px;margin-bottom:14px}
-.tb{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#9e9080;transition:all .15s}
+.tb{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#9e9a94;transition:all .15s}
 .tb.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .ban{border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:12px;display:flex;align-items:center;gap:7px}
 .ban-gr{background:#f0fdf4;color:#166534}
@@ -73,8 +73,8 @@ input,button,textarea,select{font-family:inherit}
 #st{opacity:0;transform:translateY(8px);transition:opacity 1s ease,transform 1s ease}
 #sk{opacity:0;transition:opacity .8s ease}
 </style>
-<div style="position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(176,141,87,.12) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none"></div>
-<div style="position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(176,141,87,.07) 0%,transparent 70%);bottom:-80px;left:-80px;pointer-events:none"></div>
+<div style="position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(201,161,74,.12) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none"></div>
+<div style="position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(201,161,74,.07) 0%,transparent 70%);bottom:-80px;left:-80px;pointer-events:none"></div>
 <div id="sm" style="margin-bottom:36px;text-align:center">
   <svg width="72" height="90" viewBox="0 0 72 90" style="display:block;margin:0 auto">
     <defs><linearGradient id="pg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="50%" stop-color="#c49a38"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs>
@@ -85,18 +85,18 @@ input,button,textarea,select{font-family:inherit}
   </svg>
 </div>
 <div id="sn" style="text-align:center;margin-bottom:20px">
-  <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:52px;font-weight:300;color:#fff;letter-spacing:4px;line-height:1">Tour<span style="color:#b08d57;font-style:italic;letter-spacing:0">Flow</span></div>
+  <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:52px;font-weight:300;color:#fff;letter-spacing:4px;line-height:1">Tour<span style="color:#C9A14A;font-style:italic;letter-spacing:0">Flow</span></div>
 </div>
 <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px">
-  <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(176,141,87,.4));width:40px"></div>
-  <div style="width:4px;height:4px;border-radius:50%;background:#b08d57;opacity:.6"></div>
-  <div style="height:1px;background:linear-gradient(270deg,transparent,rgba(176,141,87,.4));width:40px"></div>
+  <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,161,74,.4));width:40px"></div>
+  <div style="width:4px;height:4px;border-radius:50%;background:#C9A14A;opacity:.6"></div>
+  <div style="height:1px;background:linear-gradient(270deg,transparent,rgba(201,161,74,.4));width:40px"></div>
 </div>
 <div id="st" style="text-align:center;margin-bottom:80px">
   <div style="font-family:'Jost',sans-serif;font-size:13px;color:rgba(255,255,255,.75);letter-spacing:.22em;text-transform:uppercase;font-weight:500">Organize viewings like a pro</div>
 </div>
 <div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.04)">
-  <div id="sp" style="height:100%;background:linear-gradient(90deg,transparent,#b08d57,#d4af7a);width:0%;transition:width 2.8s linear"></div>
+  <div id="sp" style="height:100%;background:linear-gradient(90deg,transparent,#C9A14A,#d4af7a);width:0%;transition:width 2.8s linear"></div>
 </div>
 <button id="sk" onclick="startApp()" style="position:absolute;bottom:24px;right:28px;background:none;border:none;color:rgba(255,255,255,.2);font-size:12px;cursor:pointer;font-family:'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase">skip</button>
 </div>
@@ -106,7 +106,7 @@ input,button,textarea,select{font-family:inherit}
   <div style="width:30px;height:30px;display:flex;align-items:center;justify-content:center">
     <svg width="29" height="38" viewBox="0 0 26 34"><defs><linearGradient id="hg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="13" cy="11" r="9" fill="none" stroke="url(#hg)" stroke-width="2"/><circle cx="13" cy="11" r="3.5" fill="url(#hg)"/><path d="M 5 18 Q 13 30 21 18" fill="none" stroke="url(#hg)" stroke-width="2" stroke-linecap="round"/></svg>
   </div>
-  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:.5px;-webkit-font-smoothing:antialiased">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span>
+  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:.5px;-webkit-font-smoothing:antialiased">Tour<span style="color:#C9A14A;font-style:italic">Flow</span></span>
 </div>
 <div id="app"></div>
 <div class="nav">
@@ -119,6 +119,23 @@ input,button,textarea,select{font-family:inherit}
 
 <script>
 var STORE="tf-v2";
+
+function topNav(){
+  var cfg=S.cfg||{};
+  var agent=cfg.agent||'';
+  var initials=agent?agent.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
+  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px">'+
+    '<div style="display:flex;align-items:center;gap:7px">'+
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;gap:12px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
+    '<div style="width:30px;height:30px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">'+initials+'</div>'+
+    '</div>'+
+    '</div>';
+}
+
 function lucideIcon(name,size){
   size=size||14;
   // Use inline SVG from Lucide - create element and get SVG
@@ -132,7 +149,7 @@ function lucideIcon(name,size){
     if(svg){
       svg.setAttribute('width',size);
       svg.setAttribute('height',size);
-      svg.setAttribute('stroke','#b08d57');
+      svg.setAttribute('stroke','#C9A14A');
       svg.setAttribute('stroke-width','1.8');
       var result=svg.outerHTML;
       document.body.removeChild(el);
@@ -159,7 +176,7 @@ function dayStatus(date){if(!date)return"upcoming";var t=today();if(date===t)ret
 function statusBadge(s){if(s==="today")return'<span class="pill pill-br">Today</span>';if(s==="done")return'<span class="pill pill-gy">Completed</span>';return'<span class="pill pill-bl">Upcoming</span>';}
 
 var ET=[
-  {key:"meetingpoint",icon:"&#128205;",label:"Meeting Point",col:"#0e1520",brd:"#b08d57",txt:"#fff",isMeetingPoint:true},
+  {key:"meetingpoint",icon:"&#128205;",label:"Meeting Point",col:"#071226",brd:"#C9A14A",txt:"#fff",isMeetingPoint:true},
   {key:"lunch",icon:"&#127869;",label:"Lunch",col:"#f0fdf4",brd:"#bbf7d0",txt:"#14532d"},
   {key:"coffee",icon:"&#9749;",label:"Coffee",col:"#fef9ee",brd:"#fde68a",txt:"#78350f"},
   {key:"drive",icon:"&#128663;",label:"Drive",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
@@ -352,7 +369,7 @@ function scoreBadge(ms){
   return'<div style="display:inline-flex;align-items:center;gap:6px;background:'+bg+';border:1px solid '+col+'33;border-radius:8px;padding:5px 11px">'+
     '<div style="font-size:16px;font-weight:700;color:'+col+'">'+s+'</div>'+
     '<div><div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.08em">'+label+'</div>'+
-    '<div style="font-size:9px;color:#9e9080">Match Score</div></div>'+
+    '<div style="font-size:9px;color:#9e9a94">Match Score</div></div>'+
     '</div>';
 }
 function scoreBreakdown(ms){
@@ -361,8 +378,8 @@ function scoreBreakdown(ms){
   var failed=ms.results.filter(function(r){return!r.pass;});
   var lvlIcon={must:'✓',important:'◎',nice:'◇'};
   var rows='';
-  if(passed.length)rows+=passed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#059669;font-size:14px">&#10003;</span><span style="font-size:12px;color:#2a1f14">'+r.label+'</span><span style="font-size:10px;color:#9e9080">('+r.level+')</span></div>';}).join('');
-  if(failed.length)rows+=failed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#dc2626;font-size:14px">&#10005;</span><span style="font-size:12px;color:#9e9080">'+r.label+'</span><span style="font-size:10px;color:#9e9080">('+r.level+')</span></div>';}).join('');
+  if(passed.length)rows+=passed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#059669;font-size:14px">&#10003;</span><span style="font-size:12px;color:#2D2B28">'+r.label+'</span><span style="font-size:10px;color:#9e9a94">('+r.level+')</span></div>';}).join('');
+  if(failed.length)rows+=failed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#dc2626;font-size:14px">&#10005;</span><span style="font-size:12px;color:#9e9a94">'+r.label+'</span><span style="font-size:10px;color:#9e9a94">('+r.level+')</span></div>';}).join('');
   return'<div style="margin-top:10px;padding:12px;background:#f9f7f4;border-radius:8px">'+
     '<div style="font-size:9px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Requirements breakdown</div>'+
     rows+'</div>';
@@ -417,13 +434,13 @@ function getDriveTime(from,to){
 function driveTimeHtml(from,to){
   var dt=getDriveTime(from,to);
   if(!dt)return'';
-  if(!dt.ok)return'<div style="display:flex;align-items:center;gap:10px;padding:10px 28px;background:#f5f2ec;border-bottom:1px solid #ede8e0"><span style="font-size:11px;color:#9e9080">Drive time unavailable</span></div>';
-  return'<div style="display:flex;align-items:center;gap:14px;padding:12px 28px;background:#f5f2ec;border-bottom:1px solid #ede8e0">'+
-    '<div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #e0d8c8;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#128664;</div>'+
+  if(!dt.ok)return'<div style="display:flex;align-items:center;gap:10px;padding:10px 28px;background:#f5f2ec;border-bottom:1px solid #edeae4"><span style="font-size:11px;color:#9e9a94">Drive time unavailable</span></div>';
+  return'<div style="display:flex;align-items:center;gap:14px;padding:12px 28px;background:#f5f2ec;border-bottom:1px solid #edeae4">'+
+    '<div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #edeae4;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#128664;</div>'+
     '<div style="display:flex;gap:16px;align-items:center">'+
-    '<div><div style="font-size:13px;font-weight:600;color:#2a1f14">'+dt.durationMin+' min</div><div style="font-size:10px;color:#9e9080">drive</div></div>'+
-    '<div style="width:1px;height:24px;background:#e0d8c8"></div>'+
-    '<div><div style="font-size:13px;font-weight:600;color:#2a1f14">'+dt.distanceKm+' km</div><div style="font-size:10px;color:#9e9080">distance</div></div>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">'+dt.durationMin+' min</div><div style="font-size:10px;color:#9e9a94">drive</div></div>'+
+    '<div style="width:1px;height:24px;background:#edeae4"></div>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">'+dt.distanceKm+' km</div><div style="font-size:10px;color:#9e9a94">distance</div></div>'+
     '</div></div>';
 }
 // ─────────────────────────────────────────────────────────────────
@@ -459,7 +476,7 @@ function hlPickerHtml(dayId,propId,selected){
     html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
     cats[cat].forEach(function(h){
       var on=selected.indexOf(h[2])>=0;
-      html+='<button onclick="toggleHighlight(\''+dayId+'\',\''+propId+'\',\''+h[2]+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;border:1.5px solid '+(on?'#b08d57':'var(--fog)')+';background:'+(on?'#0e1520':'var(--mist)')+';color:'+(on?'#c9a84c':'var(--slate)')+';font-size:11px;font-weight:'+(on?'600':'400')+';cursor:pointer;font-family:inherit">'+
+      html+='<button onclick="toggleHighlight(\''+dayId+'\',\''+propId+'\',\''+h[2]+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;border:1.5px solid '+(on?'#C9A14A':'var(--fog)')+';background:'+(on?'#071226':'var(--mist)')+';color:'+(on?'#c9a84c':'var(--slate)')+';font-size:11px;font-weight:'+(on?'600':'400')+';cursor:pointer;font-family:inherit">'+
         '<span style="display:inline-flex;align-items:center">'+(ICON[h[2]]||h[1])+'</span><span>'+h[2]+'</span>'+
         '</button>';
     });
@@ -486,20 +503,20 @@ function showMatchModal(propId){
   var ms=matchScore(c,p);
   var hl=p.highlights||[];
 
-  var col=ms&&ms.score>=90?'#059669':ms&&ms.score>=75?'#b08d57':ms&&ms.score>=60?'#d97706':'#dc2626';
+  var col=ms&&ms.score>=90?'#059669':ms&&ms.score>=75?'#C9A14A':ms&&ms.score>=60?'#d97706':'#dc2626';
   var label=ms&&ms.score>=90?'Excellent Match':ms&&ms.score>=75?'Good Match':ms&&ms.score>=60?'Fair Match':'Low Match';
 
   var passed=ms?ms.results.filter(function(r){return r.pass;}).map(function(r){
-    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#059669;font-size:16px">&#10003;</span><span style="font-size:13px;color:#1c1a16">'+r.label+'</span></div>';
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#059669;font-size:16px">&#10003;</span><span style="font-size:13px;color:#2D2B28">'+r.label+'</span></div>';
   }).join(''):'';
   var failed=ms?ms.results.filter(function(r){return!r.pass;}).map(function(r){
-    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#dc2626;font-size:16px">&#10005;</span><span style="font-size:13px;color:#9e9080">'+r.label+'</span></div>';
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#dc2626;font-size:16px">&#10005;</span><span style="font-size:13px;color:#9e9a94">'+r.label+'</span></div>';
   }).join(''):'';
-  var hlHtml=hl.length?'<div style="margin-top:16px"><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Property Highlights</div>'+
+  var hlHtml=hl.length?'<div style="margin-top:16px"><div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Property Highlights</div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
     hl.map(function(hlLabel){
       var h=HIGHLIGHTS.find(function(x){return x[2]===hlLabel;})||['','&#9679;',hlLabel];
-      return'<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:#f5f0e8;border:1px solid #e0d8c8;font-size:11px;font-weight:500;color:#4a3e30">'+h[1]+' '+esc(hlLabel)+'</span>';
+      return'<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:#f5f2ec;border:1px solid #edeae4;font-size:11px;font-weight:500;color:#6b6560">'+h[1]+' '+esc(hlLabel)+'</span>';
     }).join('')+'</div></div>':'';
 
   var inner=document.getElementById('ms-modal-inner');
@@ -509,19 +526,19 @@ function showMatchModal(propId){
     '<div>'+
     '<div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px">Client Match</div>'+
     (ms&&ms.score!=null?
-      '<div style="font-size:32px;font-weight:700;color:'+col+';line-height:1">'+ms.score+'<span style="font-size:14px;font-weight:400;color:#9e9080">/100</span></div>'
+      '<div style="font-size:32px;font-weight:700;color:'+col+';line-height:1">'+ms.score+'<span style="font-size:14px;font-weight:400;color:#9e9a94">/100</span></div>'
     :
-      '<div style="margin-top:4px;padding:14px;background:#faf8f4;border-radius:10px;border:1px solid #e0d8c8">'+
-      '<div style="font-size:13px;font-weight:500;color:#2a1f14;margin-bottom:6px">No requirements profile yet</div>'+
-      '<div style="font-size:12px;color:#9e9080;margin-bottom:12px;line-height:1.5">Add client requirements to see an accurate match score for this property.</div>'+
-      (c?'<button onclick="closeMatchModal();go(\'edit-client\',{cid:\''+c.id+'\'})" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#0e1520;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">Add requirements &#8250;</button>':'')+
+      '<div style="margin-top:4px;padding:14px;background:#faf8f4;border-radius:10px;border:1px solid #edeae4">'+
+      '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:6px">No requirements profile yet</div>'+
+      '<div style="font-size:12px;color:#9e9a94;margin-bottom:12px;line-height:1.5">Add client requirements to see an accurate match score for this property.</div>'+
+      (c?'<button onclick="closeMatchModal();go(\'edit-client\',{cid:\''+c.id+'\'})" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#071226;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">Add requirements &#8250;</button>':'')+
       '</div>'
     )+
     (ms&&ms.score!=null?'<div style="font-size:11px;color:'+col+';font-weight:600;margin-top:2px">'+label+'</div>':'')+
     '</div>'+
-    '<button onclick="closeMatchModal()" style="width:36px;height:36px;border-radius:50%;background:#f0ead0;border:none;cursor:pointer;font-size:18px;color:#6b5f4e;display:flex;align-items:center;justify-content:center">&#10005;</button>'+
+    '<button onclick="closeMatchModal()" style="width:36px;height:36px;border-radius:50%;background:#f5f2ec;border:none;cursor:pointer;font-size:18px;color:#6b5f4e;display:flex;align-items:center;justify-content:center">&#10005;</button>'+
     '</div>'+
-    (ms&&ms.score!=null?'<div style="height:6px;background:#f0ead0;border-radius:3px;margin-bottom:20px"><div style="height:100%;width:'+ms.score+'%;background:'+col+';border-radius:3px;transition:width .4s"></div></div>':'')+
+    (ms&&ms.score!=null?'<div style="height:6px;background:#f5f2ec;border-radius:3px;margin-bottom:20px"><div style="height:100%;width:'+ms.score+'%;background:'+col+';border-radius:3px;transition:width .4s"></div></div>':'')+
     (passed?'<div style="margin-bottom:4px"><div style="font-size:9px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Matched</div>'+passed+'</div>':'')+
     (failed?'<div style="margin-top:12px"><div style="font-size:9px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Missing</div>'+failed+'</div>':'')+
     hlHtml;
@@ -597,9 +614,7 @@ function showTab(tab){
 function render(){
   var el=document.getElementById("app");
   var s=S.screen;
-  // Show/hide top header bar — home has its own logo/nav
-  var hdrEl=document.querySelector('.hdr');
-  if(hdrEl) hdrEl.style.display=(s==='home'||!s)?'none':'flex';
+
 
   if(s==="pick-client")      {el.innerHTML=pgPickClient();return;}
   if(s==="add-client")       {el.innerHTML=pgAddClient();return;}
@@ -703,7 +718,7 @@ function pgHome(){
 
     todayCard='<div style="margin-bottom:32px">'+
       '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today\'s Tour</div>'+
-      '<div style="background:linear-gradient(145deg,#0e1a2e 0%,#071226 100%);border-radius:18px;padding:24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(7,18,38,.25)">'+
+      '<div style="background:linear-gradient(145deg,#071226 0%,#071226 100%);border-radius:18px;padding:24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(7,18,38,.25)">'+
       // Route dots decoration (right side)
       '<svg style="position:absolute;right:18px;top:16px;opacity:.5" width="80" height="140" viewBox="0 0 80 140" fill="none">'+
       '<circle cx="60" cy="18" r="5" fill="#C9A14A"/>'+
@@ -724,10 +739,10 @@ function pgHome(){
       '</div>':'')+
       '</div>'+
       // Info pills
-      '<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px">'+
-      (tProps.length?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg><span style="font-size:13px;color:rgba(255,255,255,.65)">'+tProps.length+' propert'+(tProps.length===1?'y':'ies')+'</span></div>':'')+
-      (tLunch?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg><span style="font-size:13px;color:rgba(255,255,255,.65)">Lunch included</span></div>':'')+
-      (tArea?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:13px;color:rgba(255,255,255,.65)">'+esc(tArea)+'</span></div>':'')+
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">'+
+      (tProps.length?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.8)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">'+tProps.length+' propert'+(tProps.length===1?'y':'ies')+'</span></div>':'')+
+      (tLunch?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">Lunch included</span></div>':'')+
+      (tArea?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">'+esc(tArea)+'</span></div>':'')+
       '</div>'+
       // Open Tour button
       '<button onclick="S.did=\''+todayDay.id+'\';S.cid=\''+todayDay.clientId+'\';go(\'output\')" style="width:100%;background:linear-gradient(90deg,#C9A14A,#d4a84b);color:#071226;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px">Open Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'+
@@ -751,7 +766,7 @@ function pgHome(){
       '<line x1="5" y1="62" x2="115" y2="62"/>'+
       '</svg>'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
-      '<div style="font-size:13px;color:#9e9080;margin-bottom:20px">You\'re all clear for today.</div>'+
+      '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
       '<button onclick="go(\'new-day\')" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
       '</div></div>';
   }
@@ -760,17 +775,17 @@ function pgHome(){
   var quickActions='<div style="margin-bottom:32px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Quick Actions</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-    '<button onclick="go(\'new-day\')" style="background:#fff;border:1px solid #ede8df;border-radius:14px;padding:18px 16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.04)">'+
-      '<div style="width:36px;height:36px;background:#071226;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px">'+
+    '<button onclick="go(\'new-day\')" style="background:#fff;border:1px solid #ede8df;border-radius:14px;padding:14px 16px 16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
+      '<div style="width:34px;height:34px;background:#071226;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:8px">'+
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
       '<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">New Tour</div>'+
-      '<div style="font-size:11px;color:#9e9080">Create a new tour</div>'+
+      '<div style="font-size:11px;color:#9e9a94">Create a new tour</div>'+
     '</button>'+
-    '<button onclick="showTab(\'days\')" style="background:#fff;border:1px solid #ede8df;border-radius:14px;padding:18px 16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.04)">'+
-      '<div style="width:36px;height:36px;background:#071226;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:10px">'+
+    '<button onclick="showTab(\'days\')" style="background:#fff;border:1px solid #ede8df;border-radius:14px;padding:14px 16px 16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
+      '<div style="width:34px;height:34px;background:#071226;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:8px">'+
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>'+
       '<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">Open Existing</div>'+
-      '<div style="font-size:11px;color:#9e9080">View your tours</div>'+
+      '<div style="font-size:11px;color:#9e9a94">View your tours</div>'+
     '</button>'+
     '</div></div>';
 
@@ -787,7 +802,7 @@ function pgHome(){
         return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="flex:0 0 auto;width:110px;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;font-family:inherit">'+
           '<div style="width:40px;height:40px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">'+initials(rc.name)+'</div>'+
           '<div style="font-size:12px;font-weight:600;color:#2D2B28;line-height:1.2;margin-bottom:3px">'+esc(rc.name.split(' ')[0])+'</div>'+
-          '<div style="font-size:10px;color:#9e9080">'+daysAgo+'d ago</div>'+
+          '<div style="font-size:10px;color:#9e9a94">'+daysAgo+'d ago</div>'+
         '</button>';
       }).join('')+
       '</div></div>';
@@ -797,7 +812,7 @@ function pgHome(){
   var upcomingSection='';
   if(upcoming.length){
     upcomingSection='<div>'+
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
       '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em">Upcoming Tours</div>'+
       '<button onclick="showTab(\'days\')" style="font-size:11px;color:#C9A14A;background:none;border:none;cursor:pointer;font-family:inherit">View all</button>'+
       '</div>'+
@@ -809,13 +824,13 @@ function pgHome(){
         var dateStr=fmtDate(d.date);
         return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="width:100%;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left">'+
           '<div style="text-align:center;min-width:32px">'+
-          '<div style="font-size:8px;font-weight:600;color:#9e9080;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
+          '<div style="font-size:8px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
           '<div style="font-size:20px;font-weight:600;color:#2D2B28;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
           '</div>'+
           '<div style="width:36px;height:36px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+initials(uc.name)+'</div>'+
           '<div style="flex:1;min-width:0">'+
-          '<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">'+esc(uc.name)+'</div>'+
-          '<div style="font-size:11px;color:#9e9080">'+[uTime,uArea].filter(Boolean).join(' \u00b7 ')+'</div>'+
+          '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:1px">'+esc(uc.name)+'</div>'+
+          '<div style="font-size:11px;color:#9e9a94">'+[uTime,uArea].filter(Boolean).join(' \u00b7 ')+'</div>'+
           '</div>'+
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
         '</button>';
@@ -829,18 +844,18 @@ function pgHome(){
   // Ivory nav bar — no dark background
   var header='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
-    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
     '<span style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
     '</div>'+
     '<div style="display:flex;align-items:center;gap:14px">'+
-    '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9e9080" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
-    '<div style="width:34px;height:34px;border-radius:50%;background:#C9A14A;color:#071226;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:.02em">'+initAvatar+'</div>'+
+    '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
+    '<div style="width:30px;height:30px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:.02em">'+initAvatar+'</div>'+
     '</div>'+
     '</div>';
 
-  var greeting_block='<div style="padding-bottom:20px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.3px;line-height:1.1;margin-bottom:4px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
-    '<div style="font-size:12px;color:#9e9080;font-weight:400">'+todayLabel+'</div>'+
+  var greeting_block='<div style="padding-bottom:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1.1;margin-bottom:3px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
+    '<div style="font-size:12px;color:#9e9a94;font-weight:400">'+todayLabel+'</div>'+
     '</div>';
 
   return '<div class="mobile-view"><div class="wrap" style="background:#FCFBF7;min-height:100vh">'+
@@ -866,36 +881,53 @@ function quickDay(){
 
 // ── CLIENTS ───────────────────────────────────────────────────────────────────
 function pgClients(){
-  var h='<div class="wrap">'+
-    '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px">'+
-    '<div class="sec" style="margin-bottom:0">Clients</div>'+
-    '<button class="btn btn-sm" onclick="go(\'add-client\')">+ New client</button></div>';
+  function pageHeader(title, actionLabel, actionFn){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#2D2B28;letter-spacing:-.3px">'+title+'</div>'+
+      '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
+      '</div>';
+  }
+
+  var h='<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    pageHeader('Clients','+ New client',"go('add-client')");
+
   if(S.clients.length===0){
-    h+='<div class="emp"><div style="font-size:40px;margin-bottom:12px">&#128100;</div>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;margin-bottom:6px">No clients yet</div>'+
-      '<div style="font-size:14px;color:var(--slate);margin-bottom:24px">Add your first client to get started</div>'+
-      '<button class="btn" style="width:auto;padding:12px 24px" onclick="go(\'add-client\')">Add client</button></div>';
+    h+='<div style="text-align:center;padding:48px 24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No clients yet</div>'+
+      '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Add your first client to get started</div>'+
+      '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'add-client\')">Add client</button></div>';
   } else {
     h+=S.clients.map(function(c){
       var cd=cDays(c.id);
+      var req=c.req||{};
       var upc=cd.filter(function(d){return dayStatus(d.date)!=="done";});
-      return '<div class="cc" onclick="go(\'client-detail\',{cid:\''+c.id+'\'})">'+
-        '<div class="av">'+esc(initials(c.name))+'</div>'+
+      var budgetLabels={"u100":"< €100k","100-200":"€100–200k","200-300":"€200–300k","300-500":"€300–500k","500-800":"€500–800k","800k+":"> €800k"};
+      var budgetStr=req.budget?budgetLabels[req.budget]||(c.budget||""):c.budget||"";
+
+      // Avatar with initials
+      var ini=initials(c.name);
+      var bgColors=["#1a2f4a","#2a3f5a","#0d2035","#1e3048","#263548"];
+      var bg=bgColors[c.name.charCodeAt(0)%bgColors.length];
+
+      return '<div onclick="go(\'client-detail\',{cid:\''+c.id+'\'})" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
+        '<div style="width:42px;height:42px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
         '<div style="flex:1;min-width:0">'+
-        '<div style="font-size:15px;font-weight:500;color:var(--ink);margin-bottom:3px">'+esc(c.name)+'</div>'+
-        '<div style="font-size:12px;color:var(--slate);margin-bottom:5px">'+esc(c.phone||"")+(c.nationality?' &middot; '+esc(c.nationality):'')+'</div>'+
-        '<div style="display:flex;gap:7px;flex-wrap:wrap">'+
-        (upc.length?'<span class="pill pill-bl">'+upc.length+' upcoming</span>':'')+
-        '<span class="pill">'+cd.length+' day'+(cd.length===1?"":"s")+'</span>'+
-        (c.budget?'<span class="pill pill-br">'+esc(c.budget)+'</span>':'')+
+        '<div style="font-size:15px;font-weight:500;color:#2D2B28;margin-bottom:3px">'+esc(c.name)+'</div>'+
+        '<div style="font-size:12px;color:#9e9a94;margin-bottom:6px">'+
+          (c.phone?esc(c.phone):'')+(c.nationality?' &middot; '+esc(c.nationality):'')+
+        '</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+        (upc.length?'<span style="background:#eff6ff;color:#2F6BFF;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:600">'+upc.length+' upcoming</span>':'')+
+        (cd.length?'<span style="background:#f5f2ec;color:#6b6560;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500">'+cd.length+' day'+(cd.length===1?"":"s")+'</span>':"")+
+        (budgetStr?'<span style="background:#fef9ec;color:#92670a;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500">'+esc(budgetStr)+'</span>':"")+
         '</div></div>'+
-        '<span style="color:#c8bfb0;font-size:18px">&#8250;</span></div>';
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
+      '</div>';
     }).join("");
   }
   return h+'</div>';
 }
-
-// ── CLIENT DETAIL ─────────────────────────────────────────────────────────────
 function pgClientDetail(){
   var c=curC();if(!c)return"";
   var cd=cDays(c.id);
@@ -913,10 +945,11 @@ function pgClientDetail(){
           return '<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--slate);white-space:nowrap">'+
             (p.time?'<span style="font-weight:600;color:var(--ink);margin-right:3px">'+esc(p.time)+'</span>':'')+
             esc(p.title?p.title.slice(0,20)+(p.title.length>20?"...":""):getDomain(p.url))+'</div>';
-        }).join("")+(d.properties.length>3?'<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:#9e9080">+'+(d.properties.length-3)+' more</div>':'')
+        }).join("")+(d.properties.length>3?'<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:#9e9a94">+'+(d.properties.length-3)+' more</div>':'')
       +'</div>':'')+'</div>';
   }
-  return '<div class="wrap">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
     '<button class="bback" onclick="showTab(\'clients\')">&#8592; All clients</button>'+
     '<div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">'+
     '<div style="width:52px;height:52px;border-radius:50%;background:var(--mist);border:1px solid var(--fog);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--brass);flex-shrink:0">'+esc(initials(c.name))+'</div>'+
@@ -943,7 +976,7 @@ function pgClientDetail(){
           '<label class="lbl">Must Have</label>'+
           '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'+
           mustHave.map(function(f){
-            return '<span style="display:inline-flex;align-items:center;gap:4px;background:#0e1520;color:#c9a84c;border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600">'+
+            return '<span style="display:inline-flex;align-items:center;gap:4px;background:#071226;color:#c9a84c;border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600">'+
               (ICON[f]?'<span style="display:inline-flex;align-items:center">'+ICON[f]+'</span>':'')+f+'</span>';
           }).join('')+
           '</div></div>';
@@ -955,7 +988,7 @@ function pgClientDetail(){
           '<label class="lbl">Plus</label>'+
           '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'+
           plus.map(function(f){
-            return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(176,141,87,.1);color:#b08d57;border-radius:100px;padding:4px 10px;font-size:11px;border:1px solid rgba(176,141,87,.3)">'+
+            return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,161,74,.1);color:#C9A14A;border-radius:100px;padding:4px 10px;font-size:11px;border:1px solid rgba(201,161,74,.3)">'+
               (ICON[f]?'<span style="display:inline-flex;align-items:center">'+ICON[f]+'</span>':'')+f+'</span>';
           }).join('')+
           '</div></div>';
@@ -991,7 +1024,7 @@ function pgPickClient(){
       '<div style="font-size:15px;font-weight:500;color:var(--ink);margin-bottom:2px">'+esc(c.name)+'</div>'+
       '<div style="font-size:12px;color:var(--slate)">'+cd.length+' day'+(cd.length===1?"":"s")+
       (c.nationality?' &middot; '+esc(c.nationality):'')+'</div></div>'+
-      '<span style="color:#b08d57;font-size:18px">+</span></div>';
+      '<span style="color:#C9A14A;font-size:18px">+</span></div>';
   }).join("");
   return '<div class="wrap">'+
     '<button class="bback" onclick="showTab(\'home\')">&#8592; Cancel</button>'+
@@ -1021,12 +1054,12 @@ function pgAddClient(){
   function tempChip(name,emoji){
     var inMust=mustHave.indexOf(name)>=0;
     var inPlus=plus.indexOf(name)>=0;
-    var bg=inMust?'#0e1520':inPlus?'rgba(176,141,87,.12)':'var(--mist)';
-    var brd=inMust?'#b08d57':inPlus?'rgba(176,141,87,.5)':'var(--fog)';
-    var col=inMust?'#c9a84c':inPlus?'#b08d57':'var(--slate)';
+    var bg=inMust?'#071226':inPlus?'rgba(201,161,74,.12)':'var(--mist)';
+    var brd=inMust?'#C9A14A':inPlus?'rgba(201,161,74,.5)':'var(--fog)';
+    var col=inMust?'#c9a84c':inPlus?'#C9A14A':'var(--slate)';
     var fw=inMust||inPlus?'600':'400';
-    var badge=inMust?' <span style="font-size:8px;background:#b08d57;color:#0e1520;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
-              :inPlus?' <span style="font-size:8px;color:#b08d57;font-weight:600">+</span>':'';
+    var badge=inMust?' <span style="font-size:8px;background:#C9A14A;color:#071226;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
+              :inPlus?' <span style="font-size:8px;color:#C9A14A;font-weight:600">+</span>':'';
     var icon=ICON[name]||(emoji||'');
     return '<button onclick="toggleNewClientFeature(\''+name+'\')" style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:100px;border:1.5px solid '+brd+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;margin:2px;transition:all .1s">'+
       '<span style="display:inline-flex;align-items:center;line-height:1">'+icon+'</span>'+
@@ -1037,13 +1070,13 @@ function pgAddClient(){
   var chips=features.map(function(f){return tempChip(f[0],f[1]);}).join('');
 
   var mustHtml=mustHave.length?
-    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
-    mustHave.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var plusHtml=plus.length?
-    '<div><span style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
-    plus.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    '<div><span style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var summary=(mustHtml||plusHtml)?
-    '<div style="background:#f5f0e8;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
+    '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
 
   var budgetOpts=['','u100','100-200','200-300','300-500','500-800','800k+'];
   var budgetLabels={'':'Any','u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
@@ -1055,7 +1088,8 @@ function pgAddClient(){
     return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
   }
 
-  return '<div class="wrap">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
     '<button class="bback" onclick="window._newClientReq=null;showTab(\'clients\')">&#8592; Cancel</button>'+
     '<div class="sec">New Client</div>'+
     '<div class="card">'+
@@ -1107,12 +1141,12 @@ function clientFeatureState(c,name){
 function clientFeatureChip(c,name,emoji){
   var state=clientFeatureState(c,name);
   var isMust=state==='must', isPlus=state==='plus';
-  var bg=isMust?'#0e1520':isPlus?'rgba(176,141,87,.12)':'var(--mist)';
-  var brd=isMust?'#b08d57':isPlus?'rgba(176,141,87,.5)':'var(--fog)';
-  var col=isMust?'#c9a84c':isPlus?'#b08d57':'var(--slate)';
+  var bg=isMust?'#071226':isPlus?'rgba(201,161,74,.12)':'var(--mist)';
+  var brd=isMust?'#C9A14A':isPlus?'rgba(201,161,74,.5)':'var(--fog)';
+  var col=isMust?'#c9a84c':isPlus?'#C9A14A':'var(--slate)';
   var fw=isMust||isPlus?'600':'400';
-  var badge=isMust?' <span style="font-size:8px;background:#b08d57;color:#0e1520;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
-            :isPlus?' <span style="font-size:8px;color:#b08d57;font-weight:600">+</span>':'';
+  var badge=isMust?' <span style="font-size:8px;background:#C9A14A;color:#071226;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
+            :isPlus?' <span style="font-size:8px;color:#C9A14A;font-weight:600">+</span>':'';
   var icon=ICON[name]||(emoji||'');
   return '<button onclick="toggleClientFeature(\''+c.id+'\',\''+name+'\')" style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:100px;border:1.5px solid '+brd+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;margin:2px;transition:all .1s">'+
     '<span style="display:inline-flex;align-items:center;line-height:1">'+icon+'</span>'+
@@ -1138,13 +1172,13 @@ function pgEditClient(){
   var chips=features.map(function(f){return clientFeatureChip(c,f[0],f[1]);}).join('');
 
   var mustHtml=mustHave.length?
-    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
-    mustHave.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var plusHtml=plus.length?
-    '<div style="margin-bottom:10px"><span style="font-size:9px;font-weight:700;color:#9e9080;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
-    plus.map(function(f){return'<span style="font-size:11px;color:#3a2e20;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    '<div style="margin-bottom:10px"><span style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var summary=(mustHtml||plusHtml)?
-    '<div style="background:#f5f0e8;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
+    '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
 
   var budgetOpts=['','u100','100-200','200-300','300-500','500-800','800k+'];
   var budgetLabels={'':'Any','u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
@@ -1157,7 +1191,8 @@ function pgEditClient(){
     return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
   }
 
-  return '<div class="wrap">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
     '<button class="bback" onclick="go(\'client-detail\')">&#8592; Cancel</button>'+
     '<div class="sec">Client Profile</div>'+
     '<div class="card">'+
@@ -1201,27 +1236,57 @@ function pgDays(){
   var sorted=[].concat(S.days).sort(function(a,b){return a.date.localeCompare(b.date);});
   var up=sorted.filter(function(d){return dayStatus(d.date)!=="done";});
   var dn=sorted.filter(function(d){return dayStatus(d.date)==="done";});
+
+  function pageHeader(title, actionLabel, actionFn){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#2D2B28;letter-spacing:-.3px">'+title+'</div>'+
+      '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
+      '</div>';
+  }
+
   function drow(d){
     var c=S.clients.find(function(c){return c.id===d.clientId;})||{name:"Unknown"};
-    return '<div class="dc" onclick="openDay(\''+d.id+'\',\''+d.clientId+'\')">'+
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
-      '<div><div style="font-size:14px;font-weight:500;color:var(--ink)">'+fmtDate(d.date)+'</div>'+
-      '<div style="font-size:12px;color:var(--slate);margin-top:1px">&#128100; '+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div></div>'+
-      statusBadge(dayStatus(d.date))+'</div></div>';
-  }
-  return '<div class="wrap">'+
-    '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px">'+
-    '<div class="sec" style="margin-bottom:0">All Days</div>'+
-    '<button class="btn btn-sm" onclick="quickDay()">+ New day</button></div>'+
-    (up.length?'<div class="sec-sm">Upcoming</div>'+up.map(drow).join(""):"")+
-    (dn.length?'<div class="sec-sm" style="margin-top:16px">Completed</div>'+dn.map(drow).join(""):"")+
-    (S.days.length===0?'<div class="emp"><div style="font-size:40px;margin-bottom:12px">&#128197;</div>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;margin-bottom:6px">No viewing days yet</div>'+
-      '<div style="font-size:14px;color:var(--slate)">Create a client first, then add a viewing day.</div></div>':"")+
-    '</div>';
-}
+    var done=dayStatus(d.date)==="done";
+    var badge=done
+      ?'<span style="background:#f3f4f6;color:#6b6560;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">Completed</span>'
+      :'<span style="background:#eff6ff;color:#2F6BFF;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">Upcoming</span>';
 
-// ── DAY DETAIL ────────────────────────────────────────────────────────────────
+    var ini=initials(c.name);
+    var bgColors=["#1a2f4a","#2a3f5a","#0d2035","#1e3048","#263548"];
+    var bg=bgColors[c.name.charCodeAt(0)%bgColors.length];
+
+    return '<div onclick="openDay(\''+d.id+'\',\''+d.clientId+'\')" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+      '<div style="font-size:15px;font-weight:500;color:#2D2B28">'+fmtDate(d.date)+'</div>'+
+      badge+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+      '<div style="width:28px;height:28px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
+      '<div style="font-size:13px;color:#6b6560">'+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div>'+
+      '</div>'+
+      '</div>';
+  }
+
+  function sectionLabel(txt){
+    return '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">'+txt+'</div>';
+  }
+
+  var h='<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    pageHeader('Days','+ New day',"go('new-day')");
+
+  if(S.days.length===0){
+    h+='<div style="text-align:center;padding:48px 24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No viewing days yet</div>'+
+      '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Create your first viewing day to get started</div>'+
+      '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'new-day\')">New viewing day</button></div>';
+  } else {
+    if(up.length) h+=sectionLabel('Upcoming')+up.map(drow).join("");
+    if(dn.length) h+='<div style="margin-top:24px">'+sectionLabel('Completed')+dn.map(drow).join("")+'</div>';
+  }
+
+  return h+'</div>';
+}
 function pgDayDetail(){
   var day=curD();var c=curC();if(!day)return"";
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
@@ -1265,12 +1330,12 @@ function pgDayDetail(){
         (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
         '</div>'+
         hlPickerHtml(day.id,p.id,p.highlights)+
-        '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9080;font-weight:300;font-size:10px\">optional</span></label>'+
+        '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9a94;font-weight:300;font-size:10px\">optional</span></label>'+
         '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
         '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
         '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
-        '<div style="font-size:11px;color:#9e9080">Highlight this property for the client</div></div>'+
-        '<button onclick="var d=curD();var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp){var was=pp.topPick;d.properties.forEach(function(x){x.topPick=false;});pp.topPick=!was;}persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#b08d57':'#e0d8c8')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
+        '<div style="font-size:11px;color:#9e9a94">Highlight this property for the client</div></div>'+
+        '<button onclick="var d=curD();var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp){var was=pp.topPick;d.properties.forEach(function(x){x.topPick=false;});pp.topPick=!was;}persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#C9A14A':'#edeae4')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
         '</div>'+
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">'+
         '<div><label class="lbl">Travel time</label>'+
@@ -1334,10 +1399,11 @@ function pgDayDetail(){
   var back=c?'go(\'client-detail\',{cid:\''+c.id+'\'})':'showTab(\'days\')';
   var backLbl=c?'&#8592; '+esc(c.name):'&#8592; All days';
 
-  return '<div class="wrap">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
     '<button class="bback" onclick="'+back+'">'+backLbl+'</button>'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'+
-    '<div>'+(c?'<div style="font-size:11px;color:#9e9080;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
+    '<div>'+(c?'<div style="font-size:11px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300">'+fmtDate(day.date)+'</div></div>'+
     statusBadge(dayStatus(day.date))+'</div>'+
     '<div class="card" style="margin-bottom:14px">'+
@@ -1361,11 +1427,11 @@ function pgDayDetail(){
       '<label class="lbl" style="margin-bottom:0">Welcome message</label>'+
       '<div style="display:flex;gap:6px">'+
       '<button onclick="generateWelcomeMsg()" style="font-size:10px;font-weight:600;color:var(--brass);background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#10024; Generate</button>'+
-      '<button onclick="generateWelcomeMsg(Math.floor(Math.random()*3))" style="font-size:10px;color:#9e9080;background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#8635; New version</button>'+
+      '<button onclick="generateWelcomeMsg(Math.floor(Math.random()*3))" style="font-size:10px;color:#9e9a94;background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#8635; New version</button>'+
       '</div></div>'+
       '<textarea id="welcome-ta" class="inp" rows="5" placeholder="Click Generate for an instant personalised welcome..." style="resize:none;line-height:1.6;margin-top:6px" oninput="curD().welcomeMsg=this.value;persist()">'+(curD().welcomeMsg||'')+'</textarea>'+
 
-      '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9080;font-weight:300;font-size:10px">— one per line</span></label>'+
+      '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9a94;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
       '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
@@ -1436,7 +1502,8 @@ function pgAddProp(){
     return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';
   }).join("");
 
-  return '<div class="wrap">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
     '<button class="bback" onclick="go(\'day-detail\')">&larr; Cancel</button>'+
     '<div class="sec">Add Property</div>'+
 
@@ -1444,7 +1511,7 @@ function pgAddProp(){
     '<label class="lbl">Listing URL *</label>'+
     '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
     '<div id="ap-og-status" style="margin-top:4px"></div>'+
-    '<div style="font-size:11px;color:#9e9080;margin-top:6px">Paste listing URL</div></div>'+
+    '<div style="font-size:11px;color:#9e9a94;margin-top:6px">Paste listing URL</div></div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
@@ -1467,14 +1534,15 @@ function pgAddProp(){
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
     '<div id="ap-hl-wrap">'+hlPickerHtml('__new__','__new__',window._newHighlights||[])+'</div>'+
-    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9080;font-weight:300;font-size:10px">optional</span></label>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
     '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
     '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
-    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Agent Info (internal)</div>'+
+    '<div style="border-left:2px solid #C9A14A;padding-left:12px;margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em">Agent Info</div></div>'+
     iffHtml+
     '</div>'+
 
@@ -1509,7 +1577,7 @@ function fetchOg(url, did) {
   if (!url) return;
   // Show loading state on the URL field
   var statusEl = document.getElementById("ap-og-status");
-  if (statusEl) { statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">&#8987; Fetching preview...</span>'; }
+  if (statusEl) { statusEl.innerHTML = '<span style="color:#9e9a94;font-size:11px">&#8987; Fetching preview...</span>'; }
 
   fetch("/.netlify/functions/og?url=" + encodeURIComponent(url))
     .then(function(r){ return r.json(); })
@@ -1532,13 +1600,13 @@ function fetchOg(url, did) {
           // Store image URL for later
           window._ogImage = data.image;
         } else {
-          statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">No preview image found — you can add one manually below.</span>';
+          statusEl.innerHTML = '<span style="color:#9e9a94;font-size:11px">No preview image found — you can add one manually below.</span>';
           window._ogImage = null;
         }
       }
     })
     .catch(function(){
-      if (statusEl) statusEl.innerHTML = '<span style="color:#9e9080;font-size:11px">Could not load preview.</span>';
+      if (statusEl) statusEl.innerHTML = '<span style="color:#9e9a94;font-size:11px">Could not load preview.</span>';
       window._ogImage = null;
     });
 }
@@ -1554,27 +1622,27 @@ function saveProp(did){
 }
 
 var ICON={
-  'Walking distance to beach':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
-  'Pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
-  'Swimming pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
-  'Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
-  'Parking / Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
-  'Near golf':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#b08d57" stroke="none"/></svg>',
-  'Near golf course':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#b08d57" stroke="none"/></svg>',
-  'Private garden':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
-  'Garden or terrace':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
-  'Large terrace':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18"/><path d="M3 12h18"/><rect x="5" y="3" width="14" height="7" rx="1"/></svg>',
+  'Walking distance to beach':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Swimming pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Parking / Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Near golf':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#C9A14A" stroke="none"/></svg>',
+  'Near golf course':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#C9A14A" stroke="none"/></svg>',
+  'Private garden':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
+  'Garden or terrace':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
+  'Large terrace':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18"/><path d="M3 12h18"/><rect x="5" y="3" width="14" height="7" rx="1"/></svg>',
 
-  'Quiet area':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+  'Quiet area':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
 
-  'Family friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
+  'Family friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
 
-  'Family-friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
+  'Family-friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
 
-  'Hot listing':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
-  'Excellent value':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 22L6 9M12 22l6-13"/></svg>',
-  'Restaurants nearby':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg>',
-  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>',};
+  'Hot listing':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
+  'Excellent value':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 22L6 9M12 22l6-13"/></svg>',
+  'Restaurants nearby':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg>',
+  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>',};
 
 // ── OUTPUT ────────────────────────────────────────────────────────────────────
 function pgOutput(){
@@ -1598,12 +1666,12 @@ function pgOutput(){
   var firstTime=sortedProps.length?sortedProps[0].time:'';
   var lastTime=sortedProps.length>1?sortedProps[sortedProps.length-1].time:'';
   var pLen=(props||[]).length;
-  var statsBar=!isAg?'<div style="background:#0e1520;padding:10px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
-    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#b08d57;line-height:1">'+pLen+'</div>'+
+  var statsBar=!isAg?'<div style="background:#071226;padding:10px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
     '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Propert'+(pLen===1?'y':'ies')+'</div></div>'+
-    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#b08d57;line-height:1">'+esc(firstTime)+'</div>'+
+    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(firstTime)+'</div>'+
     '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Start time</div></div>':'')+
-    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#b08d57;line-height:1">'+esc(lastTime)+'</div>'+
+    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lastTime)+'</div>'+
     '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">End time</div></div>':'')+
     '</div>':'';
 
@@ -1626,18 +1694,18 @@ function pgOutput(){
   });
   tlItems.push({label:'End',sub:'End of tour',type:'end'});
   var timelineHtml=!isAg&&tlItems.length>1?
-    '<div style="background:#0e1520;padding:10px 20px 12px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="background:#071226;padding:10px 20px 12px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
     '<div style="display:flex;align-items:flex-start;min-width:max-content">'+
     tlItems.map(function(tl,tli){
       var isLast=tli===tlItems.length-1;
       var dot=tl.type==='prop'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:#b08d57;color:#0e1520;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
         :tl.type==='mp'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(176,141,87,.2);border:1.5px solid #b08d57;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(201,161,74,.2);border:1.5px solid #C9A14A;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
         :tl.type==='ev'
         ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
         :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
-      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(176,141,87,.25);margin-top:11px;min-width:20px"></div>':'';
+      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px"></div>':'';
       return'<div style="display:flex;align-items:flex-start">'+
         '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;max-width:70px">'+dot+
         '<div style="font-size:9px;font-weight:600;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
@@ -1659,14 +1727,14 @@ function pgOutput(){
     if(item.k==="e"){
       var e=item.d, et=getET(e.type);
       if(et.isMeetingPoint){
-        return '<div style="background:#0e1520;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
-          '<div style="width:28px;height:28px;border-radius:50%;background:rgba(176,141,87,.15);border:1px solid rgba(176,141,87,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px">&#128205;</div>'+
-          '<div><div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
+        return '<div style="background:#071226;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.15);border:1px solid rgba(201,161,74,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px">&#128205;</div>'+
+          '<div><div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
           '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
           (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(e.time)+'</div>':'')+
           '</div></div>';
       }
-      return '<div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #e8e4dd;background:'+et.col+'">'+
+      return '<div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #edeae4;background:'+et.col+'">'+
         '<span style="font-size:18px">'+et.icon+'</span>'+
         '<div>'+(e.time?'<span style="font-weight:700;font-size:13px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
         '<span style="font-size:13px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
@@ -1682,12 +1750,12 @@ function pgOutput(){
 
     // Match score
     var ms=matchScore(dayClient,p);
-    var dScore=null,dCol='#b08d57',dLabel='';
+    var dScore=null,dCol='#C9A14A',dLabel='';
     if(ms&&ms.score!=null){dScore=ms.score;}
     else if(p.highlights&&p.highlights.length){dScore=Math.min(100,Math.round(p.highlights.length/10*100));}
     if(dScore!=null){
       if(dScore>=90){dCol='#059669';dLabel='Excellent Match';}
-      else if(dScore>=75){dCol='#b08d57';dLabel='Good Match';}
+      else if(dScore>=75){dCol='#C9A14A';dLabel='Good Match';}
       else if(dScore>=60){dCol='#d97706';dLabel='Possible Match';}
       else{dCol='#dc2626';dLabel='Low Match';}
     } else if(p.highlights&&p.highlights.length>0){
@@ -1719,14 +1787,14 @@ function pgOutput(){
           ' stroke-dasharray="'+dash+' '+gap+'" stroke-linecap="round"'+
           ' transform="rotate(-90 27 27)"/>'+
           '<text x="27" y="27" text-anchor="middle" dominant-baseline="middle"'+
-          ' font-size="12" font-weight="700" fill="#0e1520" font-family="Jost,sans-serif">'+label+'</text>'+
+          ' font-size="12" font-weight="700" fill="#071226" font-family="Jost,sans-serif">'+label+'</text>'+
           '</svg>';
       })()+
             '</button>':'');
 
     // Top pick
     var tpBadge=(!isAg&&p.topPick)?
-      '<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#b08d57,#d4a84b);border-radius:5px;padding:3px 8px;display:flex;align-items:center;gap:4px">'+
+      '<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A14A,#d4a84b);border-radius:5px;padding:3px 8px;display:flex;align-items:center;gap:4px">'+
       '<span style="font-size:9px">&#11088;</span>'+
       '<span style="font-size:9px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.08em">Top Pick</span>'+
       '</div>':'';
@@ -1737,9 +1805,9 @@ function pgOutput(){
         '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
         '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.22) 100%)"></div>'+
         dScoreBadge+tpBadge+'</div>'
-      :'<div style="position:relative;height:80px;background:linear-gradient(135deg,#1a2535,#0e1520);display:flex;align-items:center;justify-content:center">'+
+      :'<div style="position:relative;height:80px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center">'+
         dScoreBadge+tpBadge+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(176,141,87,.1)">'+(idx+1)+'</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(201,161,74,.1)">'+(idx+1)+'</div>'+
         '</div>';
 
     // Location
@@ -1751,15 +1819,15 @@ function pgOutput(){
     var hl=p.highlights||[];
     var vis=hl.slice(0,4); var hid=hl.slice(4);
     var chips=vis.map(function(h){
-      return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap;min-height:28px">'+
+      return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#6b6560;white-space:nowrap;min-height:28px">'+
         '<span style="font-size:11px">'+(ICON[h]?ICON[h]+' ':' ')+'</span>'+esc(h)+'</span>';
     }).join('');
     var hidDiv=''; var showBtn='';
     if(hid.length){
       hidDiv='<div id="hx-'+p.id+'" style="display:none;flex-wrap:wrap;gap:4px;margin-top:4px">'+
-        hid.map(function(h){return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#4a3e30;white-space:nowrap;min-height:28px">'+
+        hid.map(function(h){return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#6b6560;white-space:nowrap;min-height:28px">'+
           '<span style="font-size:11px">'+(ICON[h]?ICON[h]+' ':' ')+'</span>'+esc(h)+'</span>';}).join('')+'</div>';
-      showBtn='<button onclick="document.getElementById(\'hx-'+p.id+'\').style.display=\'flex\';this.style.display=\'none\'" style="font-size:10px;color:#9e9080;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0">+'+hid.length+' more</button>';
+      showBtn='<button onclick="document.getElementById(\'hx-'+p.id+'\').style.display=\'flex\';this.style.display=\'none\'" style="font-size:10px;color:#9e9a94;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0">+'+hid.length+' more</button>';
     }
 
     // Internal box (agent only)
@@ -1776,39 +1844,39 @@ function pgOutput(){
     }
 
     return dtBlock+
-      '<div style="border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid #ede8e0;background:#fff">'+
+      '<div style="border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid #edeae4;background:#fff">'+
       imgHtml+
       '<div style="padding:14px 16px 18px">'+
 
       // Number + time + price
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
       '<div style="display:flex;align-items:center;gap:7px">'+
-      '<div style="width:22px;height:22px;border-radius:50%;background:#0e1520;display:flex;align-items:center;justify-content:center;color:#b08d57;font-size:10px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
-      (p.time?'<span style="font-size:13px;font-weight:600;color:#1c1a16">'+esc(p.time)+'</span>':'')+
+      '<div style="width:22px;height:22px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;color:#C9A14A;font-size:10px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
+      (p.time?'<span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.time)+'</span>':'')+
       '</div>'+
-      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#b08d57;font-weight:600;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
+      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A;font-weight:600;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
       '</div>'+
 
       // Title
-      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#0e1520;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#071226;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
 
       // Location
       '<div style="margin-bottom:12px">'+
-      (displayArea?'<span style="font-size:14px;font-weight:700;color:#1c1a16">'+esc(displayArea)+'</span>':'')+
-      (displayArea&&street?'<span style="font-size:13px;color:#9e9080;font-weight:400"> &nbsp;|&nbsp; </span>':'')+
-      (street?'<span style="font-size:13px;color:#9e9080">'+esc(street)+'</span>':'')+
+      (displayArea?'<span style="font-size:14px;font-weight:700;color:#2D2B28">'+esc(displayArea)+'</span>':'')+
+      (displayArea&&street?'<span style="font-size:13px;color:#9e9a94;font-weight:400"> &nbsp;|&nbsp; </span>':'')+
+      (street?'<span style="font-size:13px;color:#9e9a94">'+esc(street)+'</span>':'')+
       '</div>'+
 
       // Specs row
       (p.rooms||p.bathrooms||p.sqm?
         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+ 
-        (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">&#x1F6CF;&#xFE0F;<span style="font-size:11px;font-weight:700;color:#3a2e20">'+esc(p.rooms)+'</span></div>':'')+ 
-        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px">&#x1F6C1;<span style="font-size:11px;font-weight:700;color:#3a2e20">'+esc(p.bathrooms)+'</span></div>':'')+ 
-        (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:6px;padding:4px 9px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b08d57" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg><span style="font-size:11px;font-weight:700;color:#3a2e20">'+esc((p.sqm||'').replace(/m2$/i,''))+'m²</span></div>':'')+ 
+        (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px">&#x1F6CF;&#xFE0F;<span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc(p.rooms)+'</span></div>':'')+ 
+        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px">&#x1F6C1;<span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc(p.bathrooms)+'</span></div>':'')+ 
+        (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg><span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc((p.sqm||'').replace(/m2$/i,''))+'m²</span></div>':'')+ 
         '</div>':'')+
       // Buttons
-      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#4a3e30;text-decoration:none;border:1.5px solid #e0d8c8;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#b08d57"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+ 
-      (p.url?'<a href="'+esc(p.url)+'" style="display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#0e1520;border-radius:10px;padding:12px;letter-spacing:.03em;margin-bottom:10px">Full Details &#8250;</a>':'')+ 
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#6b6560;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+ 
+      (p.url?'<a href="'+esc(p.url)+'" style="display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#071226;border-radius:10px;padding:12px;letter-spacing:.03em;margin-bottom:10px">Full Details &#8250;</a>':'')+ 
 
 
 
@@ -1820,7 +1888,7 @@ function pgOutput(){
 
       // Agent rec — only if manually written (not auto)
       (!isAg&&p.agentRec?
-        '<div style="margin-top:10px;border-top:1px solid #ede8e0;padding-top:10px;font-size:12px;color:#4a3e30;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
+        '<div style="margin-top:10px;border-top:1px solid #edeae4;padding-top:10px;font-size:12px;color:#6b6560;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
 
       ibox+
       '</div></div>';
@@ -1829,7 +1897,7 @@ function pgOutput(){
 
   var logoHtml=cfg.logo
     ?'<img src="'+cfg.logo+'" style="height:34px;max-width:100px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9"/>'
-    :'<div style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 20 26"><defs><linearGradient id="og3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="10" cy="9" r="7" fill="none" stroke="url(#og3)" stroke-width="1.8"/><circle cx="10" cy="9" r="3" fill="url(#og3)"/><path d="M 4 15 Q 10 24 16 15" fill="none" stroke="url(#og3)" stroke-width="1.8" stroke-linecap="round"/></svg><span style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#fff;font-weight:400;letter-spacing:.5px">Tour<span style="color:#b08d57;font-style:italic">Flow</span></span></div>';
+    :'<div style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 20 26"><defs><linearGradient id="og3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="10" cy="9" r="7" fill="none" stroke="url(#og3)" stroke-width="1.8"/><circle cx="10" cy="9" r="3" fill="url(#og3)"/><path d="M 4 15 Q 10 24 16 15" fill="none" stroke="url(#og3)" stroke-width="1.8" stroke-linecap="round"/></svg><span style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#fff;font-weight:400;letter-spacing:.5px">Tour<span style="color:#C9A14A;font-style:italic">Flow</span></span></div>';
   var ft=props.length>0&&props[0].time?props[0].time:"";
   var lt=props.length>1&&props[props.length-1].time?props[props.length-1].time:"";
   // Build location list for cover summary
@@ -1852,12 +1920,12 @@ function pgOutput(){
   }
 
   var coverHdr=
-    '<div style="background:#0e1520;padding:26px 22px 28px">'+
+    '<div style="background:#071226;padding:26px 22px 28px">'+
     // NO logo here — lives in nav only
-    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
+    '<div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
     (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1.0;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
     '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
-    '<div style="height:1px;background:linear-gradient(90deg,rgba(176,141,87,.4),transparent);margin-bottom:14px"></div>'+
+    '<div style="height:1px;background:linear-gradient(90deg,rgba(201,161,74,.4),transparent);margin-bottom:14px"></div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+
     (ft&&lt?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+esc(ft)+' – '+esc(lt)+'</span>':'')+ 
     (props.length?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+props.length+' propert'+(props.length===1?'y':'ies')+'</span>':'')+ 
@@ -1865,15 +1933,15 @@ function pgOutput(){
     '</div>'+
     '<div style="display:flex;gap:0">'+
     '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#b08d57;line-height:1">'+props.length+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+props.length+'</div>'+
     '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(props.length===1?'y':'ies')+'</div>'+
     '</div>'+
     (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#b08d57;line-height:1">'+esc(ft)+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(ft)+'</div>'+
     '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First Viewing</div>'+
     '</div>':'')+
     (lt&&props.length>1?'<div style="flex:1">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#b08d57;line-height:1">'+esc(lt)+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lt)+'</div>'+
     '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last Viewing</div>'+
     '</div>':'')+
     '</div>'+
@@ -1884,7 +1952,7 @@ function pgOutput(){
     return'<div style="background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:160px">'+
       // LEFT 70% — contact info
       '<div style="flex:6;padding:24px 22px;display:flex;flex-direction:column;justify-content:center;gap:0">'+
-      '<div style="font-size:8px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Your Property Consultant</div>'+
+      '<div style="font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Your Property Consultant</div>'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:2px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
       (cfg.agency&&cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px">'+esc(cfg.agency)+'</div>':'<div style="margin-bottom:14px"></div>')+
       (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
@@ -1892,12 +1960,12 @@ function pgOutput(){
         '<div><div style="font-size:11px;font-weight:600;color:#25d366;line-height:1.1">WhatsApp</div>'+
         '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':
         (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
-        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(176,141,87,.12);border:1px solid rgba(176,141,87,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#128222;</div>'+
-        '<div><div style="font-size:11px;font-weight:600;color:rgba(176,141,87,.85);line-height:1.1">Call</div>'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#128222;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:rgba(201,161,74,.85);line-height:1.1">Call</div>'+
         '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':''))+
       (cfg.email?'<a href="mailto:'+esc(cfg.email)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none">'+
-        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(176,141,87,.12);border:1px solid rgba(176,141,87,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#9993;</div>'+
-        '<div><div style="font-size:11px;font-weight:600;color:rgba(176,141,87,.85);line-height:1.1">Email</div>'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#9993;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:rgba(201,161,74,.85);line-height:1.1">Email</div>'+
         '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.email)+'</div></div></a>':'')+
       '</div>'+
       // RIGHT 30% — portrait photo, full bleed rectangle
@@ -1910,67 +1978,79 @@ function pgOutput(){
   })();
   var printStyle='<style id="ps">@media print{.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}div{break-inside:avoid}}</style>';
   return printStyle+
-    '<div class="wrap">'+
-    '<button class="bback" onclick="go(\'day-detail\')">&#8592; Edit day</button>'+
-    '<div class="tog">'+
-    '<button class="tb'+(S.viewMode==="client"?" on":"")+'" onclick="S.viewMode=\'client\';render()">&#128196; Client view</button>'+
-    '<button class="tb'+(S.viewMode==="agent"?" on":"")+'" onclick="S.viewMode=\'agent\';render()">&#128274; Agent view</button></div>'+
-    '<div class="ban '+(isAg?"ban-am":"ban-gr")+'">'+
-    (isAg?"&#128274; Internal info visible. Keep for yourself.":"&#9989; Clean client version. Safe to share.")+
+    '<div class="mobile-view"><div class="wrap" style="background:#FCFBF7">'+
+
+    // ── TOP NAV (same as Home) ────────────────────────────────────────────
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px">'+
+    '<div style="display:flex;align-items:center;gap:7px">'+
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
     '</div>'+
-    '<div style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--fog);margin-bottom:18px;box-shadow:0 8px 32px rgba(0,0,0,.08)">'+
+    '<div style="display:flex;align-items:center;gap:12px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
+    '<div style="width:30px;height:30px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">'+(cfg.agent?cfg.agent.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF')+'</div>'+
+    '</div></div>'+
+
+    // ── VIEW TOGGLE ───────────────────────────────────────────────────────
+    '<div style="display:flex;background:#fff;border-radius:10px;border:1px solid #edeae4;padding:3px;margin-bottom:16px">'+
+    '<button onclick="S.viewMode=\'client\';render()" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:'+(S.viewMode==="client"?'#fff':'transparent')+';color:'+(S.viewMode==="client"?'#2D2B28':'#9e9a94')+';box-shadow:'+(S.viewMode==="client"?'0 1px 4px rgba(0,0,0,.08)':'none')+'">&#128196; Client view</button>'+
+    '<button onclick="S.viewMode=\'agent\';render()" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:'+(S.viewMode==="agent"?'#fff':'transparent')+';color:'+(S.viewMode==="agent"?'#2D2B28':'#9e9a94')+';box-shadow:'+(S.viewMode==="agent"?'0 1px 4px rgba(0,0,0,.08)':'none')+'">&#128274; Agent view</button>'+
+    '</div>'+
+
+    // ── STATUS BANNER ─────────────────────────────────────────────────────
+    '<div style="display:flex;align-items:center;gap:8px;background:'+(isAg?'#fffbeb':'#f0fdf4')+';border:1px solid '+(isAg?'#fde68a':'#bbf7d0')+';border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:12px;font-weight:500;color:'+(isAg?'#78350f':'#14532d')+'">'+
+    '<span style="font-size:14px">'+(isAg?'&#128274;':'&#9989;')+'</span>'+
+    (isAg?'Internal info visible. Keep for yourself.':'Clean client version. Safe to share.')+
+    '</div>'+
+
+    // ── DARK COVER CARD (stats + timeline + personalised viewing day) ─────
+    '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:20px;overflow:hidden;margin-bottom:20px;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
     statsBar+
     timelineHtml+
     coverHdr+
 
-    (!isAg&&day.welcomeMsg?'<div style="background:#faf8f4;padding:28px;border-bottom:1px solid #ede8e0">'+
-    '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">A personal note</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#2a1f14;line-height:1.7;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
-    '<div style="margin-top:14px;font-size:12px;color:#9e9080">'+esc(cfg.agent||cfg.agency||'')+'</div>'+
-    '</div>':'')+
+    (!isAg&&day.welcomeMsg?
+      '<div style="padding:22px 22px 16px;border-top:1px solid rgba(255,255,255,.06)">'+
+      '<div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">A personal note</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:rgba(255,255,255,.85);line-height:1.7;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
+      '</div>':'')+
+
     (!isAg&&c&&c.req?(function(){
-      var req=c.req;
-      var budgetLabels={'u100':'Under €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'€800k+'};
-      var typeLabels={apt:'Apartment',villa:'Villa',house:'Townhouse',bungalow:'Bungalow',penthouse:'Penthouse',any:'Any type'};
-      var purposeLabels={perm:'Permanent residence',holiday:'Holiday home',invest:'Investment / Rental',mixed:'Mixed use'};
-      var nbLabels={must:'New build only',important:'New build or resale',nice:'Resale preferred'};
+      var req=c.req; var mustHave=req.mustHave||[]; var plus=req.plus||[];
+      var budgetLabels={'u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
       var lines=[];
       if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
-      if(req.minrooms)lines.push(req.minrooms==='studio'?'Studio':req.minrooms+' bedroom'+(req.minrooms==='1'?'':'s')+' minimum');
-      if(req.type&&req.type!=='any')lines.push(typeLabels[req.type]||req.type);
-      if(req.purpose)lines.push(purposeLabels[req.purpose]||req.purpose);
-      if(req.newbuild)lines.push(nbLabels[req.newbuild]||req.newbuild);
-      var featureLabels={pool:'Swimming pool',garage:'Parking / Garage',garden:'Garden or terrace',beach:'Walking distance to beach',restaurants:'Walking distance to restaurants',golf:'Near golf course',community:'Gated community'};
-      Object.keys(featureLabels).forEach(function(k){if(req[k])lines.push(featureLabels[k]);});
+      if(req.minrooms&&req.minrooms!=='studio')lines.push(req.minrooms+'+ bedrooms');
+      if(req.type&&req.type!=='any'){var tl={apt:'Apartment',villa:'Villa',house:'Townhouse',bungalow:'Bungalow',penthouse:'Penthouse'};lines.push(tl[req.type]||req.type);}
+      mustHave.forEach(function(f){lines.push(f);});
       if(!lines.length)return'';
-      return'<div style="background:#fff;padding:28px;border-bottom:1px solid #ede8e0">'+
-        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px">Your Requirements</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">'+
-        lines.map(function(r){return'<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f0e8;border:1px solid #e5ddd0;border-radius:100px;padding:3px 10px;font-size:11px;color:#3a2e20">'+
-          '<span style="color:#b08d57;font-size:10px">&#10003;</span>'+esc(r)+'</span>';}).join('')+
-        '</div>'+
-        '</div>';
-    })():'')+ 
-    '<div style="background:#fff">'+rows+'</div>'+
-    (!isAg&&day.nextSteps?(function(){
-      var steps=day.nextSteps.split('\n').map(function(x){return x.trim();}).filter(function(x){return x;});
-      if(!steps.length)return'';
-      return'<div style="background:#faf8f4;padding:28px;border-top:1px solid #ede8e0">'+
-        '<div style="font-size:9px;font-weight:700;color:#b08d57;text-transform:uppercase;letter-spacing:.16em;margin-bottom:14px">After Today</div>'+
-        steps.map(function(s,si){return'<div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:12px">'+
-          '<div style="width:24px;height:24px;border-radius:50%;background:#0e1520;color:#b08d57;font-family:\'Cormorant Garamond\',serif;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">'+(si+1)+'</div>'+
-          '<span style="font-size:13px;color:#2a1f14;line-height:1.5;padding-top:4px">'+esc(s)+'</span>'+
-          '</div>';}).join('')+
-        '</div>';
+      return'<div style="padding:16px 22px;border-top:1px solid rgba(255,255,255,.06)">'+
+        '<div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">Your Requirements</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+        lines.map(function(r){return'<span style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,.75)">&#10003; '+esc(r)+'</span>';}).join('')+
+        '</div></div>';
     })():'')+
-    footerHtml+
+
     '</div>'+
-    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit">&#128241; Share via WhatsApp</button>'+
-    '<button class="btn btn-g" onclick="go(\'day-detail\')">&#9998; Edit Tour</button>'+
-    '</div>';
+
+    // ── AGENT INTERNAL INFO — rendered per property inside rows ─────────
+    ''+ 
+
+    // ── PROPERTY CARDS ────────────────────────────────────────────────────
+    rows+
+
+    // ── FOOTER / CONSULTANT ───────────────────────────────────────────────
+    footerHtml+
+
+    // ── ACTION BUTTONS ────────────────────────────────────────────────────
+    '<div style="padding-top:4px">'+
+    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:14px;background:#25D366;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">&#128241; Share via WhatsApp</button>'+
+    '<button onclick="go(\'day-detail\')" style="width:100%;padding:13px;background:#fff;color:#2D2B28;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#9998; Edit Tour</button>'+
+    '</div>'+
+
+    '</div></div>';
 }
 
-// ── SETTINGS ──────────────────────────────────────────────────────────────────
 function pgSettings(){
   var cfg=S.cfg;
   var lb=cfg.logo?'<img src="'+cfg.logo+'" style="width:100%;height:100%;object-fit:contain"/>':'<span style="font-size:24px">&#127968;</span>';
@@ -1992,21 +2072,21 @@ function pgSettings(){
       if(el)el.oninput=function(){S.cfg[k]=this.value;persist();};
     });
   },30);
-  return '<div class="wrap"><div class="sec">Settings</div><div class="card">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+topNav()+'<div class="sec">Settings</div><div class="card">'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">'+
     '<div><label class="lbl">Agency logo</label>'+
     '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+lb+'</div>'+
     '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upLogo(this)"/></label>'+
     rmLogo+
-    '<div style="font-size:10px;color:#9e9080;margin-top:5px">PNG recommended</div></div>'+
+    '<div style="font-size:10px;color:#9e9a94;margin-top:5px">PNG recommended</div></div>'+
     '<div><label class="lbl">Profile photo</label>'+
     '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+pb+'</div>'+
     '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upPhoto(this)"/></label>'+
     rmPhoto+
-    '<div style="font-size:10px;color:#9e9080;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
+    '<div style="font-size:10px;color:#9e9a94;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
     '</div>'+
     fRows+
-    '<div style="font-size:12px;color:#9e9080;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
+    '<div style="font-size:12px;color:#9e9a94;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
     '</div></div>';
 }
 function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
