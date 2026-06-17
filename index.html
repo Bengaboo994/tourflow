@@ -616,12 +616,14 @@ function render(){
   if(s==="client-detail")    {el.innerHTML=pgClientDetail();return;}
   if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
   if(s==="add-prop")         {el.innerHTML=pgAddProp();return;}
+  if(s==="pick-prop-source") {el.innerHTML=pgPickPropSource();return;}
+  if(s==="from-library")     {el.innerHTML=pgFromLibrary();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
+  if(s==="edit-prop")        {el.innerHTML=pgDayDetail();return;}
   if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
   if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
   if(S.tab==="days")         {el.innerHTML=pgDays();return;}
   if(S.tab==="properties")   {el.innerHTML=pgProperties();return;}
-  if(s==="edit-prop")        {el.innerHTML=pgDayDetail();return;}
   el.innerHTML=pgHome();
 }
 
@@ -1348,6 +1350,12 @@ function pgDayDetail(){
           iff.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
             '<input class="inp ins" style="background:#fffbf0" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
           '</div>':'')+
+        '<div style="border-top:1px solid var(--fog);margin-top:14px;padding-top:14px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="font-size:12px;font-weight:600;color:var(--ink)">Status</div>'+
+        '<div style="display:flex;gap:8px">'+
+        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:false});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.sold?'var(--fog)':'#C9A14A')+';background:'+(p.sold?'var(--mist)':'#071226')+';color:'+(p.sold?'var(--slate)':'#C9A14A')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Active</button>'+
+        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:true});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.sold?'#C9A14A':'var(--fog)')+';background:'+(p.sold?'#071226':'var(--mist)')+';color:'+(p.sold?'#C9A14A':'var(--slate)')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Sold</button>'+
+        '</div></div>'+
         '</div>';
     }
     return '<div class="pc">'+
@@ -1408,7 +1416,7 @@ function pgDayDetail(){
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
     '<div style="font-size:13px;font-weight:500;color:var(--ink)">'+props.length+' propert'+(props.length===1?"y":"ies")+
     (evs.length?' &middot; '+evs.length+' event'+(evs.length===1?"":"s"):'')+'</div>'+
-    '<button class="btn btn-b btn-sm" onclick="go(\'add-prop\')">+ Add listing</button></div>'+
+    '<button class="btn btn-b btn-sm" onclick="go(\'pick-prop-source\')">+ Add listing</button></div>'+
     (props.length===0&&evs.length===0?'<div style="background:var(--mist);border-radius:12px;padding:24px 20px;text-align:center;margin-bottom:10px">'+
       '<div style="font-size:24px;margin-bottom:8px">&#127968;</div>'+
       '<div style="font-size:14px;color:var(--slate)">No properties yet</div></div>':"")+
@@ -2046,6 +2054,119 @@ function pgOutput(){
     '</div></div>';
 }
 
+
+// ── PICK PROPERTY SOURCE ──────────────────────────────────────────────────────
+function pgPickPropSource(){
+  var day=curD();if(!day)return"";
+  // Count available library properties (from other days, not already in this day)
+  var dayPropIds=(day.properties||[]).map(function(p){return p.id;});
+  var libProps=[];
+  var seen={};
+  S.days.forEach(function(d){
+    if(d.id===day.id)return;
+    (d.properties||[]).forEach(function(p){
+      var key=p.url||p.title||p.id;
+      if(!seen[key]&&!p.sold){
+        seen[key]=true;
+        libProps.push({prop:p,dayId:d.id});
+      }
+    });
+  });
+  var hasLibrary=libProps.length>0;
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="go(\'day-detail\')">&#8592; Back</button>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin:16px 0 6px">Add Property</div>'+
+    '<div style="font-size:13px;color:#9e9a94;margin-bottom:28px">How would you like to add a property?</div>'+
+    '<div style="display:flex;flex-direction:column;gap:12px">'+
+
+    // From library
+    (hasLibrary?
+    '<button onclick="go(\'from-library\')" style="background:#fff;border:1.5px solid #C9A14A;border-radius:16px;padding:20px;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px">'+
+      '<div style="width:44px;height:44px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg></div>'+
+      '<div>'+
+      '<div style="font-size:15px;font-weight:600;color:#2D2B28;margin-bottom:3px">From your library</div>'+
+      '<div style="font-size:12px;color:#9e9a94">'+libProps.length+' saved propert'+(libProps.length===1?'y':'ies')+' available</div>'+
+      '</div></button>'
+    :'<div style="background:#f5f2ec;border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;opacity:.5">'+
+      '<div style="width:44px;height:44px;background:#edeae4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg></div>'+
+      '<div>'+
+      '<div style="font-size:15px;font-weight:600;color:#9e9a94;margin-bottom:3px">From your library</div>'+
+      '<div style="font-size:12px;color:#c8bfb0">No saved properties yet</div>'+
+      '</div></div>')+
+
+    // Add new
+    '<button onclick="go(\'add-prop\')" style="background:#fff;border:1.5px solid #edeae4;border-radius:16px;padding:20px;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px">'+
+      '<div style="width:44px;height:44px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
+      '<div>'+
+      '<div style="font-size:15px;font-weight:600;color:#2D2B28;margin-bottom:3px">Add new property</div>'+
+      '<div style="font-size:12px;color:#9e9a94">Fill in details manually</div>'+
+      '</div></button>'+
+
+    '</div></div>';
+}
+
+// ── FROM LIBRARY PICKER ───────────────────────────────────────────────────────
+function pgFromLibrary(){
+  var day=curD();if(!day)return"";
+  var dayPropIds=(day.properties||[]).map(function(p){return p.id;});
+  var libProps=[];
+  var seen={};
+  S.days.forEach(function(d){
+    if(d.id===day.id)return;
+    (d.properties||[]).forEach(function(p){
+      var key=p.url||p.title||p.id;
+      if(!seen[key]&&!p.sold){
+        seen[key]=true;
+        libProps.push({prop:p,dayId:d.id});
+      }
+    });
+  });
+
+  function addFromLib(p){
+    var day=curD();if(!day)return;
+    // Add a copy of the property to this day
+    var newProp=JSON.parse(JSON.stringify(p));
+    newProp.id='p'+Date.now();
+    newProp.time='';
+    day.properties=day.properties||[];
+    day.properties.push(newProp);
+    persist();
+    go('day-detail');
+  }
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="go(\'pick-prop-source\')">&#8592; Back</button>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin:16px 0 6px">Your Library</div>'+
+    '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">Tap a property to add it to this tour</div>'+
+    libProps.map(function(item){
+      var p=item.prop;
+      var img=p.ogImage||p.img||'';
+      var pr=(p.price||'').replace(/EUR/i,'').replace(/€/g,'').trim();
+      var priceStr=pr?'€'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US'):'';
+      return '<button onclick="(function(){'+
+        'var day=curD();if(!day)return;'+
+        'var np=JSON.parse(JSON.stringify('+JSON.stringify(p)+'||{}));'+
+        'np.id=\'p\'+Date.now();np.time=\'\';'+
+        '(day.properties=day.properties||[]).push(np);'+
+        'persist();go(\'day-detail\');'+
+        '})()" style="width:100%;background:#fff;border:1px solid #edeae4;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;text-align:left;font-family:inherit;display:block">'+
+        (img?'<div style="height:80px;overflow:hidden"><img src="'+img+'" style="width:100%;height:100%;object-fit:cover"/></div>':'<div style="height:80px;background:#f5f2ec"></div>')+
+        '<div style="padding:11px 14px">'+
+        '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:3px">'+esc(p.title||'Untitled')+'</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<div style="font-size:11px;color:#9e9a94">'+[p.area,p.rooms?p.rooms+' bed':''].filter(Boolean).join(' · ')+'</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:#a07830">'+priceStr+'</div>'+
+        '</div></div></button>';
+    }).join('')+
+    '</div>';
+}
+
 // ── PROPERTIES ────────────────────────────────────────────────────────────────
 function pgProperties(){
   var seen={};
@@ -2110,7 +2231,10 @@ function pgProperties(){
       '<div style="font-size:11px;color:#9e9a94;margin-bottom:8px">'+[p.area,p.address].filter(Boolean).map(esc).join(' · ')+'</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#a07830">'+priceStr+'</div>'+
-      '<div style="display:flex;gap:5px">'+shownBadge+activeBadge+'</div>'+
+      '<div style="display:flex;gap:5px;align-items:center">'+shownBadge+activeBadge+
+      '<button onclick="event.stopPropagation();if(confirm(\'Remove this property?\'))'+
+      '{S.days.forEach(function(d){d.properties=(d.properties||[]).filter(function(x){return x.id!==\''+pid+'\';});});persist();render();}" '+
+      'style="width:22px;height:22px;border-radius:50%;border:1px solid #edeae4;background:#fff;color:#9e9a94;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>'+
       '</div></div></div>';
   }
 
