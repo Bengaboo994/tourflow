@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#FCFBF7"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <title>Viewing Day · TourFlow</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -15,8 +20,8 @@
 body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
 input,button,textarea,select{font-family:inherit}
 .hdr{display:none!important}.hdr.show{display:flex}
-.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#071226;border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:200}
-.nb{flex:1;padding:10px 4px 12px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;color:rgba(255,255,255,.45)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#071226;border-top:1px solid rgba(255,255,255,.08);z-index:200;display:flex;opacity:0;transition:opacity .3s ease}.nav.ready{display:flex}
+.nb{flex:1;padding:12px 4px 16px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,.45)}.nb.on{color:#C9A14A}.nl-label{font-size:10px;font-weight:500;font-family:'Jost',sans-serif}
 .nl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
 .nl.on{color:#C9A14A;font-weight:500}
 .nb.on{color:#C9A14A}.nd{width:20px;height:2px;background:#C9A14A;border-radius:1px;margin-top:2px}
@@ -61,70 +66,34 @@ input,button,textarea,select{font-family:inherit}
 </style>
 </head>
 <body>
+<div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#FCFBF7;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease;opacity:1;padding-bottom:30vh">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:18px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+  <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:40px;font-weight:300;color:#2D2B28;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
+  <span style="font-family:'Jost',sans-serif;font-size:13px;font-weight:400;color:#6b6560;letter-spacing:.14em;text-transform:uppercase;margin-top:16px">Organize viewings like a pro</span>
+</div>
 <div id="ms-modal" class="ms-modal ms-modal-hide" onclick="closeMatchModal()">
   <div id="ms-modal-inner" class="ms-modal-inner" onclick="event.stopPropagation()"></div>
 </div>
-
-<!-- SPLASH -->
-<div id="splash" style="position:fixed;inset:0;background:#080c10;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s ease;padding:48px;overflow:hidden">
-<style>
-#sm{opacity:0;transform:translateY(12px);transition:opacity 1s ease,transform 1s ease}
-#sn{opacity:0;transform:translateY(16px);transition:opacity 1s ease,transform 1s ease}
-#st{opacity:0;transform:translateY(8px);transition:opacity 1s ease,transform 1s ease}
-#sk{opacity:0;transition:opacity .8s ease}
-</style>
-<div style="position:absolute;width:400px;height:400px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(201,161,74,.12) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none"></div>
-<div style="position:absolute;width:300px;height:300px;border-radius:50%;filter:blur(80px);background:radial-gradient(circle,rgba(201,161,74,.07) 0%,transparent 70%);bottom:-80px;left:-80px;pointer-events:none"></div>
-<div id="sm" style="margin-bottom:36px;text-align:center">
-  <svg width="72" height="90" viewBox="0 0 72 90" style="display:block;margin:0 auto">
-    <defs><linearGradient id="pg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="50%" stop-color="#c49a38"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs>
-    <circle cx="36" cy="32" r="26" fill="none" stroke="url(#pg)" stroke-width="2.8"/>
-    <circle cx="36" cy="32" r="9" fill="url(#pg)"/>
-    <ellipse cx="29" cy="22" rx="8" ry="6" fill="#fff" opacity="0.12"/>
-    <path d="M 16 54 Q 36 82 56 54" fill="none" stroke="url(#pg)" stroke-width="2.8" stroke-linecap="round"/>
-  </svg>
-</div>
-<div id="sn" style="text-align:center;margin-bottom:20px">
-  <div style="font-family:'Cormorant Garamond',Georgia,serif;font-size:52px;font-weight:300;color:#fff;letter-spacing:4px;line-height:1">Tour<span style="color:#C9A14A;font-style:italic;letter-spacing:0">Flow</span></div>
-</div>
-<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:20px">
-  <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(201,161,74,.4));width:40px"></div>
-  <div style="width:4px;height:4px;border-radius:50%;background:#C9A14A;opacity:.6"></div>
-  <div style="height:1px;background:linear-gradient(270deg,transparent,rgba(201,161,74,.4));width:40px"></div>
-</div>
-<div id="st" style="text-align:center;margin-bottom:80px">
-  <div style="font-family:'Jost',sans-serif;font-size:13px;color:rgba(255,255,255,.75);letter-spacing:.22em;text-transform:uppercase;font-weight:500">Organize viewings like a pro</div>
-</div>
-<div style="position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(255,255,255,.04)">
-  <div id="sp" style="height:100%;background:linear-gradient(90deg,transparent,#C9A14A,#d4af7a);width:0%;transition:width 2.8s linear"></div>
-</div>
-<button id="sk" onclick="startApp()" style="position:absolute;bottom:24px;right:28px;background:none;border:none;color:rgba(255,255,255,.2);font-size:12px;cursor:pointer;font-family:'Jost',sans-serif;letter-spacing:.1em;text-transform:uppercase">skip</button>
-</div>
-
-<div id="shell" style="display:none;flex-direction:column;min-height:100vh">
-<div class="hdr">
-  <div style="width:30px;height:30px;display:flex;align-items:center;justify-content:center">
-    <svg width="29" height="38" viewBox="0 0 26 34"><defs><linearGradient id="hg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="13" cy="11" r="9" fill="none" stroke="url(#hg)" stroke-width="2"/><circle cx="13" cy="11" r="3.5" fill="url(#hg)"/><path d="M 5 18 Q 13 30 21 18" fill="none" stroke="url(#hg)" stroke-width="2" stroke-linecap="round"/></svg>
-  </div>
-  <span style="color:#fff;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:600;letter-spacing:.5px;-webkit-font-smoothing:antialiased">Tour<span style="color:#C9A14A;font-style:italic">Flow</span></span>
-</div>
-<div id="app"></div>
+<div id="app" style="background:#FCFBF7;min-height:100vh;opacity:0;transition:opacity .3s ease"></div>
 <div class="nav">
-  <button class="nb" onclick="showTab('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg><span class="nl on" id="nl-home">Home</span><div class="nd" id="nd-home"></div></button>
-  <button class="nb" onclick="showTab('clients')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nl" id="nl-clients">Clients</span><div class="nd" id="nd-clients" style="display:none"></div></button>
-  <button class="nb" onclick="showTab('days')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="19" text-anchor="middle" font-size="7" font-weight="700" fill="currentColor" stroke="none" font-family="sans-serif">17</text></svg><span class="nl" id="nl-days">Days</span><div class="nd" id="nd-days" style="display:none"></div></button>
-  <button class="nb" onclick="showTab('settings')"><span style="font-size:19px">&#9881;</span><span class="nl" id="nl-settings">Settings</span><div class="nd" id="nd-settings" style="display:none"></div></button>
+  <button class="nb" id="nl-home" onclick="showTab('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg><span class="nl-label">Home</span></button>
+  <button class="nb" id="nl-clients" onclick="showTab('clients')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nl-label">Clients</span></button>
+  <button class="nb" id="nl-days" onclick="showTab('days')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="19" font-size="7" text-anchor="middle" fill="currentColor" font-family="Jost">17</text></svg><span class="nl-label">Days</span></button>
+  <button class="nb" id="nl-settings" onclick="showTab('settings')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nl-label">Settings</span></button>
 </div>
-</div>
+
+
+
 
 <script>
+window._splashStart=Date.now();
 var STORE="tf-v2";
 
 function topNav(){
   var cfg=S.cfg||{};
   var agent=cfg.agent||'';
   var initials=agent?agent.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
-  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px">'+
+  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
     '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
@@ -605,14 +574,28 @@ function go(screen,extra){if(extra)Object.assign(S,extra);S.screen=screen;S.addE
 function showTab(tab){
   S.tab=tab;S.screen=tab;S.cid=null;S.did=null;
   ["home","clients","days","settings"].forEach(function(t){
-    document.getElementById("nl-"+t).className="nl"+(t===tab?" on":"");
-    document.getElementById("nd-"+t).style.display=t===tab?"block":"none";
+    var btn=document.getElementById("nl-"+t);
+    if(btn)btn.className="nb"+(t===tab?" on":"");
   });
   render();
 }
 
+function hideSplash(){
+  var s=document.getElementById('splash');
+  if(!s)return;
+  // Ensure splash shows for at least 600ms, then fade
+  var shown=Date.now()-window._splashStart;
+  var delay=Math.max(0,600-shown);
+  setTimeout(function(){
+    s.style.opacity='0';
+    setTimeout(function(){s.style.display='none';},400);
+  },delay);
+}
+
 function render(){
   var el=document.getElementById("app");
+  var navEl=document.querySelector('.nav');
+  if(navEl) navEl.className='nav ready';
   var s=S.screen;
 
 
@@ -842,7 +825,7 @@ function pgHome(){
   var initAvatar=agentName?agentName.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
 
   // Ivory nav bar — no dark background
-  var header='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px">'+
+  var header='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
     '<span style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
@@ -1981,7 +1964,7 @@ function pgOutput(){
     '<div class="mobile-view"><div class="wrap" style="background:#FCFBF7">'+
 
     // ── TOP NAV (same as Home) ────────────────────────────────────────────
-    '<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0 16px">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
     '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
@@ -2092,23 +2075,22 @@ function pgSettings(){
 function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
 function upPhoto(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.photo=e.target.result;persist();render();};r.readAsDataURL(f);}
 
-// ── SPLASH ────────────────────────────────────────────────────────────────────
-function startApp(){
-  var s=document.getElementById("splash");
-  s.style.opacity="0";
-  setTimeout(function(){
-    s.style.display="none";
-    document.getElementById("shell").style.display="flex";
-    showTab("home");
-  },700);
-}
-(function(){
-  setTimeout(function(){var m=document.getElementById("sm");if(m){m.style.opacity="1";m.style.transform="translateY(0)";}},150);
-  setTimeout(function(){var n=document.getElementById("sn");if(n){n.style.opacity="1";n.style.transform="translateY(0)";}},550);
-  setTimeout(function(){var t=document.getElementById("st");if(t){t.style.opacity="1";t.style.transform="translateY(0)";}},1050);
-  setTimeout(function(){var p=document.getElementById("sp");if(p)p.style.width="100%";var sk=document.getElementById("sk");if(sk)sk.style.opacity="1";},1300);
-  setTimeout(startApp,3800);
-})();
+// ── INIT ─────────────────────────────────────────────────────────────────────
+// Render home just before splash fades so transition is seamless
+showTab("home");
+</script>
+<script>
+// Guaranteed 1-second splash on every load
+setTimeout(function(){
+  var s=document.getElementById('splash');
+  if(!s)return;
+  s.style.opacity='0';
+  var app=document.getElementById('app');
+  if(app)app.style.opacity='1';
+  var nav=document.querySelector('.nav');
+  if(nav)nav.style.opacity='1';
+  setTimeout(function(){s.style.display='none';},500);
+},2000);
 </script>
 </body>
 </html>
