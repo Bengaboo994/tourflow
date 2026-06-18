@@ -1,0 +1,2789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#FCFBF7"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<title>TourFlow – Viewing Day</title>
+<meta property="og:title" content="TourFlow – Your Viewing Day"/>
+<meta property="og:description" content="Your personalised property viewing itinerary, carefully prepared for you."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="TourFlow"/>
+<meta name="description" content="Your personalised property viewing itinerary, carefully prepared for you."/>
+<meta property="og:image" content="https://rococo-chimera-78db0a.netlify.app/og-image.svg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="TourFlow – Your Viewing Day"/>
+<meta name="twitter:description" content="Your personalised property viewing itinerary, carefully prepared for you."/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.ms-modal{position:fixed;inset:0;z-index:900;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.ms-modal-inner{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 24px 36px;max-height:80vh;overflow-y:auto}
+.ms-modal-hide{display:none}
+:root{--ink:#2D2B28;--paper:#FCFBF7;--brass:#C9A14A;--slate:#6b6560;--fog:#edeae4;--mist:#f5f2ec;--card:#ffffff;--hdr:#071226}
+body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
+input,button,textarea,select{font-family:inherit}
+.hdr{display:none!important}.hdr.show{display:flex}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#071226;border-top:1px solid rgba(255,255,255,.08);z-index:200;display:flex;opacity:0;transition:opacity .3s ease}.nav.ready{display:flex}
+.nb{flex:1;padding:12px 4px 16px;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:rgba(255,255,255,.45)}.nb.on{color:#C9A14A}.nl-label{font-size:10px;font-weight:500;font-family:'Jost',sans-serif}
+.nl{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em}
+.nl.on{color:#C9A14A;font-weight:500}
+.nb.on{color:#C9A14A}.nd{width:20px;height:2px;background:#C9A14A;border-radius:1px;margin-top:2px}
+.wrap{padding:20px 18px 80px;min-height:calc(100vh - 60px)}
+.card{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.lbl{font-size:10px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
+.inp:focus{border-color:#C9A14A}
+.ins{padding:9px 11px;font-size:14px}
+.btn{width:100%;padding:13px 18px;background:var(--hdr);color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
+.btn-g{background:transparent;color:var(--ink);border:1.5px solid var(--fog)}
+.btn-b{background:linear-gradient(135deg,#c9993a,#8a6020);color:#fff}
+.btn-sm{padding:7px 14px;font-size:12px;width:auto;border-radius:8px;margin-bottom:0}
+.btn-add{background:transparent;border:1.5px dashed var(--brass);color:var(--brass);border-radius:9px;padding:11px;width:100%;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px}
+.bico{background:none;border:none;color:#c8bfb0;font-size:18px;cursor:pointer;padding:4px;line-height:1}
+.bback{background:none;border:none;color:#9e9a94;font-size:13px;cursor:pointer;padding:0 0 16px 0;display:block}
+.sec{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:300;color:var(--ink);margin-bottom:16px}
+.sec-sm{font-size:11px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;display:inline-block}
+.pill-br{background:#f5ede0;color:#8a6020}
+.pill-gr{background:#f0fdf4;color:#166534}
+.pill-bl{background:#eff6ff;color:#1d4ed8}
+.pill-am{background:#fef9ec;color:#92400e}
+.pill-gy{background:#f1f0ee;color:#6b5f4e}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.tog{display:flex;background:var(--mist);border-radius:10px;padding:3px;margin-bottom:14px}
+.tb{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#9e9a94;transition:all .15s}
+.tb.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ban{border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:12px;display:flex;align-items:center;gap:7px}
+.ban-gr{background:#f0fdf4;color:#166534}
+.ban-am{background:#fef9ec;color:#92400e}
+.emp{background:var(--mist);border-radius:16px;padding:40px 24px;text-align:center}
+.cc{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:15px 16px;margin-bottom:10px;cursor:pointer;display:flex;gap:12px;align-items:center}
+.av{width:44px;height:44px;border-radius:50%;background:var(--mist);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--brass);flex-shrink:0;border:1px solid var(--fog)}
+.dc{background:var(--card);border-radius:12px;border:1px solid var(--fog);padding:13px 15px;margin-bottom:8px;cursor:pointer}
+.pc{background:var(--card);border-radius:12px;border:1px solid var(--fog);margin-bottom:10px;overflow:hidden}
+.oh{background:var(--hdr);padding:24px 22px}
+.or{padding:16px 22px;border-bottom:1px solid var(--fog)}
+.of{background:var(--mist);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.ibox{margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:11px 13px}
+@media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#FCFBF7;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease;opacity:1;padding-bottom:30vh">
+  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:18px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+  <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:40px;font-weight:300;color:#2D2B28;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
+  <span style="font-family:'Jost',sans-serif;font-size:13px;font-weight:400;color:#6b6560;letter-spacing:.14em;text-transform:uppercase;margin-top:16px">Organize viewings like a pro</span>
+</div>
+<div id="ms-modal" class="ms-modal ms-modal-hide" onclick="closeMatchModal()">
+  <div id="ms-modal-inner" class="ms-modal-inner" onclick="event.stopPropagation()"></div>
+</div>
+<div id="app" style="background:#FCFBF7;min-height:100vh;opacity:0;transition:opacity .3s ease"></div>
+<div class="nav">
+  <button class="nb" id="nl-home" onclick="showTab('home')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg><span class="nl-label">Home</span></button>
+  <button class="nb" id="nl-clients" onclick="showTab('clients')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><span class="nl-label">Clients</span></button>
+  <button class="nb" id="nl-properties" onclick="showTab('properties')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/><path d="M6 7h1M6 11h1M6 15h1M17 12h1M17 16h1"/></svg><span class="nl-label">Properties</span></button>
+  <button class="nb" id="nl-settings" onclick="showTab('settings')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nl-label">Settings</span></button>
+</div>
+
+
+
+
+<script>
+window._splashStart=Date.now();
+var STORE="tf-demo-preview"; // Demo mode — fresh state
+
+function topNav(){
+  var cfg=S.cfg||{};
+  var agent=cfg.agent||'';
+  var initials=agent?agent.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
+  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
+    '<div style="display:flex;align-items:center;gap:7px">'+
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;gap:12px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
+    '<div style="width:30px;height:30px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">'+initials+'</div>'+
+    '</div>'+
+    '</div>';
+}
+
+function lucideIcon(name,size){
+  size=size||14;
+  // Use inline SVG from Lucide - create element and get SVG
+  if(typeof lucide!=='undefined'){
+    var el=document.createElement('i');
+    el.setAttribute('data-lucide',name);
+    el.style.display='inline';
+    document.body.appendChild(el);
+    lucide.createIcons({nodes:[el]});
+    var svg=el.querySelector('svg');
+    if(svg){
+      svg.setAttribute('width',size);
+      svg.setAttribute('height',size);
+      svg.setAttribute('stroke','#C9A14A');
+      svg.setAttribute('stroke-width','1.8');
+      var result=svg.outerHTML;
+      document.body.removeChild(el);
+      return result;
+    }
+    document.body.removeChild(el);
+  }
+  return '';
+}
+function formatPrice(v){var n=v.replace(/[^0-9]/g,"");return n?"\u20AC"+parseInt(n,10).toLocaleString("en-US"):""}
+function onPriceInputAdd(el){el.value=formatPrice(el.value);}
+function setStatus(did,pid,st){var day=S.days.find(function(d){return d.id===did;});if(!day)return;var p=day.properties.find(function(x){return x.id===pid;});if(!p)return;p.status=p.status===st?null:st;persist();render();}
+function triggerPrint(){go("pdf-preview");}
+function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
+function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
+function uid(){return Math.random().toString(36).slice(2,9);}
+function today(){return new Date().toISOString().slice(0,10);}
+function fmtDate(d){if(!d)return"";try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}catch(e){return d;}}
+function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function getDomain(url){try{return new URL(url).hostname.replace("www.","");}catch(e){return url||"";}}
+function gv(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+function initials(n){return(n||"?").split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();}
+function dayStatus(date){if(!date)return"upcoming";var t=today();if(date===t)return"today";if(date<t)return"done";return"upcoming";}
+function statusBadge(s){if(s==="today")return'<span class="pill pill-br">Today</span>';if(s==="done")return'<span class="pill pill-gy">Completed</span>';return'<span class="pill pill-bl">Upcoming</span>';}
+
+var ET=[
+  {key:"meetingpoint",icon:"&#128205;",label:"Meeting Point",col:"#071226",brd:"#C9A14A",txt:"#fff",isMeetingPoint:true},
+  {key:"lunch",icon:"&#127869;",label:"Lunch",col:"#f2f7f2",brd:"#c8ddc8",txt:"#2d5a2d"},
+  {key:"coffee",icon:"&#9749;",label:"Coffee",col:"#fef9ee",brd:"#fde68a",txt:"#78350f"},
+  {key:"drive",icon:"&#128663;",label:"Drive",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
+  {key:"meeting",icon:"&#128083;",label:"Meeting",col:"#eff6ff",brd:"#bfdbfe",txt:"#1e40af"},
+  {key:"other",icon:"&#128204;",label:"Other",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
+  {key:"pickup",icon:"&#128663;",label:"Pickup",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
+  {key:"stop",icon:"&#128204;",label:"Stop",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"}
+];
+function getET(k){for(var i=0;i<ET.length;i++){if(ET[i].key===k)return ET[i];}return ET[4];}
+
+var DEMO_C=[
+  {id:"c1",name:"Erik Svensson",phone:"+46 70 111 22 33",email:"erik@email.com",nationality:"Swedish",budget:"200-400k EUR",notes:"Looking for 3+ bed, pool preferred"},
+  {id:"c2",name:"Anna Lindqvist",phone:"+46 73 222 33 44",email:"",nationality:"Swedish",budget:"150-250k EUR",notes:"Holiday home, La Zenia area"},
+  {id:"c3",name:"James Wilson",phone:"+44 77 333 44 55",email:"james@email.com",nationality:"British",budget:"300-500k EUR",notes:"Permanent residence"}
+];
+var DEMO_D=[
+  {id:"d1",clientId:"c1",date:"2026-06-17",properties:[
+    {id:"p1",url:"https://www.comaskeys.com/property/2082220",time:"10:00",title:"Bright 2-bed apartment",address:"Calle del Mar 12, La Zenia",price:"175,000 EUR",rooms:"2 bed",sqm:"78 m2",mapsUrl:"https://maps.google.com/?q=Calle+del+Mar+12+La+Zenia",commission:"2.5%",contact:"Maria Garcia",firm:"Costa Realty",location:"Key at front desk",note:""},
+    {id:"p2",url:"https://www.idealista.com/inmueble/98765432/",time:"12:30",title:"Modern villa with pool",address:"Avenida del Sol 45, Torrevieja",price:"320,000 EUR",rooms:"4 bed",sqm:"160 m2",mapsUrl:"https://maps.google.com/?q=Avenida+del+Sol+45+Torrevieja",commission:"3%",contact:"Juan Perez",firm:"Inmobiliaria Sol",location:"Gated community, bring ID",note:"Pool heated Oct-May"}
+  ],events:[{id:"e1",type:"lunch",time:"13:30",title:"Lunch",note:"La Zenia Boulevard"}]},
+  {id:"d2",clientId:"c1",date:"2026-05-10",properties:[{id:"p3",url:"https://www.idealista.com/inmueble/123",time:"11:00",title:"Townhouse near golf",address:"Calle Verde 3, Orihuela",price:"210,000 EUR",rooms:"3 bed",sqm:"105 m2",mapsUrl:"",commission:"2%",contact:"Sofia Ruiz",firm:"Golf Properties",location:"Key with neighbour no.5",note:""}],events:[]},
+  {id:"d3",clientId:"c2",date:"2026-06-20",properties:[{id:"p4",url:"https://www.comaskeys.com/property/999",time:"10:30",title:"Studio apartment",address:"Avenida del Mar 8, La Zenia",price:"95,000 EUR",rooms:"Studio",sqm:"45 m2",mapsUrl:"",commission:"2%",contact:"Carlos Ruiz",firm:"La Zenia Homes",location:"Meet agent outside",note:""}],events:[]}
+];
+
+var d0={}; // Demo mode — always fresh
+var S={
+  tab:"home",screen:"home",
+  cid:null,did:null,
+  viewMode:"client",
+  epid:null,eiid:null,
+  addEv:false,
+  clients:d0.clients||DEMO_C,
+  days:d0.days||DEMO_D,
+  cfg:d0.cfg||{agency:"",agent:"",phone:"",email:"",logo:""},
+  library:d0.library||[]
+};
+
+function reqFormHtml(r){
+  r=r||{};
+  function sel(id,opts,val,label){
+    var op=opts.map(function(o){return'<option value="'+o.v+'"'+(val===o.v?' selected':'')+'>'+o.l+'</option>';}).join('');
+    return'<div style="margin-bottom:11px"><label class="lbl">'+label+'</label><select class="inp" id="'+id+'" style="appearance:none;-webkit-appearance:none;background:var(--card) url(\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>\') no-repeat right 12px center;padding-right:32px">'+op+'</select></div>';
+  }
+  function pri(id,val,label){
+    var levels=[{v:'',l:'Not specified'},{v:'must',l:'✓ Must Have'},{v:'important',l:'◎ Important'},{v:'nice',l:'◇ Nice to Have'}];
+    return sel(id,levels,val,label);
+  }
+  var budgets=[{v:'',l:'Not specified'},{v:'u100',l:'Under €100,000'},{v:'100-200',l:'€100k – €200k'},{v:'200-300',l:'€200k – €300k'},{v:'300-500',l:'€300k – €500k'},{v:'500-800',l:'€500k – €800k'},{v:'800k+',l:'€800,000+'}];
+  var roomOpts=[{v:'',l:'Not specified'},{v:'studio',l:'Studio'},{v:'1',l:'1 Bedroom'},{v:'2',l:'2 Bedrooms'},{v:'3',l:'3 Bedrooms'},{v:'4',l:'4+ Bedrooms'}];
+  var types=[{v:'',l:'Not specified'},{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'house',l:'Townhouse / Semi-detached'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'},{v:'any',l:'Any type'}];
+  var views=[{v:'',l:'Not specified'},{v:'sea',l:'Sea view'},{v:'golf',l:'Golf view'},{v:'garden',l:'Garden / Private'},{v:'no',l:'No preference'}];
+  var purpose=[{v:'',l:'Not specified'},{v:'perm',l:'Permanent residence'},{v:'holiday',l:'Holiday home'},{v:'invest',l:'Investment / Rental'},{v:'mixed',l:'Mixed use'}];
+  function chk(key,label,val){
+    return'<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--fog)">'+
+      '<span style="font-size:13px;color:var(--ink)">'+label+'</span>'+
+      '<select class="inp" id="req-'+key+'" style="width:auto;max-width:148px;font-size:11px;appearance:none;-webkit-appearance:none;padding:5px 28px 5px 10px;background:var(--card) url(\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23999%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>\') no-repeat right 8px center">'+
+      [{v:'',l:'—'},{v:'must',l:'✓ Must Have'},{v:'important',l:'◎ Important'},{v:'nice',l:'◇ Nice to Have'}].map(function(o){return'<option value="'+o.v+'"'+((val||'')==o.v?' selected':'')+'>'+o.l+'</option>';}).join('')+
+      '</select></div>';
+  }
+  var req=r.req||{};
+  return'<div style="margin-bottom:11px">'+sel('req-budget',budgets,req.budget||'','Budget range')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-minrooms',roomOpts,req.minrooms||'','Minimum bedrooms')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-type',types,req.type||'','Property type')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-view',views,req.view||'','View preference')+'</div>'+
+    '<div style="margin-bottom:11px">'+sel('req-purpose',purpose,req.purpose||'','Purpose')+'</div>'+
+    '<div style="margin-top:6px;margin-bottom:6px;font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em">Features & priorities</div>'+
+    chk('pool','Swimming pool',req.pool)+
+    chk('garage','Garage / Parking',req.garage)+
+    chk('garden','Garden / Terrace',req.garden)+
+    chk('beach','Walking distance to beach',req.beach)+
+    chk('restaurants','Walking distance to restaurants',req.restaurants)+
+    chk('golf','Near golf course',req.golf)+
+    chk('newbuild','New build',req.newbuild,'nb')+
+    chk('community','Gated community',req.community);
+}
+function readReq(){
+  var keys=['pool','garage','garden','beach','restaurants','golf','newbuild','community'];
+  var req={};
+  ['budget','minrooms','type','view','purpose'].forEach(function(k){req[k]=gv('req-'+k)||'';});
+  keys.forEach(function(k){req[k]=gv('req-'+k)||'';});
+  return req;
+}
+
+
+function toggleNewClientFeature(feat){
+  if(!window._newClientReq) window._newClientReq={mustHave:[],plus:[]};
+  var req=window._newClientReq;
+  req.mustHave=req.mustHave||[];
+  req.plus=req.plus||[];
+  var inMust=req.mustHave.indexOf(feat)>=0;
+  var inPlus=req.plus.indexOf(feat)>=0;
+  if(!inMust&&!inPlus){
+    req.mustHave.push(feat);
+  } else if(inMust){
+    req.mustHave=req.mustHave.filter(function(x){return x!==feat;});
+    req.plus.push(feat);
+  } else {
+    req.plus=req.plus.filter(function(x){return x!==feat;});
+  }
+  // Save form values before re-render
+  var saved={};
+  ['ac-name','ac-phone','ac-email','ac-nat','ac-notes','ac-budget','ac-minrooms','ac-type'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) saved[id]=el.value;
+  });
+  render();
+  // Restore form values after re-render
+  Object.keys(saved).forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.value=saved[id];
+  });
+}
+
+function toggleClientFeature(cid, feat){
+  var c=S.clients.find(function(x){return x.id===cid;});
+  if(!c)return;
+  c.req=c.req||{};
+  c.req.mustHave=c.req.mustHave||[];
+  c.req.plus=c.req.plus||[];
+  var inMust=c.req.mustHave.indexOf(feat)>=0;
+  var inPlus=c.req.plus.indexOf(feat)>=0;
+  if(!inMust&&!inPlus){
+    // First tap → Must Have
+    c.req.mustHave.push(feat);
+  } else if(inMust){
+    // Second tap → move to Plus
+    c.req.mustHave=c.req.mustHave.filter(function(x){return x!==feat;});
+    c.req.plus.push(feat);
+  } else {
+    // Third tap → Remove
+    c.req.plus=c.req.plus.filter(function(x){return x!==feat;});
+  }
+  persist();render();
+}
+function matchScore(c,p){
+  if(!c||!c.req)return null;
+  var req=c.req;
+  var hl=p.highlights||[];
+  var results=[];
+
+  // Budget check
+  if(req.budget){
+    var rawPrice=parseFloat((p.price||'').replace(/[^0-9.]/g,''))||0;
+    var budgetMap={'u100':100000,'100-200':200000,'200-300':300000,'300-500':500000,'500-800':800000,'800k+':9999999};
+    var bMax=budgetMap[req.budget]||9999999;
+    if(rawPrice>0) results.push({label:'Budget',pass:rawPrice<=bMax,level:'must'});
+  }
+
+  // Bedrooms check
+  if(req.minrooms){
+    var roomMap={'studio':0,'1':1,'2':2,'3':3,'4':4,'5':5};
+    var reqR=roomMap[req.minrooms]||parseInt(req.minrooms)||0;
+    var propR=parseInt(p.rooms)||0;
+    if(p.rooms) results.push({label:'Bedrooms',pass:propR>=reqR,level:'must'});
+  }
+
+  // Property type check
+  if(req.type&&req.type!=='any'&&p.title){
+    var tmap={apt:'apartment',villa:'villa',house:'townhouse',bungalow:'bungalow',penthouse:'penthouse'};
+    var keyword=(tmap[req.type]||req.type).toLowerCase();
+    results.push({label:'Property type',pass:(p.title+' '+(p.address||'')).toLowerCase().indexOf(keyword)>=0,level:'must'});
+  }
+
+  // Must Have features
+  (req.mustHave||[]).forEach(function(feat){
+    results.push({label:feat,pass:hl.indexOf(feat)>=0,level:'must'});
+  });
+
+  // Plus features
+  (req.plus||[]).forEach(function(feat){
+    results.push({label:feat,pass:hl.indexOf(feat)>=0,level:'plus'});
+  });
+
+  if(!results.length){
+    if(hl.length>0) return{score:Math.min(60,hl.length*10),results:[],highlights:hl};
+    return null;
+  }
+
+  var weights={must:3,plus:1};
+  var total=0,got=0;
+  results.forEach(function(r){var w=weights[r.level]||1;total+=w;if(r.pass)got+=w;});
+  var pct=total>0?Math.round(got/total*100):0;
+  return{score:pct,results:results,got:got,total:total};
+}
+function scoreBadge(ms){
+  if(!ms)return'';
+  var s=ms.score;
+  var col=s>=90?'#059669':s>=75?'#0284c7':s>=60?'#d97706':'#dc2626';
+  var bg=s>=90?'#ecfdf5':s>=75?'#eff6ff':s>=60?'#fffbeb':'#fef2f2';
+  var label=s>=90?'Excellent Match':s>=75?'Strong Match':s>=60?'Possible Match':'Weak Match';
+  return'<div style="display:inline-flex;align-items:center;gap:6px;background:'+bg+';border:1px solid '+col+'33;border-radius:8px;padding:5px 11px">'+
+    '<div style="font-size:16px;font-weight:700;color:'+col+'">'+s+'</div>'+
+    '<div><div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.08em">'+label+'</div>'+
+    '<div style="font-size:9px;color:#9e9a94">Match Score</div></div>'+
+    '</div>';
+}
+function scoreBreakdown(ms){
+  if(!ms||!ms.results.length)return'';
+  var passed=ms.results.filter(function(r){return r.pass;});
+  var failed=ms.results.filter(function(r){return!r.pass;});
+  var lvlIcon={must:'✓',important:'◎',nice:'◇'};
+  var rows='';
+  if(passed.length)rows+=passed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#059669;font-size:14px">&#10003;</span><span style="font-size:12px;color:#2D2B28">'+r.label+'</span><span style="font-size:10px;color:#9e9a94">('+r.level+')</span></div>';}).join('');
+  if(failed.length)rows+=failed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#dc2626;font-size:14px">&#10005;</span><span style="font-size:12px;color:#9e9a94">'+r.label+'</span><span style="font-size:10px;color:#9e9a94">('+r.level+')</span></div>';}).join('');
+  return'<div style="margin-top:10px;padding:12px;background:#f9f7f4;border-radius:8px">'+
+    '<div style="font-size:9px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Requirements breakdown</div>'+
+    rows+'</div>';
+}
+
+
+// ── Drive Time ──────────────────────────────────────────────────
+var _dtCache={};   // cache key "from||to" → result
+var _dtPending={}; // in-flight promises
+
+function dtKey(a,b){return(a||'')+'||'+(b||'');}
+
+function calcDriveTimes(day,onDone){
+  var locs=[];
+  // Use Meeting Point schedule item as starting location if present
+  var mpEv=(day.events||[]).find(function(e){return e.type==='meetingpoint';});
+  if(mpEv&&(mpEv.title||mpEv.note))locs.push(mpEv.title||(mpEv.note||''));
+  var props=[].concat(day.properties||[]).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
+  props.forEach(function(p){locs.push(p.mapsUrl||p.address||'');});
+  locs=locs.filter(function(x){return x&&x.trim();});
+  if(locs.length<2){if(onDone)onDone();return;}
+
+  var segments=[];
+  for(var i=0;i<locs.length-1;i++){
+    var k=dtKey(locs[i],locs[i+1]);
+    if(!_dtCache[k])segments.push({from:locs[i],to:locs[i+1]});
+  }
+  if(!segments.length){if(onDone)onDone();return;}
+
+  fetch('/.netlify/functions/drivetime',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({segments:segments})
+  }).then(function(r){return r.json();}).then(function(data){
+    if(data.results){
+      data.results.forEach(function(r){
+        var k=dtKey(r.from,r.to);
+        _dtCache[k]=r;
+      });
+    }
+    if(onDone)onDone();
+  }).catch(function(){
+    if(onDone)onDone();
+  });
+}
+
+function getDriveTime(from,to){
+  if(!from||!to)return null;
+  return _dtCache[dtKey(from,to)]||null;
+}
+
+function driveTimeHtml(from,to){
+  var dt=getDriveTime(from,to);
+  if(!dt)return'';
+  if(!dt.ok)return'<div style="display:flex;align-items:center;gap:10px;padding:10px 28px;background:#f5f2ec;border-bottom:1px solid #edeae4"><span style="font-size:11px;color:#9e9a94">Drive time unavailable</span></div>';
+  return'<div style="display:flex;align-items:center;gap:14px;padding:12px 28px;background:#f5f2ec;border-bottom:1px solid #edeae4">'+
+    '<div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #edeae4;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#128664;</div>'+
+    '<div style="display:flex;gap:16px;align-items:center">'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">'+dt.durationMin+' min</div><div style="font-size:10px;color:#9e9a94">drive</div></div>'+
+    '<div style="width:1px;height:24px;background:#edeae4"></div>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">'+dt.distanceKm+' km</div><div style="font-size:10px;color:#9e9a94">distance</div></div>'+
+    '</div></div>';
+}
+// ─────────────────────────────────────────────────────────────────
+var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
+
+function toggleHighlight(dayId,propId,label){
+  if(dayId==='__lib__'){
+    window._libNewHighlights=window._libNewHighlights||[];
+    var ni=window._libNewHighlights.indexOf(label);
+    if(ni>=0)window._libNewHighlights.splice(ni,1);
+    else window._libNewHighlights.push(label);
+    var wrap=document.getElementById('alp-hl-wrap');
+    if(wrap)wrap.innerHTML=hlPickerHtml('__lib__','__lib__',window._libNewHighlights);
+    return;
+  }
+  if(dayId==='__new__'){
+    window._newHighlights=window._newHighlights||[];
+    var ni=window._newHighlights.indexOf(label);
+    if(ni>=0)window._newHighlights.splice(ni,1);
+    else window._newHighlights.push(label);
+    var wrap=document.getElementById('ap-hl-wrap');
+    if(wrap)wrap.innerHTML=hlPickerHtml('__new__','__new__',window._newHighlights);
+    return;
+  }
+  var d=S.days.find(function(x){return x.id===dayId;});
+  if(!d)return;
+  var p=d.properties.find(function(x){return x.id===propId;});
+  if(!p)return;
+  p.highlights=p.highlights||[];
+  var idx=p.highlights.indexOf(label);
+  if(idx>=0)p.highlights.splice(idx,1);
+  else p.highlights.push(label);
+  persist();render();
+}
+function hlPickerHtml(dayId,propId,selected){
+  selected=selected||[];
+  var cats={};
+  HIGHLIGHTS.forEach(function(h){cats[h[0]]=cats[h[0]]||[];cats[h[0]].push(h);});
+  var html='<div style="margin-bottom:9px"><label class="lbl">Property Highlights</label>';
+  Object.keys(cats).forEach(function(cat){
+    html+='<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px">'+cat+'</div>';
+    html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+    cats[cat].forEach(function(h){
+      var on=selected.indexOf(h[2])>=0;
+      html+='<button onclick="toggleHighlight(\''+dayId+'\',\''+propId+'\',\''+h[2]+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;border:1.5px solid '+(on?'#C9A14A':'var(--fog)')+';background:'+(on?'#071226':'var(--mist)')+';color:'+(on?'#c9a84c':'var(--slate)')+';font-size:11px;font-weight:'+(on?'600':'400')+';cursor:pointer;font-family:inherit">'+
+        '<span style="display:inline-flex;align-items:center">'+(ICON[h[2]]||h[1])+'</span><span>'+h[2]+'</span>'+
+        '</button>';
+    });
+    html+='</div>';
+  });
+  html+='</div>';
+  return html;
+}
+
+
+function showMatchModal(propId){
+  var day=S._lastDay||curD();
+  if(!day){
+    // fallback: search all days
+    for(var di=0;di<S.days.length;di++){
+      var dp=S.days[di].properties||[];
+      if(dp.find(function(x){return x.id===propId;})){day=S.days[di];break;}
+    }
+  }
+  if(!day)return;
+  var p=day.properties.find(function(x){return x.id===propId;});
+  var c=S.clients.find(function(x){return x.id===(day.clientId||S.cid);});
+  if(!p)return;
+  var ms=matchScore(c,p);
+  var hl=p.highlights||[];
+
+  var col=ms&&ms.score>=90?'#059669':ms&&ms.score>=75?'#C9A14A':ms&&ms.score>=60?'#d97706':'#dc2626';
+  var label=ms&&ms.score>=90?'Excellent Match':ms&&ms.score>=75?'Good Match':ms&&ms.score>=60?'Fair Match':'Low Match';
+
+  var passed=ms?ms.results.filter(function(r){return r.pass;}).map(function(r){
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#059669;font-size:16px">&#10003;</span><span style="font-size:13px;color:#2D2B28">'+r.label+'</span></div>';
+  }).join(''):'';
+  var failed=ms?ms.results.filter(function(r){return!r.pass;}).map(function(r){
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#dc2626;font-size:16px">&#10005;</span><span style="font-size:13px;color:#9e9a94">'+r.label+'</span></div>';
+  }).join(''):'';
+  var hlHtml=hl.length?'<div style="margin-top:16px"><div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Property Highlights</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
+    hl.map(function(hlLabel){
+      var h=HIGHLIGHTS.find(function(x){return x[2]===hlLabel;})||['','&#9679;',hlLabel];
+      return'<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:#f5f2ec;border:1px solid #edeae4;font-size:11px;font-weight:500;color:#6b6560">'+h[1]+' '+esc(hlLabel)+'</span>';
+    }).join('')+'</div></div>':'';
+
+  var inner=document.getElementById('ms-modal-inner');
+  if(!inner)return;
+  inner.innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'+
+    '<div>'+
+    '<div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px">Client Match</div>'+
+    (ms&&ms.score!=null?
+      '<div style="font-size:32px;font-weight:700;color:'+col+';line-height:1">'+ms.score+'<span style="font-size:14px;font-weight:400;color:#9e9a94">/100</span></div>'
+    :
+      '<div style="margin-top:4px;padding:14px;background:#faf8f4;border-radius:10px;border:1px solid #edeae4">'+
+      '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:6px">No requirements profile yet</div>'+
+      '<div style="font-size:12px;color:#9e9a94;margin-bottom:12px;line-height:1.5">Add client requirements to see an accurate match score for this property.</div>'+
+      (c?'<button onclick="closeMatchModal();go(\'edit-client\',{cid:\''+c.id+'\'})" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#071226;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">Add requirements &#8250;</button>':'')+
+      '</div>'
+    )+
+    (ms&&ms.score!=null?'<div style="font-size:11px;color:'+col+';font-weight:600;margin-top:2px">'+label+'</div>':'')+
+    '</div>'+
+    '<button onclick="closeMatchModal()" style="width:36px;height:36px;border-radius:50%;background:#f5f2ec;border:none;cursor:pointer;font-size:18px;color:#6b5f4e;display:flex;align-items:center;justify-content:center">&#10005;</button>'+
+    '</div>'+
+    (ms&&ms.score!=null?'<div style="height:6px;background:#f5f2ec;border-radius:3px;margin-bottom:20px"><div style="height:100%;width:'+ms.score+'%;background:'+col+';border-radius:3px;transition:width .4s"></div></div>':'')+
+    (passed?'<div style="margin-bottom:4px"><div style="font-size:9px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Matched</div>'+passed+'</div>':'')+
+    (failed?'<div style="margin-top:12px"><div style="font-size:9px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Missing</div>'+failed+'</div>':'')+
+    hlHtml;
+
+  document.getElementById('ms-modal').classList.remove('ms-modal-hide');
+}
+function closeMatchModal(){
+  document.getElementById('ms-modal').classList.add('ms-modal-hide');
+}
+
+function generateWelcomeMsg(v){
+  var c=curC();var d=curD();if(!c||!d)return;
+  var firstName=c.name?c.name.split(" ")[0]:"";
+  var agentName=S.cfg.agent||"";
+  var req=c.req||{};
+  var purpose=req.purpose||"";
+  var props=[].concat(d.properties||[]).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var n=props.length;
+  var t=purpose==="holiday"?"holiday home":purpose==="invest"?"investment":purpose==="perm"?"permanent home":"property";
+  var v2=(v!=null?v:Math.floor(Math.random()*3))%3;
+  var sig=agentName?"\n\n"+agentName:"";
+  var msgs=[
+    "Dear "+firstName+",\n\nI have selected "+n+" propert"+(n===1?"y":"ies")+" based on the criteria we discussed. Each offers unique strengths and potential.\n\nI look forward to showing them to you today and helping you find the right "+t+"."+sig,
+    "Dear "+firstName+",\n\nWelcome to your personalised viewing day. The "+n+" properties I have chosen all meet your key requirements \u2014 I am confident at least one will feel right.\n\nI am here throughout the day to answer any questions."+sig,
+    "Dear "+firstName+",\n\nToday I will guide you through "+n+" carefully selected propert"+(n===1?"y":"ies")+". Each has been chosen with your specific needs in mind.\n\nMy goal is to help you find not just a property, but the right one."+sig
+  ];
+  d.welcomeMsg=msgs[v2];
+  persist();
+  var ta=document.getElementById("welcome-ta");
+  if(ta)ta.value=d.welcomeMsg;
+}
+
+function toggleTopPick(pid){
+  var d=curD();if(!d)return;
+  var pp=d.properties.find(function(x){return x.id===pid;});
+  if(!pp)return;
+  var was=pp.topPick;
+  d.properties.forEach(function(x){x.topPick=false;});
+  pp.topPick=!was;
+  persist();render();
+}
+
+function uploadExistingPropImg(input,dayId,propId){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){updProp(dayId,propId,{ogImage:e.target.result});render();};
+  reader.readAsDataURL(file);
+}
+
+function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});}
+function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
+function curD(){return S.days.find(function(d){return d.id===S.did;});}
+function openDay(did,cid){
+  S.did=did;S.cid=cid;
+  go('day-detail');
+  // pre-fetch drive times in background
+  var d=curD();
+  if(d)calcDriveTimes(d,function(){render();});
+}
+function cDays(cId){return S.days.filter(function(d){return d.clientId===cId;}).sort(function(a,b){return b.date.localeCompare(a.date);});}
+
+function go(screen,extra){if(extra)Object.assign(S,extra);S.screen=screen;S.addEv=false;render();}
+
+function showTab(tab){
+  S.tab=tab;S.screen=tab;S.cid=null;S.did=null;
+  ["home","clients","properties","settings"].forEach(function(t){
+    var btn=document.getElementById("nl-"+t);
+    if(btn)btn.className="nb"+(t===tab?" on":"");
+  });
+  render();
+}
+
+function hideSplash(){
+  var s=document.getElementById('splash');
+  if(!s)return;
+  // Ensure splash shows for at least 600ms, then fade
+  var shown=Date.now()-window._splashStart;
+  var delay=Math.max(0,600-shown);
+  setTimeout(function(){
+    s.style.opacity='0';
+    setTimeout(function(){s.style.display='none';},400);
+  },delay);
+}
+
+function render(){
+  var el=document.getElementById("app");
+  var navEl=document.querySelector('.nav');
+  if(navEl) navEl.className='nav ready';
+  var s=S.screen;
+
+
+  if(s==="pick-client")      {el.innerHTML=pgPickClient();return;}
+  if(s==="add-client")       {el.innerHTML=pgAddClient();return;}
+  if(s==="edit-client")      {el.innerHTML=pgEditClient();return;}
+  if(s==="client-detail")    {el.innerHTML=pgClientDetail();return;}
+  if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
+  if(s==="add-prop")         {el.innerHTML=pgAddProp();return;}
+  if(s==="pick-prop-source") {el.innerHTML=pgPickPropSource();return;}
+  if(s==="from-library")     {el.innerHTML=pgFromLibrary();return;}
+  if(s==="output")           {el.innerHTML=pgOutput();return;}
+  if(s==="edit-prop")        {el.innerHTML=pgDayDetail();return;}
+  if(s==="add-lib-prop")     {el.innerHTML=pgAddLibraryProp();return;}
+  if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
+  if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
+  if(S.tab==="days")         {el.innerHTML=pgDays();return;}
+  if(S.tab==="properties")   {el.innerHTML=pgProperties();return;}
+  el.innerHTML=pgHome();
+}
+
+// ── MUTATIONS ─────────────────────────────────────────────────────────────────
+function addClient(data){var c=Object.assign({id:uid()},data);S.clients=[c].concat(S.clients);persist();return c.id;}
+function updateClient(cid){
+  var c=S.clients.find(function(x){return x.id===cid;});
+  if(!c)return;
+  c.name=gv('ec-name')||c.name;
+  c.phone=gv('ec-phone')||'';
+  c.email=gv('ec-email')||'';
+  c.nationality=gv('ec-nat')||'';
+  c.note=gv('ec-note')||'';
+  c.req=c.req||{};
+  c.req.budget=gv('req-budget')||'';
+  c.req.minrooms=gv('req-minrooms')||'';
+  c.req.type=gv('req-type')||'';
+  // mustHave and plus are updated live via toggleClientFeature
+  persist();go('client-detail');
+}
+function delClient(id){S.clients=S.clients.filter(function(c){return c.id!==id;});S.days=S.days.filter(function(d){return d.clientId!==id;});persist();}
+function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();return d.id;}
+function updateDay(id,ch){S.days=S.days.map(function(d){return d.id===id?Object.assign({},d,ch):d;});persist();}
+function delDay(id){S.days=S.days.filter(function(d){return d.id!==id;});persist();}
+function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();}
+function updProp(did,pid,ch){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.map(function(p){return p.id===pid?Object.assign({},p,ch):p;})}):d;});persist();}
+function delProp(did,pid){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.filter(function(p){return p.id!==pid;})}):d;});persist();}
+function addEv(did,ev){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.concat([Object.assign({id:uid()},ev)])}):d;});persist();}
+function delEv(did,eid){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.filter(function(ev){return ev.id!==eid;})}):d;});persist();}
+
+// ── HOME ──────────────────────────────────────────────────────────────────────
+function fmtDateShort(d){if(!d)return"";try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});}catch(e){return d;}}
+function fmtDateNum(d){if(!d)return"";try{return new Date(d+"T12:00:00").getDate().toString();}catch(e){return"";}}
+function fmtDateMon(d){if(!d)return"";try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{month:"short"}).toUpperCase();}catch(e){return"";}}
+function pgHome(){
+  var today=new Date();
+  var yy=today.getFullYear(),mm=String(today.getMonth()+1).padStart(2,'0'),dd=String(today.getDate()).padStart(2,'0');
+  var todayStr=yy+'-'+mm+'-'+dd;
+  var dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var monthNames=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var todayLabel=dayNames[today.getDay()]+', '+today.getDate()+' '+monthNames[today.getMonth()];
+
+  var agentName=(S.cfg&&S.cfg.agent)?S.cfg.agent.split(' ')[0]:'';
+  var hour=today.getHours();
+  var greeting=hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+
+  // Sort days
+  var allDays=[].concat(S.days).sort(function(a,b){return a.date.localeCompare(b.date);});
+  var todayDay=allDays.find(function(d){return d.date===todayStr;});
+  var upcoming=allDays.filter(function(d){return d.date>todayStr;}).slice(0,4);
+  var recent=allDays.filter(function(d){return d.date<todayStr;}).sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,3);
+
+  function initials(name){
+    if(!name)return'?';
+    var parts=name.trim().split(' ');
+    return(parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function avatarBg(name){
+    var colors=['#071226','#071226','#071226','#071226','#071226'];
+    var i=name?name.charCodeAt(0)%colors.length:0;
+    return colors[i];
+  }
+  function fmtDate(d){
+    var parts=d.split('-');
+    var dt=new Date(parts[0],parseInt(parts[1])-1,parts[2]);
+    return dayNames[dt.getDay()].slice(0,3).toUpperCase()+'<br>'+dt.getDate();
+  }
+  function fmtTimeRange(day){
+    var props=(day.properties||[]).filter(function(p){return p.time;}).sort(function(a,b){return a.time.localeCompare(b.time);});
+    if(!props.length)return'';
+    return props[0].time+(props.length>1?' \u2013 '+props[props.length-1].time:'');
+  }
+  function firstArea(day){
+    var areas=(day.properties||[]).map(function(p){return p.area||'';}).filter(Boolean);
+    return areas[0]||'';
+  }
+  function hasLunch(day){
+    return (day.events||[]).some(function(e){return e.type==='lunch';});
+  }
+
+  // ── TODAY'S TOUR CARD ────────────────────────────────────────────────────
+  var isNew=S.days.length===0||S._showOnboarding===true;
+  var todayCard='';
+  if(todayDay&&!isNew){
+    var tc=S.clients.find(function(c){return c.id===todayDay.clientId;})||{name:'Unknown'};
+    var tProps=todayDay.properties||[];
+    var tTime=fmtTimeRange(todayDay);
+    var tArea=firstArea(todayDay);
+    var tLunch=hasLunch(todayDay);
+    var tEvs=(todayDay.events||[]).filter(function(e){return e.type!=='meetingpoint';});
+
+    todayCard='<div style="margin-bottom:32px">'+
+      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today\'s Tour</div>'+
+      '<div style="background:linear-gradient(145deg,#071226 0%,#071226 100%);border-radius:18px;padding:24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(7,18,38,.25)">'+
+      // Route dots decoration (right side)
+      '<svg style="position:absolute;right:18px;top:16px;opacity:.5" width="80" height="140" viewBox="0 0 80 140" fill="none">'+
+      '<circle cx="60" cy="18" r="5" fill="#C9A14A"/>'+
+      '<path d="M60 23 Q55 50 45 65 Q38 75 30 90 Q22 105 20 125" stroke="#C9A14A" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>'+
+      '<circle cx="45" cy="65" r="3.5" fill="#C9A14A"/>'+
+      '<circle cx="28" cy="96" r="3.5" fill="#C9A14A"/>'+
+      '<path d="M55 10 L65 10 L60 4 Z" fill="#C9A14A"/>'+
+      '</svg>'+
+      // Client name + time
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">'+
+      '<div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#fff;letter-spacing:-.3px;line-height:1.1;margin-bottom:6px">'+esc(tc.name)+'</div>'+
+      (tTime?'<div style="font-size:15px;color:#C9A14A;font-weight:400;letter-spacing:.01em;font-family:\'Cormorant Garamond\',serif">'+tTime+'</div>':'')+
+      '</div>'+
+      (tProps.length&&tTime?'<div style="text-align:center;background:rgba(201,161,74,.1);border:1.5px solid rgba(201,161,74,.3);border-radius:50%;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#C9A14A;font-weight:400;line-height:1.1">'+esc(tTime.split('\u2013')[0].trim())+'</div>'+
+      '<div style="font-size:7px;color:rgba(201,161,74,.55);text-transform:uppercase;letter-spacing:.14em;margin-top:2px">START</div>'+
+      '</div>':'')+
+      '</div>'+
+      // Info pills
+      '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">'+
+      (tProps.length?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.8)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">'+tProps.length+' propert'+(tProps.length===1?'y':'ies')+'</span></div>':'')+
+      (tLunch?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">Lunch included</span></div>':'')+
+      (tArea?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">'+esc(tArea)+'</span></div>':'')+
+      '</div>'+
+      // Open Tour button
+      '<button onclick="S.did=\''+todayDay.id+'\';S.cid=\''+todayDay.clientId+'\';go(\'output\')" style="width:100%;background:linear-gradient(90deg,#C9A14A,#d4a84b);color:#071226;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px">Open Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'+
+      '</div></div>';
+  }
+
+  // ── NO TOUR TODAY CARD ───────────────────────────────────────────────────
+  var noTourCard='';
+  if(!todayDay||isNew){
+    var hasUpcoming=upcoming.length>0;
+
+    if(isNew){
+      // ── ONBOARDING: brand new user ────────────────────────────────────────
+      var hasClients=S.clients.length>0;
+      var hasProps=(S.library||[]).length>0||S.days.some(function(d){return (d.properties||[]).length>0;});
+      var hasTours=S.days.length>0;
+      var stepsComplete=hasClients?hasProps?hasTours?3:2:1:0;
+
+      if(hasTours&&!S._showOnboarding){
+        // All done — graduation card
+        var latestDay=[].concat(S.days).sort(function(a,b){return b.date.localeCompare(a.date);})[0];
+        var latestClient=latestDay?S.clients.find(function(c){return c.id===latestDay.clientId;}):null;
+        noTourCard='<div style="margin-bottom:24px">'+
+          '<div style="background:linear-gradient(145deg,#071226,#0d1f38);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
+          '<div style="font-size:36px;margin-bottom:12px">&#127881;</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#fff;letter-spacing:-.3px;margin-bottom:8px">You\'re ready</div>'+
+          '<div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:6px">Everything is set up.</div>'+
+          '<div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:24px;line-height:1.6">Create and share beautiful viewing days with your clients.</div>'+
+          '<button onclick="go(\'new-day\')" style="width:100%;background:#C9A14A;color:#071226;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;letter-spacing:.02em">+ New Tour</button>'+
+          (latestDay?'<button onclick="S.did=\''+latestDay.id+'\';S.cid=\''+(latestClient?latestClient.id:'')+'\'\';go(\'output\')" style="width:100%;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Open latest tour</button>':'')+
+          '</div></div>';
+      } else {
+        // Progress indicator
+        var progressPct=Math.round(stepsComplete/3*100);
+        var progressBar='<div style="margin-bottom:20px">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+          '<div style="font-size:10px;font-weight:600;color:#6b6560;text-transform:uppercase;letter-spacing:.1em">Getting started</div>'+
+          '<div style="font-size:10px;color:#9e9a94">'+stepsComplete+' of 3 completed</div>'+
+          '</div>'+
+          '<div style="height:3px;background:#edeae4;border-radius:100px">'+
+          '<div style="height:100%;width:'+progressPct+'%;background:#C9A14A;border-radius:100px;transition:width .4s"></div>'+
+          '</div></div>';
+
+        function stepCard(num,title,sub,icon,action,active,done){
+          var border=done?'1.5px solid #C9A14A':active?'1.5px solid #C9A14A':'1px solid #edeae4';
+          var bg=done?'#fafaf8':active?'#fff':'#fff';
+          var opacity=active||done?'1':'0.38';
+          var iconBg=done?'#071226':active?'#071226':'#edeae4';
+          var iconStroke=done||active?'#C9A14A':'#9e9a94';
+          var badge=done
+            ?'<div style="width:22px;height:22px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>'
+            :active
+            ?'<span style="background:#071226;color:#C9A14A;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700">Step '+num+'</span>'
+            :'<span style="background:#f5f2ec;color:#9e9a94;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700">Step '+num+'</span>';
+          var clickAttr=active?('onclick="'+action+'" style="cursor:pointer;'):('style="');
+          return '<div '+clickAttr+'background:'+bg+';border:'+border+';border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;opacity:'+opacity+'">'+
+            '<div style="width:34px;height:34px;background:'+iconBg+';border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+            (done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>':icon)+
+            '</div>'+
+            '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">'+title+'</div>'+
+            '<div style="font-size:11px;color:#9e9a94">'+sub+'</div></div>'+
+            badge+'</div>';
+        }
+
+        var s1=stepCard(1,'Add your first client','Start by adding a buyer or investor',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasClients?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+          'go(\'add-client\')',!hasClients,hasClients);
+        var s2=stepCard(2,'Add your first property','Build your property library',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasProps?'#C9A14A':hasClients?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg>',
+          'goAddLibProp()',hasClients&&!hasProps,hasProps);
+        var s3=stepCard(3,'Create your first tour','Build your first viewing day',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasTours?'#C9A14A':hasProps?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+          'go(\'new-day\')',hasProps&&!hasTours,hasTours);
+
+        // Client view preview card
+        var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
+          '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
+          '<div onclick="showDemoClientView()" style="background:#071226;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(7,18,38,.2);cursor:pointer">'+
+          '<div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06)">'+
+          '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:6px">Personalised Viewing Day</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:2px">Erik Svensson</div>'+
+          '<div style="font-size:11px;color:rgba(255,255,255,.35)">Wednesday, 18 June</div>'+
+          '</div>'+
+          '<div style="padding:14px 18px;display:flex;gap:16px;border-bottom:1px solid rgba(255,255,255,.06)">'+
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">3</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">Properties</div></div>'+
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">10:00</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">Start</div></div>'+
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">13:30</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">End</div></div>'+
+          '</div>'+
+          '<div style="padding:12px 18px;background:rgba(255,255,255,.03)">'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:13px;color:rgba(255,255,255,.6);font-style:italic;line-height:1.6">&ldquo;I have carefully selected today\'s properties based on your preferences...&rdquo;</div>'+
+          '</div>'+
+          '<div style="padding:10px 18px;display:flex;gap:8px">'+
+          '<div style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:3px 10px;font-size:10px;color:#C9A14A">&#9989; Pool</div>'+
+          '<div style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:3px 10px;font-size:10px;color:#C9A14A">&#9989; Sea view</div>'+
+          '</div>'+
+          '</div></div>';
+
+        noTourCard='<div style="margin-bottom:24px">'+
+          '<div style="background:#F6F2E9;border-radius:18px;padding:22px 20px;border:1px solid #e8e0d0;margin-bottom:20px;text-align:center">'+
+          '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" style="margin-bottom:12px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:4px">Welcome to TourFlow</div>'+
+          '<div style="font-size:12px;color:#9e9a94;margin-bottom:16px">Let\'s get you set up in 3 simple steps</div>'+
+          progressBar+
+          '</div>'+
+          s1+s2+s3+
+          previewCard+
+          '</div>';
+      }
+    } else if(hasUpcoming){
+      // ── EXPERIENCED USER: has upcoming tours ──────────────────────────────
+      noTourCard='<div style="background:#F6F2E9;border-radius:18px;padding:16px 18px;border:1px solid #e8e0d0;margin-bottom:24px">'+
+        '<div>'+
+        '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px">Today</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#2D2B28">No tour scheduled</div>'+
+        '</div>'+
+        '<button onclick="go(\'new-day\')" style="background:#071226;color:#C9A14A;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ New tour</button>'+
+        '</div>';
+    } else {
+      // ── HAS CLIENTS but no upcoming — standard empty state ────────────────
+      noTourCard='<div style="margin-bottom:28px">'+
+        '<div style="background:#F6F2E9;border-radius:18px;padding:32px 24px;text-align:center;border:1px solid #e8e0d0">'+
+        '<svg width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;opacity:.7">'+
+        '<path d="M10 60 Q30 20 60 25 Q90 30 110 10"/>'+
+        '<rect x="42" y="35" width="16" height="18" rx="1"/>'+
+        '<path d="M40 35l10-10 10 10"/>'+
+        '<rect x="48" y="46" width="4" height="7"/>'+
+        '<circle cx="90" cy="20" r="8"/>'+
+        '<path d="M90 12V8M90 32v-4M82 20H78M102 20h-4"/>'+
+        '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
+        '<line x1="5" y1="62" x2="115" y2="62"/>'+
+        '</svg>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
+        '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
+        '<button onclick="go(\'new-day\')" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+        '</div></div>';
+    }
+  }
+
+  // ── QUICK ACTIONS ────────────────────────────────────────────────────────
+  function qaBtn(onclick,iconSvg,title,sub){
+    return '<button onclick="'+onclick+'" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:14px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
+      '<div style="width:34px;height:34px;background:#071226;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:9px">'+iconSvg+'</div>'+
+      '<div style="font-size:12px;font-weight:600;color:#2D2B28;margin-bottom:2px">'+title+'</div>'+
+      '<div style="font-size:10px;color:#9e9a94">'+sub+'</div>'+
+    '</button>';
+  }
+  var quickActions='<div style="margin-bottom:32px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Quick Actions</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+    qaBtn('go(\'new-day\')',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+      'New Tour','Plan a viewing day')+
+    qaBtn('showTab(\'days\')',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>',
+      'Open Existing','View your tours')+
+    qaBtn('go(\'add-client\')',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M19 8v6M22 11h-6"/></svg>',
+      'New Client','Add a buyer')+
+    qaBtn('goAddLibProp()',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/><path d="M17 5v6M20 8h-6"/></svg>',
+      'Add Property','Save to library')+
+    '</div></div>';
+
+  // ── CONTINUE WHERE LEFT OFF (no tour today) ──────────────────────────────
+  var continueSection='';
+  if(!todayDay&&recent.length){
+    continueSection='<div style="margin-bottom:28px">'+
+      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">Continue where you left off</div>'+
+      '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">'+
+      recent.map(function(d){
+        var rc=S.clients.find(function(c){return c.id===d.clientId;})||{name:'Unknown'};
+        var daysAgo=Math.round((today-new Date(d.date))/(1000*60*60*24));
+        var bg=avatarBg(rc.name);
+        return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="flex:0 0 auto;width:110px;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;font-family:inherit">'+
+          '<div style="width:40px;height:40px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">'+initials(rc.name)+'</div>'+
+          '<div style="font-size:12px;font-weight:600;color:#2D2B28;line-height:1.2;margin-bottom:3px">'+esc(rc.name.split(' ')[0])+'</div>'+
+          '<div style="font-size:10px;color:#9e9a94">'+daysAgo+'d ago</div>'+
+        '</button>';
+      }).join('')+
+      '</div></div>';
+  }
+
+  // ── UPCOMING TOURS ───────────────────────────────────────────────────────
+  var upcomingSection='';
+  if(upcoming.length){
+    upcomingSection='<div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em">Upcoming Tours</div>'+
+      '<button onclick="showTab(\'days\')" style="font-size:11px;color:#C9A14A;background:none;border:none;cursor:pointer;font-family:inherit">View all</button>'+
+      '</div>'+
+      upcoming.map(function(d){
+        var uc=S.clients.find(function(c){return c.id===d.clientId;})||{name:'Unknown'};
+        var uTime=fmtTimeRange(d);
+        var uArea=firstArea(d);
+        var bg=avatarBg(uc.name);
+        var dateStr=fmtDate(d.date);
+        return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="width:100%;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left">'+
+          '<div style="text-align:center;min-width:32px">'+
+          '<div style="font-size:8px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
+          '<div style="font-size:20px;font-weight:600;color:#2D2B28;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
+          '</div>'+
+          '<div style="width:36px;height:36px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+initials(uc.name)+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:1px">'+esc(uc.name)+'</div>'+
+          '<div style="font-size:11px;color:#9e9a94">'+[uTime,uArea].filter(Boolean).join(' \u00b7 ')+'</div>'+
+          '</div>'+
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
+        '</button>';
+      }).join('')+
+      '</div>';
+  }
+
+  // ── HEADER ───────────────────────────────────────────────────────────────
+  // Use shared topNav for consistency
+  var header=topNav();
+
+  var greeting_block='<div style="padding-bottom:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1.1;margin-bottom:3px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
+    '<div style="font-size:12px;color:#9e9a94;font-weight:400">'+todayLabel+'</div>'+
+    '</div>';
+
+  return '<div class="mobile-view"><div class="wrap" style="background:#FCFBF7;min-height:100vh">'+
+    header+
+    greeting_block+
+    todayCard+
+    noTourCard+
+    (todayDay?quickActions:'')+
+    continueSection+
+    (todayDay?'':quickActions)+
+    upcomingSection+
+    '</div></div>';
+}
+function quickDay(){
+  if(S.clients.length===0){go("add-client");return;}
+  if(S.clients.length===1){
+    var id=addDay(S.clients[0].id);
+    go("day-detail",{did:id,cid:S.clients[0].id});
+    return;
+  }
+  go("pick-client");
+}
+
+// ── CLIENTS ───────────────────────────────────────────────────────────────────
+function pgClients(){
+  function pageHeader(title, actionLabel, actionFn){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
+      '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
+      '</div>';
+  }
+
+  var h='<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    pageHeader('Clients','+ New client',"go('add-client')");
+
+  if(S.clients.length===0){
+    h+='<div style="text-align:center;padding:48px 24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No clients yet</div>'+
+      '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Add your first client to get started</div>'+
+      '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'add-client\')">Add client</button></div>';
+  } else {
+    h+=S.clients.map(function(c){
+      var cd=cDays(c.id);
+      var req=c.req||{};
+      var upc=cd.filter(function(d){return dayStatus(d.date)!=="done";});
+      var budgetLabels={"u100":"< €100k","100-200":"€100–200k","200-300":"€200–300k","300-500":"€300–500k","500-800":"€500–800k","800k+":"> €800k"};
+      var budgetStr=req.budget?budgetLabels[req.budget]||(c.budget||""):c.budget||"";
+
+      // Avatar with initials
+      var ini=initials(c.name);
+      var bgColors=["#071226","#071226","#071226","#071226","#071226"];
+      var bg=bgColors[c.name.charCodeAt(0)%bgColors.length];
+
+      return '<div onclick="go(\'client-detail\',{cid:\''+c.id+'\'})" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
+        '<div style="width:42px;height:42px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:15px;font-weight:500;color:#2D2B28;margin-bottom:3px">'+esc(c.name)+'</div>'+
+        '<div style="font-size:12px;color:#9e9a94;margin-bottom:6px">'+
+          (c.phone?esc(c.phone):'')+(c.nationality?' &middot; '+esc(c.nationality):'')+
+        '</div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+        (upc.length?'<span style="background:#eff6ff;color:#2F6BFF;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:600">'+upc.length+' upcoming</span>':'')+
+        (cd.length?'<span style="background:#f5f2ec;color:#6b6560;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500">'+cd.length+' day'+(cd.length===1?"":"s")+'</span>':"")+
+        (budgetStr?'<span style="background:#fef9ec;color:#92670a;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500">'+esc(budgetStr)+'</span>':"")+
+        '</div></div>'+
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
+      '</div>';
+    }).join("");
+  }
+  return h+'</div>';
+}
+function pgClientDetail(){
+  var c=curC();if(!c)return"";
+  var cd=cDays(c.id);
+  var up=cd.filter(function(d){return dayStatus(d.date)!=="done";});
+  var dn=cd.filter(function(d){return dayStatus(d.date)==="done";});
+  function drow(d){
+    return '<div class="dc" onclick="openDay(\''+d.id+'\',\''+c.id+'\')">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+      '<div><div style="font-size:14px;font-weight:500;color:var(--ink)">'+fmtDate(d.date)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate);margin-top:2px">'+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div></div>'+
+      '<div style="display:flex;gap:8px;align-items:center">'+statusBadge(dayStatus(d.date))+
+      '<button class="bico" onclick="event.stopPropagation();if(confirm(\'Delete this day?\'))delDay(\''+d.id+'\');render()">&#215;</button></div></div>'+
+      (d.properties.length>0?'<div style="display:flex;gap:6px;margin-top:9px;overflow-x:auto">'+
+        d.properties.slice(0,3).map(function(p){
+          return '<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--slate);white-space:nowrap">'+
+            (p.time?'<span style="font-weight:600;color:var(--ink);margin-right:3px">'+esc(p.time)+'</span>':'')+
+            esc(p.title?p.title.slice(0,20)+(p.title.length>20?"...":""):getDomain(p.url))+'</div>';
+        }).join("")+(d.properties.length>3?'<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:#9e9a94">+'+(d.properties.length-3)+' more</div>':'')
+      +'</div>':'')+'</div>';
+  }
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="showTab(\'clients\')">&#8592; All clients</button>'+
+    '<div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">'+
+    '<div style="width:52px;height:52px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--brass);flex-shrink:0">'+esc(initials(c.name))+'</div>'+
+    '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
+    '<div style="font-size:13px;color:var(--slate)">'+esc(c.phone||"")+'</div></div>'+
+    '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="go(\'edit-client\')">Edit</button>'+
+    '<button class="bico" onclick="doDeleteClient()">&times;</button></div>'+
+    '<div class="card" style="margin-bottom:18px">'+
+    (function(){
+      var req=c.req||{};
+      var budgetLabels={'u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+      var budgetStr=req.budget?budgetLabels[req.budget]||req.budget:(c.budget||'');
+      var mustHave=req.mustHave||[];
+      var plus=req.plus||[];
+
+      var reqHtml='<div class="g2">'+
+        '<div><label class="lbl">Budget</label><div style="font-size:14px">'+esc(budgetStr||'&#8212;')+'</div></div>'+
+        '<div><label class="lbl">Nationality</label><div style="font-size:14px">'+esc(c.nationality||'&#8212;')+'</div></div>'+
+        '</div>';
+
+      // Must Have chips
+      if(mustHave.length){
+        reqHtml+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog)">'+
+          '<label class="lbl">Must Have</label>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'+
+          mustHave.map(function(f){
+            return '<span style="display:inline-flex;align-items:center;gap:4px;background:#071226;color:#c9a84c;border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600">'+
+              (ICON[f]?'<span style="display:inline-flex;align-items:center">'+ICON[f]+'</span>':'')+f+'</span>';
+          }).join('')+
+          '</div></div>';
+      }
+
+      // Plus chips
+      if(plus.length){
+        reqHtml+='<div style="margin-top:8px">'+
+          '<label class="lbl">Plus</label>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">'+
+          plus.map(function(f){
+            return '<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(201,161,74,.1);color:#C9A14A;border-radius:100px;padding:4px 10px;font-size:11px;border:1px solid rgba(201,161,74,.3)">'+
+              (ICON[f]?'<span style="display:inline-flex;align-items:center">'+ICON[f]+'</span>':'')+f+'</span>';
+          }).join('')+
+          '</div></div>';
+      }
+
+      // Notes (legacy)
+      if(c.notes&&!mustHave.length){
+        reqHtml+='<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog)"><label class="lbl">Notes</label><div style="font-size:13px;color:var(--slate);line-height:1.6">'+esc(c.notes)+'</div></div>';
+      } else if(c.note){
+        reqHtml+='<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--fog)"><label class="lbl">Notes</label><div style="font-size:13px;color:var(--slate);line-height:1.6">'+esc(c.note)+'</div></div>';
+      }
+      return reqHtml;
+    })()+
+    '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--fog);display:flex;gap:14px">'+
+    (c.phone?'<a href="tel:'+esc(c.phone)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#128222; Call</a>':'')+
+    (c.email?'<a href="mailto:'+esc(c.email)+'" style="font-size:12px;color:var(--brass);font-weight:500;text-decoration:none">&#9993; Email</a>':'')+
+    '</div></div>'+
+    '<button class="btn" onclick="newDayFor(\''+c.id+'\')">+ New viewing day</button>'+
+    (up.length?'<div class="sec-sm" style="margin-top:4px">Upcoming</div>'+up.map(drow).join(""):"")+
+    (dn.length?'<div class="sec-sm" style="margin-top:16px">Completed</div>'+dn.map(drow).join(""):"")+
+    (cd.length===0?'<div class="emp" style="margin-top:8px"><div style="font-size:32px;margin-bottom:10px">&#128197;</div><div style="font-size:14px;color:var(--slate)">No viewing days yet</div></div>':"")+
+    '</div>';
+}
+function newDayFor(cId){var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
+
+// ── ADD CLIENT ────────────────────────────────────────────────────────────────
+function confirmDeleteClient(cid,name){if(confirm("Delete "+name+" and all their viewing days?\nThis cannot be undone.")){delClient(cid);showTab("clients");}}
+function doDeleteProp(){
+  var day=curD();if(!day)return;
+  var p=(day.properties||[]).find(function(x){return x.id===S.epid;});
+  if(!p)return;
+  var title=p.title||p.address||'this property';
+  if(confirm('Remove '+title+'?\nThis cannot be undone.')){
+    delProp(day.id,p.id);
+    S.epid=null;
+    render();
+  }
+}
+function doDeletePropById(pid){
+  var m=(window._propMap||{})[pid]||{};
+  var title=m.title||'this property';
+  if(confirm('Remove '+title+'?\nThis cannot be undone.')){
+    delProp(m.did,pid);
+    S.epid=null;
+    render();
+  }
+}
+function doDeleteClient(){var c=S.clients.find(function(x){return x.id===S.cid;});if(!c)return;if(confirm("Delete "+c.name+" and all their viewing days?\nThis cannot be undone.")){delClient(c.id);showTab("clients");}}
+function pgPickClient(){
+  var rows=S.clients.map(function(c){
+    var cd=cDays(c.id);
+    return '<div class="cc" onclick="newDayFor(\''+c.id+'\')">'+
+      '<div class="av">'+esc(initials(c.name))+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+      '<div style="font-size:15px;font-weight:500;color:var(--ink);margin-bottom:2px">'+esc(c.name)+'</div>'+
+      '<div style="font-size:12px;color:var(--slate)">'+cd.length+' day'+(cd.length===1?"":"s")+
+      (c.nationality?' &middot; '+esc(c.nationality):'')+'</div></div>'+
+      '<span style="color:#C9A14A;font-size:18px">+</span></div>';
+  }).join("");
+  return '<div class="wrap">'+
+    '<button class="bback" onclick="showTab(\'home\')">&#8592; Cancel</button>'+
+    '<div class="sec">Choose client</div>'+
+    '<div style="margin-bottom:14px">'+rows+'</div>'+
+    '<div style="border-top:1px solid var(--fog);padding-top:14px">'+
+    '<button class="btn btn-g" onclick="go(\'add-client\')">+ New client instead</button>'+
+    '</div></div>';
+}
+function pgAddClient(){
+  // Temp storage for new client features before saving
+  if(!window._newClientReq) window._newClientReq={mustHave:[],plus:[]};
+  var req=window._newClientReq;
+  var mustHave=req.mustHave||[];
+  var plus=req.plus||[];
+
+  var features=[
+    ['Pool',''],['Walking distance to beach',''],['Sea view',''],
+    ['South facing',''],['Private garden',''],['Large terrace',''],
+    ['Quiet area',''],['Gated community',''],['Garage',''],
+    ['Near golf',''],['Prime location',''],['Close to amenities',''],
+    ['Restaurants nearby',''],['New build',''],['Key ready',''],
+    ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
+    ['Rental potential',''],['Family friendly',''],['Investment property','']
+  ];
+
+  function tempChip(name,emoji){
+    var inMust=mustHave.indexOf(name)>=0;
+    var inPlus=plus.indexOf(name)>=0;
+    var bg=inMust?'#071226':inPlus?'rgba(201,161,74,.12)':'var(--mist)';
+    var brd=inMust?'#C9A14A':inPlus?'rgba(201,161,74,.5)':'var(--fog)';
+    var col=inMust?'#c9a84c':inPlus?'#C9A14A':'var(--slate)';
+    var fw=inMust||inPlus?'600':'400';
+    var badge=inMust?' <span style="font-size:8px;background:#C9A14A;color:#071226;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
+              :inPlus?' <span style="font-size:8px;color:#C9A14A;font-weight:600">+</span>':'';
+    var icon=ICON[name]||(emoji||'');
+    return '<button onclick="toggleNewClientFeature(\''+name+'\')" style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:100px;border:1.5px solid '+brd+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;margin:2px;transition:all .1s">'+
+      '<span style="display:inline-flex;align-items:center;line-height:1">'+icon+'</span>'+
+      '<span>'+name+'</span>'+badge+
+      '</button>';
+  }
+
+  var chips=features.map(function(f){return tempChip(f[0],f[1]);}).join('');
+
+  var mustHtml=mustHave.length?
+    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var plusHtml=plus.length?
+    '<div><span style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var summary=(mustHtml||plusHtml)?
+    '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
+
+  var budgetOpts=['','u100','100-200','200-300','300-500','500-800','800k+'];
+  var budgetLabels={'':'Any','u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+  var roomOpts=['','studio','1','2','3','4','5+'];
+  var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
+  var typeOpts=['any','apt','villa','house','bungalow','penthouse'];
+  var typeLabels={'any':'Any type','apt':'Apartment','villa':'Villa','house':'House / Townhouse','bungalow':'Bungalow','penthouse':'Penthouse'};
+  function sel(id,opts,labels,val){
+    return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
+  }
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="window._newClientReq=null;showTab(\'clients\')">&#8592; Cancel</button>'+
+    '<div class="sec">New Client</div>'+
+    '<div class="card">'+
+    '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Erik Svensson"/></div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ac-phone" placeholder="+46 70 000 00 00"/></div>'+
+      '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="erik@email.com"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Swedish"/></div>'+
+      '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Brief notes..."/></div>'+
+    '</div>'+
+    '</div>'+
+    '<div style="border-top:none;padding-top:0;margin-top:16px">'+
+    '<div class="sec-sm" style="margin-bottom:12px">Essential Requirements</div>'+
+    '<div class="card">'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Budget (max)</label>'+sel('ac-budget',budgetOpts,budgetLabels,'')+'</div>'+
+      '<div><label class="lbl">Min bedrooms</label>'+sel('ac-minrooms',roomOpts,roomLabels,'')+'</div>'+
+    '</div>'+
+    '<div><label class="lbl">Property type</label>'+sel('ac-type',typeOpts,typeLabels,'any')+'</div>'+
+    '</div>'+
+    '<div class="sec-sm" style="margin-top:16px;margin-bottom:2px">Wishlist</div>'+
+    '<div style="font-size:11px;color:var(--dust);margin-bottom:12px">Tap once = <b>Must Have</b> &nbsp;·&nbsp; Tap again = <b>+ Plus</b> &nbsp;·&nbsp; Tap again = Remove</div>'+
+    summary+
+    '<div style="display:flex;flex-wrap:wrap;margin-bottom:16px">'+chips+'</div>'+
+    '</div>'+
+    '<button class="btn" onclick="saveAddClient()">Save client</button>'+
+    '</div>';
+}
+function saveAddClient(){
+  var n=gv("ac-name");if(!n){alert("Please enter a name.");return;}
+  var req=window._newClientReq||{mustHave:[],plus:[]};
+  req.budget=gv("ac-budget")||'';
+  req.minrooms=gv("ac-minrooms")||'';
+  req.type=gv("ac-type")||'any';
+  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),note:gv("ac-notes"),req:req});
+  window._newClientReq=null;
+  go("client-detail",{cid:id});
+}
+
+// ── EDIT CLIENT ───────────────────────────────────────────────────────────────
+function clientFeatureState(c,name){
+  var req=c.req||{};
+  var inMust=(req.mustHave||[]).indexOf(name)>=0;
+  var inPlus=(req.plus||[]).indexOf(name)>=0;
+  return inMust?'must':inPlus?'plus':'none';
+}
+function clientFeatureChip(c,name,emoji){
+  var state=clientFeatureState(c,name);
+  var isMust=state==='must', isPlus=state==='plus';
+  var bg=isMust?'#071226':isPlus?'rgba(201,161,74,.12)':'var(--mist)';
+  var brd=isMust?'#C9A14A':isPlus?'rgba(201,161,74,.5)':'var(--fog)';
+  var col=isMust?'#c9a84c':isPlus?'#C9A14A':'var(--slate)';
+  var fw=isMust||isPlus?'600':'400';
+  var badge=isMust?' <span style="font-size:8px;background:#C9A14A;color:#071226;border-radius:100px;padding:1px 5px;font-weight:700">MUST</span>'
+            :isPlus?' <span style="font-size:8px;color:#C9A14A;font-weight:600">+</span>':'';
+  var icon=ICON[name]||(emoji||'');
+  return '<button onclick="toggleClientFeature(\''+c.id+'\',\''+name+'\')" style="display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border-radius:100px;border:1.5px solid '+brd+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;margin:2px;transition:all .1s">'+
+    '<span style="display:inline-flex;align-items:center;line-height:1">'+icon+'</span>'+
+    '<span>'+name+'</span>'+badge+
+    '</button>';
+}
+function pgEditClient(){
+  var c=curC();if(!c)return"";
+  var req=c.req||{};
+  var mustHave=req.mustHave||[];
+  var plus=req.plus||[];
+
+  var features=[
+    ['Pool',''],['Walking distance to beach',''],['Sea view',''],
+    ['South facing',''],['Private garden',''],['Large terrace',''],
+    ['Quiet area',''],['Gated community',''],['Garage',''],
+    ['Near golf',''],['Prime location',''],['Close to amenities',''],
+    ['Restaurants nearby',''],['New build',''],['Key ready',''],
+    ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
+    ['Rental potential',''],['Family friendly',''],['Investment property','']
+  ];
+
+  var chips=features.map(function(f){return clientFeatureChip(c,f[0],f[1]);}).join('');
+
+  var mustHtml=mustHave.length?
+    '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var plusHtml=plus.length?
+    '<div style="margin-bottom:10px"><span style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+  var summary=(mustHtml||plusHtml)?
+    '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
+
+  var budgetOpts=['','u100','100-200','200-300','300-500','500-800','800k+'];
+  var budgetLabels={'':'Any','u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+  var roomOpts=['','studio','1','2','3','4','5+'];
+  var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
+  var typeOpts=['any','apt','villa','house','bungalow','penthouse'];
+  var typeLabels={'any':'Any type','apt':'Apartment','villa':'Villa','house':'House / Townhouse','bungalow':'Bungalow','penthouse':'Penthouse'};
+
+  function sel(id,opts,labels,val){
+    return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
+  }
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="go(\'client-detail\')">&#8592; Cancel</button>'+
+    '<div class="sec">Client Profile</div>'+
+    '<div class="card">'+
+    '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ec-name" value="'+esc(c.name||'')+'"/></div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/></div>'+
+      '<div><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" placeholder="Swedish" value="'+esc(c.nationality||'')+'"/></div>'+
+      '<div><label class="lbl">Notes</label><input class="inp" id="ec-note" value="'+esc(c.note||'')+'"/></div>'+
+    '</div>'+
+    '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
+    '<div class="sec-sm" style="margin-bottom:12px">Essential Requirements</div>'+
+    '<div class="g2" style="margin-bottom:13px">'+
+      '<div><label class="lbl">Budget (max)</label>'+sel('req-budget',budgetOpts,budgetLabels,req.budget||'')+'</div>'+
+      '<div><label class="lbl">Min bedrooms</label>'+sel('req-minrooms',roomOpts,roomLabels,req.minrooms||'')+'</div>'+
+    '</div>'+
+    '<div style="margin-bottom:16px"><label class="lbl">Property type</label>'+sel('req-type',typeOpts,typeLabels,req.type||'any')+'</div>'+
+    '</div>'+
+    '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
+    '<div class="sec-sm" style="margin-bottom:2px">Wishlist</div>'+
+    '<div style="font-size:11px;color:var(--dust);margin-bottom:12px">Tap once = <b>Must Have</b> &nbsp;·&nbsp; Tap again = <b>+ Plus</b> &nbsp;·&nbsp; Tap again = Remove</div>'+
+    summary+
+    '<div style="display:flex;flex-wrap:wrap;margin-bottom:16px">'+chips+'</div>'+
+    '</div>'+
+    '<button class="btn" onclick="updateClient(\''+c.id+'\')" style="margin-top:8px">Save profile</button>'+
+    '</div>'+
+    '</div>';
+}
+function saveEditClient(){
+  var n=gv("ec-name");if(!n){alert("Please enter a name.");return;}
+  var rq=readReq();
+  var budgetLabels={'u100':'Under €100k','100-200':'€100k–€200k','200-300':'€200k–€300k','300-500':'€300k–€500k','500-800':'€500k–€800k','800k+':'€800k+'};
+  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),notes:gv("ec-notes"),budget:budgetLabels[rq.budget]||'',req:rq});
+  go("client-detail");
+}
+
+// ── ALL DAYS ──────────────────────────────────────────────────────────────────
+function pgDays(){
+  var sorted=[].concat(S.days).sort(function(a,b){return a.date.localeCompare(b.date);});
+  var up=sorted.filter(function(d){return dayStatus(d.date)!=="done";});
+  var dn=sorted.filter(function(d){return dayStatus(d.date)==="done";});
+
+  function pageHeader(title, actionLabel, actionFn){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
+      '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
+      '</div>';
+  }
+
+  function drow(d){
+    var c=S.clients.find(function(c){return c.id===d.clientId;})||{name:"Unknown"};
+    var done=dayStatus(d.date)==="done";
+    var badge=done
+      ?'<span style="background:#f3f4f6;color:#6b6560;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">Completed</span>'
+      :'<span style="background:#eff6ff;color:#2F6BFF;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">Upcoming</span>';
+
+    var ini=initials(c.name);
+    var bgColors=["#071226","#071226","#071226","#071226","#071226"];
+    var bg=bgColors[c.name.charCodeAt(0)%bgColors.length];
+
+    return '<div onclick="openDay(\''+d.id+'\',\''+d.clientId+'\')" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+      '<div style="font-size:15px;font-weight:500;color:#2D2B28">'+fmtDate(d.date)+'</div>'+
+      badge+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:10px">'+
+      '<div style="width:28px;height:28px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
+      '<div style="font-size:13px;color:#6b6560">'+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div>'+
+      '</div>'+
+      '</div>';
+  }
+
+  function sectionLabel(txt){
+    return '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">'+txt+'</div>';
+  }
+
+  var h='<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    pageHeader('Days','+ New day',"go('new-day')");
+
+  if(S.days.length===0){
+    h+='<div style="text-align:center;padding:48px 24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No viewing days yet</div>'+
+      '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Create your first viewing day to get started</div>'+
+      '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'new-day\')">New viewing day</button></div>';
+  } else {
+    if(up.length) h+=sectionLabel('Upcoming')+up.map(drow).join("");
+    if(dn.length) h+='<div style="margin-top:24px">'+sectionLabel('Completed')+dn.map(drow).join("")+'</div>';
+  }
+
+  return h+'</div>';
+}
+function pgDayDetail(){
+  var day=curD();var c=curC();if(!day)return"";
+  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var evs=day.events||[];
+
+  window._propMap={};
+  var pCards=props.map(function(p){
+    var io=S.epid===p.id,ii=S.eiid===p.id;
+    var ep="";
+    if(io){
+      var bf=[["Title","title","Sun-Filled Apartment in La Zenia"],["Address","address","Calle del Mar 12"],["Area","area","La Zenia"],["Bedrooms","rooms","2 bedrooms"],["Bathrooms","bathrooms","2 bathrooms"],["Built size","sqm","78 m2"]];
+      var iff=[["Commission","commission","2.5%"],["Contact","contact","Maria Garcia"],["Phone","contactPhone","+34 600 000 000"],["Firm","firm","Costa Realty"],["Location/access","location","Key at front desk"],["Notes","note","Other info"]];
+      ep='<div style="padding:0 14px 14px;border-top:1px solid var(--fog)">'+
+        '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
+        (p.ogImage
+          ?'<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:4px;border:1px solid var(--fog)"><img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/><button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{ogImage:\'\'});render()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:5px;font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit">Remove</button></div>'
+          :'<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+          '<span style="font-size:12px;color:var(--slate)">Upload property photo</span>'+
+          '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
+        '</div>'+
+        '<div class="g2" style="margin:12px 0 10px">'+
+        '<div><label class="lbl">Time</label><input type="time" class="inp ins" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
+        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)||this.value})"/></div></div>'+
+        bf.map(function(f,fi){
+          var isAddrField=f[1]==='address'&&bf[fi+1]&&bf[fi+1][1]==='area';
+          var isAreaPair=f[1]==='area'&&bf[fi-1]&&bf[fi-1][1]==='address';
+          var isRoomsField=f[1]==='rooms'&&bf[fi+1]&&bf[fi+1][1]==='bathrooms';
+          var isBathPair=f[1]==='bathrooms'&&bf[fi-1]&&bf[fi-1][1]==='rooms';
+          var isNumeric=f[1]==='rooms'||f[1]==='bathrooms'||f[1]==='sqm';
+          var maxLen=f[1]==='sqm'?'5':'2';
+          var numAttrs=isNumeric?' inputmode="numeric" maxlength="'+maxLen+'" oninput="this.value=this.value.replace(/[^0-9]/g,\'\').slice(0,'+maxLen+');updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"':' oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"';
+          var inp='<div style="margin-bottom:14px"><label class="lbl">'+f[0]+'</label><input class="inp ins" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'"'+numAttrs+'/></div>';
+          if(isAddrField){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return'<div class="g2" style="margin-bottom:14px">'+inp2;}
+          if(isAreaPair){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return inp2+'</div>';}
+          if(isRoomsField){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return'<div class="g2" style="margin-bottom:14px">'+inp2;}
+          if(isBathPair){var inp2=inp.replace('margin-bottom:14px','margin-bottom:0');return inp2+'</div>';}
+          return inp;
+        }).join("")+
+        '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
+        '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
+        (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
+        '</div>'+
+        hlPickerHtml(day.id,p.id,p.highlights)+
+        '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9a94;font-weight:300;font-size:10px\">optional</span></label>'+
+        '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
+        '<div style="margin-bottom:9px">'+
+        '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Annual costs <span style="font-size:9px;color:#9e9a94;font-weight:400;text-transform:none;letter-spacing:0">— optional</span></div>'+
+        '<div class="g2" style="margin-bottom:9px">'+
+        '<div><label class="lbl">Community fee / yr</label><input class="inp ins" value="'+esc(p.communityFee||'')+'" placeholder="e.g. €1,200" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{communityFee:this.value})"/></div>'+
+        '<div><label class="lbl">IBI / yr</label><input class="inp ins" value="'+esc(p.ibi||'')+'" placeholder="e.g. €450" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{ibi:this.value})"/></div>'+
+        '</div>'+
+        '<div style="margin-bottom:9px"><label class="lbl">Basura / yr</label><input class="inp ins" style="max-width:48%" value="'+esc(p.basura||'')+'" placeholder="e.g. €150" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{basura:this.value})"/></div>'+
+        '</div>'+
+        '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
+        '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
+        '<div style="font-size:11px;color:#9e9a94">Highlight this property for the client</div></div>'+
+        '<button onclick="var d=curD();var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp){var was=pp.topPick;d.properties.forEach(function(x){x.topPick=false;});pp.topPick=!was;}persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#C9A14A':'#edeae4')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
+        '</div>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">'+
+        '<div><label class="lbl">Travel time</label>'+
+        '<input class="inp ins" value="'+esc(p.travelTime||'')+'" placeholder="12 min drive" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{travelTime:this.value})"/></div>'+
+        '<div><label class="lbl">Area highlight</label>'+
+        '<input class="inp ins" value="'+esc(p.areaNote||'')+'" placeholder="Beachfront area" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{areaNote:this.value})"/></div>'+
+        '</div>'+
+        '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
+        '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
+        '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
+        '<span style="background:#fef9ec;color:#92400e;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:600">Not shown to client</span></div>'+
+        '<span style="color:#c8bfb0">'+(ii?"&#9650;":"&#9660;")+'</span></button>'+
+        (ii?'<div style="background:#fffbf0;border-radius:0 0 8px 8px;padding:10px 12px">'+
+          iff.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
+            '<input class="inp ins" style="background:#fffbf0" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
+          '</div>':'')+
+        '<div style="border-top:1px solid var(--fog);margin-top:14px;padding-top:14px;display:flex;align-items:center;justify-content:space-between">'+
+        '<div style="font-size:12px;font-weight:600;color:var(--ink)">Status</div>'+
+        '<div style="display:flex;gap:8px">'+
+        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:false});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.sold?'var(--fog)':'#C9A14A')+';background:'+(p.sold?'var(--mist)':'#071226')+';color:'+(p.sold?'var(--slate)':'#C9A14A')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Active</button>'+
+        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:true});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.sold?'#C9A14A':'var(--fog)')+';background:'+(p.sold?'#071226':'var(--mist)')+';color:'+(p.sold?'#C9A14A':'var(--slate)')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Sold</button>'+
+        '</div></div>'+
+        '</div>';
+    }
+    window._propMap[p.id]={did:day.id,title:p.title||p.address||'Property'};
+    return '<div class="pc">'+
+      '<div style="padding:12px 14px;display:flex;gap:10px;align-items:flex-start">'+
+      '<div style="flex:1;min-width:0">'+
+      (p.time?'<div style="font-weight:600;font-size:14px;color:var(--ink);margin-bottom:2px">'+esc(p.time)+'</div>':'')+
+      ('')+
+      '<div style="font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(p.title||p.address||getDomain(p.url))+'</div>'+
+      '<div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap">'+
+      (p.price?'<span class="pill pill-br">'+esc(p.price)+'</span>':'')+
+      (p.rooms?'<span class="pill">'+esc(p.rooms)+'</span>':'')+
+      (p.url?'<a style="font-size:10px;color:var(--brass);font-weight:500;text-decoration:none" href="'+esc(p.url)+'" target="_blank" onclick="event.stopPropagation()">&#128279; '+esc(getDomain(p.url))+'</a>':'')+
+      (p.mapsUrl?'<a style="font-size:10px;color:#1a73e8;font-weight:500;text-decoration:none" href="'+esc(p.mapsUrl)+'" target="_blank" onclick="event.stopPropagation()">&#128205; Maps</a>':'')+
+      '</div></div>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="S.epid=S.epid===\''+p.id+'\'?null:\''+p.id+'\';S.eiid=null;render()">'+(io?"&#9650;":"Edit")+'</button>'+
+      '<button class="bico" onclick="doDeletePropById(\''+p.id+'\')" >&#215;</button>'+
+      '</div></div>'+ep+'</div>';
+  }).join("");
+
+  var eCards=evs.map(function(ev){
+    var et=getET(ev.type);
+    return '<div style="background:'+et.col+';border:1px solid '+et.brd+';border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px;align-items:center">'+
+      '<span style="font-size:18px">'+et.icon+'</span>'+
+      '<div style="flex:1">'+(ev.time?'<span style="font-weight:600;font-size:13px;color:'+et.txt+'">'+esc(ev.time)+'</span> ':'')+
+      '<span style="font-size:13px;color:'+et.txt+';font-weight:500">'+esc(ev.title||et.label)+'</span>'+
+      (ev.note?'<div style="font-size:11px;color:#888;margin-top:2px">'+esc(ev.note)+'</div>':'')+
+      '</div><button class="bico" onclick="delEv(\''+day.id+'\',\''+ev.id+'\');render()">&#215;</button></div>';
+  }).join("");
+
+  var evOpts=ET.map(function(t){return'<option value="'+t.key+'">'+t.label+'</option>';}).join("");
+  var addEvPnl=S.addEv?'<div style="background:var(--card);border-radius:14px;border:1.5px solid var(--brass);padding:16px;margin-bottom:10px">'+
+    '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:14px">Add schedule item</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Type</label><select class="inp ins" id="ev-type">'+evOpts+'</select></div>'+
+    '<div><label class="lbl">Time</label><input type="time" class="inp ins" id="ev-time"/></div></div>'+
+    '<div style="margin-bottom:10px"><label class="lbl">Title</label><input class="inp" id="ev-title" placeholder="e.g. Lunch at La Zenia Boulevard"/></div>'+
+    '<div style="margin-bottom:14px"><label class="lbl">Note</label><input class="inp" id="ev-note" placeholder="e.g. Booked at Restaurante Sol"/></div>'+
+    '<div style="margin-bottom:14px"><label class="lbl">Google Maps link</label><input class="inp" id="ev-maps" placeholder="https://maps.google.com/?q=..."/></div>'+
+    '<div style="display:flex;gap:9px">'+
+    '<button class="btn btn-g btn-sm" style="flex:1;margin-bottom:0" onclick="S.addEv=false;render()">Cancel</button>'+
+    '<button class="btn btn-sm" style="flex:2;margin-bottom:0" onclick="saveEv(\''+day.id+'\')">Add</button>'+
+    '</div></div>':'';
+
+  var back=c?'go(\'client-detail\',{cid:\''+c.id+'\'})':'showTab(\'days\')';
+  var backLbl=c?'&#8592; '+esc(c.name):'&#8592; All days';
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="'+back+'">'+backLbl+'</button>'+
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'+
+    '<div>'+(c?'<div style="font-size:11px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300">'+fmtDate(day.date)+'</div></div>'+
+    statusBadge(dayStatus(day.date))+'</div>'+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Date</label><input type="date" class="inp" value="'+esc(day.date)+'" oninput="updateDay(\''+day.id+'\',{date:this.value});render()"/>'+
+    '</div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+    '<div style="font-size:13px;font-weight:500;color:var(--ink)">'+props.length+' propert'+(props.length===1?"y":"ies")+
+    (evs.length?' &middot; '+evs.length+' event'+(evs.length===1?"":"s"):'')+'</div>'+
+    '<button class="btn btn-b btn-sm" onclick="go(\'pick-prop-source\')">+ Add listing</button></div>'+
+    (props.length===0&&evs.length===0?'<div style="background:var(--mist);border-radius:12px;padding:24px 20px;text-align:center;margin-bottom:10px">'+
+      '<div style="font-size:24px;margin-bottom:8px">&#127968;</div>'+
+      '<div style="font-size:14px;color:var(--slate)">No properties yet</div></div>':"")+
+    pCards+
+    (evs.length?'<div class="sec-sm" style="margin-top:12px;margin-bottom:8px">Schedule items</div>'+eCards:"")+
+    addEvPnl+
+    '<button class="btn-add" onclick="S.addEv=!S.addEv;render()">+ Add schedule item (lunch, travel...)</button>'+
+    (props.length>0?
+      '<div style="height:1px;background:var(--fog);margin:6px 0 14px"></div>'+
+      '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
+      '<div style="margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">'+
+      '<label class="lbl" style="margin-bottom:0">Welcome message</label>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button onclick="generateWelcomeMsg()" style="font-size:10px;font-weight:600;color:var(--brass);background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#10024; Generate</button>'+
+      '<button onclick="generateWelcomeMsg(Math.floor(Math.random()*3))" style="font-size:10px;color:#9e9a94;background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#8635; New version</button>'+
+      '</div></div>'+
+      '<textarea id="welcome-ta" class="inp" rows="5" placeholder="Click Generate for an instant personalised welcome..." style="resize:none;line-height:1.6;margin-top:6px" oninput="curD().welcomeMsg=this.value;persist()">'+(curD().welcomeMsg||'')+'</textarea>'+
+
+      '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9a94;font-weight:300;font-size:10px">— one per line</span></label>'+
+      '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
+
+      '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
+      '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Share via WhatsApp</button>':'')+
+    '</div>';
+}
+function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note"),mapsUrl:gv("ev-maps")});S.addEv=false;render();}
+
+// ── WHATSAPP ──────────────────────────────────────────────────────────────────
+function copyWA(){
+  var day=curD();if(!day)return;
+  var c=curC();var cfg=S.cfg;
+  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
+
+  // Generate public link first
+  var publicId=createPublicTour(day,c,cfg);
+  var base=window.location.origin+window.location.pathname.replace('index.html','');
+  var link=base+'t.html?id='+publicId;
+
+  // Build elegant short message
+  var firstName=c?c.name.split(' ')[0]:'';
+  var dateStr=fmtDate(day.date);
+  var pLen=props.length;
+  var firstTime=props.length?props[0].time:'';
+  var hasLunch=(day.events||[]).some(function(e){return e.type==='lunch';});
+
+  var details=[];
+  if(pLen) details.push(pLen+' propert'+(pLen===1?'y':'ies'));
+  if(firstTime) details.push('Starting '+firstTime);
+  if(hasLunch) details.push('Lunch included');
+  var pickupEv=(day.events||[]).find(function(e){return e.type==='pickup'||e.type==='meetingpoint';});
+  if(pickupEv) details.push('Pickup'+(pickupEv.time?' at '+pickupEv.time:'')+(pickupEv.note?' - '+pickupEv.note:''));
+
+  var agentLine=cfg.agent||cfg.agency||'';
+
+  var nl='\n';
+  var msg='Hi '+firstName+','+nl+nl+'Your viewing day for *'+dateStr+'* is ready.'+(details.length?nl+nl+details.join(' - '):'')+ nl+nl+'Open your viewing day here:'+nl+link+(agentLine?nl+nl+'- '+agentLine:'');
+
+  var btn=document.getElementById('wa-btn');
+  function done(){
+    if(btn){btn.innerHTML='&#10003; Link copied!';btn.style.color='#25D366';}
+    setTimeout(function(){
+      if(btn){
+        btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp';
+        btn.style.color='#fff';
+      }
+    },3000);
+  }
+  function fb(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
+  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(done).catch(function(){fb(msg,done);});}else{fb(msg,done);}
+}
+// ── ADD PROPERTY ──────────────────────────────────────────────────────────────
+function pgAddProp(){
+  var day=curD();if(!day)return"";
+  var bf=[["Title","ap-title","Bright 2-bed apartment"],["Address","ap-addr","Calle del Mar 12"],["Area","ap-area2","La Zenia"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","3"],["Bathrooms","ap-bath","2"],["Built size","ap-sqm","120"]];
+  var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Contact phone","ap-cph","+34 600 000 000"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Internal notes","ap-note","Other info"]];
+
+  var bfHtml=bf.map(function(f,fi){
+    var isAddr=f[1]==='ap-addr', isArea=f[1]==='ap-area2';
+    var isRooms=f[1]==='ap-rooms', isBath=f[1]==='ap-bath';
+    var isNum=f[1]==='ap-rooms'||f[1]==='ap-bath'||f[1]==='ap-sqm';
+    var numAttr=isNum?' inputmode="numeric" maxlength="'+(f[1]==='ap-sqm'?'5':'2')+'"':'';
+    var inp='<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+numAttr+' placeholder="'+f[2]+'"/></div>';
+    if(isAddr) return '<div class="g2" style="margin-bottom:0">'+inp;
+    if(isArea) return inp+'</div>';
+    if(isRooms) return '<div class="g2" style="margin-bottom:0">'+inp;
+    if(isBath) return inp+'</div>';
+    return inp;
+  }).join("");
+
+  var iffHtml=iff.map(function(f){
+    return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';
+  }).join("");
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="go(\'day-detail\')">&larr; Cancel</button>'+
+    '<div class="sec">Add Property</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Listing URL *</label>'+
+    '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
+    '<div id="ap-og-status" style="margin-top:4px"></div>'+
+    '<div style="font-size:11px;color:#9e9a94;margin-top:6px">Paste listing URL</div></div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Viewing time</label>'+
+    '<input type="time" class="inp" id="ap-time" style="width:160px"/></div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+    '<span style="font-size:13px;color:var(--slate)">Upload property photo</span>'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadPropImg(this)"/></label>'+
+    '<div id="prop-img-prev"></div></div>'+
+    '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details</div>'+
+    bfHtml+
+    '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
+    '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
+    '<div id="maps-prev"></div></div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
+    '<div id="ap-hl-wrap">'+hlPickerHtml('__new__','__new__',window._newHighlights||[])+'</div>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
+    '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
+    '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="border-left:2px solid #C9A14A;padding-left:12px;margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em">Agent Info</div></div>'+
+    iffHtml+
+    '</div>'+
+
+    '<button class="btn" onclick="saveProp(S.did)">Add to viewing day</button>'+
+    '</div>';
+}
+function togInt(){_intOpen=!_intOpen;var b=document.getElementById("ai-body"),a=document.getElementById("ai-arr");if(b)b.style.display=_intOpen?"block":"none";if(a)a.innerHTML=_intOpen?"&#9650;":"&#9660;";}
+function uploadPropImg(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    window._ogImage=e.target.result;
+    // Store in hidden input as backup
+    var hidden=document.getElementById("ap-img-data");
+    if(hidden)hidden.value=e.target.result;
+    var el=document.getElementById("prop-img-prev");
+    if(el)el.innerHTML='<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:8px;border:1px solid var(--fog)"><img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/><div style="position:absolute;bottom:6px;left:8px;background:rgba(22,101,52,.9);color:#fff;font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px">&#10003; Image ready</div></div>';
+  };
+  reader.readAsDataURL(file);
+}
+function uploadExistingPropImg(input,dayId,propId){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    updProp(dayId,propId,{ogImage:e.target.result});
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+function prevMaps(v){var el=document.getElementById("maps-prev");if(!el)return;el.innerHTML=v?'<a href="'+esc(v)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':"";}
+function fetchOg(url, did) {
+  if (!url) return;
+  // Show loading state on the URL field
+  var statusEl = document.getElementById("ap-og-status");
+  if (statusEl) { statusEl.innerHTML = '<span style="color:#9e9a94;font-size:11px">&#8987; Fetching preview...</span>'; }
+
+  fetch("/.netlify/functions/og?url=" + encodeURIComponent(url))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (statusEl) {
+        if (data.image) {
+          statusEl.innerHTML = '<div style="margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid var(--fog)">' +
+            '<img src="' + data.image + '" style="width:100%;height:140px;object-fit:cover;display:block"/>' +
+            '<div style="padding:8px 10px;background:var(--mist)">' +
+            (data.title ? '<div style="font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + data.title.slice(0,60) + '</div>' : '') +
+            (data.price ? '<div style="font-size:12px;color:var(--brass);font-weight:500">' + data.price + '</div>' : '') +
+            '</div></div>' +
+            '<div style="font-size:11px;color:#4ade80;margin-top:6px">&#10003; Preview loaded</div>';
+          // Auto-fill title if empty
+          var titleEl = document.getElementById("ap-title");
+          if (titleEl && !titleEl.value && data.title) titleEl.value = data.title.slice(0,80);
+          // Auto-fill price if empty
+          var priceEl = document.getElementById("ap-price");
+          if (priceEl && !priceEl.value && data.price) priceEl.value = data.price;
+          // Store image URL for later
+          window._ogImage = data.image;
+        } else {
+          statusEl.innerHTML = '<span style="color:#9e9a94;font-size:11px">No preview image found — you can add one manually below.</span>';
+          window._ogImage = null;
+        }
+      }
+    })
+    .catch(function(){
+      if (statusEl) statusEl.innerHTML = '<span style="color:#9e9a94;font-size:11px">Could not load preview.</span>';
+      window._ogImage = null;
+    });
+}
+
+function saveProp(did){
+  var url=gv("ap-url");if(!url){alert("Please enter a listing URL.");return;}
+  var hiddenImg=document.getElementById("ap-img-data");
+  var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
+  window._ogImage=null;
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),area:gv("ap-area2"),bathrooms:gv("ap-bath"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  window._newHighlights=[];
+  _intOpen=false;go("day-detail");
+}
+
+var ICON={
+  'Walking distance to beach':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Swimming pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Parking / Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Near golf':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#C9A14A" stroke="none"/></svg>',
+  'Near golf course':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#C9A14A" stroke="none"/></svg>',
+  'Private garden':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
+  'Garden or terrace':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
+  'Large terrace':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h18"/><path d="M3 12h18"/><rect x="5" y="3" width="14" height="7" rx="1"/></svg>',
+
+  'Quiet area':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>',
+
+  'Family friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
+
+  'Family-friendly':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2"/><circle cx="14" cy="5" r="1.5"/><path d="M5 20v-5l-1-2 3-3 2 3h2l2-3 3 3-1 2v5"/><path d="M12 20v-4"/></svg>',
+
+  'Hot listing':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
+  'Excellent value':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 22L6 9M12 22l6-13"/></svg>',
+  'Restaurants nearby':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg>',
+  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>',};
+
+// ── OUTPUT ────────────────────────────────────────────────────────────────────
+function pgOutput(){
+  var day=curD();if(!day)return"";
+  var c=curC();
+  var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var evs=[].concat(day.events||[]);
+  var isAg=S.viewMode==="agent";
+  var cfg=S.cfg;
+  var all=props.map(function(p){return{k:"p",t:p.time||"",d:p};}).concat(evs.map(function(e){return{k:"e",t:e.time||"",d:e};})).sort(function(a,b){return(a.t||"zz").localeCompare(b.t||"zz");});
+  var pi=0;
+  var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
+
+  var orderedLocs=[];
+  var mpEv=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
+  if(mpEv&&(mpEv.title||mpEv.note))orderedLocs.push(mpEv.title||mpEv.note||'');
+  props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
+
+  // Stats bar
+  var sortedProps=[].concat(props).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
+  var firstTime=sortedProps.length?sortedProps[0].time:'';
+  var lastTime=sortedProps.length>1?sortedProps[sortedProps.length-1].time:'';
+  var pLen=(props||[]).length;
+  var statsBar=!isAg?'<div style="background:#071226;padding:10px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Propert'+(pLen===1?'y':'ies')+'</div></div>'+
+    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(firstTime)+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Start time</div></div>':'')+
+    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lastTime)+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">End time</div></div>':'')+
+    '</div>':'';
+
+  // Timeline
+  var tlItems=[];
+  // Merge and sort all events+properties by time
+  var tlAll=[];
+  (day.events||[]).forEach(function(ev){tlAll.push({t:ev.time||'',ev:ev});});
+  var propNum=0;
+  sortedProps.forEach(function(pp){propNum++;tlAll.push({t:pp.time||'',pp:pp,num:propNum});});
+  tlAll.sort(function(a,b){return(a.t||'zz').localeCompare(b.t||'zz');});
+  tlAll.forEach(function(item){
+    if(item.ev){
+      var ev=item.ev;
+      if(ev.type==='meetingpoint')tlItems.push({label:esc(ev.title||'Meeting point'),sub:ev.time||'',type:'mp'});
+      else tlItems.push({label:esc(ev.title||ev.type),sub:ev.time||'',type:'ev',evType:ev.type});
+    } else {
+      tlItems.push({label:esc(item.pp.area||item.pp.title||'Property'),sub:item.pp.time||'',num:item.num,type:'prop'});
+    }
+  });
+  tlItems.push({label:'End',sub:'End of tour',type:'end'});
+  var timelineHtml=!isAg&&tlItems.length>1?
+    '<div style="background:#071226;padding:10px 20px 14px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="display:flex;align-items:flex-start;min-width:max-content">'+
+    tlItems.map(function(tl,tli){
+      var isLast=tli===tlItems.length-1;
+      var dot=tl.type==='prop'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
+        :tl.type==='mp'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(201,161,74,.2);border:1.5px solid #C9A14A;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
+        :tl.type==='ev'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
+        :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
+      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px"></div>':'';
+      return'<div style="display:flex;align-items:flex-start">'+
+        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;max-width:70px">'+dot+
+        '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
+        '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2">'+tl.label+'</div>'+
+        '</div>'+line+'</div>';
+    }).join('')+
+    '</div></div>':'';
+
+  var orderedLocs=[];
+  var mpEv=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
+  if(mpEv&&(mpEv.title||mpEv.note))orderedLocs.push(mpEv.title||mpEv.note||'');
+  props.forEach(function(pp){orderedLocs.push(pp.mapsUrl||pp.address||'');});
+
+  
+
+
+
+  var rows=all.map(function(item){
+    if(item.k==="e"){
+      var e=item.d, et=getET(e.type);
+      if(et.isMeetingPoint){
+        return '<div style="background:#071226;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.15);border:1px solid rgba(201,161,74,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px">&#128205;</div>'+
+          '<div><div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
+          '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
+          (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(e.time)+'</div>':'')+
+          '</div></div>';
+      }
+      return '<div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #edeae4;background:'+et.col+'">'+
+        '<span style="font-size:18px">'+et.icon+'</span>'+
+        '<div>'+(e.time?'<span style="font-weight:700;font-size:13px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
+        '<span style="font-size:13px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
+        (e.note?'<span style="font-size:12px;color:'+et.txt+';opacity:.7"> &middot; '+esc(e.note)+'</span>':'')+
+        '</div></div>';
+    }
+
+    var p=item.d; var idx=pi++;
+    var dtBlock=(!isAg&&orderedLocs[idx]&&orderedLocs[idx+1])?driveTimeHtml(orderedLocs[idx],orderedLocs[idx+1]):'';
+
+    // Price
+    var fmtPrice=(function(){var pr=(p.price||'').trim();if(!pr)return'';pr=pr.replace(/EUR/i,'').replace(/kr$/,'').trim();pr=pr.replace(/\u20AC/g,'').trim();if(!pr)return'';return'\u20AC'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US');})();
+
+    // Match score
+    var ms=matchScore(dayClient,p);
+    var dScore=null,dCol='#C9A14A',dLabel='';
+    if(ms&&ms.score!=null){dScore=ms.score;}
+    else if(p.highlights&&p.highlights.length){dScore=Math.min(100,Math.round(p.highlights.length/10*100));}
+    if(dScore!=null){
+      if(dScore>=90){dCol='#059669';dLabel='Excellent Match';}
+      else if(dScore>=75){dCol='#C9A14A';dLabel='Good Match';}
+      else if(dScore>=60){dCol='#d97706';dLabel='Possible Match';}
+      else{dCol='#dc2626';dLabel='Low Match';}
+    } else if(p.highlights&&p.highlights.length>0){
+      dScore=Math.min(99,p.highlights.length*12);
+      dCol=dScore>=85?'#059669':dScore>=70?'#d97706':'#dc2626';
+      dLabel=dScore>=85?'Excellent Match':dScore>=70?'Good Match':'Good Potential';
+      if(false){
+    }
+    }
+    var dSub='';
+    if(ms&&ms.results&&ms.results.length){
+      dSub='Matches '+ms.results.filter(function(r){return r.pass;}).length+'/'+ms.results.length+' preferences';
+    } else if(dScore!=null){dSub=dScore+'%';}
+
+    // Badge — compact
+    var dScoreBadge=(dScore!=null?'<button onclick="S._lastDay=day;showMatchModal(\''+p.id+'\')" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.95);box-shadow:0 1px 6px rgba(0,0,0,.08);border:none;border-radius:8px;padding:5px 8px;cursor:pointer;text-align:center;z-index:10;min-width:58px">'+
+      '<div style="font-size:8px;font-weight:600;color:'+dCol+';letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;line-height:1">'+dLabel+'</div>'+
+      (function(){
+        var r=22;var circ=2*Math.PI*r;
+        var pct=dScore/100;
+        var dash=circ*pct;var gap=circ*(1-pct);
+        var ms=ms&&ms.results?ms.results:null;
+        var matched=ms?ms.filter(function(x){return x.pass;}).length:null;
+        var total=ms?ms.length:null;
+        var label=matched!=null?(matched+'/'+total):(dScore+'%');
+        return'<svg width="36" height="36" viewBox="0 0 54 54">'+
+          '<circle cx="27" cy="27" r="'+r+'" fill="none" stroke="#f0ece4" stroke-width="3"/>'+
+          '<circle cx="27" cy="27" r="'+r+'" fill="none" stroke="'+dCol+'" stroke-width="3"'+
+          ' stroke-dasharray="'+dash+' '+gap+'" stroke-linecap="round"'+
+          ' transform="rotate(-90 27 27)"/>'+
+          '<text x="27" y="27" text-anchor="middle" dominant-baseline="middle"'+
+          ' font-size="12" font-weight="700" fill="#071226" font-family="Jost,sans-serif">'+label+'</text>'+
+          '</svg>';
+      })()+
+            '</button>':'');
+
+    // Top pick
+    var tpBadge=(!isAg&&p.topPick)?
+      '<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A14A,#d4a84b);border-radius:5px;padding:3px 8px;display:flex;align-items:center;gap:4px">'+
+      '<span style="font-size:9px">&#11088;</span>'+
+      '<span style="font-size:8px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.08em">Top Pick</span>'+
+      '</div>':'';
+
+    // Hero image
+    var imgHtml=p.ogImage
+      ?'<div style="position:relative;height:280px;overflow:hidden">'+
+        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.22) 100%)"></div>'+
+        dScoreBadge+tpBadge+'</div>'
+      :'<div style="position:relative;height:80px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center">'+
+        dScoreBadge+tpBadge+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(201,161,74,.1)">'+(idx+1)+'</div>'+
+        '</div>';
+
+    // Location
+    var displayArea=p.area||'';
+    var street=p.address||'';
+    var regionLine='';
+
+    // Highlights — max 4, compact
+    var hl=p.highlights||[];
+    var vis=hl.slice(0,4); var hid=hl.slice(4);
+    var chips=vis.map(function(h){
+      return '<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#6b6560;white-space:nowrap;min-height:28px">'+
+        '<span style="font-size:11px">'+(ICON[h]?ICON[h]+' ':' ')+'</span>'+esc(h)+'</span>';
+    }).join('');
+    var hidDiv=''; var showBtn='';
+    if(hid.length){
+      hidDiv='<div id="hx-'+p.id+'" style="display:none;flex-wrap:wrap;gap:4px;margin-top:4px">'+
+        hid.map(function(h){return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px 5px 10px;font-size:10px;font-weight:500;color:#6b6560;white-space:nowrap;min-height:28px">'+
+          '<span style="font-size:11px">'+(ICON[h]?ICON[h]+' ':' ')+'</span>'+esc(h)+'</span>';}).join('')+'</div>';
+      showBtn='<button onclick="document.getElementById(\'hx-'+p.id+'\').style.display=\'flex\';this.style.display=\'none\'" style="font-size:10px;color:#9e9a94;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0">+'+hid.length+' more</button>';
+    }
+
+    // Internal box (agent only)
+    var ibox='';
+    if(isAg&&(p.commission||p.contact||p.location||p.note)){
+      ibox='<div style="margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 7px 7px 0;padding:10px 12px">'+
+        '<div style="font-size:8px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Internal</div>'+
+        [['Commission',p.commission],['Contact',p.contact?(p.contact+(p.firm?' \u00B7 '+p.firm:'')):''],
+         ['Phone',p.contactPhone?'<a href="tel:'+p.contactPhone+'" style="color:#92400e;font-weight:700;text-decoration:none">&#128222; '+p.contactPhone+'</a>':'',1],
+         ['Access',p.location?'<a href="https://maps.google.com/?q='+encodeURIComponent(p.location)+'" target="_blank" style="color:#92400e;font-weight:700;text-decoration:none">&#128205; '+p.location+'</a>':'',1],
+         ['Note',p.note]]
+        .filter(function(r){return r[1];})
+        .map(function(r){return'<div style="display:flex;gap:8px;margin-bottom:3px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:70px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.4">'+(r[2]?r[1]:esc(r[1]))+'</span></div>';})
+        .join('')+'</div>';
+    }
+
+    return dtBlock+
+      '<div style="border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid #edeae4;background:#fff">'+
+      imgHtml+
+      '<div style="padding:14px 16px 18px">'+
+
+      // Number + time + price
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+      '<div style="display:flex;align-items:center;gap:7px">'+
+      '<div style="width:22px;height:22px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;color:#C9A14A;font-size:10px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
+      (p.time?'<span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.time)+'</span>':'')+
+      '</div>'+
+      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A;font-weight:600;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
+      '</div>'+
+
+      // Title
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#071226;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
+
+      // Location
+      '<div style="margin-bottom:12px">'+
+      (displayArea?'<span style="font-size:14px;font-weight:700;color:#2D2B28">'+esc(displayArea)+'</span>':'')+
+      (displayArea&&street?'<span style="font-size:13px;color:#9e9a94;font-weight:400"> &nbsp;|&nbsp; </span>':'')+
+      (street?'<span style="font-size:13px;color:#9e9a94">'+esc(street)+'</span>':'')+
+      '</div>'+
+
+      // Specs row
+      (p.rooms||p.bathrooms||p.sqm?
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+ 
+        (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px">&#x1F6CF;&#xFE0F;<span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc(p.rooms)+'</span></div>':'')+ 
+        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px">&#x1F6C1;<span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc(p.bathrooms)+'</span></div>':'')+ 
+        (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg><span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc((p.sqm||'').replace(/m2$/i,''))+'m²</span></div>':'')+ 
+        '</div>':'')+
+
+      // Annual costs — show if any filled
+      ((p.communityFee||p.ibi||p.basura)?
+        '<div style="margin-bottom:12px;padding:12px 14px;background:#fafaf8;border:1px solid #edeae4;border-radius:10px">'+
+        '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Annual costs</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
+        (p.communityFee?'<div style="display:flex;flex-direction:column"><span style="font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em">Community</span><span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.communityFee)+'</span></div>':'')+
+        (p.ibi?'<div style="display:flex;flex-direction:column;padding-left:12px;border-left:1px solid #edeae4"><span style="font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em">IBI</span><span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.ibi)+'</span></div>':'')+
+        (p.basura?'<div style="display:flex;flex-direction:column;padding-left:12px;border-left:1px solid #edeae4"><span style="font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em">Basura</span><span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.basura)+'</span></div>':'')+
+        '</div></div>'
+      :'')+
+
+      // Buttons
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#6b6560;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+ 
+      (p.url?'<a href="'+esc(p.url)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#C9A14A;text-decoration:none;background:#071226;border-radius:8px;padding:10px 12px;letter-spacing:.04em;margin-bottom:12px;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg> View full listing</a>':'')+ 
+
+
+
+
+      // Highlights — only if set
+      (!isAg&&hl.length?
+        '<div style="display:flex;flex-wrap:wrap;gap:6px">'+chips+'</div>'+hidDiv+showBtn
+        :'')+
+
+      // Agent rec — only if manually written (not auto)
+      (!isAg&&p.agentRec?
+        '<div style="margin-top:10px;border-top:1px solid #edeae4;padding-top:10px;font-size:12px;color:#6b6560;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
+
+      ibox+
+      '</div></div>';
+
+  }).join("");
+
+  var logoHtml=cfg.logo
+    ?'<img src="'+cfg.logo+'" style="height:34px;max-width:100px;object-fit:contain;filter:brightness(0) invert(1);opacity:.9"/>'
+    :'<div style="display:flex;align-items:center;gap:8px"><svg width="20" height="26" viewBox="0 0 20 26"><defs><linearGradient id="og3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f2cc6e"/><stop offset="100%" stop-color="#8a6820"/></linearGradient></defs><circle cx="10" cy="9" r="7" fill="none" stroke="url(#og3)" stroke-width="1.8"/><circle cx="10" cy="9" r="3" fill="url(#og3)"/><path d="M 4 15 Q 10 24 16 15" fill="none" stroke="url(#og3)" stroke-width="1.8" stroke-linecap="round"/></svg><span style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#fff;font-weight:400;letter-spacing:.5px">Tour<span style="color:#C9A14A;font-style:italic">Flow</span></span></div>';
+  var ft=props.length>0&&props[0].time?props[0].time:"";
+  var lt=props.length>1&&props[props.length-1].time?props[props.length-1].time:"";
+  // Build location list for cover summary
+  var coverLocs=[];
+  props.forEach(function(p){
+    if(p.address){
+      var parts=p.address.split(",");
+      var loc=parts[parts.length-1]?parts[parts.length-1].trim():(parts[0]?parts[0].trim():"");
+      if(loc&&coverLocs.indexOf(loc)===-1&&coverLocs.length<4)coverLocs.push(loc);
+    }
+  });
+  var coverLocsHtml=coverLocs.length?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:6px;letter-spacing:.04em">'+coverLocs.join(" &middot; ")+'</div>':'';
+
+  // Duration estimate
+  var durationStr="";
+  if(ft&&lt&&ft!==lt){
+    durationStr=ft+" – "+lt;
+  } else if(ft){
+    durationStr="From "+ft;
+  }
+
+  var coverHdr=
+    '<div style="background:#071226;padding:26px 22px 28px">'+
+    // NO logo here — lives in nav only
+    '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
+    (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1.0;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
+    '<div style="height:1px;background:linear-gradient(90deg,rgba(201,161,74,.4),transparent);margin-bottom:14px"></div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+
+    (ft&&lt?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+esc(ft)+' – '+esc(lt)+'</span>':'')+ 
+    (props.length?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+props.length+' propert'+(props.length===1?'y':'ies')+'</span>':'')+ 
+    (day.events&&day.events.some(function(ev){return ev.type==='lunch';})?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">Lunch included</span>':'')+ 
+    '</div>'+
+    '<div style="display:flex;gap:0">'+
+    '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+props.length+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(props.length===1?'y':'ies')+'</div>'+
+    '</div>'+
+    (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(ft)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First Viewing</div>'+
+    '</div>':'')+
+    (lt&&props.length>1?'<div style="flex:1">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lt)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last Viewing</div>'+
+    '</div>':'')+
+    '</div>'+
+    '</div>';
+  var footerHtml=(function(){
+    var wa=cfg.phone?'https://wa.me/'+cfg.phone.replace(/[^0-9]/g,''):'';
+    // 70/30 layout — left: contact info, right: portrait photo full bleed
+    return'<div style="background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:160px">'+
+      // LEFT 70% — contact info
+      '<div style="flex:6;padding:24px 22px;display:flex;flex-direction:column;justify-content:center;gap:0">'+
+      '<div style="font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Your Property Consultant</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:2px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
+      (cfg.agency&&cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px">'+esc(cfg.agency)+'</div>':'<div style="margin-bottom:14px"></div>')+
+      (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:#25d36618;border:1px solid #25d36640;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#128241;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:#25d366;line-height:1.1">WhatsApp</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':
+        (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#128222;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:rgba(201,161,74,.85);line-height:1.1">Call</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':''))+
+      (cfg.email?'<a href="mailto:'+esc(cfg.email)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none">'+
+        '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#9993;</div>'+
+        '<div><div style="font-size:11px;font-weight:600;color:rgba(201,161,74,.85);line-height:1.1">Email</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.email)+'</div></div></a>':'')+
+      '</div>'+
+      // RIGHT 30% — portrait photo, full bleed rectangle
+      (cfg.photo?
+        '<div style="flex:4;position:relative;overflow:hidden">'+
+        '<img src="'+cfg.photo+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center"/>'+
+        '</div>'
+      :'<div style="flex:4"></div>')+
+      '</div>';
+  })();
+  var printStyle='<style id="ps">@media print{.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}div{break-inside:avoid}}</style>';
+  return printStyle+
+    '<div class="mobile-view"><div class="wrap" style="background:#FCFBF7">'+
+
+    // ── TOP NAV (same as Home) ────────────────────────────────────────────
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
+    '<div style="display:flex;align-items:center;gap:7px">'+
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
+    '</div>'+
+    '<div style="display:flex;align-items:center;gap:12px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
+    '<div style="width:30px;height:30px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">'+(cfg.agent?cfg.agent.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF')+'</div>'+
+    '</div></div>'+
+
+    // ── VIEW TOGGLE ───────────────────────────────────────────────────────
+    '<div style="display:flex;background:#fff;border-radius:10px;border:1px solid #edeae4;padding:3px;margin-bottom:16px">'+
+    '<button onclick="S.viewMode=\'client\';render()" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:'+(S.viewMode==="client"?'#fff':'transparent')+';color:'+(S.viewMode==="client"?'#2D2B28':'#9e9a94')+';box-shadow:'+(S.viewMode==="client"?'0 1px 4px rgba(0,0,0,.08)':'none')+'">&#128196; Client view</button>'+
+    '<button onclick="S.viewMode=\'agent\';render()" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:'+(S.viewMode==="agent"?'#fff':'transparent')+';color:'+(S.viewMode==="agent"?'#2D2B28':'#9e9a94')+';box-shadow:'+(S.viewMode==="agent"?'0 1px 4px rgba(0,0,0,.08)':'none')+'">&#128274; Agent view</button>'+
+    '</div>'+
+
+    // ── STATUS BANNER ─────────────────────────────────────────────────────
+    (isAg?'<div style="display:flex;align-items:center;gap:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:12px;font-weight:500;color:#78350f"><span style="font-size:14px">&#128274;</span>Internal — keep for yourself.</div>':'<div style="margin-bottom:4px"></div>')+
+
+    // ── DARK COVER CARD (stats + timeline + personalised viewing day) ─────
+    '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:20px;overflow:hidden;margin-bottom:20px;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
+    statsBar+
+    timelineHtml+
+    coverHdr+
+
+    (!isAg&&day.welcomeMsg?
+      '<div style="padding:22px 22px 16px;border-top:1px solid rgba(255,255,255,.06)">'+
+      '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">A personal note</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic;margin-bottom:12px">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>':'')+
+
+    (!isAg&&c&&c.req?(function(){
+      var req=c.req; var mustHave=req.mustHave||[]; var plus=req.plus||[];
+      var budgetLabels={'u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+      var lines=[];
+      if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
+      if(req.minrooms&&req.minrooms!=='studio')lines.push(req.minrooms+'+ bedrooms');
+      if(req.type&&req.type!=='any'){var tl={apt:'Apartment',villa:'Villa',house:'Townhouse',bungalow:'Bungalow',penthouse:'Penthouse'};lines.push(tl[req.type]||req.type);}
+      mustHave.forEach(function(f){lines.push(f);});
+      if(!lines.length)return'';
+      return'<div style="padding:16px 22px;border-top:1px solid rgba(255,255,255,.06)">'+
+        '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">Your Requirements</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+        lines.map(function(r){return'<span style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,.75)">&#10003; '+esc(r)+'</span>';}).join('')+
+        '</div></div>';
+    })():'')+
+
+    '</div>'+
+
+    // ── AGENT INTERNAL INFO — rendered per property inside rows ─────────
+    ''+ 
+
+    // ── PROPERTY CARDS ────────────────────────────────────────────────────
+    rows+
+
+    // ── FOOTER / CONSULTANT ───────────────────────────────────────────────
+    footerHtml+
+
+    // ── ACTION BUTTONS ────────────────────────────────────────────────────
+    '<div style="padding-top:4px">'+
+    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp</button>'+
+    (!isAg?'<button id="create-link-btn" onclick="handleCreateClientLink()" style="width:100%;padding:13px;background:#071226;color:#C9A14A;border:1.5px solid rgba(201,161,74,.3);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link</button>':'')+
+    '<button onclick="go(\'day-detail\')" style="width:100%;padding:13px;background:#fff;color:#2D2B28;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#9998; Edit Tour</button>'+
+    '<div style="text-align:center;padding:24px 0 8px">'+
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:6px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<div style="font-size:10px;color:#c8bfb0;letter-spacing:.1em;text-transform:uppercase;font-family:Jost,sans-serif">Created with TourFlow</div>'+
+    '</div>'+
+    '</div>'+
+    '</div></div>';
+}
+
+
+
+
+function removeFromLibrary(pid){
+  if(!confirm('Remove this property from your library?\nThis will remove it from all tours.'))return;
+  S.days.forEach(function(d){
+    d.properties=(d.properties||[]).filter(function(x){return x.id!==pid;});
+  });
+  S.library=(S.library||[]).filter(function(x){return x.id!==pid;});
+  persist();
+  render();
+}
+
+function addFromLibrary(idx){
+  var item=(window._libProps||[])[idx];
+  if(!item)return;
+  var day=curD();
+  if(!day)return;
+  var np=JSON.parse(JSON.stringify(item.prop));
+  np.id='p'+Date.now();
+  np.time='';
+  day.properties=day.properties||[];
+  day.properties.push(np);
+  persist();
+  go('day-detail');
+}
+
+// ── PICK PROPERTY SOURCE ──────────────────────────────────────────────────────
+function pgPickPropSource(){
+  var day=curD();if(!day)return"";
+  // Count available library properties (from other days, not already in this day)
+  var dayPropIds=(day.properties||[]).map(function(p){return p.id;});
+  var libProps=[];
+  var seen={};
+  // Add standalone library items first
+  (S.library||[]).forEach(function(p){
+    var key=p.url||p.title||p.id;
+    if(!seen[key]&&!p.sold){
+      seen[key]=true;
+      libProps.push({prop:p,dayId:''});
+    }
+  });
+  // Add properties from other days
+  S.days.forEach(function(d){
+    if(d.id===day.id)return;
+    (d.properties||[]).forEach(function(p){
+      var key=p.url||p.title||p.id;
+      if(!seen[key]&&!p.sold){
+        seen[key]=true;
+        libProps.push({prop:p,dayId:d.id});
+      }
+    });
+  });
+  var hasLibrary=libProps.length>0;
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="go(\'day-detail\')">&#8592; Back</button>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin:16px 0 6px">Add Property</div>'+
+    '<div style="font-size:13px;color:#9e9a94;margin-bottom:28px">How would you like to add a property?</div>'+
+    '<div style="display:flex;flex-direction:column;gap:12px">'+
+
+    // From library
+    (hasLibrary?
+    '<button onclick="go(\'from-library\')" style="background:#fff;border:1.5px solid #C9A14A;border-radius:16px;padding:20px;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px">'+
+      '<div style="width:44px;height:44px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg></div>'+
+      '<div>'+
+      '<div style="font-size:15px;font-weight:600;color:#2D2B28;margin-bottom:3px">From your library</div>'+
+      '<div style="font-size:12px;color:#9e9a94">'+libProps.length+' saved propert'+(libProps.length===1?'y':'ies')+' available</div>'+
+      '</div></button>'
+    :'<div style="background:#f5f2ec;border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;opacity:.5">'+
+      '<div style="width:44px;height:44px;background:#edeae4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg></div>'+
+      '<div>'+
+      '<div style="font-size:15px;font-weight:600;color:#9e9a94;margin-bottom:3px">From your library</div>'+
+      '<div style="font-size:12px;color:#c8bfb0">No saved properties yet</div>'+
+      '</div></div>')+
+
+    // Add new
+    '<button onclick="go(\'add-prop\')" style="background:#fff;border:1.5px solid #edeae4;border-radius:16px;padding:20px;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px">'+
+      '<div style="width:44px;height:44px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+      '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
+      '<div>'+
+      '<div style="font-size:15px;font-weight:600;color:#2D2B28;margin-bottom:3px">Add new property</div>'+
+      '<div style="font-size:12px;color:#9e9a94">Fill in details manually</div>'+
+      '</div></button>'+
+
+    '</div></div>';
+}
+
+// ── FROM LIBRARY PICKER ───────────────────────────────────────────────────────
+function pgFromLibrary(){
+  var day=curD();if(!day)return"";
+  var dayPropIds=(day.properties||[]).map(function(p){return p.id;});
+  var libProps=[];
+  var seen={};
+  // Add standalone library items first
+  (S.library||[]).forEach(function(p){
+    var key=p.url||p.title||p.id;
+    if(!seen[key]&&!p.sold){
+      seen[key]=true;
+      libProps.push({prop:p,dayId:''});
+    }
+  });
+  // Add properties from other days
+  S.days.forEach(function(d){
+    if(d.id===day.id)return;
+    (d.properties||[]).forEach(function(p){
+      var key=p.url||p.title||p.id;
+      if(!seen[key]&&!p.sold){
+        seen[key]=true;
+        libProps.push({prop:p,dayId:d.id});
+      }
+    });
+  });
+
+  function addFromLib(p){
+    var day=curD();if(!day)return;
+    // Add a copy of the property to this day
+    var newProp=JSON.parse(JSON.stringify(p));
+    newProp.id='p'+Date.now();
+    newProp.time='';
+    day.properties=day.properties||[];
+    day.properties.push(newProp);
+    persist();
+    go('day-detail');
+  }
+
+  // Store in global so onclick can safely reference by index
+  window._libProps=libProps;
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="go(\'pick-prop-source\')">&#8592; Back</button>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin:16px 0 6px">Your Library</div>'+
+    '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">Tap a property to add it to this tour</div>'+
+    libProps.map(function(item, idx){
+      var p=item.prop;
+      var img=p.ogImage||p.img||'';
+      var pr=(p.price||'').replace(/EUR/i,'').replace(/€/g,'').trim();
+      var priceStr=pr?'€'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US'):'';
+      return '<button onclick="addFromLibrary('+idx+')" style="width:100%;background:#fff;border:1px solid #edeae4;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;text-align:left;font-family:inherit;display:block">'+
+        (img?'<div style="height:80px;overflow:hidden"><img src="'+img+'" style="width:100%;height:100%;object-fit:cover"/></div>':'<div style="height:80px;background:#f5f2ec"></div>')+
+        '<div style="padding:11px 14px">'+
+        '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:3px">'+esc(p.title||'Untitled')+'</div>'+
+        '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<div style="font-size:11px;color:#9e9a94">'+[p.area,p.rooms?p.rooms+' bed':''].filter(Boolean).join(' · ')+'</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:#a07830">'+priceStr+'</div>'+
+        '</div></div></button>';
+    }).join('')+
+    '</div>';
+}
+
+
+function showDemoClientView(){
+  // Set up a demo tour using first available day with properties
+  var demoDay=S.days.find(function(d){return (d.properties||[]).length>0;});
+  if(demoDay){
+    S.did=demoDay.id;
+    S.cid=demoDay.clientId;
+    S.viewMode='client';
+    go('output');
+  } else {
+    // No real tour - show a message
+    alert('Add properties to a tour first to preview the client view.');
+  }
+}
+function showOnboarding(){S._showOnboarding=true;showTab('home');}
+function hideOnboarding(){S._showOnboarding=false;showTab('home');}
+
+function goAddLibProp(){go('add-lib-prop');}
+
+// ── ADD LIBRARY PROPERTY ──────────────────────────────────────────────────────
+function pgAddLibraryProp(){
+  var bf=[["Title","alp-title","Bright 2-bed apartment"],["Address","alp-addr","Calle del Mar 12"],["Area","alp-area","La Zenia"],["Price","alp-price","175,000 EUR"],["Bedrooms","alp-rooms","3"],["Bathrooms","alp-bath","2"],["Built size","alp-sqm","120"]];
+  var bfHtml=bf.map(function(f,fi){
+    var isAddr=f[1]==='alp-addr',isArea=f[1]==='alp-area';
+    var isRooms=f[1]==='alp-rooms',isBath=f[1]==='alp-bath';
+    var isNum=f[1]==='alp-rooms'||f[1]==='alp-bath'||f[1]==='alp-sqm';
+    var numAttr=isNum?' inputmode="numeric" maxlength="'+(f[1]==='alp-sqm'?'5':'2')+'"':'';
+    var inp='<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+numAttr+' placeholder="'+f[2]+'"/></div>';
+    if(isAddr)return'<div class="g2" style="margin-bottom:0">'+inp;
+    if(isArea)return inp+'</div>';
+    if(isRooms)return'<div class="g2" style="margin-bottom:0">'+inp;
+    if(isBath)return inp+'</div>';
+    return inp;
+  }).join('');
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="showTab(\'properties\')">&#8592; Properties</button>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;margin-bottom:20px">Add Property</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Listing URL</label>'+
+    '<input class="inp" id="alp-url" placeholder="https://idealista.com/..."/>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="margin-bottom:14px"><label class="lbl">Property image</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+    '<span style="font-size:13px;color:var(--slate)">Upload photo</span>'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadLibraryImg(this)"/></label>'+
+    '<div id="alp-img-prev"></div></div>'+
+    bfHtml+
+    '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
+    '<input class="inp" id="alp-maps" placeholder="https://maps.google.com/..."/></div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Highlights</div>'+
+    '<div id="alp-hl-wrap">'+hlPickerHtml('__lib__','__lib__',window._libNewHighlights||[])+'</div>'+
+    '</div>'+
+
+    '<button class="btn" onclick="saveLibraryProp()">Save to library</button>'+
+    '</div>';
+}
+
+function uploadLibraryImg(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    window._libNewImage=e.target.result;
+    var el=document.getElementById('alp-img-prev');
+    if(el)el.innerHTML='<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:8px;border:1px solid var(--fog)"><img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/></div>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveLibraryProp(){
+  var title=document.getElementById('alp-title')?document.getElementById('alp-title').value.trim():'';
+  if(!title){alert('Please enter a title.');return;}
+  var prop={
+    id:'lp'+Date.now(),
+    url:document.getElementById('alp-url')?document.getElementById('alp-url').value.trim():'',
+    ogImage:window._libNewImage||'',
+    title:title,
+    address:document.getElementById('alp-addr')?document.getElementById('alp-addr').value.trim():'',
+    area:document.getElementById('alp-area')?document.getElementById('alp-area').value.trim():'',
+    price:document.getElementById('alp-price')?document.getElementById('alp-price').value.trim():'',
+    rooms:document.getElementById('alp-rooms')?document.getElementById('alp-rooms').value.trim():'',
+    bathrooms:document.getElementById('alp-bath')?document.getElementById('alp-bath').value.trim():'',
+    sqm:document.getElementById('alp-sqm')?document.getElementById('alp-sqm').value.trim():'',
+    mapsUrl:document.getElementById('alp-maps')?document.getElementById('alp-maps').value.trim():'',
+    highlights:window._libNewHighlights||[],
+    sold:false,
+    fromLibrary:true
+  };
+  S.library=S.library||[];
+  S.library.push(prop);
+  persist();
+  window._libNewImage=null;
+  window._libNewHighlights=[];
+  showTab('properties');
+}
+
+// ── PROPERTIES ────────────────────────────────────────────────────────────────
+function pgProperties(){
+  var seen={};
+  var allProps=[];
+  // Library standalone properties
+  (S.library||[]).forEach(function(p){
+    var key=p.url||p.title||p.id;
+    if(!seen[key]){
+      seen[key]=true;
+      var timesShown=S.days.filter(function(d2){
+        return (d2.properties||[]).some(function(p2){return(p2.url||p2.title||p2.id)===key;});
+      }).length;
+      allProps.push({prop:p,timesShown:timesShown,sold:p.sold||false,dayId:'',isLibrary:true});
+    }
+  });
+  // Tour properties
+  S.days.forEach(function(d){
+    (d.properties||[]).forEach(function(p){
+      var key=p.url||p.title||p.id;
+      if(!seen[key]){
+        seen[key]=true;
+        var timesShown=S.days.filter(function(d2){
+          return (d2.properties||[]).some(function(p2){return(p2.url||p2.title||p2.id)===key;});
+        }).length;
+        var foundDayId='';
+        S.days.forEach(function(d2){
+          (d2.properties||[]).forEach(function(dp){
+            if((dp.url||dp.title||dp.id)===key) foundDayId=d2.id;
+          });
+        });
+        allProps.push({prop:p,timesShown:timesShown,sold:p.sold||false,dayId:foundDayId});
+      }
+    });
+  });
+  var active=allProps.filter(function(x){return !x.sold;});
+  var sold=allProps.filter(function(x){return x.sold;});
+
+  var totalDays=S.days.length;
+  var totalShowings=S.days.reduce(function(a,d){return a+(d.properties||[]).length;},0);
+  var totalClients=S.clients.length;
+  var totalProps=allProps.length;
+
+  var statsHtml='<div style="background:#071226;border-radius:16px;padding:20px;margin-bottom:24px">'+
+    '<div style="font-size:9px;font-weight:700;color:rgba(201,161,74,.7);text-transform:uppercase;letter-spacing:.18em;margin-bottom:16px">Your Stats</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+
+    stat(totalShowings,'Viewings')+stat(totalClients,'Clients')+
+    stat(totalProps,'Properties')+stat(totalDays,'Tours')+
+    '</div></div>';
+
+  function stat(n,lbl){
+    return '<div><div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;font-weight:300;color:#C9A14A;line-height:1">'+n+'</div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;text-transform:uppercase;letter-spacing:.08em">'+lbl+'</div></div>';
+  }
+
+  function propCard(item){
+    var p=item.prop;
+    var img=p.ogImage||p.img||'';
+    var imgHtml=img
+      ?'<div style="height:90px;overflow:hidden"><img src="'+img+'" style="width:100%;height:100%;object-fit:cover"/></div>'
+      :'<div style="height:90px;background:#f5f2ec;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>';
+    var pr=(p.price||'').replace(/EUR/i,'').replace(/€/g,'').trim();
+    var priceStr=pr?('€'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US')):'';
+    var activeBadge=item.sold
+      ?'<span style="background:#f5f2ec;color:#9e9a94;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:600">Sold</span>'
+      :'<span style="background:#f0fdf4;color:#14532d;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:600">Active</span>';
+    var shownBadge=item.timesShown>1?'<span style="background:#f5f2ec;color:#6b6560;border-radius:100px;padding:2px 8px;font-size:9px">'+item.timesShown+'× shown</span>':'';
+    var dayId=item.dayId||'';
+    var pid=p.id||'';
+    return '<div onclick="S.did=\''+dayId+'\';S.epid=\''+pid+'\';go(\'edit-prop\')" style="background:#fff;border-radius:12px;border:1px solid #edeae4;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer">'+
+      imgHtml+
+      '<div style="padding:12px 14px">'+
+      '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:3px;line-height:1.3">'+esc(p.title||'Untitled')+'</div>'+
+      '<div style="font-size:11px;color:#9e9a94;margin-bottom:8px">'+[p.area,p.address].filter(Boolean).map(esc).join(' · ')+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#a07830">'+priceStr+'</div>'+
+      '<div style="display:flex;gap:5px;align-items:center">'+shownBadge+activeBadge+
+      '<button onclick="event.stopPropagation();removeFromLibrary(\''+pid+'\')" style="width:22px;height:22px;border-radius:50%;border:1px solid #edeae4;background:#fff;color:#9e9a94;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">×</button>'+
+      '</div></div></div>';
+  }
+
+  function secLbl(t){return'<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">'+t+'</div>';}
+
+  var h='<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">Properties</div>'+
+    '<button onclick="goAddLibProp()" style="background:#071226;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">+ Add property</button>'+
+    '</div>'+
+    statsHtml;
+
+  if(allProps.length===0){
+    h+='<div style="text-align:center;padding:40px 24px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No properties yet</div>'+
+      '<div style="font-size:13px;color:#9e9a94">Properties you add to tours appear here automatically</div>'+
+      '</div>';
+  } else {
+    if(active.length)h+=secLbl('Active · '+active.length)+active.map(propCard).join('');
+    if(sold.length)h+='<div style="margin-top:20px">'+secLbl('Sold · '+sold.length)+sold.map(propCard).join('')+'</div>';
+  }
+  return h+'</div>';
+}
+
+function pgSettings(){
+  var cfg=S.cfg;
+  var lb=cfg.logo?'<img src="'+cfg.logo+'" style="width:100%;height:100%;object-fit:contain"/>':'<span style="font-size:24px">&#127968;</span>';
+  var pb=cfg.photo?'<img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:22px">&#128100;</span>';
+  var rmLogo=cfg.logo?'<button onclick="S.cfg.logo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
+  var rmPhoto=cfg.photo?'<button onclick="S.cfg.photo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
+  var fRows=[
+    ["Agency name","agency","Costa Home Realty"],
+    ["Your name","agent","Maria Garcia"],
+    ["Phone","phone","+34 600 000 000"],
+    ["Email","email","maria@agency.com"]
+  ].map(function(f){
+    return '<div style="margin-bottom:14px"><label class="lbl">'+f[0]+'</label>'+
+      '<input class="inp" id="sf-'+f[1]+'" value="'+esc(cfg[f[1]]||'')+'" placeholder="'+f[2]+'"/></div>';
+  }).join("");
+  setTimeout(function(){
+    ["agency","agent","phone","email"].forEach(function(k){
+      var el=document.getElementById("sf-"+k);
+      if(el)el.oninput=function(){S.cfg[k]=this.value;persist();};
+    });
+  },30);
+  return '<div class="wrap" style="background:#FCFBF7">'+topNav()+'<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;margin-bottom:20px">Settings</div><div class="card">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">'+
+    '<div><label class="lbl">Agency logo</label>'+
+    '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+lb+'</div>'+
+    '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upLogo(this)"/></label>'+
+    rmLogo+
+    '<div style="font-size:10px;color:#9e9a94;margin-top:5px">PNG recommended</div></div>'+
+    '<div><label class="lbl">Profile photo</label>'+
+    '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+pb+'</div>'+
+    '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upPhoto(this)"/></label>'+
+    rmPhoto+
+    '<div style="font-size:10px;color:#9e9a94;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
+    '</div>'+
+    fRows+
+    '<div style="font-size:12px;color:#9e9a94;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
+    '</div>'+
+    '<div class="card" style="margin-top:16px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Help</div>'+
+    '<button onclick="showOnboarding()" style="width:100%;padding:12px;background:#f5f2ec;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">'+
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">Tutorial — new user view</div>'+
+    '<div style="font-size:11px;color:#9e9a94;margin-top:1px">Preview the onboarding experience</div></div>'+
+    '</button>'+
+    '</div>'+
+    '</div>';
+}
+function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
+function upPhoto(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.photo=e.target.result;persist();render();};r.readAsDataURL(f);}
+
+
+// ── PUBLIC CLIENT LINK ────────────────────────────────────────────────────────
+
+function sanitizeTourForClient(day, client, cfg){
+  // Strip all agent-only fields from properties
+  var cleanProps=(day.properties||[]).map(function(p){
+    return {
+      id:p.id,
+      time:p.time||'',
+      title:p.title||'',
+      address:p.address||'',
+      area:p.area||'',
+      price:p.price||'',
+      rooms:p.rooms||'',
+      bathrooms:p.bathrooms||'',
+      sqm:p.sqm||'',
+      mapsUrl:p.mapsUrl||'',
+      ogImage:p.ogImage||'',
+      highlights:p.highlights||[],
+      agentRec:p.agentRec||'',
+      areaNote:p.areaNote||'',
+      travelTime:p.travelTime||'',
+      topPick:p.topPick||false
+      // Deliberately excluded: commission, contact, contactPhone,
+      // firm, location, note, sold
+    };
+  });
+
+  // Strip internal events (keep only client-visible ones)
+  var cleanEvs=(day.events||[]).filter(function(ev){
+    return ev.type!=='internal';
+  }).map(function(ev){
+    return {
+      id:ev.id,
+      type:ev.type,
+      time:ev.time||'',
+      title:ev.title||'',
+      note:ev.note||'',
+      mapsUrl:ev.mapsUrl||''
+    };
+  });
+
+  // Safe client info
+  var cleanClient=client?{
+    name:client.name||'',
+    req:client.req||{}
+  }:null;
+
+  // Safe agent info (no internal data)
+  var cleanCfg={
+    agent:cfg.agent||'',
+    agency:cfg.agency||'',
+    phone:cfg.phone||'',
+    email:cfg.email||'',
+    photo:cfg.photo||'',
+    logo:cfg.logo||''
+  };
+
+  return {
+    date:day.date||'',
+    welcomeMsg:day.welcomeMsg||'',
+    nextSteps:day.nextSteps||'',
+    properties:cleanProps,
+    events:cleanEvs,
+    client:cleanClient,
+    cfg:cleanCfg
+  };
+}
+
+function createPublicTour(day, client, cfg){
+  var publicId='tf-'+Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+  var cleanTour=sanitizeTourForClient(day, client, cfg);
+  cleanTour.publicId=publicId;
+  cleanTour.createdAt=new Date().toISOString();
+
+  // Save to Supabase
+  fetch('https://smcubfgpnrkguxqxbgva.supabase.co/rest/v1/public_tours', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':'sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY',
+      'Authorization':'Bearer sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY',
+      'Prefer':'return=minimal'
+    },
+    body:JSON.stringify({public_id:publicId, tour_data:cleanTour})
+  }).then(function(r){
+    if(!r.ok){
+      r.text().then(function(t){console.error('Supabase error:',t);});
+    }
+  }).catch(function(e){
+    console.error('Supabase save failed:',e);
+    // Fallback: save to localStorage
+    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+    store[publicId]=cleanTour;
+    localStorage.setItem('tf-public', JSON.stringify(store));
+  });
+
+  return publicId;
+}
+
+function loadPublicTour(publicId){
+  // Later replaced with Supabase fetch
+  try {
+    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+    return store[publicId]||null;
+  } catch(e){ return null; }
+}
+
+function copyPublicLink(publicId){
+  var base=window.location.origin+window.location.pathname.replace('index.html','');
+  var url=base+'t.html?id='+publicId;
+  var btn=document.getElementById('create-link-btn');
+  function done(){
+    if(btn){btn.innerHTML='&#10003; Link copied!';btn.style.background='#059669';}
+    setTimeout(function(){
+      if(btn){
+        btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link';
+        btn.style.background='#071226';
+      }
+    },3000);
+  }
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(done).catch(function(){fallback(url,done);});
+  } else { fallback(url,done); }
+  function fallback(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
+}
+
+function handleCreateClientLink(){
+  var day=curD(); var c=curC(); var cfg=S.cfg;
+  if(!day)return;
+  var publicId=createPublicTour(day,c,cfg);
+  copyPublicLink(publicId);
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+// Render home just before splash fades so transition is seamless
+showTab("home");
+</script>
+<script>
+// Guaranteed 1-second splash on every load
+setTimeout(function(){
+  var s=document.getElementById('splash');
+  if(!s)return;
+  s.style.opacity='0';
+  var app=document.getElementById('app');
+  if(app)app.style.opacity='1';
+  var nav=document.querySelector('.nav');
+  if(nav)nav.style.opacity='1';
+  setTimeout(function(){s.style.display='none';},500);
+},2000);
+</script>
+</body>
+</html>
