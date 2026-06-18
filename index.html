@@ -21,6 +21,8 @@
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="TourFlow – Your Viewing Day"/>
 <meta name="twitter:description" content="Your personalised property viewing itinerary, carefully prepared for you."/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="icon" type="image/png" href="/favicon.png" sizes="32x32"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -954,7 +956,7 @@ function pgClientDetail(){
     '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
     '<div style="font-size:13px;color:var(--slate)">'+esc(c.phone||"")+'</div></div>'+
     '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="go(\'edit-client\')">Edit</button>'+
-    '<button class="bico" onclick="if(confirm(\'Delete client and all their days?\'))delClient(\''+c.id+'\');showTab(\'clients\')">&#215;</button></div>'+
+    '<button class="bico" onclick="confirmDeleteClient(\\\''+c.id+'\\\',\\\''+c.name+'\\\')">&times;</button></div>'+
     '<div class="card" style="margin-bottom:18px">'+
     (function(){
       var req=c.req||{};
@@ -1013,6 +1015,7 @@ function pgClientDetail(){
 function newDayFor(cId){var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
 
 // ── ADD CLIENT ────────────────────────────────────────────────────────────────
+function confirmDeleteClient(cid,name){if(confirm("Delete "+name+" and all their viewing days?\nThis cannot be undone.")){delClient(cid);showTab("clients");}}
 function pgPickClient(){
   var rows=S.clients.map(function(c){
     var cd=cDays(c.id);
