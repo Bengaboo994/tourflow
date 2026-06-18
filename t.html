@@ -115,11 +115,11 @@ function renderPublicClientView(tour){
   var pLen=props.length;
 
   var statsBar='<div style="background:#071226;padding:10px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
-    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
+    '<div style="text-align:center"><div style="font-family:Georgia,serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
     '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Propert'+(pLen===1?'y':'ies')+'</div></div>'+
-    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(firstTime)+'</div>'+
+    (firstTime?'<div style="text-align:center"><div style="font-family:Georgia,serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(firstTime)+'</div>'+
     '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Start</div></div>':'')+
-    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lastTime)+'</div>'+
+    (lastTime?'<div style="text-align:center"><div style="font-family:Georgia,serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lastTime)+'</div>'+
     '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">End</div></div>':'')+
     '</div>';
 
@@ -167,7 +167,7 @@ function renderPublicClientView(tour){
   var coverHdr=
     '<div style="background:#071226;padding:26px 22px 28px">'+
     '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
-    (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
+    (c?'<div style="font-family:Georgia,serif;font-size:36px;font-weight:300;color:#fff;line-height:1;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
     '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
     '<div style="height:1px;background:linear-gradient(90deg,rgba(201,161,74,.4),transparent);margin-bottom:14px"></div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+
@@ -177,15 +177,15 @@ function renderPublicClientView(tour){
     '</div>'+
     '<div style="display:flex;gap:0">'+
     '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
+    '<div style="font-family:Georgia,serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
     '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(pLen===1?'y':'ies')+'</div>'+
     '</div>'+
     (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(ft)+'</div>'+
+    '<div style="font-family:Georgia,serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(ft)+'</div>'+
     '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First Viewing</div>'+
     '</div>':'')+
     (lt&&pLen>1?'<div style="flex:1">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lt)+'</div>'+
+    '<div style="font-family:Georgia,serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lt)+'</div>'+
     '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last Viewing</div>'+
     '</div>':'')+
     '</div>'+
@@ -195,7 +195,7 @@ function renderPublicClientView(tour){
   var welcomeSection=day.welcomeMsg?
     '<div style="padding:22px 22px 16px;border-top:1px solid rgba(255,255,255,.06)">'+
     '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">A personal note</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
+    '<div style="font-family:Georgia,serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
     '</div>':'';
 
   // ── REQUIREMENTS ─────────────────────────────────────────────────────────
@@ -267,7 +267,7 @@ function renderPublicClientView(tour){
         tpBadge+'</div>'
       :'<div style="position:relative;height:80px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center">'+
         tpBadge+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(201,161,74,.1)">'+(idx+1)+'</div>'+
+        '<div style="font-family:Georgia,serif;font-size:36px;font-weight:300;color:rgba(201,161,74,.1)">'+(idx+1)+'</div>'+
         '</div>';
 
     return '<div style="border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid #edeae4;background:#fff">'+
@@ -278,9 +278,9 @@ function renderPublicClientView(tour){
       '<div style="width:22px;height:22px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;color:#C9A14A;font-size:10px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
       (p.time?'<span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.time)+'</span>':'')+
       '</div>'+
-      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A;font-weight:600;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
+      (fmtPrice?'<div style="font-family:Georgia,serif;font-size:26px;color:#C9A14A;font-weight:600;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
       '</div>'+
-      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#071226;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
+      (p.title?'<div style="font-family:Georgia,serif;font-size:23px;color:#071226;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
       '<div style="margin-bottom:12px">'+
       (p.area?'<span style="font-size:14px;font-weight:700;color:#2D2B28">'+esc(p.area)+'</span>':'')+
       (p.area&&p.address?'<span style="font-size:13px;color:#9e9a94"> &nbsp;|&nbsp; </span>':'')+
@@ -304,7 +304,7 @@ function renderPublicClientView(tour){
   var footerHtml='<div style="background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:160px">'+
     '<div style="flex:6;padding:24px 22px;display:flex;flex-direction:column;justify-content:center">'+
     '<div style="font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Your Property Consultant</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:2px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
+    '<div style="font-family:Georgia,serif;font-size:22px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:2px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
     (cfg.agency&&cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px">'+esc(cfg.agency)+'</div>':'<div style="margin-bottom:14px"></div>')+
     (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
       '<div style="width:28px;height:28px;border-radius:50%;background:#25d36618;border:1px solid #25d36640;display:flex;align-items:center;justify-content:center;font-size:13px">&#128241;</div>'+
@@ -334,7 +334,7 @@ function renderPublicClientView(tour){
   var topNav='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
+    '<span style="font-family:Georgia,serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
     '</div></div>';
 
   // ── ASSEMBLE ──────────────────────────────────────────────────────────────
@@ -361,7 +361,7 @@ function showNotFound(){
   document.getElementById('app').innerHTML=
     '<div style="padding:48px 24px;text-align:center">'+
     '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-    '<div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#2D2B28;margin-bottom:8px">Tour not found</div>'+
+    '<div style="font-family:Georgia,serif;font-size:28px;font-weight:300;color:#2D2B28;margin-bottom:8px">Tour not found</div>'+
     '<div style="font-size:13px;color:#9e9a94;line-height:1.6">This link may have expired or been removed.<br>Please contact your property consultant.</div>'+
     '</div>';
 }
@@ -374,6 +374,15 @@ function revealApp(){
   setTimeout(function(){if(s)s.style.display='none';},500);
 }
 
+// Safety net — always reveal after 4 seconds max
+var _revealed=false;
+function safeReveal(){
+  if(_revealed)return;
+  _revealed=true;
+  revealApp();
+}
+setTimeout(safeReveal, 4000);
+
 if(publicId){
   loadPublicTour(publicId, function(tour){
     if(tour){
@@ -382,16 +391,15 @@ if(publicId){
     } else {
       showNotFound();
     }
-    var elapsed=Date.now()-window._splashStart;
-    setTimeout(revealApp, Math.max(0, 1200-elapsed));
+    safeReveal();
   });
 } else {
   document.getElementById('app').innerHTML=
     '<div style="padding:48px 24px;text-align:center">'+
-    '<div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No tour specified</div>'+
+    '<div style="font-family:Georgia,serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No tour specified</div>'+
     '<div style="font-size:13px;color:#9e9a94">Open a valid TourFlow client link to view your itinerary.</div>'+
     '</div>';
-  setTimeout(revealApp, 1200);
+  safeReveal();
 }
 </script>
 </body>
