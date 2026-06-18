@@ -718,8 +718,9 @@ function pgHome(){
   }
 
   // ── TODAY'S TOUR CARD ────────────────────────────────────────────────────
+  var isNew=S.days.length===0||S._showOnboarding===true;
   var todayCard='';
-  if(todayDay){
+  if(todayDay&&!isNew){
     var tc=S.clients.find(function(c){return c.id===todayDay.clientId;})||{name:'Unknown'};
     var tProps=todayDay.properties||[];
     var tTime=fmtTimeRange(todayDay);
@@ -762,42 +763,159 @@ function pgHome(){
 
   // ── NO TOUR TODAY CARD ───────────────────────────────────────────────────
   var noTourCard='';
-  if(!todayDay){
-    noTourCard='<div style="margin-bottom:28px">'+
-      '<div style="background:#F6F2E9;border-radius:18px;padding:32px 24px;text-align:center;border:1px solid #e8e0d0">'+
-      // Minimal line art illustration
-      '<svg width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;opacity:.7">'+
-      '<path d="M10 60 Q30 20 60 25 Q90 30 110 10"/>'+
-      '<rect x="42" y="35" width="16" height="18" rx="1"/>'+
-      '<path d="M40 35l10-10 10 10"/>'+
-      '<rect x="48" y="46" width="4" height="7"/>'+
-      '<circle cx="90" cy="20" r="8"/>'+
-      '<path d="M90 12V8M90 32v-4M82 20H78M102 20h-4M84.3 14.3l-2.8-2.8M98.5 28.5l-2.8-2.8M98.5 14.3l2.8-2.8M84.3 28.5l2.8-2.8"/>'+
-      '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
-      '<line x1="5" y1="62" x2="115" y2="62"/>'+
-      '</svg>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
-      '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
-      '<button onclick="go(\'new-day\')" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
-      '</div></div>';
+  if(!todayDay||isNew){
+    var hasUpcoming=upcoming.length>0;
+
+    if(isNew){
+      // ── ONBOARDING: brand new user ────────────────────────────────────────
+      var hasClients=S.clients.length>0;
+      var hasProps=(S.library||[]).length>0||S.days.some(function(d){return (d.properties||[]).length>0;});
+      var hasTours=S.days.length>0;
+      var stepsComplete=hasClients?hasProps?hasTours?3:2:1:0;
+
+      if(hasTours&&!S._showOnboarding){
+        // All done — graduation card
+        var latestDay=[].concat(S.days).sort(function(a,b){return b.date.localeCompare(a.date);})[0];
+        var latestClient=latestDay?S.clients.find(function(c){return c.id===latestDay.clientId;}):null;
+        noTourCard='<div style="margin-bottom:24px">'+
+          '<div style="background:linear-gradient(145deg,#071226,#0d1f38);border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
+          '<div style="font-size:36px;margin-bottom:12px">&#127881;</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#fff;letter-spacing:-.3px;margin-bottom:8px">You\'re ready</div>'+
+          '<div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:6px">Everything is set up.</div>'+
+          '<div style="font-size:13px;color:rgba(255,255,255,.6);margin-bottom:24px;line-height:1.6">Create and share beautiful viewing days with your clients.</div>'+
+          '<button onclick="go(\'new-day\')" style="width:100%;background:#C9A14A;color:#071226;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;letter-spacing:.02em">+ New Tour</button>'+
+          (latestDay?'<button onclick="S.did=\''+latestDay.id+'\';S.cid=\''+(latestClient?latestClient.id:'')+'\'\';go(\'output\')" style="width:100%;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Open latest tour</button>':'')+
+          '</div></div>';
+      } else {
+        // Progress indicator
+        var progressPct=Math.round(stepsComplete/3*100);
+        var progressBar='<div style="margin-bottom:20px">'+
+          '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
+          '<div style="font-size:10px;font-weight:600;color:#6b6560;text-transform:uppercase;letter-spacing:.1em">Getting started</div>'+
+          '<div style="font-size:10px;color:#9e9a94">'+stepsComplete+' of 3 completed</div>'+
+          '</div>'+
+          '<div style="height:3px;background:#edeae4;border-radius:100px">'+
+          '<div style="height:100%;width:'+progressPct+'%;background:#C9A14A;border-radius:100px;transition:width .4s"></div>'+
+          '</div></div>';
+
+        function stepCard(num,title,sub,icon,action,active,done){
+          var border=done?'1.5px solid #C9A14A':active?'1.5px solid #C9A14A':'1px solid #edeae4';
+          var bg=done?'#fafaf8':active?'#fff':'#fff';
+          var opacity=active||done?'1':'0.38';
+          var iconBg=done?'#071226':active?'#071226':'#edeae4';
+          var iconStroke=done||active?'#C9A14A':'#9e9a94';
+          var badge=done
+            ?'<div style="width:22px;height:22px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>'
+            :active
+            ?'<span style="background:#071226;color:#C9A14A;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700">Step '+num+'</span>'
+            :'<span style="background:#f5f2ec;color:#9e9a94;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700">Step '+num+'</span>';
+          var clickAttr=active?('onclick="'+action+'" style="cursor:pointer;'):('style="');
+          return '<div '+clickAttr+'background:'+bg+';border:'+border+';border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;opacity:'+opacity+'">'+
+            '<div style="width:34px;height:34px;background:'+iconBg+';border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
+            (done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>':icon)+
+            '</div>'+
+            '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">'+title+'</div>'+
+            '<div style="font-size:11px;color:#9e9a94">'+sub+'</div></div>'+
+            badge+'</div>';
+        }
+
+        var s1=stepCard(1,'Add your first client','Start by adding a buyer or investor',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasClients?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+          'go(\'add-client\')',!hasClients,hasClients);
+        var s2=stepCard(2,'Add your first property','Build your property library',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasProps?'#C9A14A':hasClients?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg>',
+          'goAddLibProp()',hasClients&&!hasProps,hasProps);
+        var s3=stepCard(3,'Create your first tour','Build your first viewing day',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasTours?'#C9A14A':hasProps?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+          'quickDay()',hasProps&&!hasTours,hasTours);
+
+        // Client view preview card
+        var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
+          '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
+          '<div onclick="showDemoClientView()" style="background:#071226;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(7,18,38,.2);cursor:pointer">'+
+          '<div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06)">'+
+          '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:6px">Personalised Viewing Day</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:2px">Erik Svensson</div>'+
+          '<div style="font-size:11px;color:rgba(255,255,255,.35)">Wednesday, 18 June</div>'+
+          '</div>'+
+          '<div style="padding:14px 18px;display:flex;gap:16px;border-bottom:1px solid rgba(255,255,255,.06)">'+
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">3</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">Properties</div></div>'+
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">10:00</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">Start</div></div>'+
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">13:30</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">End</div></div>'+
+          '</div>'+
+          '<div style="padding:12px 18px;background:rgba(255,255,255,.03)">'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:13px;color:rgba(255,255,255,.6);font-style:italic;line-height:1.6">&ldquo;I have carefully selected today\'s properties based on your preferences...&rdquo;</div>'+
+          '</div>'+
+          '<div style="padding:10px 18px;display:flex;gap:8px">'+
+          '<div style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:3px 10px;font-size:10px;color:#C9A14A">&#9989; Pool</div>'+
+          '<div style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:3px 10px;font-size:10px;color:#C9A14A">&#9989; Sea view</div>'+
+          '</div>'+
+          '</div></div>';
+
+        noTourCard='<div style="margin-bottom:24px">'+
+          '<div style="background:#F6F2E9;border-radius:18px;padding:22px 20px;border:1px solid #e8e0d0;margin-bottom:20px;text-align:center">'+
+          '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" style="margin-bottom:12px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:4px">Welcome to TourFlow</div>'+
+          '<div style="font-size:12px;color:#9e9a94;margin-bottom:16px">Let\'s get you set up in 3 simple steps</div>'+
+          progressBar+
+          '</div>'+
+          s1+s2+s3+
+          previewCard+
+          '</div>';
+      }
+    } else if(hasUpcoming){
+      // ── EXPERIENCED USER: has upcoming tours ──────────────────────────────
+      noTourCard='<div style="background:#F6F2E9;border-radius:18px;padding:16px 18px;border:1px solid #e8e0d0;margin-bottom:24px">'+
+        '<div>'+
+        '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px">Today</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#2D2B28">No tour scheduled</div>'+
+        '</div>'+
+        '<button onclick="go(\'new-day\')" style="background:#071226;color:#C9A14A;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ New tour</button>'+
+        '</div>';
+    } else {
+      // ── HAS CLIENTS but no upcoming — standard empty state ────────────────
+      noTourCard='<div style="margin-bottom:28px">'+
+        '<div style="background:#F6F2E9;border-radius:18px;padding:32px 24px;text-align:center;border:1px solid #e8e0d0">'+
+        '<svg width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;opacity:.7">'+
+        '<path d="M10 60 Q30 20 60 25 Q90 30 110 10"/>'+
+        '<rect x="42" y="35" width="16" height="18" rx="1"/>'+
+        '<path d="M40 35l10-10 10 10"/>'+
+        '<rect x="48" y="46" width="4" height="7"/>'+
+        '<circle cx="90" cy="20" r="8"/>'+
+        '<path d="M90 12V8M90 32v-4M82 20H78M102 20h-4"/>'+
+        '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
+        '<line x1="5" y1="62" x2="115" y2="62"/>'+
+        '</svg>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
+        '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
+        '<button onclick="go(\'new-day\')" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+        '</div></div>';
+    }
   }
 
   // ── QUICK ACTIONS ────────────────────────────────────────────────────────
+  function qaBtn(onclick,iconSvg,title,sub){
+    return '<button onclick="'+onclick+'" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:14px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
+      '<div style="width:34px;height:34px;background:#071226;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:9px">'+iconSvg+'</div>'+
+      '<div style="font-size:12px;font-weight:600;color:#2D2B28;margin-bottom:2px">'+title+'</div>'+
+      '<div style="font-size:10px;color:#9e9a94">'+sub+'</div>'+
+    '</button>';
+  }
   var quickActions='<div style="margin-bottom:32px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Quick Actions</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-    '<button onclick="go(\'new-day\')" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06)">'+
-      '<div style="width:36px;height:36px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:10px">'+
-      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
-      '<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">New Tour</div>'+
-      '<div style="font-size:11px;color:#9e9a94">Create a new tour</div>'+
-    '</button>'+
-    '<button onclick="showTab(\'days\')" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:16px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(0,0,0,.06)">'+
-      '<div style="width:36px;height:36px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:10px">'+
-      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>'+
-      '<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">Open Existing</div>'+
-      '<div style="font-size:11px;color:#9e9a94">View your tours</div>'+
-    '</button>'+
+    qaBtn('go(\'new-day\')',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+      'New Tour','Plan a viewing day')+
+    qaBtn('showTab(\'days\')',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/></svg>',
+      'Open Existing','View your tours')+
+    qaBtn('go(\'add-client\')',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M19 8v6M22 11h-6"/></svg>',
+      'New Client','Add a buyer')+
+    qaBtn('goAddLibProp()',
+      '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/><path d="M17 5v6M20 8h-6"/></svg>',
+      'Add Property','Save to library')+
     '</div></div>';
 
   // ── CONTINUE WHERE LEFT OFF (no tour today) ──────────────────────────────
@@ -1016,6 +1134,26 @@ function newDayFor(cId){var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
 
 // ── ADD CLIENT ────────────────────────────────────────────────────────────────
 function confirmDeleteClient(cid,name){if(confirm("Delete "+name+" and all their viewing days?\nThis cannot be undone.")){delClient(cid);showTab("clients");}}
+function doDeleteProp(){
+  var day=curD();if(!day)return;
+  var p=(day.properties||[]).find(function(x){return x.id===S.epid;});
+  if(!p)return;
+  var title=p.title||p.address||'this property';
+  if(confirm('Remove '+title+'?\nThis cannot be undone.')){
+    delProp(day.id,p.id);
+    S.epid=null;
+    render();
+  }
+}
+function doDeletePropById(pid){
+  var m=(window._propMap||{})[pid]||{};
+  var title=m.title||'this property';
+  if(confirm('Remove '+title+'?\nThis cannot be undone.')){
+    delProp(m.did,pid);
+    S.epid=null;
+    render();
+  }
+}
 function doDeleteClient(){var c=S.clients.find(function(x){return x.id===S.cid;});if(!c)return;if(confirm("Delete "+c.name+" and all their viewing days?\nThis cannot be undone.")){delClient(c.id);showTab("clients");}}
 function pgPickClient(){
   var rows=S.clients.map(function(c){
@@ -1294,6 +1432,7 @@ function pgDayDetail(){
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
   var evs=day.events||[];
 
+  window._propMap={};
   var pCards=props.map(function(p){
     var io=S.epid===p.id,ii=S.eiid===p.id;
     var ep="";
@@ -1370,6 +1509,7 @@ function pgDayDetail(){
         '</div></div>'+
         '</div>';
     }
+    window._propMap[p.id]={did:day.id,title:p.title||p.address||'Property'};
     return '<div class="pc">'+
       '<div style="padding:12px 14px;display:flex;gap:10px;align-items:flex-start">'+
       '<div style="flex:1;min-width:0">'+
@@ -1384,7 +1524,7 @@ function pgDayDetail(){
       '</div></div>'+
       '<div style="display:flex;gap:6px">'+
       '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="S.epid=S.epid===\''+p.id+'\'?null:\''+p.id+'\';S.eiid=null;render()">'+(io?"&#9650;":"Edit")+'</button>'+
-      '<button class="bico" onclick="delProp(\''+day.id+'\',\''+p.id+'\');render()">&#215;</button>'+
+      '<button class="bico" onclick="doDeletePropById(\''+p.id+'\')" >&#215;</button>'+
       '</div></div>'+ep+'</div>';
   }).join("");
 
@@ -2239,6 +2379,22 @@ function pgFromLibrary(){
 }
 
 
+function showDemoClientView(){
+  // Set up a demo tour using first available day with properties
+  var demoDay=S.days.find(function(d){return (d.properties||[]).length>0;});
+  if(demoDay){
+    S.did=demoDay.id;
+    S.cid=demoDay.clientId;
+    S.viewMode='client';
+    go('output');
+  } else {
+    // No real tour - show a message
+    alert('Add properties to a tour first to preview the client view.');
+  }
+}
+function showOnboarding(){S._showOnboarding=true;showTab('home');}
+function hideOnboarding(){S._showOnboarding=false;showTab('home');}
+
 function goAddLibProp(){go('add-lib-prop');}
 
 // ── ADD LIBRARY PROPERTY ──────────────────────────────────────────────────────
@@ -2464,7 +2620,16 @@ function pgSettings(){
     '</div>'+
     fRows+
     '<div style="font-size:12px;color:#9e9a94;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
-    '</div></div>';
+    '</div>'+
+    '<div class="card" style="margin-top:16px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Help</div>'+
+    '<button onclick="showOnboarding()" style="width:100%;padding:12px;background:#f5f2ec;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">'+
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">Tutorial — new user view</div>'+
+    '<div style="font-size:11px;color:#9e9a94;margin-top:1px">Preview the onboarding experience</div></div>'+
+    '</button>'+
+    '</div>'+
+    '</div>';
 }
 function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
 function upPhoto(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.photo=e.target.result;persist();render();};r.readAsDataURL(f);}
