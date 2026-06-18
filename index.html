@@ -2515,10 +2515,27 @@ function createPublicTour(day, client, cfg){
   cleanTour.publicId=publicId;
   cleanTour.createdAt=new Date().toISOString();
 
-  // Store in localStorage — later replaced with Supabase insert
-  var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
-  store[publicId]=cleanTour;
-  localStorage.setItem('tf-public', JSON.stringify(store));
+  // Save to Supabase
+  fetch('https://smcubfgpnrkguxqxbgva.supabase.co/rest/v1/public_tours', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':'sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY',
+      'Authorization':'Bearer sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY',
+      'Prefer':'return=minimal'
+    },
+    body:JSON.stringify({public_id:publicId, tour_data:cleanTour})
+  }).then(function(r){
+    if(!r.ok){
+      r.text().then(function(t){console.error('Supabase error:',t);});
+    }
+  }).catch(function(e){
+    console.error('Supabase save failed:',e);
+    // Fallback: save to localStorage
+    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+    store[publicId]=cleanTour;
+    localStorage.setItem('tf-public', JSON.stringify(store));
+  });
 
   return publicId;
 }
