@@ -1330,6 +1330,14 @@ function pgDayDetail(){
         hlPickerHtml(day.id,p.id,p.highlights)+
         '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9a94;font-weight:300;font-size:10px\">optional</span></label>'+
         '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
+        '<div style="margin-bottom:9px">'+
+        '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Annual costs <span style="font-size:9px;color:#9e9a94;font-weight:400;text-transform:none;letter-spacing:0">— optional</span></div>'+
+        '<div class="g2" style="margin-bottom:9px">'+
+        '<div><label class="lbl">Community fee / yr</label><input class="inp ins" value="'+esc(p.communityFee||'')+'" placeholder="e.g. €1,200" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{communityFee:this.value})"/></div>'+
+        '<div><label class="lbl">IBI / yr</label><input class="inp ins" value="'+esc(p.ibi||'')+'" placeholder="e.g. €450" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{ibi:this.value})"/></div>'+
+        '</div>'+
+        '<div style="margin-bottom:9px"><label class="lbl">Basura / yr</label><input class="inp ins" style="max-width:48%" value="'+esc(p.basura||'')+'" placeholder="e.g. €150" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{basura:this.value})"/></div>'+
+        '</div>'+
         '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
         '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
         '<div style="font-size:11px;color:#9e9a94">Highlight this property for the client</div></div>'+
@@ -1883,6 +1891,18 @@ function pgOutput(){
         (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px">&#x1F6C1;<span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc(p.bathrooms)+'</span></div>':'')+ 
         (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg><span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc((p.sqm||'').replace(/m2$/i,''))+'m²</span></div>':'')+ 
         '</div>':'')+
+
+      // Annual costs — show if any filled
+      ((p.communityFee||p.ibi||p.basura)?
+        '<div style="margin-bottom:12px;padding:12px 14px;background:#fafaf8;border:1px solid #edeae4;border-radius:10px">'+
+        '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Annual costs</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:8px">'+
+        (p.communityFee?'<div style="display:flex;flex-direction:column"><span style="font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em">Community</span><span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.communityFee)+'</span></div>':'')+
+        (p.ibi?'<div style="display:flex;flex-direction:column;padding-left:12px;border-left:1px solid #edeae4"><span style="font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em">IBI</span><span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.ibi)+'</span></div>':'')+
+        (p.basura?'<div style="display:flex;flex-direction:column;padding-left:12px;border-left:1px solid #edeae4"><span style="font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em">Basura</span><span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.basura)+'</span></div>':'')+
+        '</div></div>'
+      :'')+
+
       // Buttons
       (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#6b6560;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+ 
       (p.url?'<a href="'+esc(p.url)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#C9A14A;text-decoration:none;background:#071226;border-radius:8px;padding:10px 12px;letter-spacing:.04em;margin-bottom:12px;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg> View full listing</a>':'')+ 
