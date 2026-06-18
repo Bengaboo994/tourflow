@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#FCFBF7"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<title>TourFlow – Your Viewing Day</title>
+<meta property="og:title" content="TourFlow – Your Viewing Day"/>
+<meta property="og:description" content="Your personalised property viewing itinerary, carefully prepared for you."/>
+<meta property="og:image" content="https://rococo-chimera-78db0a.netlify.app/og-image.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--ink:#2D2B28;--paper:#FCFBF7;--brass:#C9A14A;--slate:#6b6560;--fog:#edeae4;--mist:#f5f2ec;--card:#ffffff;--hdr:#071226}
+body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
+.wrap{padding:20px 18px 48px}
+</style>
+</head>
+<body>
+
+<!-- Splash -->
+<div id="splash" style="position:fixed;inset:0;background:#FCFBF7;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;padding-bottom:30vh;transition:opacity .5s ease">
+  <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+  <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:38px;font-weight:300;color:#2D2B28;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
+  <span style="font-family:'Jost',sans-serif;font-size:13px;font-weight:400;color:#6b6560;letter-spacing:.14em;text-transform:uppercase;margin-top:14px">Your Viewing Day</span>
+</div>
+
+<div id="app" style="opacity:0;transition:opacity .3s ease"></div>
+
+<script>
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(d){if(!d)return'';try{return new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}catch(e){return d;}}
+
+var ET=[
+  {key:'meetingpoint',icon:'&#128205;',label:'Meeting Point',col:'#071226',brd:'#C9A14A',txt:'#fff',isMeetingPoint:true},
+  {key:'lunch',icon:'&#127869;',label:'Lunch',col:'#f2f7f2',brd:'#c8ddc8',txt:'#2d5a2d'},
+  {key:'coffee',icon:'&#9749;',label:'Coffee',col:'#fef9ee',brd:'#fde68a',txt:'#78350f'},
+  {key:'drive',icon:'&#128663;',label:'Drive',col:'#f8fafc',brd:'#e2e8f0',txt:'#475569'},
+  {key:'pickup',icon:'&#128663;',label:'Pickup',col:'#f8fafc',brd:'#e2e8f0',txt:'#475569'},
+  {key:'stop',icon:'&#128204;',label:'Stop',col:'#f8fafc',brd:'#e2e8f0',txt:'#475569'},
+  {key:'other',icon:'&#128204;',label:'Other',col:'#f8fafc',brd:'#e2e8f0',txt:'#475569'}
+];
+function getET(k){for(var i=0;i<ET.length;i++){if(ET[i].key===k)return ET[i];}return ET[6];}
+
+var ICON={
+  'Walking distance to beach':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Pool':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Garage':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Near golf':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/></svg>',
+  'Private garden':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
+  'Quiet area':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/></svg>',
+  'Hot listing':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
+  'Excellent value':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/></svg>',
+  'Sea view':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Close to amenities':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>',
+  'Restaurants nearby':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/></svg>',
+  'Large terrace':'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M3 17h18M3 12h18"/><rect x="5" y="3" width="14" height="7" rx="1"/></svg>'
+};
+
+// ── LOAD TOUR ─────────────────────────────────────────────────────────────────
+function loadPublicTour(publicId){
+  // Later: replace with Supabase fetch
+  try {
+    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+    return store[publicId]||null;
+  } catch(e){ return null; }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderPublicClientView(tour){
+  var props=(tour.properties||[]).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
+  var evs=tour.events||[];
+  var c=tour.client||null;
+  var cfg=tour.cfg||{};
+  var day=tour;
+
+  // All items sorted by time
+  var all=props.map(function(p){return{k:'p',t:p.time||'',d:p};})
+    .concat(evs.map(function(e){return{k:'e',t:e.time||'',d:e};}))
+    .sort(function(a,b){return(a.t||'zz').localeCompare(b.t||'zz');});
+
+  var pi=0;
+
+  // ── STATS BAR ────────────────────────────────────────────────────────────
+  var sortedProps=[].concat(props).sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
+  var firstTime=sortedProps.length?sortedProps[0].time:'';
+  var lastTime=sortedProps.length>1?sortedProps[sortedProps.length-1].time:'';
+  var pLen=props.length;
+
+  var statsBar='<div style="background:#071226;padding:10px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Propert'+(pLen===1?'y':'ies')+'</div></div>'+
+    (firstTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(firstTime)+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">Start</div></div>':'')+
+    (lastTime?'<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lastTime)+'</div>'+
+    '<div style="font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:1px">End</div></div>':'')+
+    '</div>';
+
+  // ── TIMELINE ─────────────────────────────────────────────────────────────
+  var tlItems=[];
+  var tlAll=[];
+  evs.forEach(function(ev){tlAll.push({t:ev.time||'',ev:ev});});
+  var propNum=0;
+  sortedProps.forEach(function(pp){propNum++;tlAll.push({t:pp.time||'',pp:pp,num:propNum});});
+  tlAll.sort(function(a,b){return(a.t||'zz').localeCompare(b.t||'zz');});
+  tlAll.forEach(function(item){
+    if(item.ev){
+      var ev=item.ev;
+      if(ev.type==='meetingpoint') tlItems.push({label:esc(ev.title||'Meeting point'),sub:ev.time||'',type:'mp'});
+      else tlItems.push({label:esc(ev.title||ev.type),sub:ev.time||'',type:'ev',evType:ev.type});
+    } else {
+      tlItems.push({label:esc(item.pp.area||item.pp.title||'Property'),sub:item.pp.time||'',num:item.num,type:'prop'});
+    }
+  });
+  tlItems.push({label:'End',sub:'End of tour',type:'end'});
+
+  var timelineHtml=tlItems.length>1?
+    '<div style="background:#071226;padding:10px 20px 14px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
+    '<div style="display:flex;align-items:flex-start;min-width:max-content">'+
+    tlItems.map(function(tl,tli){
+      var isLast=tli===tlItems.length-1;
+      var dot=tl.type==='prop'
+        ?'<div style="width:16px;height:16px;border-radius:50%;background:#C9A14A;color:#071226;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
+        :tl.type==='mp'
+        ?'<div style="width:16px;height:16px;border-radius:50%;background:rgba(201,161,74,.2);border:1px solid #C9A14A;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
+        :tl.type==='ev'
+        ?'<div style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:8px">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
+        :'<div style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);flex-shrink:0"></div>';
+      var line=!isLast?'<div style="flex:1;height:1px;background:rgba(201,161,74,.25);margin-top:7px;min-width:16px"></div>':'';
+      return'<div style="display:flex;align-items:flex-start">'+
+        '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;max-width:64px">'+dot+
+        '<div style="font-size:7px;font-weight:500;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
+        '<div style="font-size:6px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2">'+tl.label+'</div>'+
+        '</div>'+line+'</div>';
+    }).join('')+
+    '</div></div>':'';
+
+  // ── COVER HEADER ─────────────────────────────────────────────────────────
+  var ft=firstTime, lt=lastTime;
+  var coverHdr=
+    '<div style="background:#071226;padding:26px 22px 28px">'+
+    '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px">Personalised Viewing Day</div>'+
+    (c?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:#fff;line-height:1;letter-spacing:-.3px;margin-bottom:3px">'+esc(c.name)+'</div>':'<div style="height:10px"></div>')+
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px">'+fmtDate(day.date)+'</div>'+
+    '<div style="height:1px;background:linear-gradient(90deg,rgba(201,161,74,.4),transparent);margin-bottom:14px"></div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+
+    (ft&&lt?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+esc(ft)+' – '+esc(lt)+'</span>':'')+
+    (pLen?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">'+pLen+' propert'+(pLen===1?'y':'ies')+'</span>':'')+
+    (evs.some(function(ev){return ev.type==='lunch';})?'<span style="font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:3px 9px">Lunch included</span>':'')+
+    '</div>'+
+    '<div style="display:flex;gap:0">'+
+    '<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+pLen+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Propert'+(pLen===1?'y':'ies')+'</div>'+
+    '</div>'+
+    (ft?'<div style="flex:1;border-right:1px solid rgba(255,255,255,.07);padding-right:14px;margin-right:14px">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(ft)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">First Viewing</div>'+
+    '</div>':'')+
+    (lt&&pLen>1?'<div style="flex:1">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:25px;font-weight:400;color:#C9A14A;line-height:1">'+esc(lt)+'</div>'+
+    '<div style="font-size:9px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;margin-top:3px">Last Viewing</div>'+
+    '</div>':'')+
+    '</div>'+
+    '</div>';
+
+  // ── WELCOME MSG ───────────────────────────────────────────────────────────
+  var welcomeSection=day.welcomeMsg?
+    '<div style="padding:22px 22px 16px;border-top:1px solid rgba(255,255,255,.06)">'+
+    '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">A personal note</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
+    '</div>':'';
+
+  // ── REQUIREMENTS ─────────────────────────────────────────────────────────
+  var reqSection='';
+  if(c&&c.req){
+    var req=c.req;
+    var mustHave=req.mustHave||[];
+    var budgetLabels={'u100':'< €100k','100-200':'€100k – €200k','200-300':'€200k – €300k','300-500':'€300k – €500k','500-800':'€500k – €800k','800k+':'> €800k'};
+    var lines=[];
+    if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
+    if(req.minrooms&&req.minrooms!=='studio')lines.push(req.minrooms+'+ bedrooms');
+    if(req.type&&req.type!=='any'){var tl={apt:'Apartment',villa:'Villa',house:'Townhouse',bungalow:'Bungalow',penthouse:'Penthouse'};lines.push(tl[req.type]||req.type);}
+    mustHave.forEach(function(f){lines.push(f);});
+    if(lines.length){
+      reqSection='<div style="padding:16px 22px;border-top:1px solid rgba(255,255,255,.06)">'+
+        '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">Your Requirements</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+        lines.map(function(r){return'<span style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,.75)">&#10003; '+esc(r)+'</span>';}).join('')+
+        '</div></div>';
+    }
+  }
+
+  // ── PROPERTY ROWS ─────────────────────────────────────────────────────────
+  var rows=all.map(function(item){
+    if(item.k==='e'){
+      var e=item.d, et=getET(e.type);
+      if(et.isMeetingPoint){
+        return '<div style="background:#071226;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+          '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.15);border:1px solid rgba(201,161,74,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px">&#128205;</div>'+
+          '<div><div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
+          '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
+          (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(e.time)+'</div>':'')+
+          '</div></div>';
+      }
+      return '<div style="padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #edeae4;background:'+et.col+'">'+
+        '<span style="font-size:18px">'+et.icon+'</span>'+
+        '<div>'+(e.time?'<span style="font-weight:700;font-size:13px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
+        '<span style="font-size:13px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
+        (e.note?'<span style="font-size:12px;color:'+et.txt+';opacity:.7"> · '+esc(e.note)+'</span>':'')+
+        '</div></div>';
+    }
+
+    var p=item.d; var idx=pi++;
+    var fmtPrice=(function(){
+      var pr=(p.price||'').trim();
+      if(!pr)return'';
+      pr=pr.replace(/EUR/i,'').replace(/€/g,'').trim();
+      if(!pr)return'';
+      var n=parseInt(pr.replace(/[^0-9]/g,''),10);
+      return isNaN(n)?pr:'€'+n.toLocaleString('en-US');
+    })();
+
+    var hl=p.highlights||[];
+    var chips=hl.map(function(h){
+      return'<span style="display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:4px 10px 4px 8px;font-size:10px;font-weight:500;color:#6b6560;white-space:nowrap">'+
+        '<span style="font-size:11px">'+(ICON[h]||'')+'</span>'+esc(h)+'</span>';
+    }).join('');
+
+    var tpBadge=p.topPick?
+      '<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A14A,#d4a84b);border-radius:5px;padding:3px 8px;display:flex;align-items:center;gap:4px">'+
+      '<span style="font-size:9px">&#11088;</span>'+
+      '<span style="font-size:8px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.08em">Top Pick</span>'+
+      '</div>':'';
+
+    var imgHtml=p.ogImage
+      ?'<div style="position:relative;height:260px;overflow:hidden">'+
+        '<img src="'+esc(p.ogImage)+'" style="width:100%;height:100%;object-fit:cover"/>'+
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 55%,rgba(0,0,0,.2) 100%)"></div>'+
+        tpBadge+'</div>'
+      :'<div style="position:relative;height:80px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center">'+
+        tpBadge+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(201,161,74,.1)">'+(idx+1)+'</div>'+
+        '</div>';
+
+    return '<div style="border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.08);margin-bottom:16px;border:1px solid #edeae4;background:#fff">'+
+      imgHtml+
+      '<div style="padding:14px 16px 18px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
+      '<div style="display:flex;align-items:center;gap:7px">'+
+      '<div style="width:22px;height:22px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;color:#C9A14A;font-size:10px;font-weight:700;flex-shrink:0">'+(idx+1)+'</div>'+
+      (p.time?'<span style="font-size:13px;font-weight:600;color:#2D2B28">'+esc(p.time)+'</span>':'')+
+      '</div>'+
+      (fmtPrice?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A;font-weight:600;letter-spacing:-.3px">'+esc(fmtPrice)+'</div>':'')+
+      '</div>'+
+      (p.title?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:23px;color:#071226;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px">'+esc(p.title)+'</div>':'')+
+      '<div style="margin-bottom:12px">'+
+      (p.area?'<span style="font-size:14px;font-weight:700;color:#2D2B28">'+esc(p.area)+'</span>':'')+
+      (p.area&&p.address?'<span style="font-size:13px;color:#9e9a94"> &nbsp;|&nbsp; </span>':'')+
+      (p.address?'<span style="font-size:13px;color:#9e9a94">'+esc(p.address)+'</span>':'')+
+      '</div>'+
+      (p.rooms||p.bathrooms||p.sqm?
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+
+        (p.rooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px">&#x1F6CF;&#xFE0F;<span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc(p.rooms)+'</span></div>':'')+
+        (p.bathrooms?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px">&#x1F6C1;<span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc(p.bathrooms)+'</span></div>':'')+
+        (p.sqm?'<div style="display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px"><span style="font-size:11px;font-weight:700;color:#2D2B28">'+esc((p.sqm||'').replace(/m2$/i,''))+'m²</span></div>':'')+
+        '</div>':'')+
+      (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#6b6560;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+
+      (p.url?'<a href="'+esc(p.url)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:300;color:#fff;text-decoration:none;background:#071226;border-radius:8px;padding:9px 12px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px">Full Details</a>':'')+
+      (hl.length?'<div style="display:flex;flex-wrap:wrap;gap:6px">'+chips+'</div>':'')+
+      (p.agentRec?'<div style="margin-top:10px;border-top:1px solid #edeae4;padding-top:10px;font-size:12px;color:#6b6560;line-height:1.55;font-style:italic">'+esc(p.agentRec)+'</div>':'')+
+      '</div></div>';
+  }).join('');
+
+  // ── CONSULTANT FOOTER ─────────────────────────────────────────────────────
+  var wa=cfg.phone?'https://wa.me/'+cfg.phone.replace(/[^0-9]/g,''):'';
+  var footerHtml='<div style="background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:160px">'+
+    '<div style="flex:6;padding:24px 22px;display:flex;flex-direction:column;justify-content:center">'+
+    '<div style="font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px">Your Property Consultant</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:2px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
+    (cfg.agency&&cfg.agent?'<div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:14px">'+esc(cfg.agency)+'</div>':'<div style="margin-bottom:14px"></div>')+
+    (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
+      '<div style="width:28px;height:28px;border-radius:50%;background:#25d36618;border:1px solid #25d36640;display:flex;align-items:center;justify-content:center;font-size:13px">&#128241;</div>'+
+      '<div><div style="font-size:11px;font-weight:600;color:#25d366">WhatsApp</div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':
+      (cfg.phone?'<a href="tel:'+esc(cfg.phone)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin-bottom:8px">'+
+      '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center;font-size:13px">&#128222;</div>'+
+      '<div><div style="font-size:11px;font-weight:600;color:rgba(201,161,74,.85)">Call</div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.phone)+'</div></div></a>':''))+
+    (cfg.email?'<a href="mailto:'+esc(cfg.email)+'" style="display:inline-flex;align-items:center;gap:8px;text-decoration:none">'+
+      '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center;font-size:13px">&#9993;</div>'+
+      '<div><div style="font-size:11px;font-weight:600;color:rgba(201,161,74,.85)">Email</div>'+
+      '<div style="font-size:10px;color:rgba(255,255,255,.3)">'+esc(cfg.email)+'</div></div></a>':'')+
+    '</div>'+
+    (cfg.photo?'<div style="flex:4;position:relative;overflow:hidden">'+
+      '<img src="'+cfg.photo+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center"/>'+
+      '</div>':'<div style="flex:4"></div>')+
+    '</div>';
+
+  // ── CREATED WITH FOOTER ───────────────────────────────────────────────────
+  var poweredBy='<div style="text-align:center;padding:24px 0 16px">'+
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:5px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<div style="font-size:10px;color:#c8bfb0;letter-spacing:.1em;text-transform:uppercase;font-family:Jost,sans-serif">Created with TourFlow</div>'+
+    '</div>';
+
+  // ── TOP NAV (read-only, no buttons) ───────────────────────────────────────
+  var topNav='<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
+    '<div style="display:flex;align-items:center;gap:7px">'+
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
+    '</div></div>';
+
+  // ── ASSEMBLE ──────────────────────────────────────────────────────────────
+  return '<div class="wrap" style="background:#FCFBF7;padding-bottom:32px">'+
+    topNav+
+    '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:20px;overflow:hidden;margin-bottom:20px;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
+    statsBar+
+    timelineHtml+
+    coverHdr+
+    welcomeSection+
+    reqSection+
+    '</div>'+
+    rows+
+    footerHtml+
+    poweredBy+
+    '</div>';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+var publicId=new URLSearchParams(window.location.search).get('id');
+
+if(publicId){
+  var tour=loadPublicTour(publicId);
+  if(tour){
+    document.title='TourFlow – '+( tour.client?tour.client.name+' · ':'')+(tour.date||'Viewing Day');
+    document.getElementById('app').innerHTML=renderPublicClientView(tour);
+  } else {
+    document.getElementById('app').innerHTML=
+      '<div style="padding:48px 24px;text-align:center">'+
+      '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin-bottom:8px">Tour not found</div>'+
+      '<div style="font-size:13px;color:#9e9a94;line-height:1.6">This link may have expired or been removed.<br>Please contact your property consultant.</div>'+
+      '</div>';
+  }
+} else {
+  document.getElementById('app').innerHTML=
+    '<div style="padding:48px 24px;text-align:center">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No tour specified</div>'+
+    '<div style="font-size:13px;color:#9e9a94">Open a valid TourFlow client link to view your itinerary.</div>'+
+    '</div>';
+}
+
+// Reveal after splash
+setTimeout(function(){
+  var s=document.getElementById('splash');
+  if(s)s.style.opacity='0';
+  var app=document.getElementById('app');
+  if(app)app.style.opacity='1';
+  setTimeout(function(){if(s)s.style.display='none';},500);
+},1400);
+</script>
+</body>
+</html>
