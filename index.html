@@ -956,7 +956,7 @@ function pgClientDetail(){
     '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
     '<div style="font-size:13px;color:var(--slate)">'+esc(c.phone||"")+'</div></div>'+
     '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="go(\'edit-client\')">Edit</button>'+
-    '<button class="bico" onclick="confirmDeleteClient(\\\''+c.id+'\\\',\\\''+c.name+'\\\')">&times;</button></div>'+
+    '<button class="bico" onclick="doDeleteClient()">&times;</button></div>'+
     '<div class="card" style="margin-bottom:18px">'+
     (function(){
       var req=c.req||{};
@@ -1016,6 +1016,7 @@ function newDayFor(cId){var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
 
 // ── ADD CLIENT ────────────────────────────────────────────────────────────────
 function confirmDeleteClient(cid,name){if(confirm("Delete "+name+" and all their viewing days?\nThis cannot be undone.")){delClient(cid);showTab("clients");}}
+function doDeleteClient(){var c=S.clients.find(function(x){return x.id===S.cid;});if(!c)return;if(confirm("Delete "+c.name+" and all their viewing days?\nThis cannot be undone.")){delClient(c.id);showTab("clients");}}
 function pgPickClient(){
   var rows=S.clients.map(function(c){
     var cd=cDays(c.id);
