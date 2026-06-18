@@ -100,7 +100,7 @@ input,button,textarea,select{font-family:inherit}
 
 <script>
 window._splashStart=Date.now();
-var STORE="tf-demo-preview"; // Demo mode — fresh state
+var STORE="tf-demo-preview";
 
 function topNav(){
   var cfg=S.cfg||{};
@@ -183,7 +183,7 @@ var DEMO_D=[
   {id:"d3",clientId:"c2",date:"2026-06-20",properties:[{id:"p4",url:"https://www.comaskeys.com/property/999",time:"10:30",title:"Studio apartment",address:"Avenida del Mar 8, La Zenia",price:"95,000 EUR",rooms:"Studio",sqm:"45 m2",mapsUrl:"",commission:"2%",contact:"Carlos Ruiz",firm:"La Zenia Homes",location:"Meet agent outside",note:""}],events:[]}
 ];
 
-var d0={}; // Demo mode — always fresh
+var d0={};
 var S={
   tab:"home",screen:"home",
   cid:null,did:null,
@@ -827,7 +827,7 @@ function pgHome(){
           'goAddLibProp()',hasClients&&!hasProps,hasProps);
         var s3=stepCard(3,'Create your first tour','Build your first viewing day',
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasTours?'#C9A14A':hasProps?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-          'go(\'new-day\')',hasProps&&!hasTours,hasTours);
+          'quickDay()',hasProps&&!hasTours,hasTours);
 
         // Client view preview card
         var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
