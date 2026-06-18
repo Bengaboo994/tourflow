@@ -190,7 +190,8 @@ var S={
   addEv:false,
   clients:d0.clients||DEMO_C,
   days:d0.days||DEMO_D,
-  cfg:d0.cfg||{agency:"",agent:"",phone:"",email:"",logo:""}
+  cfg:d0.cfg||{agency:"",agent:"",phone:"",email:"",logo:""},
+  library:d0.library||[]
 };
 
 function reqFormHtml(r){
@@ -427,6 +428,15 @@ function driveTimeHtml(from,to){
 var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
 
 function toggleHighlight(dayId,propId,label){
+  if(dayId==='__lib__'){
+    window._libNewHighlights=window._libNewHighlights||[];
+    var ni=window._libNewHighlights.indexOf(label);
+    if(ni>=0)window._libNewHighlights.splice(ni,1);
+    else window._libNewHighlights.push(label);
+    var wrap=document.getElementById('alp-hl-wrap');
+    if(wrap)wrap.innerHTML=hlPickerHtml('__lib__','__lib__',window._libNewHighlights);
+    return;
+  }
   if(dayId==='__new__'){
     window._newHighlights=window._newHighlights||[];
     var ni=window._newHighlights.indexOf(label);
@@ -568,7 +578,7 @@ function uploadExistingPropImg(input,dayId,propId){
   reader.readAsDataURL(file);
 }
 
-function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg});}
+function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});}
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
 function openDay(did,cid){
@@ -620,6 +630,7 @@ function render(){
   if(s==="from-library")     {el.innerHTML=pgFromLibrary();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
   if(s==="edit-prop")        {el.innerHTML=pgDayDetail();return;}
+  if(s==="add-lib-prop")     {el.innerHTML=pgAddLibraryProp();return;}
   if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
   if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
   if(S.tab==="days")         {el.innerHTML=pgDays();return;}
@@ -2034,6 +2045,7 @@ function pgOutput(){
     // ── ACTION BUTTONS ────────────────────────────────────────────────────
     '<div style="padding-top:4px">'+
     '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp</button>'+
+    (isAg?'<button id="create-link-btn" onclick="handleCreateClientLink()" style="width:100%;padding:13px;background:#071226;color:#C9A14A;border:1.5px solid rgba(201,161,74,.3);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link</button>':'')+
     '<button onclick="go(\'day-detail\')" style="width:100%;padding:13px;background:#fff;color:#2D2B28;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#9998; Edit Tour</button>'+
     '<div style="text-align:center;padding:24px 0 8px">'+
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:6px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
@@ -2051,6 +2063,7 @@ function removeFromLibrary(pid){
   S.days.forEach(function(d){
     d.properties=(d.properties||[]).filter(function(x){return x.id!==pid;});
   });
+  S.library=(S.library||[]).filter(function(x){return x.id!==pid;});
   persist();
   render();
 }
@@ -2076,6 +2089,15 @@ function pgPickPropSource(){
   var dayPropIds=(day.properties||[]).map(function(p){return p.id;});
   var libProps=[];
   var seen={};
+  // Add standalone library items first
+  (S.library||[]).forEach(function(p){
+    var key=p.url||p.title||p.id;
+    if(!seen[key]&&!p.sold){
+      seen[key]=true;
+      libProps.push({prop:p,dayId:''});
+    }
+  });
+  // Add properties from other days
   S.days.forEach(function(d){
     if(d.id===day.id)return;
     (d.properties||[]).forEach(function(p){
@@ -2130,6 +2152,15 @@ function pgFromLibrary(){
   var dayPropIds=(day.properties||[]).map(function(p){return p.id;});
   var libProps=[];
   var seen={};
+  // Add standalone library items first
+  (S.library||[]).forEach(function(p){
+    var key=p.url||p.title||p.id;
+    if(!seen[key]&&!p.sold){
+      seen[key]=true;
+      libProps.push({prop:p,dayId:''});
+    }
+  });
+  // Add properties from other days
   S.days.forEach(function(d){
     if(d.id===day.id)return;
     (d.properties||[]).forEach(function(p){
@@ -2178,10 +2209,110 @@ function pgFromLibrary(){
     '</div>';
 }
 
+
+function goAddLibProp(){go('add-lib-prop');}
+
+// ── ADD LIBRARY PROPERTY ──────────────────────────────────────────────────────
+function pgAddLibraryProp(){
+  var bf=[["Title","alp-title","Bright 2-bed apartment"],["Address","alp-addr","Calle del Mar 12"],["Area","alp-area","La Zenia"],["Price","alp-price","175,000 EUR"],["Bedrooms","alp-rooms","3"],["Bathrooms","alp-bath","2"],["Built size","alp-sqm","120"]];
+  var bfHtml=bf.map(function(f,fi){
+    var isAddr=f[1]==='alp-addr',isArea=f[1]==='alp-area';
+    var isRooms=f[1]==='alp-rooms',isBath=f[1]==='alp-bath';
+    var isNum=f[1]==='alp-rooms'||f[1]==='alp-bath'||f[1]==='alp-sqm';
+    var numAttr=isNum?' inputmode="numeric" maxlength="'+(f[1]==='alp-sqm'?'5':'2')+'"':'';
+    var inp='<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+numAttr+' placeholder="'+f[2]+'"/></div>';
+    if(isAddr)return'<div class="g2" style="margin-bottom:0">'+inp;
+    if(isArea)return inp+'</div>';
+    if(isRooms)return'<div class="g2" style="margin-bottom:0">'+inp;
+    if(isBath)return inp+'</div>';
+    return inp;
+  }).join('');
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="showTab(\'properties\')">&#8592; Properties</button>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;margin-bottom:20px">Add Property</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Listing URL</label>'+
+    '<input class="inp" id="alp-url" placeholder="https://idealista.com/..."/>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="margin-bottom:14px"><label class="lbl">Property image</label>'+
+    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:4px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+    '<span style="font-size:13px;color:var(--slate)">Upload photo</span>'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadLibraryImg(this)"/></label>'+
+    '<div id="alp-img-prev"></div></div>'+
+    bfHtml+
+    '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
+    '<input class="inp" id="alp-maps" placeholder="https://maps.google.com/..."/></div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Highlights</div>'+
+    '<div id="alp-hl-wrap">'+hlPickerHtml('__lib__','__lib__',window._libNewHighlights||[])+'</div>'+
+    '</div>'+
+
+    '<button class="btn" onclick="saveLibraryProp()">Save to library</button>'+
+    '</div>';
+}
+
+function uploadLibraryImg(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    window._libNewImage=e.target.result;
+    var el=document.getElementById('alp-img-prev');
+    if(el)el.innerHTML='<div style="position:relative;height:120px;border-radius:8px;overflow:hidden;margin-top:8px;border:1px solid var(--fog)"><img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover"/></div>';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveLibraryProp(){
+  var title=document.getElementById('alp-title')?document.getElementById('alp-title').value.trim():'';
+  if(!title){alert('Please enter a title.');return;}
+  var prop={
+    id:'lp'+Date.now(),
+    url:document.getElementById('alp-url')?document.getElementById('alp-url').value.trim():'',
+    ogImage:window._libNewImage||'',
+    title:title,
+    address:document.getElementById('alp-addr')?document.getElementById('alp-addr').value.trim():'',
+    area:document.getElementById('alp-area')?document.getElementById('alp-area').value.trim():'',
+    price:document.getElementById('alp-price')?document.getElementById('alp-price').value.trim():'',
+    rooms:document.getElementById('alp-rooms')?document.getElementById('alp-rooms').value.trim():'',
+    bathrooms:document.getElementById('alp-bath')?document.getElementById('alp-bath').value.trim():'',
+    sqm:document.getElementById('alp-sqm')?document.getElementById('alp-sqm').value.trim():'',
+    mapsUrl:document.getElementById('alp-maps')?document.getElementById('alp-maps').value.trim():'',
+    highlights:window._libNewHighlights||[],
+    sold:false,
+    fromLibrary:true
+  };
+  S.library=S.library||[];
+  S.library.push(prop);
+  persist();
+  window._libNewImage=null;
+  window._libNewHighlights=[];
+  showTab('properties');
+}
+
 // ── PROPERTIES ────────────────────────────────────────────────────────────────
 function pgProperties(){
   var seen={};
   var allProps=[];
+  // Library standalone properties
+  (S.library||[]).forEach(function(p){
+    var key=p.url||p.title||p.id;
+    if(!seen[key]){
+      seen[key]=true;
+      var timesShown=S.days.filter(function(d2){
+        return (d2.properties||[]).some(function(p2){return(p2.url||p2.title||p2.id)===key;});
+      }).length;
+      allProps.push({prop:p,timesShown:timesShown,sold:p.sold||false,dayId:'',isLibrary:true});
+    }
+  });
+  // Tour properties
   S.days.forEach(function(d){
     (d.properties||[]).forEach(function(p){
       var key=p.url||p.title||p.id;
@@ -2190,7 +2321,6 @@ function pgProperties(){
         var timesShown=S.days.filter(function(d2){
           return (d2.properties||[]).some(function(p2){return(p2.url||p2.title||p2.id)===key;});
         }).length;
-        // Find the day this property belongs to
         var foundDayId='';
         S.days.forEach(function(d2){
           (d2.properties||[]).forEach(function(dp){
@@ -2253,6 +2383,7 @@ function pgProperties(){
     topNav()+
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">Properties</div>'+
+    '<button onclick="goAddLibProp()" style="background:#071226;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">+ Add property</button>'+
     '</div>'+
     statsHtml;
 
@@ -2308,6 +2439,123 @@ function pgSettings(){
 }
 function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
 function upPhoto(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.photo=e.target.result;persist();render();};r.readAsDataURL(f);}
+
+
+// ── PUBLIC CLIENT LINK ────────────────────────────────────────────────────────
+
+function sanitizeTourForClient(day, client, cfg){
+  // Strip all agent-only fields from properties
+  var cleanProps=(day.properties||[]).map(function(p){
+    return {
+      id:p.id,
+      time:p.time||'',
+      title:p.title||'',
+      address:p.address||'',
+      area:p.area||'',
+      price:p.price||'',
+      rooms:p.rooms||'',
+      bathrooms:p.bathrooms||'',
+      sqm:p.sqm||'',
+      mapsUrl:p.mapsUrl||'',
+      ogImage:p.ogImage||'',
+      highlights:p.highlights||[],
+      agentRec:p.agentRec||'',
+      areaNote:p.areaNote||'',
+      travelTime:p.travelTime||'',
+      topPick:p.topPick||false
+      // Deliberately excluded: commission, contact, contactPhone,
+      // firm, location, note, sold
+    };
+  });
+
+  // Strip internal events (keep only client-visible ones)
+  var cleanEvs=(day.events||[]).filter(function(ev){
+    return ev.type!=='internal';
+  }).map(function(ev){
+    return {
+      id:ev.id,
+      type:ev.type,
+      time:ev.time||'',
+      title:ev.title||'',
+      note:ev.note||'',
+      mapsUrl:ev.mapsUrl||''
+    };
+  });
+
+  // Safe client info
+  var cleanClient=client?{
+    name:client.name||'',
+    req:client.req||{}
+  }:null;
+
+  // Safe agent info (no internal data)
+  var cleanCfg={
+    agent:cfg.agent||'',
+    agency:cfg.agency||'',
+    phone:cfg.phone||'',
+    email:cfg.email||'',
+    photo:cfg.photo||'',
+    logo:cfg.logo||''
+  };
+
+  return {
+    date:day.date||'',
+    welcomeMsg:day.welcomeMsg||'',
+    nextSteps:day.nextSteps||'',
+    properties:cleanProps,
+    events:cleanEvs,
+    client:cleanClient,
+    cfg:cleanCfg
+  };
+}
+
+function createPublicTour(day, client, cfg){
+  var publicId='tf-'+Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+  var cleanTour=sanitizeTourForClient(day, client, cfg);
+  cleanTour.publicId=publicId;
+  cleanTour.createdAt=new Date().toISOString();
+
+  // Store in localStorage — later replaced with Supabase insert
+  var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+  store[publicId]=cleanTour;
+  localStorage.setItem('tf-public', JSON.stringify(store));
+
+  return publicId;
+}
+
+function loadPublicTour(publicId){
+  // Later replaced with Supabase fetch
+  try {
+    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+    return store[publicId]||null;
+  } catch(e){ return null; }
+}
+
+function copyPublicLink(publicId){
+  var base=window.location.origin+window.location.pathname.replace('index.html','');
+  var url=base+'t.html?id='+publicId;
+  var btn=document.getElementById('create-link-btn');
+  function done(){
+    if(btn){btn.innerHTML='&#10003; Link copied!';btn.style.background='#059669';}
+    setTimeout(function(){
+      if(btn){
+        btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link';
+        btn.style.background='#071226';
+      }
+    },3000);
+  }
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(done).catch(function(){fallback(url,done);});
+  } else { fallback(url,done); }
+  function fallback(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
+}
+
+function handleCreateClientLink(){
+  var day=curD(); var c=curC(); var cfg=S.cfg;
+  if(!day)return;
+  var publicId=createPublicTour(day,c,cfg);
+  copyPublicLink(publicId);
+}
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 // Render home just before splash fades so transition is seamless
