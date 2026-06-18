@@ -1449,38 +1449,42 @@ function copyWA(){
   var day=curD();if(!day)return;
   var c=curC();var cfg=S.cfg;
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
-  var line="---------------------";
-  var name=c?c.name.split(" ")[0]:"";
-  var greeting="Hi"+(name?" "+name+",":",")+"\n\nYour personalised viewing itinerary for *"+fmtDate(day.date)+"* is ready:\n";
-  var blocks=props.map(function(p,idx){
-    var area=p.address?p.address.split(",").slice(-1)[0].trim():getDomain(p.url);
-    var ls=["*Property "+(idx+1)+(p.topPick?" - TOP PICK":"")+":* "+(p.title||area)];
-    if(p.time)ls.push("Time: *"+p.time+"*");
-    if(area)ls.push(area);
-    var meta=[p.price,p.rooms,p.sqm].filter(Boolean);
-    if(meta.length)ls.push(meta.join(" - "));
-    if(p.highlights&&p.highlights.length)ls.push("Highlights: "+p.highlights.slice(0,3).join(", "));
-    if(p.agentRec)ls.push('"'+p.agentRec+'"');
-    if(p.url)ls.push(p.url);
-    if(p.mapsUrl)ls.push("Directions: "+p.mapsUrl);
-    return ls.join("\n");
-  }).join("\n\n"+line+"\n\n");
-  var footer="";
-  if(cfg.agent||cfg.agency){
-    footer="\n\n"+line+"\n"+(cfg.agent||cfg.agency);
-    if(cfg.agency&&cfg.agent)footer+="\n"+cfg.agency;
-    if(cfg.phone)footer+="\n"+cfg.phone;
-    if(cfg.email)footer+="\n"+cfg.email;
+
+  // Generate public link first
+  var publicId=createPublicTour(day,c,cfg);
+  var base=window.location.origin+window.location.pathname.replace('index.html','');
+  var link=base+'t.html?id='+publicId;
+
+  // Build elegant short message
+  var firstName=c?c.name.split(' ')[0]:'';
+  var dateStr=fmtDate(day.date);
+  var pLen=props.length;
+  var firstTime=props.length?props[0].time:'';
+  var hasLunch=(day.events||[]).some(function(e){return e.type==='lunch';});
+
+  var details=[];
+  if(pLen) details.push(pLen+' propert'+(pLen===1?'y':'ies'));
+  if(firstTime) details.push('Starting '+firstTime);
+  if(hasLunch) details.push('Lunch included');
+  var pickupEv=(day.events||[]).find(function(e){return e.type==='pickup'||e.type==='meetingpoint';});
+  if(pickupEv) details.push('Pickup'+(pickupEv.time?' at '+pickupEv.time:'')+(pickupEv.note?' - '+pickupEv.note:''));
+
+  var agentLine=cfg.agent||cfg.agency||'';
+
+  var nl='\n';
+  var msg='Hi '+firstName+','+nl+nl+'Your viewing day for *'+dateStr+'* is ready.'+(details.length?nl+nl+details.join(' - '):'')+ nl+nl+'Open your viewing day here:'+nl+link+(agentLine?nl+nl+'- '+agentLine:'');
+
+  var btn=document.getElementById('wa-btn');
+  function done(){
+    if(btn){btn.innerHTML='&#10003; Link copied!';btn.style.color='#25D366';}
+    setTimeout(function(){
+      if(btn){
+        btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp';
+        btn.style.color='#fff';
+      }
+    },3000);
   }
-  var evs2=[].concat(day.events||[]).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
-  var evTxt=evs2.length?"\n"+line+"\n"+evs2.map(function(ev){
-    var icons={lunch:"\uD83C\uDF7D",pickup:"\uD83D\uDE97",stop:"\uD83D\uDCCD",other:"\uD83D\uDCCC"};
-    return (icons[ev.type]||"\uD83D\uDCCC")+" "+(ev.time?ev.time+" — ":"")+ev.title+(ev.note?"\n"+ev.note:"");
-  }).join("\n"):"";
-  var msg=greeting+"\n"+line+"\n\n"+blocks+evTxt+footer;
-  var btn=document.getElementById("wa-btn");
-  function done(){if(btn){btn.textContent="Copied!";btn.style.background="#128C4A";}setTimeout(function(){if(btn){btn.textContent="Copy WhatsApp";btn.style.background="#25D366";}},2500);}
-  function fb(t,cb){var ta=document.createElement("textarea");ta.value=t;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy");cb();}catch(e){alert("Could not copy.");}document.body.removeChild(ta);}
+  function fb(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
   if(navigator.clipboard){navigator.clipboard.writeText(msg).then(done).catch(function(){fb(msg,done);});}else{fb(msg,done);}
 }
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
@@ -1840,8 +1844,9 @@ function pgOutput(){
       ibox='<div style="margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 7px 7px 0;padding:10px 12px">'+
         '<div style="font-size:8px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">Internal</div>'+
         [['Commission',p.commission],['Contact',p.contact?(p.contact+(p.firm?' \u00B7 '+p.firm:'')):''],
-         ['Phone',p.contactPhone?'<a href="tel:'+p.contactPhone+'" style="color:#92400e;font-weight:700;text-decoration:none">'+p.contactPhone+'</a>':'',1],
-         ['Access',p.location],['Note',p.note]]
+         ['Phone',p.contactPhone?'<a href="tel:'+p.contactPhone+'" style="color:#92400e;font-weight:700;text-decoration:none">&#128222; '+p.contactPhone+'</a>':'',1],
+         ['Access',p.location?'<a href="https://maps.google.com/?q='+encodeURIComponent(p.location)+'" target="_blank" style="color:#92400e;font-weight:700;text-decoration:none">&#128205; '+p.location+'</a>':'',1],
+         ['Note',p.note]]
         .filter(function(r){return r[1];})
         .map(function(r){return'<div style="display:flex;gap:8px;margin-bottom:3px"><span style="font-size:11px;color:#78350f;font-weight:700;min-width:70px;flex-shrink:0">'+r[0]+'</span><span style="font-size:11px;color:#92400e;line-height:1.4">'+(r[2]?r[1]:esc(r[1]))+'</span></div>';})
         .join('')+'</div>';
@@ -1880,7 +1885,7 @@ function pgOutput(){
         '</div>':'')+
       // Buttons
       (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:#6b6560;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:7px 12px;background:#faf8f4;margin-bottom:10px"><svg width="9" height="11" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg> Directions</a>':'')+ 
-      (p.url?'<a href="'+esc(p.url)+'" style="display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;text-decoration:none;background:#071226;border-radius:8px;padding:9px 12px;letter-spacing:.04em;margin-bottom:10px;font-weight:300;font-size:12px;text-transform:uppercase">Full Details</a>':'')+ 
+      (p.url?'<a href="'+esc(p.url)+'" target="_blank" style="display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#C9A14A;text-decoration:none;background:#071226;border-radius:8px;padding:10px 12px;letter-spacing:.04em;margin-bottom:12px;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg> View full listing</a>':'')+ 
 
 
 
@@ -2045,7 +2050,7 @@ function pgOutput(){
     // ── ACTION BUTTONS ────────────────────────────────────────────────────
     '<div style="padding-top:4px">'+
     '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp</button>'+
-    (isAg?'<button id="create-link-btn" onclick="handleCreateClientLink()" style="width:100%;padding:13px;background:#071226;color:#C9A14A;border:1.5px solid rgba(201,161,74,.3);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link</button>':'')+
+    (!isAg?'<button id="create-link-btn" onclick="handleCreateClientLink()" style="width:100%;padding:13px;background:#071226;color:#C9A14A;border:1.5px solid rgba(201,161,74,.3);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link</button>':'')+
     '<button onclick="go(\'day-detail\')" style="width:100%;padding:13px;background:#fff;color:#2D2B28;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#9998; Edit Tour</button>'+
     '<div style="text-align:center;padding:24px 0 8px">'+
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:6px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
