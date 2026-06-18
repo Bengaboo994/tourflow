@@ -32,6 +32,7 @@ body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink)
 <div id="app" style="opacity:0;transition:opacity .3s ease"></div>
 
 <script>
+window._splashStart=Date.now();
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtDate(d){if(!d)return'';try{return new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}catch(e){return d;}}
@@ -63,12 +64,33 @@ var ICON={
 };
 
 // ── LOAD TOUR ─────────────────────────────────────────────────────────────────
-function loadPublicTour(publicId){
-  // Later: replace with Supabase fetch
-  try {
-    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
-    return store[publicId]||null;
-  } catch(e){ return null; }
+function loadPublicTour(publicId, callback){
+  // Try Supabase first
+  fetch('https://smcubfgpnrkguxqxbgva.supabase.co/rest/v1/public_tours?public_id=eq.'+encodeURIComponent(publicId)+'&select=tour_data&limit=1', {
+    headers:{
+      'apikey':'sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY',
+      'Authorization':'Bearer sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY'
+    }
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    if(data&&data.length>0&&data[0].tour_data){
+      callback(data[0].tour_data);
+    } else {
+      // Fallback to localStorage
+      try{
+        var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+        callback(store[publicId]||null);
+      }catch(e){callback(null);}
+    }
+  })
+  .catch(function(){
+    // Fallback to localStorage
+    try{
+      var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+      callback(store[publicId]||null);
+    }catch(e){callback(null);}
+  });
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
@@ -332,37 +354,45 @@ function renderPublicClientView(tour){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+window._splashStart=Date.now();
 var publicId=new URLSearchParams(window.location.search).get('id');
 
-if(publicId){
-  var tour=loadPublicTour(publicId);
-  if(tour){
-    document.title='TourFlow – '+( tour.client?tour.client.name+' · ':'')+(tour.date||'Viewing Day');
-    document.getElementById('app').innerHTML=renderPublicClientView(tour);
-  } else {
-    document.getElementById('app').innerHTML=
-      '<div style="padding:48px 24px;text-align:center">'+
-      '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin-bottom:8px">Tour not found</div>'+
-      '<div style="font-size:13px;color:#9e9a94;line-height:1.6">This link may have expired or been removed.<br>Please contact your property consultant.</div>'+
-      '</div>';
-  }
-} else {
+function showNotFound(){
   document.getElementById('app').innerHTML=
     '<div style="padding:48px 24px;text-align:center">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No tour specified</div>'+
-    '<div style="font-size:13px;color:#9e9a94">Open a valid TourFlow client link to view your itinerary.</div>'+
+    '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#2D2B28;margin-bottom:8px">Tour not found</div>'+
+    '<div style="font-size:13px;color:#9e9a94;line-height:1.6">This link may have expired or been removed.<br>Please contact your property consultant.</div>'+
     '</div>';
 }
 
-// Reveal after splash
-setTimeout(function(){
+function revealApp(){
   var s=document.getElementById('splash');
   if(s)s.style.opacity='0';
   var app=document.getElementById('app');
   if(app)app.style.opacity='1';
   setTimeout(function(){if(s)s.style.display='none';},500);
-},1400);
+}
+
+if(publicId){
+  loadPublicTour(publicId, function(tour){
+    if(tour){
+      document.title='TourFlow – '+(tour.client?tour.client.name+' · ':'')+(tour.date||'Viewing Day');
+      document.getElementById('app').innerHTML=renderPublicClientView(tour);
+    } else {
+      showNotFound();
+    }
+    var elapsed=Date.now()-window._splashStart;
+    setTimeout(revealApp, Math.max(0, 1200-elapsed));
+  });
+} else {
+  document.getElementById('app').innerHTML=
+    '<div style="padding:48px 24px;text-align:center">'+
+    '<div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No tour specified</div>'+
+    '<div style="font-size:13px;color:#9e9a94">Open a valid TourFlow client link to view your itinerary.</div>'+
+    '</div>';
+  setTimeout(revealApp, 1200);
+}
 </script>
 </body>
 </html>
