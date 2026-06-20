@@ -1610,56 +1610,65 @@ function copyWA(){
   var c=curC();var cfg=S.cfg;
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
 
-  // Generate public link first
-  var publicId=createPublicTour(day,c,cfg);
-  var base=window.location.origin+window.location.pathname.replace('index.html','');
-  var link=base+'t.html?id='+publicId;
-
-  // Build elegant short message
-  var firstName=c?c.name.split(' ')[0]:'';
-  var dateStr=fmtDate(day.date);
-  var pLen=props.length;
-  var firstTime=props.length?props[0].time:'';
-  var hasLunch=(day.events||[]).some(function(e){return e.type==='lunch';});
-
-  var details=[];
-  if(pLen) details.push(pLen+' propert'+(pLen===1?'y':'ies'));
-  if(firstTime) details.push('Starting '+firstTime);
-  if(hasLunch) details.push('Lunch included');
-  var pickupEv=(day.events||[]).find(function(e){return e.type==='pickup'||e.type==='meetingpoint';});
-  if(pickupEv) details.push('Pickup'+(pickupEv.time?' at '+pickupEv.time:'')+(pickupEv.note?' - '+pickupEv.note:''));
-
-  var agentLine=cfg.agent||cfg.agency||'';
-
-  var nl='\n';
-  var msg='Hi '+firstName+','+nl+nl+'Your viewing day for *'+dateStr+'* is ready.'+(details.length?nl+nl+details.join(' - '):'')+ nl+nl+'Open your viewing day here:'+nl+link+(agentLine?nl+nl+'- '+agentLine:'');
-
   var btn=document.getElementById('wa-btn');
-  var clientPhone=c?(c.phone||'').replace(/[^0-9]/g,''):'';
+  var origBtnHtml=btn?btn.innerHTML:'';
+  if(btn){btn.innerHTML='&#8987; Preparing link...';btn.disabled=true;}
 
-  if(clientPhone){
-    // Open WhatsApp directly to the client's chat with message pre-filled
-    var waUrl='https://wa.me/'+clientPhone+'?text='+encodeURIComponent(msg);
-    window.open(waUrl,'_blank');
-    if(btn){
-      var orig=btn.innerHTML;
-      btn.innerHTML='&#10003; Opening WhatsApp...';
-      setTimeout(function(){if(btn)btn.innerHTML=orig;},2500);
+  // Wait for the public link to actually save before sharing it
+  createPublicTour(day,c,cfg,function(publicId,savedOk){
+    var base=window.location.origin+window.location.pathname.replace('index.html','');
+    var link=base+'t.html?id='+publicId;
+
+    if(!savedOk&&!localStorage.getItem('tf-public')){
+      // Total failure — nothing saved anywhere
+      if(btn){btn.innerHTML=origBtnHtml;btn.disabled=false;}
+      alert('Could not create the client link. Please check your connection and try again.');
+      return;
     }
-  } else {
-    // No phone on file — copy to clipboard so user can paste anywhere
-    function done(){
-      if(btn){btn.innerHTML='&#10003; Link copied — paste in WhatsApp';btn.style.color='#25D366';}
-      setTimeout(function(){
-        if(btn){
-          btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp';
-          btn.style.color='#fff';
-        }
-      },3000);
+
+    // Build elegant short message
+    var firstName=c?c.name.split(' ')[0]:'';
+    var dateStr=fmtDate(day.date);
+    var pLen=props.length;
+    var firstTime=props.length?props[0].time:'';
+    var hasLunch=(day.events||[]).some(function(e){return e.type==='lunch';});
+
+    var details=[];
+    if(pLen) details.push(pLen+' propert'+(pLen===1?'y':'ies'));
+    if(firstTime) details.push('Starting '+firstTime);
+    if(hasLunch) details.push('Lunch included');
+    var pickupEv=(day.events||[]).find(function(e){return e.type==='pickup'||e.type==='meetingpoint';});
+    if(pickupEv) details.push('Pickup'+(pickupEv.time?' at '+pickupEv.time:'')+(pickupEv.note?' - '+pickupEv.note:''));
+
+    var agentLine=cfg.agent||cfg.agency||'';
+
+    var nl='\n';
+    var msg='Hi '+firstName+','+nl+nl+'Your viewing day for *'+dateStr+'* is ready.'+(details.length?nl+nl+details.join(' - '):'')+ nl+nl+'Open your viewing day here:'+nl+link+(agentLine?nl+nl+'- '+agentLine:'');
+
+    var clientPhone=c?(c.phone||'').replace(/[^0-9]/g,''):'';
+
+    if(btn)btn.disabled=false;
+
+    if(clientPhone){
+      // Open WhatsApp directly to the client's chat with message pre-filled
+      var waUrl='https://wa.me/'+clientPhone+'?text='+encodeURIComponent(msg);
+      window.open(waUrl,'_blank');
+      if(btn){
+        btn.innerHTML='&#10003; Opening WhatsApp...';
+        setTimeout(function(){if(btn)btn.innerHTML=origBtnHtml;},2500);
+      }
+    } else {
+      // No phone on file — copy to clipboard so user can paste anywhere
+      function done(){
+        if(btn){btn.innerHTML='&#10003; Link copied — paste in WhatsApp';btn.style.color='#25D366';}
+        setTimeout(function(){
+          if(btn){btn.innerHTML=origBtnHtml;btn.style.color='#fff';}
+        },3000);
+      }
+      function fb(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
+      if(navigator.clipboard){navigator.clipboard.writeText(msg).then(done).catch(function(){fb(msg,done);});}else{fb(msg,done);}
     }
-    function fb(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
-    if(navigator.clipboard){navigator.clipboard.writeText(msg).then(done).catch(function(){fb(msg,done);});}else{fb(msg,done);}
-  }
+  });
 }
 
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
@@ -2774,13 +2783,19 @@ function sanitizeTourForClient(day, client, cfg){
   };
 }
 
-function createPublicTour(day, client, cfg){
+function createPublicTour(day, client, cfg, callback){
   var publicId='tf-'+Math.random().toString(36).slice(2,9)+Date.now().toString(36);
   var cleanTour=sanitizeTourForClient(day, client, cfg);
   cleanTour.publicId=publicId;
   cleanTour.createdAt=new Date().toISOString();
 
-  // Save to Supabase
+  function saveLocalFallback(){
+    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+    store[publicId]=cleanTour;
+    localStorage.setItem('tf-public', JSON.stringify(store));
+  }
+
+  // Save to Supabase — wait for completion before returning the link via callback
   fetch('https://smcubfgpnrkguxqxbgva.supabase.co/rest/v1/public_tours', {
     method:'POST',
     headers:{
@@ -2792,14 +2807,17 @@ function createPublicTour(day, client, cfg){
     body:JSON.stringify({public_id:publicId, tour_data:cleanTour})
   }).then(function(r){
     if(!r.ok){
-      r.text().then(function(t){console.error('Supabase error:',t);});
+      return r.text().then(function(t){
+        console.error('Supabase error:',r.status,t);
+        saveLocalFallback();
+        if(callback)callback(publicId,false);
+      });
     }
+    if(callback)callback(publicId,true);
   }).catch(function(e){
     console.error('Supabase save failed:',e);
-    // Fallback: save to localStorage
-    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
-    store[publicId]=cleanTour;
-    localStorage.setItem('tf-public', JSON.stringify(store));
+    saveLocalFallback();
+    if(callback)callback(publicId,false);
   });
 
   return publicId;
@@ -2835,8 +2853,17 @@ function copyPublicLink(publicId){
 function handleCreateClientLink(){
   var day=curD(); var c=curC(); var cfg=S.cfg;
   if(!day)return;
-  var publicId=createPublicTour(day,c,cfg);
-  copyPublicLink(publicId);
+  var btn=document.getElementById('create-link-btn');
+  var origHtml=btn?btn.innerHTML:'';
+  if(btn){btn.innerHTML='&#8987; Preparing link...';btn.disabled=true;}
+  createPublicTour(day,c,cfg,function(publicId,savedOk){
+    if(btn){btn.disabled=false;btn.innerHTML=origHtml;}
+    if(!savedOk&&!localStorage.getItem('tf-public')){
+      alert('Could not create the client link. Please check your connection and try again.');
+      return;
+    }
+    copyPublicLink(publicId);
+  });
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
