@@ -77,7 +77,8 @@ input,button,textarea,select{font-family:inherit}
 .of{background:var(--mist);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .ibox{margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:11px 13px}
 @media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}}
-#auth-gate{position:fixed;inset:0;background:#FCFBF7;z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;max-width:480px;margin:0 auto}
+#auth-gate{position:fixed;inset:0;background:rgba(7,18,38,.55);z-index:8000;display:none;align-items:center;justify-content:center;padding:24px}
+#auth-gate .auth-card{background:#FCFBF7;border-radius:20px;padding:36px 28px;width:100%}
 .auth-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:40px}
 .auth-card{width:100%;max-width:340px}
 .auth-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:300;color:#2D2B28;text-align:center;margin-bottom:8px}
@@ -142,6 +143,7 @@ var SUPA_URL='https://smcubfgpnrkguxqxbgva.supabase.co';
 var SUPA_KEY='sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY';
 var supa=null;
 var currentUser=null;
+var pendingAction=null; // remembers what the guest user was trying to do, resumed after sign-in
 try{
   if(window.supabase&&window.supabase.createClient){
     supa=window.supabase.createClient(SUPA_URL,SUPA_KEY);
@@ -150,10 +152,50 @@ try{
   console.error('Supabase init failed:',e);
 }
 
+// ── TRIAL ────────────────────────────────────────────────────────────────────
+var TRIAL_DAYS=7;
+function trialDaysLeft(){
+  if(!currentUser||!currentUser.created_at)return TRIAL_DAYS;
+  var started=new Date(currentUser.created_at).getTime();
+  var elapsedMs=Date.now()-started;
+  var elapsedDays=elapsedMs/(1000*60*60*24);
+  var left=Math.ceil(TRIAL_DAYS-elapsedDays);
+  return left;
+}
+function isTrialExpired(){
+  if(S.isPremium)return false;
+  return trialDaysLeft()<=0;
+}
+function showUpgradeModal(){
+  var modal=document.getElementById('upgrade-modal');
+  if(modal){modal.style.display='flex';return;}
+  modal=document.createElement('div');
+  modal.id='upgrade-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(7,18,38,.55);z-index:7000;display:flex;align-items:flex-end;justify-content:center';
+  modal.onclick=function(e){if(e.target===modal)hideUpgradeModal();};
+  modal.innerHTML='<div style="background:#FCFBF7;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:32px 28px 36px;text-align:center" onclick="event.stopPropagation()">'+
+    '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:26px;font-weight:300;color:#2D2B28;margin-bottom:8px">Your trial has ended</div>'+
+    '<div style="font-size:13px;color:#6b6560;line-height:1.6;margin-bottom:24px">Your 7 day free trial is over. Upgrade to keep adding clients, viewing days and properties — your existing data stays exactly as it is.</div>'+
+    '<button onclick="startCheckout()" style="width:100%;padding:14px 18px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:10px">Upgrade — €19/month</button>'+
+    '<button onclick="hideUpgradeModal()" style="width:100%;padding:14px 18px;background:transparent;color:#6b6560;border:1.5px solid #edeae4;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit">Not now</button>'+
+    '</div>';
+  document.body.appendChild(modal);
+}
+function hideUpgradeModal(){
+  var modal=document.getElementById('upgrade-modal');
+  if(modal)modal.style.display='none';
+}
+function startCheckout(){
+  alert('Stripe checkout coming soon.');
+}
+function guardTrialAction(){
+  if(isTrialExpired()){showUpgradeModal();return false;}
+  return true;
+}
+
 function showAuthGate(){
   var gate=document.getElementById('auth-gate');
-  var splash=document.getElementById('splash');
-  if(splash)splash.style.display='none';
   if(gate)gate.style.display='flex';
 }
 function hideAuthGate(){
@@ -207,37 +249,40 @@ function signOut(){
     location.reload();
   });
 }
-function initAuth(cb){
-  if(!supa){
-    var gate=document.getElementById('auth-gate');
-    var splash=document.getElementById('splash');
-    if(splash)splash.style.display='none';
-    if(gate){
-      gate.style.display='flex';
-      gate.innerHTML='<div class="auth-card" style="text-align:center"><div class="auth-title">Connection problem</div><div class="auth-sub">We couldn\'t reach the sign-in service. Check your internet connection and reload the page.</div><button class="auth-btn" onclick="location.reload()">Reload</button></div>';
-    }
-    return;
-  }
+// Silently checks for an existing session on load (e.g. returning user
+// who already verified their email earlier). Does NOT block the app —
+// guest/onboarding mode always renders immediately regardless.
+function checkExistingSession(){
+  if(!supa)return;
   supa.auth.getSession().then(function(res){
     var session=res.data&&res.data.session;
     if(session&&session.user){
       currentUser=session.user;
       hideAuthGate();
-      cb();
-    }else{
-      showAuthGate();
+      render();
     }
   });
   supa.auth.onAuthStateChange(function(event,session){
     if(event==='SIGNED_IN'&&session&&session.user){
       currentUser=session.user;
       hideAuthGate();
-      cb();
+      resumePendingAction();
+      render();
     }else if(event==='SIGNED_OUT'){
       currentUser=null;
-      showAuthGate();
+      render();
     }
   });
+}
+function resumePendingAction(){
+  if(!pendingAction)return;
+  var action=pendingAction;
+  pendingAction=null;
+  if(action.type==='quickDay'){
+    setTimeout(function(){quickDay();},50);
+  }else if(action.type==='newDayFor'){
+    setTimeout(function(){newDayFor(action.cId);},50);
+  }
 }
 
 
@@ -732,7 +777,14 @@ function openDay(did,cid){
 }
 function cDays(cId){return S.days.filter(function(d){return d.clientId===cId;}).sort(function(a,b){return b.date.localeCompare(a.date);});}
 
-function go(screen,extra){if(extra)Object.assign(S,extra);if(screen!=='output')S._showCelebration=false;S.screen=screen;S.addEv=false;render();}
+function go(screen,extra){
+  var gatedScreens=['add-client','add-prop','add-lib-prop','pick-client','pick-prop-source','from-library'];
+  if(gatedScreens.indexOf(screen)!==-1&&isTrialExpired()){
+    showUpgradeModal();
+    return;
+  }
+  if(extra)Object.assign(S,extra);if(screen!=='output')S._showCelebration=false;S.screen=screen;S.addEv=false;render();
+}
 
 function showTab(tab){
   S._showCelebration=false;
@@ -1120,6 +1172,8 @@ function pgHome(){
     '</div></div>';
 }
 function quickDay(){
+  if(isTrialExpired()){showUpgradeModal();return;}
+  if(!currentUser){pendingAction={type:'quickDay'};showAuthGate();return;}
   if(S.clients.length===0){go("add-client");return;}
   if(S.clients.length===1){
     var id=addDay(S.clients[0].id);
@@ -1262,7 +1316,7 @@ function pgClientDetail(){
     (cd.length===0?'<div class="emp" style="margin-top:8px"><div style="font-size:32px;margin-bottom:10px">&#128197;</div><div style="font-size:14px;color:var(--slate)">No viewing days yet</div></div>':"")+
     '</div>';
 }
-function newDayFor(cId){var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
+function newDayFor(cId){if(isTrialExpired()){showUpgradeModal();return;}if(!currentUser){pendingAction={type:'newDayFor',cId:cId};showAuthGate();return;}var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
 
 // ── ADD CLIENT ────────────────────────────────────────────────────────────────
 function confirmDeleteClient(cid,name){if(confirm("Delete "+name+" and all their viewing days?\nThis cannot be undone.")){delClient(cid);showTab("clients");}}
@@ -2851,6 +2905,9 @@ function pgSettings(){
     '<div class="card" style="margin-top:16px">'+
     (currentUser?'<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Account</div>'+
     '<div style="font-size:13px;color:#6b6560;margin-bottom:14px">'+esc(currentUser.email||'')+'</div>':'')+
+    (S.isPremium?'<div class="ban ban-gr" style="margin-bottom:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Premium plan active</div>':
+    (trialDaysLeft()>0?'<div class="ban ban-am" style="margin-bottom:14px">'+trialDaysLeft()+' day'+(trialDaysLeft()===1?'':'s')+' left in your free trial</div>':
+    '<div class="ban" style="margin-bottom:14px;background:#fef2f2;color:#991b1b">Your trial has ended &middot; <a href="#" onclick="showUpgradeModal();return false" style="color:#991b1b;font-weight:600;text-decoration:underline">Upgrade</a></div>'))+
     '<button onclick="signOut()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--fog);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:#6b6560">Sign out</button>'+
     '</div>'+
     '</div>';
@@ -3011,16 +3068,15 @@ function handleCreateClientLink(){
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
-// Render home just before splash fades so transition is seamless
-initAuth(function(){
-  showTab("home");
-});
+// App always boots immediately — guest mode by default.
+// We only check in the background whether a session already exists,
+// so a returning logged-in user doesn't have to sign in again.
+showTab("home");
+checkExistingSession();
 </script>
 <script>
-// Guaranteed 1-second splash on every load (only if signed in)
+// Guaranteed splash on every load — app always boots into guest mode
 setTimeout(function(){
-  var gate=document.getElementById('auth-gate');
-  if(gate&&gate.style.display==='flex')return; // waiting for auth, splash already hidden by showAuthGate
   var s=document.getElementById('splash');
   if(!s)return;
   s.style.opacity='0';
