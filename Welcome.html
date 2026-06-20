@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TourFlow — The viewing day, reimagined</title>
+<meta name="description" content="TourFlow turns your listings into a polished, shareable viewing day in minutes. Built for real estate agents who want their clients to feel the difference."/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#2D2B28;--paper:#FCFBF7;--brass:#C9A14A;--slate:#6b6560;
+  --fog:#edeae4;--mist:#f5f2ec;--card:#ffffff;--hdr:#071226;--dust:#9e9a94;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-weight:300;line-height:1.6;overflow-x:hidden}
+.serif{font-family:'Cormorant Garamond',Georgia,serif}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+.wrap-narrow{max-width:680px;margin:0 auto;padding:0 28px}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(252,251,247,.88);backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .3s}
+.nav.scrolled{border-color:var(--fog)}
+.nav-inner{max-width:1080px;margin:0 auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:7px;font-family:'Cormorant Garamond',serif;font-size:21px;letter-spacing:.01em}
+.logo em{color:var(--brass);font-style:italic}
+.nav-cta{background:var(--hdr);color:var(--brass);padding:9px 20px;border-radius:8px;font-size:13px;font-weight:500;letter-spacing:.02em;display:inline-block}
+
+.hero{padding:168px 0 100px;position:relative}
+.hero-eyebrow{font-size:11px;font-weight:600;color:var(--brass);text-transform:uppercase;letter-spacing:.24em;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+.hero-eyebrow::before{content:'';width:28px;height:1px;background:var(--brass)}
+.hero h1{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(40px,6vw,68px);line-height:1.04;letter-spacing:-.02em;color:var(--ink);max-width:720px;margin-bottom:28px}
+.hero h1 em{font-style:italic;color:var(--brass)}
+.hero-sub{font-size:18px;color:var(--slate);max-width:480px;margin-bottom:40px;line-height:1.65}
+.hero-actions{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.btn-primary{background:var(--hdr);color:var(--brass);padding:16px 32px;border-radius:10px;font-size:14px;font-weight:500;letter-spacing:.02em;display:inline-flex;align-items:center;gap:10px;transition:transform .2s, box-shadow .2s;box-shadow:0 4px 20px rgba(7,18,38,.15)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(7,18,38,.22)}
+.btn-ghost-link{font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--fog);padding-bottom:2px;transition:border-color .2s}
+.btn-ghost-link:hover{border-color:var(--ink)}
+
+.hero-visual{margin-top:88px;display:flex;justify-content:center;position:relative}
+.phone-frame{
+  width:300px;background:#FCFBF7;border-radius:42px;overflow:hidden;
+  box-shadow:0 40px 100px rgba(7,18,38,.28), 0 1px 0 rgba(255,255,255,.4) inset;
+  border:7px solid #0e1420;position:relative;
+}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:22px;background:#0e1420;border-radius:0 0 16px 16px;z-index:5}
+.phone-img{width:100%;display:block}
+.hero-visual-glow{position:absolute;inset:-60px;background:radial-gradient(ellipse at center, rgba(201,161,74,.12), transparent 65%);pointer-events:none;z-index:-1}
+.float-badge{
+  position:absolute;background:#fff;border-radius:12px;padding:12px 16px;
+  box-shadow:0 12px 32px rgba(7,18,38,.14);display:flex;align-items:center;gap:10px;
+  animation:float 5s ease-in-out infinite;
+}
+.float-badge-1{top:14%;left:calc(50% - 240px);animation-delay:0s}
+.float-badge-2{bottom:20%;right:calc(50% - 248px);animation-delay:1.8s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.float-badge-icon{width:30px;height:30px;border-radius:50%;background:var(--hdr);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.float-badge-text{font-size:11px;color:var(--slate);line-height:1.3}
+.float-badge-text b{display:block;color:var(--ink);font-size:13px;font-weight:600}
+
+section{padding:120px 0}
+.sec-eyebrow{font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.22em;margin-bottom:18px;text-align:center}
+.sec-title{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(30px,4vw,44px);text-align:center;line-height:1.15;letter-spacing:-.01em;margin-bottom:18px}
+.sec-title em{font-style:italic;color:var(--brass)}
+.sec-sub{font-size:16px;color:var(--slate);text-align:center;max-width:520px;margin:0 auto 64px;line-height:1.65}
+
+.proof{background:var(--hdr);color:#fff;position:relative;overflow:hidden}
+.proof::before{content:'';position:absolute;top:-30%;right:-10%;width:560px;height:560px;background:radial-gradient(circle,rgba(201,161,74,.08),transparent 70%);pointer-events:none}
+.proof-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.proof-eyebrow{font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.22em;margin-bottom:20px}
+.proof h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(28px,3.6vw,40px);line-height:1.2;color:#fff;margin-bottom:24px;letter-spacing:-.01em}
+.proof h2 em{font-style:italic;color:var(--brass)}
+.proof p{font-size:15px;color:rgba(255,255,255,.55);line-height:1.75;margin-bottom:16px;max-width:420px}
+.proof-list{margin-top:32px;display:flex;flex-direction:column;gap:16px}
+.proof-list-item{display:flex;align-items:flex-start;gap:14px}
+.proof-check{width:20px;height:20px;border-radius:50%;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.35);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.proof-list-text{font-size:14px;color:rgba(255,255,255,.75)}
+.proof-list-text b{color:#fff;font-weight:500}
+.proof-visual{display:flex;justify-content:center}
+.proof-card{
+  border-radius:20px;overflow:hidden;max-width:340px;width:100%;
+  box-shadow:0 30px 80px rgba(0,0,0,.4);border:1px solid rgba(201,161,74,.2);
+}
+.proof-card img{width:100%;display:block}
+
+.steps{max-width:780px;margin:0 auto}
+.step{display:flex;gap:28px;padding:36px 0;border-bottom:1px solid var(--fog)}
+.step:last-child{border-bottom:none}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:46px;font-weight:300;color:var(--brass);opacity:.4;flex-shrink:0;width:64px;line-height:1}
+.step-body h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;margin-bottom:8px;letter-spacing:-.01em}
+.step-body p{font-size:15px;color:var(--slate);max-width:480px;line-height:1.7}
+
+.demo-strip{background:var(--mist);border-radius:24px;padding:64px 48px;text-align:center;max-width:1080px;margin:0 auto}
+.demo-strip h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(26px,3.4vw,36px);margin-bottom:14px;letter-spacing:-.01em}
+.demo-strip p{font-size:15px;color:var(--slate);max-width:440px;margin:0 auto 32px}
+
+.closing{background:var(--hdr);text-align:center;position:relative;overflow:hidden}
+.closing::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(201,161,74,.1),transparent 70%);pointer-events:none}
+.closing-eyebrow{font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.24em;margin-bottom:24px}
+.closing h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(32px,5vw,52px);color:#fff;line-height:1.15;letter-spacing:-.01em;margin-bottom:20px}
+.closing h2 em{font-style:italic;color:var(--brass)}
+.closing p{font-size:16px;color:rgba(255,255,255,.5);max-width:440px;margin:0 auto 40px}
+.btn-light{background:var(--brass);color:var(--hdr);padding:17px 36px;border-radius:10px;font-size:14px;font-weight:600;letter-spacing:.02em;display:inline-flex;align-items:center;gap:10px}
+
+footer{padding:48px 0 60px;border-top:1px solid var(--fog)}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:17px;opacity:.5}
+.footer-logo em{font-style:italic}
+.footer-links{display:flex;gap:28px;font-size:12px;color:var(--dust)}
+
+@media (max-width:860px){
+  .proof-grid{grid-template-columns:1fr;gap:48px}
+  .proof-visual{order:-1}
+  .float-badge{display:none}
+  section{padding:80px 0}
+  .hero{padding:140px 0 70px}
+  .demo-strip{padding:48px 28px;border-radius:18px}
+}
+
+@media (prefers-reduced-motion: reduce){
+  .float-badge{animation:none}
+  html{scroll-behavior:auto}
+}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease, transform .7s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Tour<em>Flow</em>
+    </div>
+    <a href="#cta" class="nav-cta">Get started</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">For Real Estate Agents</div>
+    <h1 class="reveal in">The viewing day,<br/>made <em>elegant</em>.</h1>
+    <p class="hero-sub">Turn your listings into a polished, shareable viewing day in minutes. One link, sent by WhatsApp — and your client sees exactly why they chose you.</p>
+    <div class="hero-actions">
+      <a href="#cta" class="btn-primary">Get started<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="/demo.html" class="btn-ghost-link">See it in action →</a>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-visual-glow"></div>
+      <div class="float-badge float-badge-1">
+        <div class="float-badge-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg></div>
+        <div class="float-badge-text"><b>One tap</b>Sent via WhatsApp</div>
+      </div>
+      <div class="float-badge float-badge-2">
+        <div class="float-badge-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.4l-6.3 4.4 2.3-7.2-6-4.4h7.6z"/></svg></div>
+        <div class="float-badge-text"><b>Built-in matching</b>Score every listing</div>
+      </div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <img class="phone-img" src="onboarding-preview.jpg" alt="TourFlow viewing day, client view"/>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="proof">
+  <div class="wrap">
+    <div class="proof-grid">
+      <div>
+        <div class="proof-eyebrow">What your client receives</div>
+        <h2>Not a PDF.<br/>Not a list.<br/>A <em>moment</em>.</h2>
+        <p>Most agents send a string of links and a hope. TourFlow sends one page — built around your client, their preferences, and the homes you chose for them today.</p>
+        <div class="proof-list">
+          <div class="proof-list-item">
+            <div class="proof-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="proof-list-text"><b>A live timeline</b> of the day, from first viewing to last.</div>
+          </div>
+          <div class="proof-list-item">
+            <div class="proof-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="proof-list-text"><b>Match scoring</b> against what they told you they wanted.</div>
+          </div>
+          <div class="proof-list-item">
+            <div class="proof-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+            <div class="proof-list-text"><b>Your contact card</b>, front and centre — not buried in an email signature.</div>
+          </div>
+        </div>
+      </div>
+      <div class="proof-visual">
+        <div class="proof-card">
+          <img src="onboarding-preview.jpg" alt="Frontline Penthouse — TourFlow client view"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-eyebrow">How it works</div>
+    <h2 class="sec-title">Three steps.<br/><em>No learning curve.</em></h2>
+    <p class="sec-sub">If you can send a WhatsApp message, you can run TourFlow.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num serif">01</div>
+        <div class="step-body">
+          <h3>Add your client</h3>
+          <p>Name, contact, and what they're looking for. Takes under a minute, and TourFlow remembers it for every future tour.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num serif">02</div>
+        <div class="step-body">
+          <h3>Build the viewing day</h3>
+          <p>Pull listings from your library or add new ones on the fly. Set times, highlights, and a personal note for your client.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num serif">03</div>
+        <div class="step-body">
+          <h3>Share, in one tap</h3>
+          <p>TourFlow opens WhatsApp with everything ready to send — straight to your client's chat, no copy-pasting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="demo-strip">
+      <div class="sec-eyebrow" style="margin-bottom:14px">Try it yourself</div>
+      <h2 class="serif">See the full experience —<br/>no signup required</h2>
+      <p>Explore a live demo with sample clients and listings. Nothing you do here is saved to your account.</p>
+      <a href="/demo.html" class="btn-primary">Open the demo<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<section class="closing" id="cta">
+  <div class="wrap-narrow">
+    <div class="closing-eyebrow">Ready when you are</div>
+    <h2>Your next viewing day<br/>could feel like <em>this</em>.</h2>
+    <p>Built for agents who want their work to look as good as it actually is.</p>
+    <a href="mailto:hello@tourflow.live?subject=I'd%20like%20to%20get%20started%20with%20TourFlow" class="btn-light">Get started<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-logo">Tour<em>Flow</em></div>
+      <div class="footer-links">
+        <a href="/demo.html">Demo</a>
+        <a href="mailto:hello@tourflow.live">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+var nav=document.getElementById('nav');
+window.addEventListener('scroll',function(){
+  if(window.scrollY>20)nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  var els=document.querySelectorAll('.sec-title, .step, .proof-grid, .demo-strip');
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){en.target.classList.add('reveal','in');obs.unobserve(en.target);}
+    });
+  },{threshold:.15});
+  els.forEach(function(el){el.classList.add('reveal');obs.observe(el);});
+}
+</script>
+
+</body>
+</html>
