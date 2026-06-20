@@ -427,7 +427,7 @@ function driveTimeHtml(from,to){
     '</div></div>';
 }
 // ─────────────────────────────────────────────────────────────────
-var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Value", "&#128176;", "Within budget"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
+var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Features", "&#10024;", "Excellent condition"], ["Features", "&#128077;", "Good condition"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
 
 function toggleHighlight(dayId,propId,label){
   if(dayId==='__lib__'){
@@ -834,52 +834,12 @@ function pgHome(){
 
         var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
           '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
-          '<div onclick="showDemoClientView()" style="cursor:pointer">'+
-
-          // Dark cover card with timeline
-          '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:16px 16px 0 0;overflow:hidden;box-shadow:0 4px 20px rgba(7,18,38,.2)">'+
-
-          // Mini timeline
-          '<div style="padding:12px 18px 14px;display:flex;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,.06)">'+
-          [['1','10:00','Villa'],['2','11:30','Apt'],['3','13:00','Penthouse']].map(function(t,ti){
-            var isLast=ti===2;
-            return '<div style="display:flex;align-items:flex-start">'+
-              '<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'+
-              '<div style="width:18px;height:18px;border-radius:50%;background:#C9A14A;color:#071226;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">'+t[0]+'</div>'+
-              '<div style="font-size:7px;color:#fff;font-weight:500">'+t[1]+'</div>'+
-              '<div style="font-size:6px;color:rgba(255,255,255,.35)">'+t[2]+'</div>'+
-              '</div>'+
-              (!isLast?'<div style="flex:1;height:1px;background:rgba(201,161,74,.25);margin-top:8px;min-width:24px"></div>':'')+
-              '</div>';
-          }).join('')+
-          '</div>'+
-
-          // Cover header
-          '<div style="padding:18px 18px 20px">'+
-          '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:6px">Personalised Viewing Day</div>'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;color:#fff;margin-bottom:2px">Erik Svensson</div>'+
-          '<div style="font-size:11px;color:rgba(255,255,255,.35)">Wednesday, 18 June</div>'+
-          '</div>'+
-          '</div>'+
-
-          // Mock property card with image
-          '<div style="background:#fff;border-radius:0 0 16px 16px;overflow:hidden;border:1px solid #edeae4;border-top:none">'+
-          '<div style="height:110px;background:linear-gradient(135deg,#b8d4e8,#8ab4cc);position:relative;display:flex;align-items:center;justify-content:center">'+
-          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
-          '<div style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,.95);border-radius:8px;padding:5px 8px;text-align:center;min-width:46px">'+
-          '<div style="font-size:7px;font-weight:600;color:#059669;letter-spacing:.06em;text-transform:uppercase">Excellent</div>'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:13px;font-weight:700;color:#071226">95%</div>'+
-          '</div>'+
-          '</div>'+
-          '<div style="padding:12px 14px">'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#071226;margin-bottom:3px">Bright 2-bed apartment</div>'+
-          '<div style="font-size:11px;color:#9e9a94;margin-bottom:8px">La Zenia &middot; Calle del Mar 12</div>'+
-          '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
-          '<span style="background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:3px 9px;font-size:9px;color:#6b6560">&#127946; Pool</span>'+
-          '<span style="background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:3px 9px;font-size:9px;color:#6b6560">&#127754; Sea view</span>'+
-          '</div></div></div>'+
-
-          '</div></div>';
+          '<div onclick="showDemoClientView()" style="border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(7,18,38,.25);border:1px solid rgba(201,161,74,.15);cursor:pointer;position:relative">'+
+          '<img src="onboarding-preview.jpg" style="width:100%;display:block"/>'+
+          '<div style="position:absolute;bottom:10px;right:10px;background:rgba(7,18,38,.85);border-radius:100px;padding:6px 12px;display:flex;align-items:center;gap:5px">'+
+          '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
+          '<span style="font-size:10px;color:#C9A14A;font-weight:600">Tap to preview</span>'+
+          '</div></div></div>';
 
         noTourCard='<div style="margin-bottom:24px">'+
           '<div style="background:#F6F2E9;border-radius:18px;padding:22px 20px;border:1px solid #e8e0d0;margin-bottom:20px;text-align:center">'+
@@ -936,7 +896,7 @@ function pgHome(){
   var quickActions='<div style="margin-bottom:32px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Quick Actions</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-    qaBtn('go(\'new-day\')',
+    qaBtn('quickDay()',
       '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
       'New Tour','Plan a viewing day')+
     qaBtn('showTab(\'days\')',
@@ -1177,6 +1137,16 @@ function doDeleteProp(){
     render();
   }
 }
+function confirmDeleteDay(did){
+  var d=S.days.find(function(x){return x.id===did;});
+  if(!d)return;
+  var c=S.clients.find(function(x){return x.id===d.clientId;});
+  var label=(c?c.name+' \u2014 ':'')+fmtDate(d.date);
+  if(confirm('Delete this viewing day?\n'+label+'\nThis cannot be undone.')){
+    delDay(did);
+    render();
+  }
+}
 function doDeletePropById(pid){
   var m=(window._propMap||{})[pid]||{};
   var title=m.title||'this property';
@@ -1203,7 +1173,7 @@ function pgPickClient(){
     '<div class="sec">Choose client</div>'+
     '<div style="margin-bottom:14px">'+rows+'</div>'+
     '<div style="border-top:1px solid var(--fog);padding-top:14px">'+
-    '<button class="btn btn-g" onclick="go(\'add-client\')">+ New client instead</button>'+
+    '<button class="btn" onclick="go(\'add-client\')">+ New client instead</button>'+
     '</div></div>';
 }
 function pgAddClient(){
@@ -1220,7 +1190,8 @@ function pgAddClient(){
     ['Near golf',''],['Prime location',''],['Close to amenities',''],
     ['Restaurants nearby',''],['New build',''],['Key ready',''],
     ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
-    ['Rental potential',''],['Family friendly',''],['Investment property','']
+    ['Rental potential',''],['Family friendly',''],['Investment property',''],
+    ['Excellent condition',''],['Good condition','']
   ];
 
   function tempChip(name,emoji){
@@ -1340,7 +1311,8 @@ function pgEditClient(){
     ['Near golf',''],['Prime location',''],['Close to amenities',''],
     ['Restaurants nearby',''],['New build',''],['Key ready',''],
     ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
-    ['Rental potential',''],['Family friendly',''],['Investment property','']
+    ['Rental potential',''],['Family friendly',''],['Investment property',''],
+    ['Excellent condition',''],['Good condition','']
   ];
 
   var chips=features.map(function(f){return clientFeatureChip(c,f[0],f[1]);}).join('');
@@ -1432,7 +1404,9 @@ function pgDays(){
     return '<div onclick="openDay(\''+d.id+'\',\''+d.clientId+'\')" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
       '<div style="font-size:15px;font-weight:500;color:#2D2B28">'+fmtDate(d.date)+'</div>'+
-      badge+
+      '<div style="display:flex;align-items:center;gap:8px">'+badge+
+      '<button onclick="event.stopPropagation();confirmDeleteDay(\''+d.id+'\')" style="width:22px;height:22px;border-radius:50%;border:1px solid #edeae4;background:#fff;color:#9e9a94;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</button>'+
+      '</div>'+
       '</div>'+
       '<div style="display:flex;align-items:center;gap:10px">'+
       '<div style="width:28px;height:28px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
@@ -1851,7 +1825,10 @@ var ICON={
   'Hot listing':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/></svg>',
   'Excellent value':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"/><path d="M2 9h20"/><path d="M12 22L6 9M12 22l6-13"/></svg>',
   'Restaurants nearby':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 3"/><line x1="9" y1="8" x2="9" y2="14"/><line x1="15" y1="8" x2="15" y2="14"/></svg>',
-  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>',};
+  'Close to amenities':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path d="M9 22V12h6v10"/></svg>',
+  'Excellent condition':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.4l-6.3 4.4 2.3-7.2-6-4.4h7.6z"/></svg>',
+  'Good condition':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+};
 
 // ── OUTPUT ────────────────────────────────────────────────────────────────────
 function pgOutput(){
