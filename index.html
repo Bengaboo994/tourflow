@@ -549,13 +549,14 @@ function generateWelcomeMsg(v){
   var purpose=req.purpose||"";
   var props=[].concat(d.properties||[]).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
   var n=props.length;
+  var single=n===1;
   var t=purpose==="holiday"?"holiday home":purpose==="invest"?"investment":purpose==="perm"?"permanent home":"property";
   var v2=(v!=null?v:Math.floor(Math.random()*3))%3;
   var sig=agentName?"\n\n"+agentName:"";
   var msgs=[
-    "Dear "+firstName+",\n\nI have selected "+n+" propert"+(n===1?"y":"ies")+" based on the criteria we discussed. Each offers unique strengths and potential.\n\nI look forward to showing them to you today and helping you find the right "+t+"."+sig,
-    "Dear "+firstName+",\n\nWelcome to your personalised viewing day. The "+n+" properties I have chosen all meet your key requirements \u2014 I am confident at least one will feel right.\n\nI am here throughout the day to answer any questions."+sig,
-    "Dear "+firstName+",\n\nToday I will guide you through "+n+" carefully selected propert"+(n===1?"y":"ies")+". Each has been chosen with your specific needs in mind.\n\nMy goal is to help you find not just a property, but the right one."+sig
+    "Dear "+firstName+",\n\nI have selected "+n+" propert"+(single?"y":"ies")+" based on the criteria we discussed. "+(single?"It offers":"Each offers")+" unique strengths and potential.\n\nI look forward to showing "+(single?"it":"them")+" to you today and helping you find the right "+t+"."+sig,
+    "Dear "+firstName+",\n\nWelcome to your personalised viewing day. "+(single?"The property I have chosen meets":"The "+n+" properties I have chosen all meet")+" your key requirements \u2014 I am confident "+(single?"it will feel right":"at least one will feel right")+".\n\nI am here throughout the day to answer any questions."+sig,
+    "Dear "+firstName+",\n\nToday I will guide you through "+n+" carefully selected propert"+(single?"y":"ies")+". "+(single?"It has":"Each has")+" been chosen with your specific needs in mind.\n\nMy goal is to help you find not just a property, but the right one."+sig
   ];
   d.welcomeMsg=msgs[v2];
   persist();
@@ -1598,8 +1599,7 @@ function pgDayDetail(){
       '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9a94;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
-      '<button class="btn" onclick="handleGenerateTour()">&#128203; Generate Viewing List</button>'+
-      '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Share via WhatsApp</button>':'')+
+      '<button class="btn" onclick="handleGenerateTour()">&#128203; Generate Viewing List</button>':'')+
     '</div>';
 }
 function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),title:gv("ev-title"),note:gv("ev-note"),mapsUrl:gv("ev-maps")});S.addEv=false;render();}
@@ -1891,11 +1891,11 @@ function pgOutput(){
         :tl.type==='ev'
         ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
         :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
-      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px"></div>':'';
-      return'<div style="display:flex;align-items:flex-start">'+
-        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;max-width:70px">'+dot+
-        '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2">'+tl.sub+'</div>'+
-        '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2">'+tl.label+'</div>'+
+      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:14px"></div>':'';
+      return'<div style="display:flex;align-items:flex-start;flex:'+(isLast?'0':'1')+'">'+
+        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">'+dot+
+        '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2;white-space:nowrap">'+tl.sub+'</div>'+
+        '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2;white-space:nowrap">'+tl.label+'</div>'+
         '</div>'+line+'</div>';
     }).join('')+
     '</div></div>':'';
@@ -2252,8 +2252,7 @@ function pgOutput(){
 
     // ── ACTION BUTTONS ────────────────────────────────────────────────────
     '<div style="padding-top:4px">'+
-    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:'+(c&&c.phone?'4':'10')+'px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp</button>'+
-    (c&&c.phone?'<div style="text-align:center;font-size:10px;color:#9e9a94;margin-bottom:10px">Opens '+esc(c.name.split(" ")[0])+'\'s WhatsApp chat directly</div>':'<div style="text-align:center;font-size:10px;color:#9e9a94;margin-bottom:10px">No phone on file — link will be copied to paste anywhere</div>')+
+    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp</button>'+
     (!isAg?'<button id="create-link-btn" onclick="handleCreateClientLink()" style="width:100%;padding:13px;background:#071226;color:#C9A14A;border:1.5px solid rgba(201,161,74,.3);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link</button>':'')+
     '<button onclick="go(\'day-detail\')" style="width:100%;padding:13px;background:#fff;color:#2D2B28;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#9998; Edit Tour</button>'+
     '<div style="text-align:center;padding:24px 0 8px">'+
