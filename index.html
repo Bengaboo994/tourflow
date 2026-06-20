@@ -102,8 +102,8 @@ input,button,textarea,select{font-family:inherit}
       <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
     </div>
     <div id="auth-step-email">
-      <div class="auth-title">Welcome back</div>
-      <div class="auth-sub">Enter your email and we'll send you a secure sign-in link. No password needed.</div>
+      <div class="auth-title" id="auth-title">Your viewing day is ready</div>
+      <div class="auth-sub" id="auth-sub">Create your free account to send it — and keep every tour you build saved and ready to share.</div>
       <input class="auth-input" id="auth-email" type="email" placeholder="you@agency.com" autocomplete="email"/>
       <button class="auth-btn" id="auth-send-btn" onclick="sendMagicLink()">Send sign-in link</button>
       <div id="auth-feedback"></div>
@@ -196,7 +196,20 @@ function guardTrialAction(){
 
 function showAuthGate(){
   var gate=document.getElementById('auth-gate');
-  if(gate)gate.style.display='flex';
+  if(!gate)return;
+  var title=document.getElementById('auth-title');
+  var sub=document.getElementById('auth-sub');
+  var hasSignedInBefore=!!localStorage.getItem('tf-has-account');
+  if(title&&sub){
+    if(hasSignedInBefore){
+      title.textContent='Welcome back';
+      sub.textContent="Enter your email and we'll send you a secure sign-in link. No password needed.";
+    }else{
+      title.textContent='Your viewing day is ready';
+      sub.textContent='Create your free account to send it — and keep every tour you build saved and ready to share.';
+    }
+  }
+  gate.style.display='flex';
 }
 function hideAuthGate(){
   var gate=document.getElementById('auth-gate');
@@ -258,6 +271,7 @@ function checkExistingSession(){
     var session=res.data&&res.data.session;
     if(session&&session.user){
       currentUser=session.user;
+      localStorage.setItem('tf-has-account','1');
       hideAuthGate();
       render();
     }
@@ -265,6 +279,7 @@ function checkExistingSession(){
   supa.auth.onAuthStateChange(function(event,session){
     if(event==='SIGNED_IN'&&session&&session.user){
       currentUser=session.user;
+      localStorage.setItem('tf-has-account','1');
       hideAuthGate();
       resumePendingAction();
       render();
