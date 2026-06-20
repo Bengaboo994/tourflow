@@ -278,10 +278,10 @@ function resumePendingAction(){
   if(!pendingAction)return;
   var action=pendingAction;
   pendingAction=null;
-  if(action.type==='quickDay'){
-    setTimeout(function(){quickDay();},50);
-  }else if(action.type==='newDayFor'){
-    setTimeout(function(){newDayFor(action.cId);},50);
+  if(action.type==='copyWA'){
+    setTimeout(function(){copyWA();},50);
+  }else if(action.type==='createClientLink'){
+    setTimeout(function(){handleCreateClientLink();},50);
   }
 }
 
@@ -1173,7 +1173,6 @@ function pgHome(){
 }
 function quickDay(){
   if(isTrialExpired()){showUpgradeModal();return;}
-  if(!currentUser){pendingAction={type:'quickDay'};showAuthGate();return;}
   if(S.clients.length===0){go("add-client");return;}
   if(S.clients.length===1){
     var id=addDay(S.clients[0].id);
@@ -1316,7 +1315,7 @@ function pgClientDetail(){
     (cd.length===0?'<div class="emp" style="margin-top:8px"><div style="font-size:32px;margin-bottom:10px">&#128197;</div><div style="font-size:14px;color:var(--slate)">No viewing days yet</div></div>':"")+
     '</div>';
 }
-function newDayFor(cId){if(isTrialExpired()){showUpgradeModal();return;}if(!currentUser){pendingAction={type:'newDayFor',cId:cId};showAuthGate();return;}var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
+function newDayFor(cId){if(isTrialExpired()){showUpgradeModal();return;}var id=addDay(cId);go("day-detail",{did:id,cid:cId});}
 
 // ── ADD CLIENT ────────────────────────────────────────────────────────────────
 function confirmDeleteClient(cid,name){if(confirm("Delete "+name+" and all their viewing days?\nThis cannot be undone.")){delClient(cid);showTab("clients");}}
@@ -1799,6 +1798,7 @@ function saveEv(did){addEv(did,{type:gv("ev-type")||"other",time:gv("ev-time"),t
 
 // ── WHATSAPP ──────────────────────────────────────────────────────────────────
 function copyWA(){
+  if(!currentUser){pendingAction={type:'copyWA'};showAuthGate();return;}
   var day=curD();if(!day)return;
   var c=curC();var cfg=S.cfg;
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"").localeCompare(b.time||"");});
@@ -3052,6 +3052,7 @@ function copyPublicLink(publicId){
 }
 
 function handleCreateClientLink(){
+  if(!currentUser){pendingAction={type:'createClientLink'};showAuthGate();return;}
   var day=curD(); var c=curC(); var cfg=S.cfg;
   if(!day)return;
   var btn=document.getElementById('create-link-btn');
