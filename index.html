@@ -834,24 +834,51 @@ function pgHome(){
 
         var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
           '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
-          '<div onclick="showDemoClientView()" style="background:#071226;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(7,18,38,.2);cursor:pointer">'+
-          '<div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.06)">'+
+          '<div onclick="showDemoClientView()" style="cursor:pointer">'+
+
+          // Dark cover card with timeline
+          '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:16px 16px 0 0;overflow:hidden;box-shadow:0 4px 20px rgba(7,18,38,.2)">'+
+
+          // Mini timeline
+          '<div style="padding:12px 18px 14px;display:flex;align-items:flex-start;border-bottom:1px solid rgba(255,255,255,.06)">'+
+          [['1','10:00','Villa'],['2','11:30','Apt'],['3','13:00','Penthouse']].map(function(t,ti){
+            var isLast=ti===2;
+            return '<div style="display:flex;align-items:flex-start">'+
+              '<div style="display:flex;flex-direction:column;align-items:center;gap:4px">'+
+              '<div style="width:18px;height:18px;border-radius:50%;background:#C9A14A;color:#071226;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">'+t[0]+'</div>'+
+              '<div style="font-size:7px;color:#fff;font-weight:500">'+t[1]+'</div>'+
+              '<div style="font-size:6px;color:rgba(255,255,255,.35)">'+t[2]+'</div>'+
+              '</div>'+
+              (!isLast?'<div style="flex:1;height:1px;background:rgba(201,161,74,.25);margin-top:8px;min-width:24px"></div>':'')+
+              '</div>';
+          }).join('')+
+          '</div>'+
+
+          // Cover header
+          '<div style="padding:18px 18px 20px">'+
           '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:6px">Personalised Viewing Day</div>'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:2px">Erik Svensson</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;color:#fff;margin-bottom:2px">Erik Svensson</div>'+
           '<div style="font-size:11px;color:rgba(255,255,255,.35)">Wednesday, 18 June</div>'+
           '</div>'+
-          '<div style="padding:14px 18px;display:flex;gap:16px;border-bottom:1px solid rgba(255,255,255,.06)">'+
-          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">3</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">Properties</div></div>'+
-          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">10:00</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">Start</div></div>'+
-          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#C9A14A">13:30</div><div style="font-size:8px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em">End</div></div>'+
           '</div>'+
-          '<div style="padding:12px 18px;background:rgba(255,255,255,.03)">'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:13px;color:rgba(255,255,255,.6);font-style:italic;line-height:1.6">&ldquo;I have carefully selected today\'s properties based on your preferences...&rdquo;</div>'+
+
+          // Mock property card with image
+          '<div style="background:#fff;border-radius:0 0 16px 16px;overflow:hidden;border:1px solid #edeae4;border-top:none">'+
+          '<div style="height:110px;background:linear-gradient(135deg,#b8d4e8,#8ab4cc);position:relative;display:flex;align-items:center;justify-content:center">'+
+          '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="1.3" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+          '<div style="position:absolute;top:10px;right:10px;background:rgba(255,255,255,.95);border-radius:8px;padding:5px 8px;text-align:center;min-width:46px">'+
+          '<div style="font-size:7px;font-weight:600;color:#059669;letter-spacing:.06em;text-transform:uppercase">Excellent</div>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:13px;font-weight:700;color:#071226">95%</div>'+
           '</div>'+
-          '<div style="padding:10px 18px;display:flex;gap:8px">'+
-          '<div style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:3px 10px;font-size:10px;color:#C9A14A">&#9989; Pool</div>'+
-          '<div style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:3px 10px;font-size:10px;color:#C9A14A">&#9989; Sea view</div>'+
           '</div>'+
+          '<div style="padding:12px 14px">'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:#071226;margin-bottom:3px">Bright 2-bed apartment</div>'+
+          '<div style="font-size:11px;color:#9e9a94;margin-bottom:8px">La Zenia &middot; Calle del Mar 12</div>'+
+          '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
+          '<span style="background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:3px 9px;font-size:9px;color:#6b6560">&#127946; Pool</span>'+
+          '<span style="background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:3px 9px;font-size:9px;color:#6b6560">&#127754; Sea view</span>'+
+          '</div></div></div>'+
+
           '</div></div>';
 
         noTourCard='<div style="margin-bottom:24px">'+
@@ -2280,10 +2307,11 @@ function addFromLibrary(idx){
   if(!day)return;
   var np=JSON.parse(JSON.stringify(item.prop));
   np.id='p'+Date.now();
-  np.time='';
+  np.time=''; // reset viewing time — this is a new day, old time no longer applies
   day.properties=day.properties||[];
   day.properties.push(np);
   persist();
+  S.epid=np.id; // auto-open the edit panel so the agent sees the time field right away
   go('day-detail');
 }
 
