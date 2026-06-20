@@ -176,7 +176,7 @@ var DEMO_C=[
 ];
 var DEMO_D=[
   {id:"d1",clientId:"c1",date:"2026-06-17",properties:[
-    {id:"p1",url:"https://www.comaskeys.com/property/2082220",time:"10:00",title:"Bright 2-bed apartment",address:"Calle del Mar 12, La Zenia",price:"175,000 EUR",rooms:"2 bed",sqm:"78 m2",mapsUrl:"https://maps.google.com/?q=Calle+del+Mar+12+La+Zenia",commission:"2.5%",contact:"Maria Garcia",firm:"Costa Realty",location:"Key at front desk",note:""},
+    {id:"p1",url:"https://www.comaskeys.com/property/2082220",time:"10:00",title:"Property title",address:"Calle del Mar 12, La Zenia",price:"Price",rooms:"2 bed",sqm:"78 m2",mapsUrl:"https://maps.google.com/?q=Calle+del+Mar+12+La+Zenia",commission:"Commission",contact:"Contact name",firm:"Costa Realty",location:"Access details",note:""},
     {id:"p2",url:"https://www.idealista.com/inmueble/98765432/",time:"12:30",title:"Modern villa with pool",address:"Avenida del Sol 45, Torrevieja",price:"320,000 EUR",rooms:"4 bed",sqm:"160 m2",mapsUrl:"https://maps.google.com/?q=Avenida+del+Sol+45+Torrevieja",commission:"3%",contact:"Juan Perez",firm:"Inmobiliaria Sol",location:"Gated community, bring ID",note:"Pool heated Oct-May"}
   ],events:[{id:"e1",type:"lunch",time:"13:30",title:"Lunch",note:"La Zenia Boulevard"}]},
   {id:"d2",clientId:"c1",date:"2026-05-10",properties:[{id:"p3",url:"https://www.idealista.com/inmueble/123",time:"11:00",title:"Townhouse near golf",address:"Calle Verde 3, Orihuela",price:"210,000 EUR",rooms:"3 bed",sqm:"105 m2",mapsUrl:"",commission:"2%",contact:"Sofia Ruiz",firm:"Golf Properties",location:"Key with neighbour no.5",note:""}],events:[]},
@@ -1007,7 +1007,7 @@ function pgClients(){
   function pageHeader(title, actionLabel, actionFn){
     return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
-      '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
+      '<button onclick="'+actionFn+'" style="background:#071226;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
       '</div>';
   }
 
@@ -1238,14 +1238,14 @@ function pgAddClient(){
     '<button class="bback" onclick="window._newClientReq=null;showTab(\'clients\')">&#8592; Cancel</button>'+
     '<div class="sec">New Client</div>'+
     '<div class="card">'+
-    '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Erik Svensson"/></div>'+
+    '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Full name"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ac-phone" placeholder="+46 70 000 00 00"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Include country code (e.g. +46)</div></div>'+
-      '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="erik@email.com"/></div>'+
+      '<div><label class="lbl">Phone</label><input class="inp" id="ac-phone" placeholder="Phone number"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
+      '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="Email address"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Swedish"/></div>'+
-      '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Brief notes..."/></div>'+
+      '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Nationality"/></div>'+
+      '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Notes"/></div>'+
     '</div>'+
     '</div>'+
     '<div style="border-top:none;padding-top:0;margin-top:16px">'+
@@ -1345,11 +1345,11 @@ function pgEditClient(){
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ec-name" value="'+esc(c.name||'')+'"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Include country code (e.g. +46)</div></div>'+
+      '<div><label class="lbl">Phone</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
       '<div><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" placeholder="Swedish" value="'+esc(c.nationality||'')+'"/></div>'+
+      '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" placeholder="Nationality" value="'+esc(c.nationality||'')+'"/></div>'+
       '<div><label class="lbl">Notes</label><input class="inp" id="ec-note" value="'+esc(c.note||'')+'"/></div>'+
     '</div>'+
     '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
@@ -1444,8 +1444,8 @@ function pgDayDetail(){
     var io=S.epid===p.id,ii=S.eiid===p.id;
     var ep="";
     if(io){
-      var bf=[["Title","title","Sun-Filled Apartment in La Zenia"],["Address","address","Calle del Mar 12"],["Area","area","La Zenia"],["Bedrooms","rooms","2 bedrooms"],["Bathrooms","bathrooms","2 bathrooms"],["Built size","sqm","78 m2"]];
-      var iff=[["Commission","commission","2.5%"],["Contact","contact","Maria Garcia"],["Phone","contactPhone","+34 600 000 000"],["Firm","firm","Costa Realty"],["Location/access","location","Key at front desk"],["Notes","note","Other info"]];
+      var bf=[["Title","title","Property title"],["Address","address","Street address"],["Area","area","Area"],["Bedrooms","rooms","Bedrooms"],["Bathrooms","bathrooms","Bathrooms"],["Built size","sqm","Size in m\u00b2"]];
+      var iff=[["Commission","commission","Commission"],["Contact","contact","Contact name"],["Phone","contactPhone","Contact phone"],["Firm","firm","Company name"],["Location/access","location","Access details"],["Notes","note","Notes"]];
       ep='<div style="padding:0 14px 14px;border-top:1px solid var(--fog)">'+
         '<div style="margin-bottom:9px"><label class="lbl">Hero image</label>'+
         (p.ogImage
@@ -1457,7 +1457,7 @@ function pgDayDetail(){
         '</div>'+
         '<div class="g2" style="margin:12px 0 10px">'+
         '<div><label class="lbl">Time</label><input type="time" class="inp ins" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
-        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="175,000 EUR" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)||this.value})"/></div></div>'+
+        '<div><label class="lbl">Price</label><input class="inp ins" value="'+esc(p.price||'')+'" placeholder="Price" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)||this.value})"/></div></div>'+
         bf.map(function(f,fi){
           var isAddrField=f[1]==='address'&&bf[fi+1]&&bf[fi+1][1]==='area';
           var isAreaPair=f[1]==='area'&&bf[fi-1]&&bf[fi-1][1]==='address';
@@ -1664,8 +1664,8 @@ function copyWA(){
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
-  var bf=[["Title","ap-title","Bright 2-bed apartment"],["Address","ap-addr","Calle del Mar 12"],["Area","ap-area2","La Zenia"],["Price","ap-price","175,000 EUR"],["Bedrooms","ap-rooms","3"],["Bathrooms","ap-bath","2"],["Built size","ap-sqm","120"]];
-  var iff=[["Commission","ap-comm","2.5%"],["Contact person","ap-cont","Maria Garcia"],["Contact phone","ap-cph","+34 600 000 000"],["Their firm","ap-firm","Costa Realty SL"],["Exact location/access","ap-loc","Key at front desk"],["Internal notes","ap-note","Other info"]];
+  var bf=[["Title","ap-title","Property title"],["Address","ap-addr","Street address"],["Area","ap-area2","Area"],["Price","ap-price","Price"],["Bedrooms","ap-rooms","Bedrooms"],["Bathrooms","ap-bath","Bathrooms"],["Built size","ap-sqm","Size in m\u00b2"]];
+  var iff=[["Commission","ap-comm","Commission"],["Contact person","ap-cont","Contact name"],["Contact phone","ap-cph","Contact phone"],["Their firm","ap-firm","Company name"],["Exact location/access","ap-loc","Access details"],["Internal notes","ap-note","Notes"]];
 
   var bfHtml=bf.map(function(f,fi){
     var isAddr=f[1]==='ap-addr', isArea=f[1]==='ap-area2';
@@ -2450,7 +2450,7 @@ function goAddLibProp(){go('add-lib-prop');}
 
 // ── ADD LIBRARY PROPERTY ──────────────────────────────────────────────────────
 function pgAddLibraryProp(){
-  var bf=[["Title","alp-title","Bright 2-bed apartment"],["Address","alp-addr","Calle del Mar 12"],["Area","alp-area","La Zenia"],["Price","alp-price","175,000 EUR"],["Bedrooms","alp-rooms","3"],["Bathrooms","alp-bath","2"],["Built size","alp-sqm","120"]];
+  var bf=[["Title","alp-title","Property title"],["Address","alp-addr","Street address"],["Area","alp-area","Area"],["Price","alp-price","Price"],["Bedrooms","alp-rooms","3"],["Bathrooms","alp-bath","2"],["Built size","alp-sqm","120"]];
   var bfHtml=bf.map(function(f,fi){
     var isAddr=f[1]==='alp-addr',isArea=f[1]==='alp-area';
     var isRooms=f[1]==='alp-rooms',isBath=f[1]==='alp-bath';
@@ -2643,10 +2643,10 @@ function pgSettings(){
   var rmLogo=cfg.logo?'<button onclick="S.cfg.logo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
   var rmPhoto=cfg.photo?'<button onclick="S.cfg.photo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
   var fRows=[
-    ["Agency name","agency","Costa Home Realty"],
-    ["Your name","agent","Maria Garcia"],
-    ["Phone","phone","+34 600 000 000"],
-    ["Email","email","maria@agency.com"]
+    ["Agency name","agency","Agency name"],
+    ["Your name","agent","Your full name"],
+    ["Phone","phone","Phone number"],
+    ["Email","email","Email address"]
   ].map(function(f){
     return '<div style="margin-bottom:14px"><label class="lbl">'+f[0]+'</label>'+
       '<input class="inp" id="sf-'+f[1]+'" value="'+esc(cfg[f[1]]||'')+'" placeholder="'+f[2]+'"/></div>';
