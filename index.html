@@ -5,6 +5,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
 <meta name="theme-color" content="#FCFBF7"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -76,9 +77,43 @@ input,button,textarea,select{font-family:inherit}
 .of{background:var(--mist);padding:14px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .ibox{margin-top:12px;background:#fef9ec;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;padding:11px 13px}
 @media print{.hdr,.nav,.btn,.btn-g,.tog,.ban,.bback,.bico,.btn-add{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}.or{break-inside:avoid}}
+#auth-gate{position:fixed;inset:0;background:#FCFBF7;z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;max-width:480px;margin:0 auto}
+.auth-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:40px}
+.auth-card{width:100%;max-width:340px}
+.auth-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:300;color:#2D2B28;text-align:center;margin-bottom:8px}
+.auth-sub{font-size:13px;color:#6b6560;text-align:center;margin-bottom:28px;line-height:1.5}
+.auth-input{width:100%;padding:14px 16px;border:1.5px solid #edeae4;border-radius:10px;font-size:15px;outline:none;background:#fff;color:#2D2B28;margin-bottom:12px;-webkit-appearance:none;font-family:inherit}
+.auth-input:focus{border-color:#C9A14A}
+.auth-btn{width:100%;padding:14px 18px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-btn:disabled{opacity:.6;cursor:default}
+.auth-msg{font-size:12px;text-align:center;margin-top:16px;line-height:1.5}
+.auth-msg.err{color:#dc2626}
+.auth-msg.ok{color:#166534}
+.auth-spinner{width:16px;height:16px;border:2px solid rgba(201,161,74,.3);border-top-color:#C9A14A;border-radius:50%;animation:authspin .7s linear infinite}
+@keyframes authspin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+<div id="auth-gate" style="display:none">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:14px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
+    </div>
+    <div id="auth-step-email">
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Enter your email and we'll send you a secure sign-in link. No password needed.</div>
+      <input class="auth-input" id="auth-email" type="email" placeholder="you@agency.com" autocomplete="email"/>
+      <button class="auth-btn" id="auth-send-btn" onclick="sendMagicLink()">Send sign-in link</button>
+      <div id="auth-feedback"></div>
+    </div>
+    <div id="auth-step-sent" style="display:none">
+      <div class="auth-title">Check your email</div>
+      <div class="auth-sub" id="auth-sent-msg">We sent a sign-in link to your inbox. Click it to open TourFlow.</div>
+      <button class="auth-btn" style="background:transparent;color:#6b6560;border:1.5px solid #edeae4" onclick="resetAuthForm()">Use a different email</button>
+    </div>
+  </div>
+</div>
 <div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#FCFBF7;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease;opacity:1;padding-bottom:30vh">
   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:18px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
   <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:40px;font-weight:300;color:#2D2B28;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
@@ -101,6 +136,110 @@ input,button,textarea,select{font-family:inherit}
 <script>
 window._splashStart=Date.now();
 var STORE="tf-v2";
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+var SUPA_URL='https://smcubfgpnrkguxqxbgva.supabase.co';
+var SUPA_KEY='sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY';
+var supa=null;
+var currentUser=null;
+try{
+  if(window.supabase&&window.supabase.createClient){
+    supa=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+  }
+}catch(e){
+  console.error('Supabase init failed:',e);
+}
+
+function showAuthGate(){
+  var gate=document.getElementById('auth-gate');
+  var splash=document.getElementById('splash');
+  if(splash)splash.style.display='none';
+  if(gate)gate.style.display='flex';
+}
+function hideAuthGate(){
+  var gate=document.getElementById('auth-gate');
+  if(gate)gate.style.display='none';
+}
+function resetAuthForm(){
+  document.getElementById('auth-step-sent').style.display='none';
+  document.getElementById('auth-step-email').style.display='block';
+  document.getElementById('auth-feedback').innerHTML='';
+  document.getElementById('auth-email').value='';
+}
+function sendMagicLink(){
+  if(!supa){
+    var fbX=document.getElementById('auth-feedback');
+    if(fbX)fbX.innerHTML='<div class="auth-msg err">Sign-in service unavailable. Please reload the page.</div>';
+    return;
+  }
+  var email=(document.getElementById('auth-email').value||'').trim();
+  var fb=document.getElementById('auth-feedback');
+  var btn=document.getElementById('auth-send-btn');
+  if(!email||email.indexOf('@')<0){
+    fb.innerHTML='<div class="auth-msg err">Please enter a valid email address.</div>';
+    return;
+  }
+  fb.innerHTML='';
+  btn.disabled=true;
+  btn.innerHTML='<span class="auth-spinner"></span> Sending...';
+  supa.auth.signInWithOtp({
+    email:email,
+    options:{emailRedirectTo:window.location.origin+window.location.pathname}
+  }).then(function(res){
+    btn.disabled=false;
+    btn.innerHTML='Send sign-in link';
+    if(res.error){
+      fb.innerHTML='<div class="auth-msg err">'+(res.error.message||'Something went wrong. Please try again.')+'</div>';
+      return;
+    }
+    document.getElementById('auth-sent-msg').textContent='We sent a sign-in link to '+email+'. Click it to open TourFlow.';
+    document.getElementById('auth-step-email').style.display='none';
+    document.getElementById('auth-step-sent').style.display='block';
+  }).catch(function(){
+    btn.disabled=false;
+    btn.innerHTML='Send sign-in link';
+    fb.innerHTML='<div class="auth-msg err">Network error. Please check your connection and try again.</div>';
+  });
+}
+function signOut(){
+  if(!supa){location.reload();return;}
+  supa.auth.signOut().then(function(){
+    location.reload();
+  });
+}
+function initAuth(cb){
+  if(!supa){
+    var gate=document.getElementById('auth-gate');
+    var splash=document.getElementById('splash');
+    if(splash)splash.style.display='none';
+    if(gate){
+      gate.style.display='flex';
+      gate.innerHTML='<div class="auth-card" style="text-align:center"><div class="auth-title">Connection problem</div><div class="auth-sub">We couldn\'t reach the sign-in service. Check your internet connection and reload the page.</div><button class="auth-btn" onclick="location.reload()">Reload</button></div>';
+    }
+    return;
+  }
+  supa.auth.getSession().then(function(res){
+    var session=res.data&&res.data.session;
+    if(session&&session.user){
+      currentUser=session.user;
+      hideAuthGate();
+      cb();
+    }else{
+      showAuthGate();
+    }
+  });
+  supa.auth.onAuthStateChange(function(event,session){
+    if(event==='SIGNED_IN'&&session&&session.user){
+      currentUser=session.user;
+      hideAuthGate();
+      cb();
+    }else if(event==='SIGNED_OUT'){
+      currentUser=null;
+      showAuthGate();
+    }
+  });
+}
+
 
 function topNav(){
   var cfg=S.cfg||{};
@@ -2709,6 +2848,11 @@ function pgSettings(){
     '<div style="font-size:11px;color:#9e9a94;margin-top:1px">Preview the onboarding experience</div></div>'+
     '</button>'+
     '</div>'+
+    '<div class="card" style="margin-top:16px">'+
+    (currentUser?'<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Account</div>'+
+    '<div style="font-size:13px;color:#6b6560;margin-bottom:14px">'+esc(currentUser.email||'')+'</div>':'')+
+    '<button onclick="signOut()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--fog);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:#6b6560">Sign out</button>'+
+    '</div>'+
     '</div>';
 }
 function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
@@ -2868,11 +3012,15 @@ function handleCreateClientLink(){
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 // Render home just before splash fades so transition is seamless
-showTab("home");
+initAuth(function(){
+  showTab("home");
+});
 </script>
 <script>
-// Guaranteed 1-second splash on every load
+// Guaranteed 1-second splash on every load (only if signed in)
 setTimeout(function(){
+  var gate=document.getElementById('auth-gate');
+  if(gate&&gate.style.display==='flex')return; // waiting for auth, splash already hidden by showAuthGate
   var s=document.getElementById('splash');
   if(!s)return;
   s.style.opacity='0';
