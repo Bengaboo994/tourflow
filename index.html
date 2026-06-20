@@ -592,9 +592,10 @@ function openDay(did,cid){
 }
 function cDays(cId){return S.days.filter(function(d){return d.clientId===cId;}).sort(function(a,b){return b.date.localeCompare(a.date);});}
 
-function go(screen,extra){if(extra)Object.assign(S,extra);S.screen=screen;S.addEv=false;render();}
+function go(screen,extra){if(extra)Object.assign(S,extra);if(screen!=='output')S._showCelebration=false;S.screen=screen;S.addEv=false;render();}
 
 function showTab(tab){
+  S._showCelebration=false;
   S.tab=tab;S.screen=tab;S.cid=null;S.did=null;
   ["home","clients","properties","settings"].forEach(function(t){
     var btn=document.getElementById("nl-"+t);
@@ -1239,7 +1240,7 @@ function pgAddClient(){
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Erik Svensson"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ac-phone" placeholder="+46 70 000 00 00"/></div>'+
+      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ac-phone" placeholder="+46 70 000 00 00"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Include country code (e.g. +46)</div></div>'+
       '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="erik@email.com"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
@@ -1344,7 +1345,7 @@ function pgEditClient(){
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ec-name" value="'+esc(c.name||'')+'"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/></div>'+
+      '<div><label class="lbl">Phone / WhatsApp</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Include country code (e.g. +46)</div></div>'+
       '<div><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
@@ -1596,7 +1597,7 @@ function pgDayDetail(){
       '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9a94;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
-      '<button class="btn" onclick="S.viewMode=\'client\';go(\'output\')">&#128203; Generate Viewing List</button>'+
+      '<button class="btn" onclick="handleGenerateTour()">&#128203; Generate Viewing List</button>'+
       '<button id="wa-btn" class="btn" onclick="copyWA()" style="background:#25D366;color:#fff">&#128241; Share via WhatsApp</button>':'')+
     '</div>';
 }
@@ -1633,18 +1634,33 @@ function copyWA(){
   var msg='Hi '+firstName+','+nl+nl+'Your viewing day for *'+dateStr+'* is ready.'+(details.length?nl+nl+details.join(' - '):'')+ nl+nl+'Open your viewing day here:'+nl+link+(agentLine?nl+nl+'- '+agentLine:'');
 
   var btn=document.getElementById('wa-btn');
-  function done(){
-    if(btn){btn.innerHTML='&#10003; Link copied!';btn.style.color='#25D366';}
-    setTimeout(function(){
-      if(btn){
-        btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp';
-        btn.style.color='#fff';
-      }
-    },3000);
+  var clientPhone=c?(c.phone||'').replace(/[^0-9]/g,''):'';
+
+  if(clientPhone){
+    // Open WhatsApp directly to the client's chat with message pre-filled
+    var waUrl='https://wa.me/'+clientPhone+'?text='+encodeURIComponent(msg);
+    window.open(waUrl,'_blank');
+    if(btn){
+      var orig=btn.innerHTML;
+      btn.innerHTML='&#10003; Opening WhatsApp...';
+      setTimeout(function(){if(btn)btn.innerHTML=orig;},2500);
+    }
+  } else {
+    // No phone on file — copy to clipboard so user can paste anywhere
+    function done(){
+      if(btn){btn.innerHTML='&#10003; Link copied — paste in WhatsApp';btn.style.color='#25D366';}
+      setTimeout(function(){
+        if(btn){
+          btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp';
+          btn.style.color='#fff';
+        }
+      },3000);
+    }
+    function fb(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
+    if(navigator.clipboard){navigator.clipboard.writeText(msg).then(done).catch(function(){fb(msg,done);});}else{fb(msg,done);}
   }
-  function fb(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
-  if(navigator.clipboard){navigator.clipboard.writeText(msg).then(done).catch(function(){fb(msg,done);});}else{fb(msg,done);}
 }
+
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
@@ -2176,6 +2192,19 @@ function pgOutput(){
     '<button onclick="S.viewMode=\'agent\';render()" style="flex:1;padding:8px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;background:'+(S.viewMode==="agent"?'#fff':'transparent')+';color:'+(S.viewMode==="agent"?'#2D2B28':'#9e9a94')+';box-shadow:'+(S.viewMode==="agent"?'0 1px 4px rgba(0,0,0,.08)':'none')+'">&#128274; Agent view</button>'+
     '</div>'+
 
+    // ── CELEBRATION BANNER (first tour ever) ────────────────────────────────
+    (S._showCelebration&&!isAg?
+      '<div style="background:linear-gradient(135deg,#0d1f38,#071226);border-radius:16px;padding:18px 18px 16px;margin-bottom:18px;position:relative;overflow:hidden;border:1px solid rgba(201,161,74,.25);box-shadow:0 8px 32px rgba(7,18,38,.3)">'+
+      '<button onclick="S._showCelebration=false;render()" style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,.08);border:none;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer">&times;</button>'+
+      '<div style="font-size:24px;margin-bottom:8px">&#127881;</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:4px;letter-spacing:-.2px">Your first tour is ready</div>'+
+      '<div style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.55;margin-bottom:12px;max-width:280px">This is exactly what your client will see. Share it with them in one tap.</div>'+
+      '<div style="display:flex;align-items:center;gap:8px;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:10px;padding:9px 12px">'+
+      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>'+
+      '<div style="font-size:11px;color:#C9A14A;font-weight:500;line-height:1.4">Tap <b>Share via WhatsApp</b> below to send the client link</div>'+
+      '</div></div>'
+    :'')+
+
     // ── STATUS BANNER ─────────────────────────────────────────────────────
     (isAg?'<div style="display:flex;align-items:center;gap:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:12px;font-weight:500;color:#78350f"><span style="font-size:14px">&#128274;</span>Internal — keep for yourself.</div>':'<div style="margin-bottom:4px"></div>')+
 
@@ -2219,7 +2248,8 @@ function pgOutput(){
 
     // ── ACTION BUTTONS ────────────────────────────────────────────────────
     '<div style="padding-top:4px">'+
-    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp</button>'+
+    '<button id="wa-btn" onclick="copyWA()" style="width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:'+(c&&c.phone?'4':'10')+'px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>Share via WhatsApp</button>'+
+    (c&&c.phone?'<div style="text-align:center;font-size:10px;color:#9e9a94;margin-bottom:10px">Opens '+esc(c.name.split(" ")[0])+'\'s WhatsApp chat directly</div>':'<div style="text-align:center;font-size:10px;color:#9e9a94;margin-bottom:10px">No phone on file — link will be copied to paste anywhere</div>')+
     (!isAg?'<button id="create-link-btn" onclick="handleCreateClientLink()" style="width:100%;padding:13px;background:#071226;color:#C9A14A;border:1.5px solid rgba(201,161,74,.3);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg> Create Client Link</button>':'')+
     '<button onclick="go(\'day-detail\')" style="width:100%;padding:13px;background:#fff;color:#2D2B28;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">&#9998; Edit Tour</button>'+
     '<div style="text-align:center;padding:24px 0 8px">'+
@@ -2385,6 +2415,16 @@ function pgFromLibrary(){
 }
 
 
+function handleGenerateTour(){
+  // Detect if this is the very first tour the user has ever generated
+  var isFirstEver=!localStorage.getItem('tf-has-generated');
+  if(isFirstEver){
+    localStorage.setItem('tf-has-generated','1');
+    S._showCelebration=true;
+  }
+  S.viewMode='client';
+  go('output');
+}
 function showDemoClientView(){
   // Set up a demo tour using first available day with properties
   var demoDay=S.days.find(function(d){return (d.properties||[]).length>0;});
