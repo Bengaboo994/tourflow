@@ -387,7 +387,8 @@ function topNav(){
       (acct.label==='Trial ended'?'<button onclick="closeAccountMenu();showUpgradeModal()" style="width:100%;padding:9px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">Upgrade \u2014 \u20ac19/month</button>':'')+
       '<button onclick="closeAccountMenu();signOut()" style="width:100%;padding:9px;background:transparent;color:#6b6560;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Sign out</button>')
     :('<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:4px">Guest</div>'+
-      '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>');
+      '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>'+
+      '<button onclick="closeAccountMenu();showAuthGate()" style="width:100%;padding:9px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Sign in</button>');
   return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px;position:relative">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
@@ -481,6 +482,39 @@ var S={
   library:d0.library||[]
 };
 
+function multiSel(id,opts,vals,label){
+  vals=vals||[];
+  var summary=vals.length===0?'Any type':vals.length===1?(opts.find(function(o){return o.v===vals[0];})||{}).l||vals[0]:vals.length+' types selected';
+  var rows=opts.map(function(o){
+    var checked=vals.indexOf(o.v)>=0;
+    return '<label style="display:flex;align-items:center;gap:10px;padding:9px 4px;cursor:pointer;border-bottom:1px solid var(--fog)">'+
+      '<input type="checkbox" data-multisel="'+id+'" value="'+o.v+'"'+(checked?' checked':'')+' onchange="toggleMultiSel(\''+id+'\')" style="width:16px;height:16px;accent-color:#071226"/>'+
+      '<span style="font-size:13px;color:var(--ink)">'+o.l+'</span></label>';
+  }).join('');
+  return '<div style="margin-bottom:11px">'+
+    '<label class="lbl">'+label+'</label>'+
+    '<button type="button" onclick="toggleMultiSelOpen(\''+id+'\')" class="inp" style="text-align:left;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;font-size:15px;color:var(--ink);background:var(--card) ">'+
+    '<span id="'+id+'-summary">'+summary+'</span>'+
+    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>'+
+    '</button>'+
+    '<div id="'+id+'-options" style="display:none;margin-top:6px;border:1.5px solid var(--fog);border-radius:8px;padding:4px 10px;background:var(--card);max-height:240px;overflow-y:auto">'+rows+'</div>'+
+    '</div>';
+}
+function toggleMultiSelOpen(id){
+  var box=document.getElementById(id+'-options');
+  if(box)box.style.display=box.style.display==='block'?'none':'block';
+}
+function toggleMultiSel(id){
+  var boxes=document.querySelectorAll('[data-multisel="'+id+'"]');
+  var vals=[];var labels=[];
+  boxes.forEach(function(b){if(b.checked){vals.push(b.value);var lab=b.parentElement&&b.parentElement.querySelector('span');labels.push(lab?lab.textContent:b.value);}});
+  var summaryEl=document.getElementById(id+'-summary');
+  if(summaryEl){
+    var summary=vals.length===0?'Any type':vals.length===1?labels[0]:vals.length+' types selected';
+    summaryEl.textContent=summary;
+  }
+}
+
 function reqFormHtml(r){
   r=r||{};
   function sel(id,opts,val,label){
@@ -493,7 +527,7 @@ function reqFormHtml(r){
   }
   var budgets=[{v:'',l:'Not specified'},{v:'b150',l:'€0 – 150k'},{v:'b250',l:'€150k – 250k'},{v:'b400',l:'€250k – 400k'},{v:'b600',l:'€400k – 600k'},{v:'b1000',l:'€600k – 1M'},{v:'b2000',l:'€1M – 2M'},{v:'nolimit',l:'No limit'}];
   var roomOpts=[{v:'',l:'Not specified'},{v:'studio',l:'Studio'},{v:'1',l:'1 Bedroom'},{v:'2',l:'2 Bedrooms'},{v:'3',l:'3 Bedrooms'},{v:'4',l:'4+ Bedrooms'}];
-  var types=[{v:'',l:'Not specified'},{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'house',l:'Townhouse / Semi-detached'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'},{v:'any',l:'Any type'}];
+  var types=[{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'townhouse',l:'Townhouse'},{v:'semidetached',l:'Semi-detached house'},{v:'quad',l:'Quad house'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'}];
   var views=[{v:'',l:'Not specified'},{v:'sea',l:'Sea view'},{v:'golf',l:'Golf view'},{v:'garden',l:'Garden / Private'},{v:'no',l:'No preference'}];
   var purpose=[{v:'',l:'Not specified'},{v:'perm',l:'Permanent residence'},{v:'holiday',l:'Holiday home'},{v:'invest',l:'Investment / Rental'},{v:'mixed',l:'Mixed use'}];
   function chk(key,label,val){
@@ -506,24 +540,29 @@ function reqFormHtml(r){
   var req=r.req||{};
   return'<div style="margin-bottom:11px">'+sel('req-budget',budgets,req.budget||'','Budget range')+'</div>'+
     '<div style="margin-bottom:11px">'+sel('req-minrooms',roomOpts,req.minrooms||'','Minimum bedrooms')+'</div>'+
-    '<div style="margin-bottom:11px">'+sel('req-type',types,req.type||'','Property type')+'</div>'+
+    multiSel('req-type',types,req.type||[],'Property type')+
     '<div style="margin-bottom:11px">'+sel('req-view',views,req.view||'','View preference')+'</div>'+
     '<div style="margin-bottom:11px">'+sel('req-purpose',purpose,req.purpose||'','Purpose')+'</div>'+
     '<div style="margin-top:6px;margin-bottom:6px;font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em">Features & priorities</div>'+
-    chk('pool','Swimming pool',req.pool)+
+    chk('poolPrivate','Private pool',req.poolPrivate)+
+    chk('poolCommunity','Community pool',req.poolCommunity)+
     chk('garage','Garage / Parking',req.garage)+
     chk('garden','Garden / Terrace',req.garden)+
     chk('beach','Walking distance to beach',req.beach)+
     chk('restaurants','Walking distance to restaurants',req.restaurants)+
     chk('golf','Near golf course',req.golf)+
     chk('newbuild','New build',req.newbuild,'nb')+
-    chk('community','Gated community',req.community);
+    chk('community','Gated community',req.community)+
+    chk('poorCondition','Poor condition acceptable',req.poorCondition);
 }
 function readReq(){
-  var keys=['pool','garage','garden','beach','restaurants','golf','newbuild','community'];
+  var keys=['poolPrivate','poolCommunity','garage','garden','beach','restaurants','golf','newbuild','community','poorCondition'];
   var req={};
-  ['budget','minrooms','type','view','purpose'].forEach(function(k){req[k]=gv('req-'+k)||'';});
+  ['budget','minrooms','view','purpose'].forEach(function(k){req[k]=gv('req-'+k)||'';});
   keys.forEach(function(k){req[k]=gv('req-'+k)||'';});
+  var typeBoxes=document.querySelectorAll('[data-multisel="req-type"]');
+  req.type=[];
+  typeBoxes.forEach(function(b){if(b.checked)req.type.push(b.value);});
   return req;
 }
 
@@ -600,11 +639,16 @@ function matchScore(c,p){
     if(p.rooms) results.push({label:'Bedrooms',pass:propR>=reqR,level:'must'});
   }
 
-  // Property type check
-  if(req.type&&req.type!=='any'&&p.title){
-    var tmap={apt:'apartment',villa:'villa',house:'townhouse',bungalow:'bungalow',penthouse:'penthouse'};
-    var keyword=(tmap[req.type]||req.type).toLowerCase();
-    results.push({label:'Property type',pass:(p.title+' '+(p.address||'')).toLowerCase().indexOf(keyword)>=0,level:'must'});
+  // Property type check — req.type is now an array; matches if the property's
+  // title/address mentions ANY of the selected types (OR logic, not AND).
+  if(req.type&&req.type.length&&p.title){
+    var tmap={apt:'apartment',villa:'villa',townhouse:'townhouse',semidetached:'semi-detached',quad:'quad house',bungalow:'bungalow',penthouse:'penthouse'};
+    var haystack=(p.title+' '+(p.address||'')).toLowerCase();
+    var anyMatch=req.type.some(function(t){
+      var keyword=(tmap[t]||t).toLowerCase();
+      return haystack.indexOf(keyword)>=0;
+    });
+    results.push({label:'Property type',pass:anyMatch,level:'must'});
   }
 
   // Must Have features
@@ -712,7 +756,7 @@ function driveTimeHtml(from,to){
     '</div></div>';
 }
 // ─────────────────────────────────────────────────────────────────
-var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Features", "&#10024;", "Excellent condition"], ["Features", "&#128077;", "Good condition"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
+var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Private pool"], ["Features", "&#127946;", "Community pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Features", "&#10024;", "Excellent condition"], ["Features", "&#128077;", "Good condition"], ["Features", "&#128078;", "Poor condition"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
 
 function toggleHighlight(dayId,propId,label){
   if(dayId==='__lib__'){
@@ -949,7 +993,9 @@ function updateClient(cid){
   c.req=c.req||{};
   c.req.budget=gv('req-budget')||'';
   c.req.minrooms=gv('req-minrooms')||'';
-  c.req.type=gv('req-type')||'';
+  var typeBoxes996=document.querySelectorAll('[data-multisel="req-type"]');
+  c.req.type=[];
+  typeBoxes996.forEach(function(b){if(b.checked)c.req.type.push(b.value);});
   // mustHave and plus are updated live via toggleClientFeature
   persist();go('client-detail');
 }
@@ -1361,7 +1407,7 @@ function pgClientDetail(){
     '<div style="width:52px;height:52px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--brass);flex-shrink:0">'+esc(initials(c.name))+'</div>'+
     '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
     '<div style="font-size:13px;color:var(--slate)">'+esc(c.phone||"")+'</div></div>'+
-    '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="go(\'edit-client\')">Edit</button>'+
+    '<button class="btn btn-sm" style="background:#071226;color:#C9A14A" onclick="go(\'edit-client\')">Edit</button>'+
     '<button class="bico" onclick="doDeleteClient()">&times;</button></div>'+
     '<div class="card" style="margin-bottom:18px">'+
     (function(){
@@ -1480,14 +1526,14 @@ function pgAddClient(){
   var plus=req.plus||[];
 
   var features=[
-    ['Pool',''],['Walking distance to beach',''],['Sea view',''],
+    ['Private pool',''],['Community pool',''],['Walking distance to beach',''],['Sea view',''],
     ['South facing',''],['Private garden',''],['Large terrace',''],
     ['Quiet area',''],['Gated community',''],['Garage',''],
     ['Near golf',''],['Prime location',''],['Close to amenities',''],
     ['Restaurants nearby',''],['New build',''],['Key ready',''],
     ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
     ['Rental potential',''],['Family friendly',''],['Investment property',''],
-    ['Excellent condition',''],['Good condition','']
+    ['Excellent condition',''],['Good condition',''],['Poor condition','']
   ];
 
   function tempChip(name,emoji){
@@ -1521,8 +1567,7 @@ function pgAddClient(){
   var budgetLabels={'':'Any','b150':'€0 – 150k','b250':'€150k – 250k','b400':'€250k – 400k','b600':'€400k – 600k','b1000':'€600k – 1M','b2000':'€1M – 2M','nolimit':'No limit'};
   var roomOpts=['','studio','1','2','3','4','5+'];
   var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
-  var typeOpts=['any','apt','villa','house','bungalow','penthouse'];
-  var typeLabels={'any':'Any type','apt':'Apartment','villa':'Villa','house':'House / Townhouse','bungalow':'Bungalow','penthouse':'Penthouse'};
+  var types=[{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'townhouse',l:'Townhouse'},{v:'semidetached',l:'Semi-detached house'},{v:'quad',l:'Quad house'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'}];
   function sel(id,opts,labels,val){
     return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
   }
@@ -1549,7 +1594,7 @@ function pgAddClient(){
       '<div><label class="lbl">Budget (max)</label>'+sel('ac-budget',budgetOpts,budgetLabels,'')+'</div>'+
       '<div><label class="lbl">Min bedrooms</label>'+sel('ac-minrooms',roomOpts,roomLabels,'')+'</div>'+
     '</div>'+
-    '<div><label class="lbl">Property type</label>'+sel('ac-type',typeOpts,typeLabels,'any')+'</div>'+
+    multiSel('ac-type',types,[],'Property type')+
     '</div>'+
     '<div class="sec-sm" style="margin-top:16px;margin-bottom:2px">Wishlist</div>'+
     '<div style="font-size:11px;color:var(--dust);margin-bottom:12px">Tap once = <b>Must Have</b> &nbsp;·&nbsp; Tap again = <b>+ Plus</b> &nbsp;·&nbsp; Tap again = Remove</div>'+
@@ -1564,7 +1609,9 @@ function saveAddClient(){
   var req=window._newClientReq||{mustHave:[],plus:[]};
   req.budget=gv("ac-budget")||'';
   req.minrooms=gv("ac-minrooms")||'';
-  req.type=gv("ac-type")||'any';
+  var acTypeBoxes=document.querySelectorAll('[data-multisel="ac-type"]');
+  req.type=[];
+  acTypeBoxes.forEach(function(b){if(b.checked)req.type.push(b.value);});
   var wasOnboarding=S.days.length===0;
   var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),note:gv("ac-notes"),req:req});
   window._newClientReq=null;
@@ -1601,14 +1648,14 @@ function pgEditClient(){
   var plus=req.plus||[];
 
   var features=[
-    ['Pool',''],['Walking distance to beach',''],['Sea view',''],
+    ['Private pool',''],['Community pool',''],['Walking distance to beach',''],['Sea view',''],
     ['South facing',''],['Private garden',''],['Large terrace',''],
     ['Quiet area',''],['Gated community',''],['Garage',''],
     ['Near golf',''],['Prime location',''],['Close to amenities',''],
     ['Restaurants nearby',''],['New build',''],['Key ready',''],
     ['Recently renovated',''],['Lift',''],['Holiday home potential',''],
     ['Rental potential',''],['Family friendly',''],['Investment property',''],
-    ['Excellent condition',''],['Good condition','']
+    ['Excellent condition',''],['Good condition',''],['Poor condition','']
   ];
 
   var chips=features.map(function(f){return clientFeatureChip(c,f[0],f[1]);}).join('');
@@ -1626,8 +1673,7 @@ function pgEditClient(){
   var budgetLabels={'':'Any','b150':'€0 – 150k','b250':'€150k – 250k','b400':'€250k – 400k','b600':'€400k – 600k','b1000':'€600k – 1M','b2000':'€1M – 2M','nolimit':'No limit'};
   var roomOpts=['','studio','1','2','3','4','5+'];
   var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
-  var typeOpts=['any','apt','villa','house','bungalow','penthouse'];
-  var typeLabels={'any':'Any type','apt':'Apartment','villa':'Villa','house':'House / Townhouse','bungalow':'Bungalow','penthouse':'Penthouse'};
+  var types=[{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'townhouse',l:'Townhouse'},{v:'semidetached',l:'Semi-detached house'},{v:'quad',l:'Quad house'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'}];
 
   function sel(id,opts,labels,val){
     return '<select class="inp" id="'+id+'">'+opts.map(function(v){return'<option value="'+v+'"'+(val===v?' selected':'')+'>'+labels[v]+'</option>';}).join('')+'</select>';
@@ -1653,7 +1699,7 @@ function pgEditClient(){
       '<div><label class="lbl">Budget (max)</label>'+sel('req-budget',budgetOpts,budgetLabels,req.budget||'')+'</div>'+
       '<div><label class="lbl">Min bedrooms</label>'+sel('req-minrooms',roomOpts,roomLabels,req.minrooms||'')+'</div>'+
     '</div>'+
-    '<div style="margin-bottom:16px"><label class="lbl">Property type</label>'+sel('req-type',typeOpts,typeLabels,req.type||'any')+'</div>'+
+    multiSel('req-type',types,req.type||[],'Property type')+
     '</div>'+
     '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
     '<div class="sec-sm" style="margin-bottom:2px">Wishlist</div>'+
@@ -2113,8 +2159,11 @@ var ICON={
   'Walking distance to beach':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
   'Pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
   'Swimming pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Private pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
+  'Community pool':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 12c.6.5 1.2 1 2.5 1C7 13 7 11 9.5 11c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/><path d="M2 18c.6.5 1.2 1 2.5 1C7 19 7 17 9.5 17c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2"/></svg>',
   'Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
   'Parking / Garage':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l10-5 10 5v12"/><path d="M9 20v-6h6v6"/></svg>',
+  'Poor condition':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>',
   'Near golf':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#C9A14A" stroke="none"/></svg>',
   'Near golf course':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22l4-4 4 4"/><path d="M12 2v16"/><path d="M12 2l8 5-8 5V2z" fill="#C9A14A" stroke="none"/></svg>',
   'Private garden':'<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-7l-2-2"/><path d="M17 8v.8A6 6 0 0 1 13.8 20v0H10v0A6.5 6.5 0 0 1 7 8h0a5 5 0 0 1 10 0Z"/></svg>',
@@ -2548,7 +2597,7 @@ function pgOutput(){
       var lines=[];
       if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
       if(req.minrooms&&req.minrooms!=='studio')lines.push(req.minrooms+'+ bedrooms');
-      if(req.type&&req.type!=='any'){var tl={apt:'Apartment',villa:'Villa',house:'Townhouse',bungalow:'Bungalow',penthouse:'Penthouse'};lines.push(tl[req.type]||req.type);}
+      if(req.type&&req.type.length){var tl={apt:'Apartment',villa:'Villa',townhouse:'Townhouse',semidetached:'Semi-detached house',quad:'Quad house',bungalow:'Bungalow',penthouse:'Penthouse'};lines.push(req.type.map(function(t){return tl[t]||t;}).join(', '));}
       mustHave.forEach(function(f){lines.push(f);});
       if(!lines.length)return'';
       return'<div style="padding:16px 22px;border-top:1px solid rgba(255,255,255,.06)">'+
