@@ -351,18 +351,54 @@ function resumePendingAction(){
 }
 
 
+function accountStatusInfo(){
+  if(!currentUser){
+    return {ring:'#d4c9b8',label:'Guest',detail:'Sign in to save and share your tours.'};
+  }
+  if(S.isPremium===true){
+    return {ring:'#22c55e',label:'Premium plan',detail:'Your subscription is active.'};
+  }
+  var left=trialDaysLeft();
+  if(left>0){
+    return {ring:'#C9A14A',label:left+' day'+(left===1?'':'s')+' left in trial',detail:'Free trial \u2014 full access until it ends.'};
+  }
+  return {ring:'#ef4444',label:'Trial ended',detail:'Upgrade to keep creating new tours, clients and properties.'};
+}
+function toggleAccountMenu(){
+  var menu=document.getElementById('account-menu');
+  if(!menu)return;
+  menu.style.display=menu.style.display==='block'?'none':'block';
+}
+function closeAccountMenu(){
+  var menu=document.getElementById('account-menu');
+  if(menu)menu.style.display='none';
+}
 function topNav(){
   var cfg=S.cfg||{};
   var agent=cfg.agent||'';
   var initials=agent?agent.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
-  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px">'+
+  var acct=accountStatusInfo();
+  var menuBody=currentUser
+    ?('<div style="font-size:11px;color:#9e9a94;margin-bottom:10px;word-break:break-all">'+esc(currentUser.email||'')+'</div>'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
+      '<span style="width:7px;height:7px;border-radius:50%;background:'+acct.ring+';display:inline-block"></span>'+
+      '<span style="font-size:13px;font-weight:600;color:#2D2B28">'+acct.label+'</span></div>'+
+      '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>'+
+      (acct.label==='Trial ended'?'<button onclick="closeAccountMenu();showUpgradeModal()" style="width:100%;padding:9px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">Upgrade \u2014 \u20ac19/month</button>':'')+
+      '<button onclick="closeAccountMenu();signOut()" style="width:100%;padding:9px;background:transparent;color:#6b6560;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Sign out</button>')
+    :('<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:4px">Guest</div>'+
+      '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>');
+  return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px;position:relative">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
     '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
     '</div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
-    '<div style="width:30px;height:30px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">'+initials+'</div>'+
+    '<button onclick="toggleAccountMenu()" style="width:30px;height:30px;border-radius:50%;background:#071226;border:2px solid '+acct.ring+';color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-family:inherit">'+initials+'</button>'+
+    '</div>'+
+    '<div id="account-menu" style="display:none;position:absolute;top:38px;right:0;background:#FCFBF7;border:1px solid #edeae4;border-radius:12px;padding:14px;width:220px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:500">'+
+    menuBody+
     '</div>'+
     '</div>';
 }
@@ -1967,7 +2003,7 @@ function pgAddProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
-    '<input type="time" class="inp" id="ap-time" style="width:160px"/></div>'+
+    '<input type="time" class="inp" id="ap-time"/></div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
@@ -3134,6 +3170,13 @@ function handleCreateClientLink(){
 showTab("home");
 checkExistingSession();
 handleCheckoutReturn();
+document.addEventListener('click',function(e){
+  var menu=document.getElementById('account-menu');
+  if(!menu||menu.style.display!=='block')return;
+  if(menu.contains(e.target))return;
+  if(e.target.closest&&e.target.closest('[onclick="toggleAccountMenu()"]'))return;
+  menu.style.display='none';
+});
 function handleCheckoutReturn(){
   var params=new URLSearchParams(window.location.search);
   var status=params.get('checkout');
