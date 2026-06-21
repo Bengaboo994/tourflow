@@ -187,7 +187,40 @@ function hideUpgradeModal(){
   if(modal)modal.style.display='none';
 }
 function startCheckout(){
-  alert('Stripe checkout coming soon.');
+  if(!currentUser||!currentUser.email){
+    showUpgradeModal();
+    return;
+  }
+  var modal=document.getElementById('upgrade-modal');
+  var btn=modal?modal.querySelector('button[onclick="startCheckout()"]'):null;
+  var origHtml=btn?btn.innerHTML:'';
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="auth-spinner"></span> Redirecting to checkout...';}
+  fetch(SUPA_URL+'/functions/v1/create-checkout',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer '+SUPA_KEY
+    },
+    body:JSON.stringify({
+      email:currentUser.email,
+      userId:currentUser.id,
+      successUrl:window.location.origin+window.location.pathname+'?checkout=success',
+      cancelUrl:window.location.origin+window.location.pathname+'?checkout=cancelled'
+    })
+  }).then(function(res){return res.json();})
+  .then(function(data){
+    if(data.url){
+      window.location.href=data.url;
+    }else{
+      if(btn){btn.disabled=false;btn.innerHTML=origHtml;}
+      alert('Could not start checkout. Please try again in a moment.');
+      console.error('Checkout error:',data.error);
+    }
+  }).catch(function(err){
+    if(btn){btn.disabled=false;btn.innerHTML=origHtml;}
+    alert('Network error. Please check your connection and try again.');
+    console.error('Checkout request failed:',err);
+  });
 }
 function guardTrialAction(){
   if(isTrialExpired()){showUpgradeModal();return false;}
@@ -3089,6 +3122,22 @@ function handleCreateClientLink(){
 // so a returning logged-in user doesn't have to sign in again.
 showTab("home");
 checkExistingSession();
+handleCheckoutReturn();
+function handleCheckoutReturn(){
+  var params=new URLSearchParams(window.location.search);
+  var status=params.get('checkout');
+  if(!status)return;
+  // Clean the URL so a page refresh doesn't re-trigger this
+  var cleanUrl=window.location.origin+window.location.pathname;
+  window.history.replaceState({},document.title,cleanUrl);
+  if(status==='success'){
+    setTimeout(function(){
+      alert('Welcome to TourFlow Pro! Your subscription is active — thank you for upgrading.');
+    },800);
+  }else if(status==='cancelled'){
+    // Silent — they just chose not to complete checkout, no need to interrupt them
+  }
+}
 </script>
 <script>
 // Guaranteed splash on every load — app always boots into guest mode
