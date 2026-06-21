@@ -849,6 +849,7 @@ function go(screen,extra){
     return;
   }
   if(extra)Object.assign(S,extra);if(screen!=='output')S._showCelebration=false;S.screen=screen;S.addEv=false;render();
+  window.scrollTo(0,0);
 }
 
 function showTab(tab){
@@ -859,6 +860,7 @@ function showTab(tab){
     if(btn)btn.className="nb"+(t===tab?" on":"");
   });
   render();
+  window.scrollTo(0,0);
 }
 
 function hideSplash(){
@@ -1644,7 +1646,7 @@ function pgDays(){
   function pageHeader(title, actionLabel, actionFn){
     return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
-      '<button onclick="'+actionFn+'" style="background:#fff;border:1.5px solid #edeae4;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#2D2B28;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
+      '<button onclick="'+actionFn+'" style="background:#071226;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
       '</div>';
   }
 
@@ -2923,9 +2925,7 @@ function pgProperties(){
 
 function pgSettings(){
   var cfg=S.cfg;
-  var lb=cfg.logo?'<img src="'+cfg.logo+'" style="width:100%;height:100%;object-fit:contain"/>':'<span style="font-size:24px">&#127968;</span>';
   var pb=cfg.photo?'<img src="'+cfg.photo+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:22px">&#128100;</span>';
-  var rmLogo=cfg.logo?'<button onclick="S.cfg.logo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
   var rmPhoto=cfg.photo?'<button onclick="S.cfg.photo=\'\';persist();render()" style="display:block;margin-top:6px;background:none;border:none;color:#f87171;font-size:11px;cursor:pointer;padding:0">Remove</button>':'';
   var fRows=[
     ["Agency name","agency","Agency name"],
@@ -2943,13 +2943,8 @@ function pgSettings(){
     });
   },30);
   return '<div class="wrap" style="background:#FCFBF7">'+topNav()+'<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;margin-bottom:20px">Settings</div><div class="card">'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">'+
-    '<div><label class="lbl">Agency logo</label>'+
-    '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+lb+'</div>'+
-    '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upLogo(this)"/></label>'+
-    rmLogo+
-    '<div style="font-size:10px;color:#9e9a94;margin-top:5px">PNG recommended</div></div>'+
-    '<div><label class="lbl">Profile photo</label>'+
+    '<div style="margin-bottom:20px">'+
+    '<div style="max-width:160px"><label class="lbl">Profile photo</label>'+
     '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+pb+'</div>'+
     '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upPhoto(this)"/></label>'+
     rmPhoto+
@@ -2977,7 +2972,6 @@ function pgSettings(){
     '</div>'+
     '</div>';
 }
-function upLogo(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.logo=e.target.result;persist();render();};r.readAsDataURL(f);}
 function upPhoto(input){var f=input.files[0];if(!f)return;var r=new FileReader();r.onload=function(e){S.cfg.photo=e.target.result;persist();render();};r.readAsDataURL(f);}
 
 
