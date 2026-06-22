@@ -399,8 +399,22 @@ function checkExistingSession(){
 // Reads subscription_status from the profiles table (kept up to date by the
 // Stripe webhook) and sets S.isPremium accordingly. "trialing" and "active"
 // both count as having access; anything else (canceled, past_due, missing) does not.
+// ── WHITELIST ────────────────────────────────────────────────────────────────
+// These accounts always have full access — no trial, no payment needed.
+var FREE_ACCOUNTS=[
+  'niklasbengtsson@hotmail.com'
+  // Add more emails here as needed, e.g.:
+  // 'testuser@agency.com'
+];
+function isWhitelisted(){
+  if(!currentUser||!currentUser.email)return false;
+  return FREE_ACCOUNTS.indexOf(currentUser.email.toLowerCase())>=0;
+}
+
 function refreshSubscriptionStatus(){
   if(!supa||!currentUser)return;
+  // Whitelisted accounts always get full access
+  if(isWhitelisted()){S.isPremium=true;render();return;}
   supa.from('profiles').select('subscription_status').eq('id',currentUser.id).maybeSingle()
     .then(function(res){
       var status=res.data&&res.data.subscription_status;
@@ -985,6 +999,41 @@ function uploadExistingPropImg(input,dayId,propId){
 }
 
 function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});}
+
+// ── FORM AUTOSAVE ─────────────────────────────────────────────────────────────
+// Saves all input/select/textarea values to localStorage when user types,
+// and restores them after render() so iOS background-refresh doesn't lose data.
+var DRAFT_KEY='tf-draft';
+function saveDraft(){
+  var draft={screen:S.screen};
+  document.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(el){
+    if(el.type==='file')return;
+    draft[el.id]=el.value;
+  });
+  localStorage.setItem(DRAFT_KEY,JSON.stringify(draft));
+}
+function restoreDraft(){
+  try{
+    var raw=localStorage.getItem(DRAFT_KEY);
+    if(!raw)return;
+    var draft=JSON.parse(raw);
+    if(draft.screen!==S.screen)return; // only restore for same screen
+    Object.keys(draft).forEach(function(id){
+      if(id==='screen')return;
+      var el=document.getElementById(id);
+      if(el&&el.type!=='file'&&el.value==='')el.value=draft[id];
+    });
+  }catch(e){}
+}
+function clearDraft(){localStorage.removeItem(DRAFT_KEY);}
+// Listen for any input changes and autosave
+document.addEventListener('input',function(e){
+  if(e.target&&e.target.id)saveDraft();
+});
+// Save draft when app goes to background (iOS PWA fix)
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden')saveDraft();
+});
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
 function openDay(did,cid){
@@ -1043,14 +1092,14 @@ function render(){
   var navEl=document.querySelector('.nav');
   if(navEl) navEl.className='nav ready';
   var s=S.screen;
-
+  var isFormScreen=['add-client','edit-client','add-prop','add-lib-prop'].indexOf(s)>=0;
 
   if(s==="pick-client")      {el.innerHTML=pgPickClient();return;}
-  if(s==="add-client")       {el.innerHTML=pgAddClient();return;}
-  if(s==="edit-client")      {el.innerHTML=pgEditClient();return;}
+  if(s==="add-client")       {el.innerHTML=pgAddClient();if(isFormScreen)restoreDraft();return;}
+  if(s==="edit-client")      {el.innerHTML=pgEditClient();if(isFormScreen)restoreDraft();return;}
   if(s==="client-detail")    {el.innerHTML=pgClientDetail();return;}
   if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
-  if(s==="add-prop")         {el.innerHTML=pgAddProp();return;}
+  if(s==="add-prop")         {el.innerHTML=pgAddProp();restoreDraft();return;}
   if(s==="pick-prop-source") {el.innerHTML=pgPickPropSource();return;}
   if(s==="from-library")     {el.innerHTML=pgFromLibrary();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
@@ -1080,7 +1129,7 @@ function updateClient(cid){
   c.req.type=[];
   typeBoxes996.forEach(function(b){if(b.checked)c.req.type.push(b.value);});
   // mustHave and plus are updated live via toggleClientFeature
-  persist();go('client-detail');
+  persist();clearDraft();go('client-detail');
 }
 function delClient(id){S.clients=S.clients.filter(function(c){return c.id!==id;});S.days=S.days.filter(function(d){return d.clientId!==id;});persist();}
 function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();return d.id;}
@@ -1698,6 +1747,7 @@ function saveAddClient(){
   var wasOnboarding=S.days.length===0;
   var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),note:gv("ac-notes"),req:req});
   window._newClientReq=null;
+  clearDraft();
   if(wasOnboarding){showTab('home');}
   else{go("client-detail",{cid:id});}
 }
