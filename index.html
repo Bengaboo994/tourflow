@@ -1034,6 +1034,11 @@ document.addEventListener('input',function(e){
 document.addEventListener('visibilitychange',function(){
   if(document.visibilityState==='hidden')saveDraft();
 });
+// Also save on interval when a form screen is active (iOS PWA can kill process without firing visibilitychange)
+setInterval(function(){
+  var formScreens=['add-client','edit-client','add-prop','add-lib-prop','edit-prop'];
+  if(formScreens.indexOf(S.screen)>=0)saveDraft();
+},2000);
 function curC(){return S.clients.find(function(c){return c.id===S.cid;});}
 function curD(){return S.days.find(function(d){return d.id===S.did;});}
 function openDay(did,cid){
@@ -2115,7 +2120,7 @@ function copyWA(){
     var pickupEv=(day.events||[]).find(function(e){return e.type==='pickup'||e.type==='meetingpoint';});
     if(pickupEv) details.push('Pickup'+(pickupEv.time?' at '+pickupEv.time:'')+(pickupEv.note?' - '+pickupEv.note:''));
 
-    var agentLine=cfg.agent||cfg.agency||'';
+    var agentLine=(cfg.agent||'')+(cfg.agency?' | '+cfg.agency:'');
 
     var nl='\n';
     var msg='Hi '+firstName+','+nl+nl+'Your viewing day for *'+dateStr+'* is ready.'+(details.length?nl+nl+details.join(' - '):'')+ nl+nl+'Open your viewing day here:'+nl+link+(agentLine?nl+nl+'- '+agentLine:'');
