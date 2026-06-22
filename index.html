@@ -121,7 +121,8 @@ input,button,textarea,select{font-family:inherit}
       <input class="auth-input" id="auth-otp" type="number" placeholder="123456" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:.3em;font-size:22px;text-align:center"/>
       <button class="auth-btn" id="auth-verify-btn" onclick="verifyOtp()">Sign in</button>
       <div id="auth-otp-feedback"></div>
-      <button style="width:100%;margin-top:10px;padding:10px;background:transparent;border:none;color:#9e9a94;font-size:12px;cursor:pointer;font-family:inherit" onclick="resetAuthForm()">Use a different email</button>
+      <button style="width:100%;margin-top:10px;padding:10px;background:transparent;border:none;color:#9e9a94;font-size:12px;cursor:pointer;font-family:inherit" onclick="resendOtp()">Resend code</button>
+      <button style="width:100%;padding:10px;background:transparent;border:none;color:#9e9a94;font-size:12px;cursor:pointer;font-family:inherit" onclick="resetAuthForm()">Use a different email</button>
     </div>
   </div>
 </div>
@@ -293,7 +294,7 @@ function sendOtp(){
   btn.innerHTML='<span class="auth-spinner"></span> Sending...';
   supa.auth.signInWithOtp({
     email:email,
-    options:{shouldCreateUser:true}
+    options:{shouldCreateUser:true, data:{}, emailRedirectTo:null}
   }).then(function(res){
     btn.disabled=false;
     btn.innerHTML='Send code';
@@ -343,6 +344,22 @@ function verifyOtp(){
   });
 }
 function sendMagicLink(){sendOtp();} // backwards compat alias
+function resendOtp(){
+  if(!_otpEmail)return;
+  document.getElementById('auth-otp-feedback').innerHTML='';
+  document.getElementById('auth-otp').value='';
+  supa.auth.signInWithOtp({
+    email:_otpEmail,
+    options:{shouldCreateUser:true,emailRedirectTo:null}
+  }).then(function(res){
+    var fb=document.getElementById('auth-otp-feedback');
+    if(res.error){
+      fb.innerHTML='<div class="auth-msg err">'+(res.error.message||'Could not resend. Please try again.')+'</div>';
+    }else{
+      fb.innerHTML='<div class="auth-msg ok">New code sent!</div>';
+    }
+  });
+}
 function signOut(){
   if(!supa){location.reload();return;}
   supa.auth.signOut().then(function(){
