@@ -1092,7 +1092,7 @@ function render(){
   var navEl=document.querySelector('.nav');
   if(navEl) navEl.className='nav ready';
   var s=S.screen;
-  var isFormScreen=['add-client','edit-client','add-prop','add-lib-prop'].indexOf(s)>=0;
+  var isFormScreen=['add-client','edit-client','add-prop','add-lib-prop','edit-prop'].indexOf(s)>=0;
 
   if(s==="pick-client")      {el.innerHTML=pgPickClient();return;}
   if(s==="add-client")       {el.innerHTML=pgAddClient();if(isFormScreen)restoreDraft();return;}
@@ -1100,10 +1100,10 @@ function render(){
   if(s==="client-detail")    {el.innerHTML=pgClientDetail();return;}
   if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
   if(s==="add-prop")         {el.innerHTML=pgAddProp();restoreDraft();return;}
+  if(s==="edit-prop")        {el.innerHTML=pgEditProp();return;}
   if(s==="pick-prop-source") {el.innerHTML=pgPickPropSource();return;}
   if(s==="from-library")     {el.innerHTML=pgFromLibrary();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
-  if(s==="edit-prop")        {el.innerHTML=pgDayDetail();return;}
   if(s==="add-lib-prop")     {el.innerHTML=pgAddLibraryProp();return;}
   if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
   if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
@@ -2006,7 +2006,7 @@ function pgDayDetail(){
       (p.mapsUrl?'<a style="font-size:10px;color:#1a73e8;font-weight:500;text-decoration:none" href="'+esc(p.mapsUrl)+'" target="_blank" onclick="event.stopPropagation()">&#128205; Maps</a>':'')+
       '</div></div>'+
       '<div style="display:flex;gap:6px">'+
-      '<button class="btn btn-sm" style="background:var(--mist);color:var(--slate)" onclick="S.epid=S.epid===\''+p.id+'\'?null:\''+p.id+'\';S.eiid=null;render()">'+(io?"&#9650;":"Edit")+'</button>'+
+      '<button class="btn btn-sm" style="background:#071226;color:#C9A14A" onclick="S.epid=\''+p.id+'\';go(\'edit-prop\')">Edit</button>'+
       '<button class="bico" onclick="doDeletePropById(\''+p.id+'\')" >&#215;</button>'+
       '</div></div>'+ep+'</div>';
   }).join("");
@@ -2316,6 +2316,163 @@ var ICON={
   'Excellent condition':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.4l-6.3 4.4 2.3-7.2-6-4.4h7.6z"/></svg>',
   'Good condition':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
 };
+
+// ── EDIT PROPERTY ─────────────────────────────────────────────────────────────
+function pgEditProp(){
+  // Find property — check tour days first, then library
+  var p=null; var sourceDayId=S.did||'';
+  if(sourceDayId){
+    var day=curD();
+    if(day) p=(day.properties||[]).find(function(x){return x.id===S.epid;});
+  }
+  if(!p){
+    // Search all days
+    S.days.forEach(function(d){
+      if(!p)(d.properties||[]).forEach(function(x){if(x.id===S.epid){p=x;sourceDayId=d.id;}});
+    });
+  }
+  if(!p){
+    // Check library
+    p=(S.library||[]).find(function(x){return x.id===S.epid;});
+    sourceDayId='';
+  }
+  if(!p)return'<div class="wrap"><div class="card">Property not found.</div></div>';
+
+  var bf=[["Title","ep-title","Property title"],["Address","ep-addr","Street address"],["Area","ep-area2","Area"],["Price","ep-price","Price"],["Bedrooms","ep-rooms","Bedrooms"],["Bathrooms","ep-bath","Bathrooms"],["Built size","ep-sqm","Size in m\u00b2"]];
+  var iff=[["Commission","ep-comm","Commission"],["Contact person","ep-cont","Contact name"],["Contact phone","ep-cph","Contact phone"],["Their firm","ep-firm","Company name"],["Exact location/access","ep-loc","Access details"],["Internal notes","ep-note","Notes"]];
+
+  function v(val){return val?'value="'+esc(val)+'"':'';}
+
+  var bfHtml=bf.map(function(f){
+    var isAddr=f[1]==='ep-addr', isArea=f[1]==='ep-area2';
+    var isRooms=f[1]==='ep-rooms', isBath=f[1]==='ep-bath';
+    var isNum=f[1]==='ep-rooms'||f[1]==='ep-bath'||f[1]==='ep-sqm';
+    var numAttr=isNum?' inputmode="numeric" maxlength="'+(f[1]==='ep-sqm'?'5':'2')+'"':'';
+    var propKey={title:'ep-title',address:'ep-addr',area:'ep-area2',price:'ep-price',rooms:'ep-rooms',bathrooms:'ep-bath',sqm:'ep-sqm'}[f[1].replace('ep-','')];
+    var curVal=p[{title:'title','ep-addr':'address','ep-area2':'area','ep-price':'price','ep-rooms':'rooms','ep-bath':'bathrooms','ep-sqm':'sqm'}[f[1]]||f[1].replace('ep-','')]||'';
+    var inp='<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+numAttr+' '+v(curVal)+' placeholder="'+f[2]+'"/></div>';
+    if(isAddr) return '<div class="g2" style="margin-bottom:0">'+inp;
+    if(isArea) return inp+'</div>';
+    if(isRooms) return '<div class="g2" style="margin-bottom:0">'+inp;
+    if(isBath) return inp+'</div>';
+    return inp;
+  }).join('');
+
+  var iffHtml=iff.map(function(f){
+    var key={'ep-comm':'commission','ep-cont':'contact','ep-cph':'contactPhone','ep-firm':'firm','ep-loc':'location','ep-note':'note'}[f[1]]||'';
+    return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" '+v(p[key]||'')+' placeholder="'+f[2]+'"/></div>';
+  }).join('');
+
+  var imgPreview=p.ogImage||p.img
+    ?'<div style="margin-top:8px"><img src="'+(p.ogImage||p.img)+'" style="width:100%;border-radius:8px;max-height:160px;object-fit:cover"/></div>'
+    :'';
+
+  window._editHighlights=(p.highlights||[]).slice();
+  var backScreen=sourceDayId?'day-detail':'properties';
+
+  return '<div class="wrap" style="background:#FCFBF7">'+
+    topNav()+
+    '<button class="bback" onclick="go(\''+backScreen+'\')">&larr; Cancel</button>'+
+    '<div class="sec">Edit Property</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Listing URL</label>'+
+    '<input class="inp" id="ep-url" '+v(p.url||'')+' placeholder="https://idealista.com/..."/>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<label class="lbl">Viewing time</label>'+
+    '<input type="time" class="inp" id="ep-time" '+v(p.time||'')+'/></div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
+    imgPreview+
+    '<label style="display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--mist);border:1.5px dashed var(--fog);border-radius:8px;cursor:pointer;margin-top:8px">'+
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>'+
+    '<span style="font-size:13px;color:var(--slate)">Replace photo</span>'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadEditPropImg(this)"/></label>'+
+    '<div id="ep-img-prev"></div></div>'+
+    '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details</div>'+
+    bfHtml+
+    '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
+    '<input class="inp" id="ep-maps" '+v(p.mapsUrl||'')+' placeholder="https://maps.google.com/..."/>'+
+    '</div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
+    '<div id="ep-hl-wrap">'+hlPickerHtml(sourceDayId,S.epid,window._editHighlights)+'</div>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
+    '<textarea class="inp" id="ep-rec" rows="2" style="resize:none;line-height:1.5">'+esc(p.agentRec||'')+'</textarea></div>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
+    '<input class="inp" id="ep-area" '+v(p.areaNote||'')+' placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="border-left:2px solid #C9A14A;padding-left:12px;margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em">Agent Info</div></div>'+
+    iffHtml+
+    '</div>'+
+
+    '<button class="btn" onclick="saveEditProp(\''+sourceDayId+'\',\''+S.epid+'\')">Save changes</button>'+
+    '</div>';
+}
+
+function uploadEditPropImg(input){
+  var f=input.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    window._editImage=e.target.result;
+    var prev=document.getElementById('ep-img-prev');
+    if(prev)prev.innerHTML='<img src="'+e.target.result+'" style="width:100%;border-radius:8px;max-height:160px;object-fit:cover;margin-top:8px"/>';
+  };
+  r.readAsDataURL(f);
+}
+
+function saveEditProp(dayId,pid){
+  var updates={
+    url:gv('ep-url'),time:gv('ep-time'),
+    title:gv('ep-title'),address:gv('ep-addr'),area:gv('ep-area2'),
+    price:gv('ep-price'),rooms:gv('ep-rooms'),bathrooms:gv('ep-bath'),sqm:gv('ep-sqm'),
+    mapsUrl:gv('ep-maps'),agentRec:gv('ep-rec'),areaNote:gv('ep-area'),
+    commission:gv('ep-comm'),contact:gv('ep-cont'),contactPhone:gv('ep-cph'),
+    firm:gv('ep-firm'),location:gv('ep-loc'),note:gv('ep-note'),
+    highlights:window._editHighlights||[]
+  };
+  if(window._editImage){updates.ogImage=window._editImage;window._editImage=null;}
+
+  // Update in tour day if it belongs to one
+  if(dayId){
+    updProp(dayId,pid,updates);
+    // Also sync to library if same property exists there (by id or url)
+    S.library=(S.library||[]).map(function(p){
+      if(p.id===pid||(updates.url&&p.url&&p.url===updates.url)){
+        return Object.assign({},p,updates);
+      }
+      return p;
+    });
+    persist();
+  } else {
+    // Editing from library — update library
+    S.library=(S.library||[]).map(function(p){
+      return p.id===pid?Object.assign({},p,updates):p;
+    });
+    // Also sync to all tour days that have this property
+    S.days=S.days.map(function(d){
+      return Object.assign({},d,{
+        properties:(d.properties||[]).map(function(p){
+          if(p.id===pid||(updates.url&&p.url&&p.url===updates.url)){
+            return Object.assign({},p,updates);
+          }
+          return p;
+        })
+      });
+    });
+    persist();
+  }
+  clearDraft();
+  go(dayId?'day-detail':'properties');
+}
 
 // ── OUTPUT ────────────────────────────────────────────────────────────────────
 function pgOutput(){
