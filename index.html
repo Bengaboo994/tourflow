@@ -11,6 +11,7 @@
 <link rel="manifest" href="/manifest.json"/>
 <link rel="apple-touch-icon" href="/icon-192.png"/>
 <meta name="apple-mobile-web-app-title" content="TourFlow"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>TourFlow</title>
@@ -35,7 +36,8 @@
 .ms-modal-inner{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 24px 36px;max-height:80vh;overflow-y:auto}
 .ms-modal-hide{display:none}
 :root{--ink:#2D2B28;--paper:#FCFBF7;--brass:#C9A14A;--slate:#6b6560;--fog:#edeae4;--mist:#f5f2ec;--card:#ffffff;--hdr:#071226}
-body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300}
+body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300;scrollbar-gutter:stable}
+html{overflow-y:scroll}
 input,button,textarea,select{font-family:inherit}
 .hdr{display:none!important}.hdr.show{display:flex}
 .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#071226;border-top:1px solid rgba(255,255,255,.08);z-index:200;display:flex;opacity:0;transition:opacity .3s ease}.nav.ready{display:flex}
