@@ -1231,7 +1231,7 @@ function pgHome(){
         '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px">Today</div>'+
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#2D2B28">No tour scheduled</div>'+
         '</div>'+
-        '<button onclick="go(\'new-day\')" style="background:#071226;color:#C9A14A;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ New tour</button>'+
+        '<button onclick="quickDay()" style="background:#071226;color:#C9A14A;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ New tour</button>'+
         '</div>';
     } else {
       // ── HAS CLIENTS but no upcoming — standard empty state ────────────────
@@ -1249,7 +1249,7 @@ function pgHome(){
         '</svg>'+
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
         '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
-        '<button onclick="go(\'new-day\')" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+        '<button onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
         '</div></div>';
     }
   }
@@ -1791,13 +1791,13 @@ function pgDays(){
 
   var h='<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
-    pageHeader('Days','+ New day',"go('new-day')");
+    pageHeader('Days','+ New day',"quickDay()");
 
   if(S.days.length===0){
     h+='<div style="text-align:center;padding:48px 24px">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No viewing days yet</div>'+
       '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Create your first viewing day to get started</div>'+
-      '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'new-day\')">New viewing day</button></div>';
+      '<button class="btn" style="width:auto;padding:12px 28px" onclick="quickDay()">New viewing day</button></div>';
   } else {
     if(up.length) h+=sectionLabel('Upcoming')+up.map(drow).join("");
     if(dn.length) h+='<div style="margin-top:24px">'+sectionLabel('Completed')+dn.map(drow).join("")+'</div>';
