@@ -112,13 +112,16 @@ input,button,textarea,select{font-family:inherit}
       <div class="auth-title" id="auth-title">Your viewing day is ready</div>
       <div class="auth-sub" id="auth-sub">Create your free account to send it — and keep every tour you build saved and ready to share.</div>
       <input class="auth-input" id="auth-email" type="email" placeholder="you@agency.com" autocomplete="email"/>
-      <button class="auth-btn" id="auth-send-btn" onclick="sendMagicLink()">Send sign-in link</button>
+      <button class="auth-btn" id="auth-send-btn" onclick="sendOtp()">Send code</button>
       <div id="auth-feedback"></div>
     </div>
-    <div id="auth-step-sent" style="display:none">
-      <div class="auth-title">Check your email</div>
-      <div class="auth-sub" id="auth-sent-msg">We sent a sign-in link to your inbox. Click it to open TourFlow.</div>
-      <button class="auth-btn" style="background:transparent;color:#6b6560;border:1.5px solid #edeae4" onclick="resetAuthForm()">Use a different email</button>
+    <div id="auth-step-otp" style="display:none">
+      <div class="auth-title">Enter your code</div>
+      <div class="auth-sub" id="auth-otp-msg">We sent a 6-digit code to your email. Enter it below.</div>
+      <input class="auth-input" id="auth-otp" type="number" placeholder="123456" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:.3em;font-size:22px;text-align:center"/>
+      <button class="auth-btn" id="auth-verify-btn" onclick="verifyOtp()">Sign in</button>
+      <div id="auth-otp-feedback"></div>
+      <button style="width:100%;margin-top:10px;padding:10px;background:transparent;border:none;color:#9e9a94;font-size:12px;cursor:pointer;font-family:inherit" onclick="resetAuthForm()">Use a different email</button>
     </div>
   </div>
 </div>
@@ -264,13 +267,15 @@ function hideAuthGate(){
   var gate=document.getElementById('auth-gate');
   if(gate)gate.style.display='none';
 }
+var _otpEmail='';
 function resetAuthForm(){
-  document.getElementById('auth-step-sent').style.display='none';
+  document.getElementById('auth-step-otp').style.display='none';
   document.getElementById('auth-step-email').style.display='block';
   document.getElementById('auth-feedback').innerHTML='';
   document.getElementById('auth-email').value='';
+  _otpEmail='';
 }
-function sendMagicLink(){
+function sendOtp(){
   if(!supa){
     var fbX=document.getElementById('auth-feedback');
     if(fbX)fbX.innerHTML='<div class="auth-msg err">Sign-in service unavailable. Please reload the page.</div>';
@@ -288,23 +293,56 @@ function sendMagicLink(){
   btn.innerHTML='<span class="auth-spinner"></span> Sending...';
   supa.auth.signInWithOtp({
     email:email,
-    options:{emailRedirectTo:window.location.origin+window.location.pathname}
+    options:{shouldCreateUser:true}
   }).then(function(res){
     btn.disabled=false;
-    btn.innerHTML='Send sign-in link';
+    btn.innerHTML='Send code';
     if(res.error){
       fb.innerHTML='<div class="auth-msg err">'+(res.error.message||'Something went wrong. Please try again.')+'</div>';
       return;
     }
-    document.getElementById('auth-sent-msg').textContent='We sent a sign-in link to '+email+'. Click it to open TourFlow.';
+    _otpEmail=email;
+    document.getElementById('auth-otp-msg').textContent='We sent a 6-digit code to '+email+'. Enter it below.';
     document.getElementById('auth-step-email').style.display='none';
-    document.getElementById('auth-step-sent').style.display='block';
+    document.getElementById('auth-step-otp').style.display='block';
+    setTimeout(function(){var f=document.getElementById('auth-otp');if(f)f.focus();},100);
   }).catch(function(){
     btn.disabled=false;
-    btn.innerHTML='Send sign-in link';
+    btn.innerHTML='Send code';
     fb.innerHTML='<div class="auth-msg err">Network error. Please check your connection and try again.</div>';
   });
 }
+function verifyOtp(){
+  if(!supa||!_otpEmail)return;
+  var token=(document.getElementById('auth-otp').value||'').trim();
+  var fb=document.getElementById('auth-otp-feedback');
+  var btn=document.getElementById('auth-verify-btn');
+  if(!token||token.length!==6){
+    fb.innerHTML='<div class="auth-msg err">Please enter the 6-digit code from your email.</div>';
+    return;
+  }
+  fb.innerHTML='';
+  btn.disabled=true;
+  btn.innerHTML='<span class="auth-spinner"></span> Verifying...';
+  supa.auth.verifyOtp({
+    email:_otpEmail,
+    token:token,
+    type:'email'
+  }).then(function(res){
+    btn.disabled=false;
+    btn.innerHTML='Sign in';
+    if(res.error){
+      fb.innerHTML='<div class="auth-msg err">'+(res.error.message||'Invalid code. Please try again.')+'</div>';
+      return;
+    }
+    // Success — onAuthStateChange will handle the rest
+  }).catch(function(){
+    btn.disabled=false;
+    btn.innerHTML='Sign in';
+    fb.innerHTML='<div class="auth-msg err">Network error. Please try again.</div>';
+  });
+}
+function sendMagicLink(){sendOtp();} // backwards compat alias
 function signOut(){
   if(!supa){location.reload();return;}
   supa.auth.signOut().then(function(){
