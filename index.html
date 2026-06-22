@@ -166,12 +166,21 @@ function trialDaysLeft(){
   var started=new Date(currentUser.created_at).getTime();
   var elapsedMs=Date.now()-started;
   var elapsedDays=elapsedMs/(1000*60*60*24);
-  var left=Math.ceil(TRIAL_DAYS-elapsedDays);
-  return left;
+  var totalHoursLeft=Math.max(0, TRIAL_DAYS*24 - Math.floor(elapsedMs/(1000*60*60)));
+  var daysLeft=Math.floor(totalHoursLeft/24);
+  var hoursLeft=totalHoursLeft%24;
+  return {days:daysLeft, hours:hoursLeft, total:totalHoursLeft};
 }
 function isTrialExpired(){
   if(S.isPremium)return false;
-  return trialDaysLeft()<=0;
+  return trialDaysLeft().total<=0;
+}
+function trialLabel(){
+  var t=trialDaysLeft();
+  if(t.total<=0)return'Trial ended';
+  if(t.days===0)return t.hours+'h left in trial';
+  if(t.hours===0)return t.days+' day'+(t.days===1?'':'s')+' left in trial';
+  return t.days+' day'+(t.days===1?'':'s')+' '+t.hours+'h left in trial';
 }
 function showUpgradeModal(){
   var modal=document.getElementById('upgrade-modal');
@@ -366,8 +375,8 @@ function accountStatusInfo(){
     return {ring:'#22c55e',label:'Premium plan',detail:'Your subscription is active.'};
   }
   var left=trialDaysLeft();
-  if(left>0){
-    return {ring:'#C9A14A',label:left+' day'+(left===1?'':'s')+' left in trial',detail:'Free trial \u2014 full access until it ends.'};
+  if(left.total>0){
+    return {ring:'#C9A14A',label:trialLabel(),detail:'Free trial \u2014 full access until it ends.'};
   }
   return {ring:'#ef4444',label:'Trial ended',detail:'Upgrade to keep creating new tours, clients and properties.'};
 }
@@ -1190,7 +1199,7 @@ function pgHome(){
           'goAddLibProp()',hasClients&&!hasProps,hasProps);
         var s3=stepCard(4,'Create your first tour','Build your first viewing day',
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasTours?'#C9A14A':hasProps?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-          'quickDay()',hasProps&&!hasTours,hasTours);
+          'quickDay()',true,hasTours);
 
         var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
           '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
@@ -3073,7 +3082,7 @@ function pgSettings(){
     (currentUser?'<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Account</div>'+
     '<div style="font-size:13px;color:#6b6560;margin-bottom:14px">'+esc(currentUser.email||'')+'</div>':'')+
     (S.isPremium?'<div class="ban ban-gr" style="margin-bottom:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Premium plan active</div>':
-    (trialDaysLeft()>0?'<div class="ban ban-am" style="margin-bottom:14px">'+trialDaysLeft()+' day'+(trialDaysLeft()===1?'':'s')+' left in your free trial</div>':
+    (trialDaysLeft().total>0?'<div class="ban ban-am" style="margin-bottom:14px">'+trialLabel()+'</div>':
     '<div class="ban" style="margin-bottom:14px;background:#fef2f2;color:#991b1b">Your trial has ended &middot; <a href="#" onclick="showUpgradeModal();return false" style="color:#991b1b;font-weight:600;text-decoration:underline">Upgrade</a></div>'))+
     '<button onclick="signOut()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--fog);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:#6b6560">Sign out</button>'+
     '</div>'+
