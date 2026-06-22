@@ -545,7 +545,7 @@ function reqFormHtml(r){
   var req=r.req||{};
   return'<div style="margin-bottom:11px">'+sel('req-budget',budgets,req.budget||'','Budget range')+'</div>'+
     '<div style="margin-bottom:11px">'+sel('req-minrooms',roomOpts,req.minrooms||'','Minimum bedrooms')+'</div>'+
-    multiSel('req-type',types,req.type||[],'Property type')+
+    multiSel('req-type',types,Array.isArray(req.type)?req.type:(req.type&&req.type!=='any'?[req.type]:[]),'Property type')+
     '<div style="margin-bottom:11px">'+sel('req-view',views,req.view||'','View preference')+'</div>'+
     '<div style="margin-bottom:11px">'+sel('req-purpose',purpose,req.purpose||'','Purpose')+'</div>'+
     '<div style="margin-top:6px;margin-bottom:6px;font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em">Features & priorities</div>'+
@@ -624,7 +624,10 @@ function toggleClientFeature(cid, feat){
 }
 function matchScore(c,p){
   if(!c||!c.req)return null;
-  var req=c.req;
+  var req=Object.assign({},c.req);
+  // Normalize req.type — old data may have saved it as a string
+  if(typeof req.type==='string'){req.type=req.type&&req.type!=='any'?[req.type]:[];}
+  if(!Array.isArray(req.type)){req.type=[];}
   var hl=p.highlights||[];
   var results=[];
 
@@ -925,6 +928,15 @@ function openDay(did,cid){
   var d=curD();
   if(d)calcDriveTimes(d,function(){render();});
 }
+function openTourOutput(did,cid){
+  S.did=did;S.cid=cid;
+  var day=curD();
+  if(day&&day.properties&&day.properties.length>0){
+    go('output');
+  }else{
+    go('day-detail');
+  }
+}
 function cDays(cId){return S.days.filter(function(d){return d.clientId===cId;}).sort(function(a,b){return b.date.localeCompare(a.date);});}
 
 function go(screen,extra){
@@ -1104,7 +1116,7 @@ function pgHome(){
       (tArea?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">'+esc(tArea)+'</span></div>':'')+
       '</div>'+
       // Open Tour button
-      '<button onclick="S.did=\''+todayDay.id+'\';S.cid=\''+todayDay.clientId+'\';go(\'output\')" style="width:100%;background:linear-gradient(90deg,#C9A14A,#d4a84b);color:#071226;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px">Open Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'+
+      '<button onclick="openTourOutput(\''+todayDay.id+'\',\''+todayDay.clientId+'\')" style="width:100%;background:linear-gradient(90deg,#C9A14A,#d4a84b);color:#071226;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px">Open Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'+
       '</div></div>';
   }
 
@@ -1704,7 +1716,7 @@ function pgEditClient(){
       '<div><label class="lbl">Budget (max)</label>'+sel('req-budget',budgetOpts,budgetLabels,req.budget||'')+'</div>'+
       '<div><label class="lbl">Min bedrooms</label>'+sel('req-minrooms',roomOpts,roomLabels,req.minrooms||'')+'</div>'+
     '</div>'+
-    multiSel('req-type',types,req.type||[],'Property type')+
+    multiSel('req-type',types,Array.isArray(req.type)?req.type:(req.type&&req.type!=='any'?[req.type]:[]),'Property type')+
     '</div>'+
     '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
     '<div class="sec-sm" style="margin-bottom:2px">Wishlist</div>'+
@@ -2597,7 +2609,10 @@ function pgOutput(){
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic;margin-bottom:12px">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>':'')+
 
     (!isAg&&c&&c.req?(function(){
-      var req=c.req; var mustHave=req.mustHave||[]; var plus=req.plus||[];
+      var req=Object.assign({},c.req);
+      if(typeof req.type==='string'){req.type=req.type&&req.type!=='any'?[req.type]:[];}
+      if(!Array.isArray(req.type)){req.type=[];}
+      var mustHave=req.mustHave||[]; var plus=req.plus||[];
       var budgetLabels={'b150':'€0 – 150k','b250':'€150k – 250k','b400':'€250k – 400k','b600':'€400k – 600k','b1000':'€600k – 1M','b2000':'€1M – 2M','nolimit':'No limit'};
       var lines=[];
       if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
