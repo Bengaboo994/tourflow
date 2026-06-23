@@ -1043,11 +1043,13 @@ function restoreDraft(){
     var raw=localStorage.getItem(DRAFT_KEY);
     if(!raw)return;
     var draft=JSON.parse(raw);
-    if(draft.screen!==S.screen)return; // only restore for same screen
+    if(draft.screen!==S.screen)return;
     Object.keys(draft).forEach(function(id){
       if(id==='screen')return;
       var el=document.getElementById(id);
-      if(el&&el.type!=='file'&&el.value==='')el.value=draft[id];
+      if(el&&el.type!=='file'&&draft[id]!==undefined&&draft[id]!==''){
+        el.value=draft[id];
+      }
     });
   }catch(e){}
 }
@@ -1135,8 +1137,8 @@ function render(){
   if(s==="edit-client")      {el.innerHTML=pgEditClient();if(isFormScreen)restoreDraft();return;}
   if(s==="client-detail")    {el.innerHTML=pgClientDetail();return;}
   if(s==="day-detail")       {el.innerHTML=pgDayDetail();return;}
-  if(s==="add-prop")         {el.innerHTML=pgAddProp();restoreDraft();return;}
-  if(s==="edit-prop")        {el.innerHTML=pgEditProp();return;}
+  if(s==="add-prop")         {el.innerHTML=pgAddProp();setTimeout(restoreDraft,50);return;}
+  if(s==="edit-prop")        {el.innerHTML=pgEditProp();setTimeout(restoreDraft,50);return;}
   if(s==="pick-prop-source") {el.innerHTML=pgPickPropSource();return;}
   if(s==="from-library")     {el.innerHTML=pgFromLibrary();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
