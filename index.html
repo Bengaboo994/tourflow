@@ -1074,6 +1074,11 @@ function openDay(did,cid){
   var d=curD();
   if(d)calcDriveTimes(d,function(){render();});
 }
+function openEditProp(pid,dayId){
+  S.epid=pid;
+  if(dayId)S.did=dayId;
+  go('edit-prop');
+}
 function openTourOutput(did,cid){
   S.did=did;S.cid=cid;
   var day=curD();
@@ -3302,7 +3307,7 @@ function pgProperties(){
     var shownBadge=item.timesShown>1?'<span style="background:#f5f2ec;color:#6b6560;border-radius:100px;padding:2px 8px;font-size:9px">'+item.timesShown+'× shown</span>':'';
     var dayId=item.dayId||'';
     var pid=p.id||'';
-    return '<div onclick="S.did=\''+dayId+'\';S.epid=\''+pid+'\';go(\'edit-prop\')" style="background:#fff;border-radius:12px;border:1px solid #edeae4;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer">'+
+    return '<div onclick="openEditProp(\''+pid+'\',\''+dayId+'\')" style="background:#fff;border-radius:12px;border:1px solid #edeae4;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer">'+
       imgHtml+
       '<div style="padding:12px 14px">'+
       '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:3px;line-height:1.3">'+esc(p.title||'Untitled')+'</div>'+
