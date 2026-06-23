@@ -2350,22 +2350,23 @@ var ICON={
 
 // ── EDIT PROPERTY ─────────────────────────────────────────────────────────────
 function pgEditProp(){
-  // Find property — check tour days first, then library
-  var p=null; var sourceDayId=S.did||'';
-  if(sourceDayId){
-    var day=curD();
-    if(day) p=(day.properties||[]).find(function(x){return x.id===S.epid;});
-  }
+  // Find property — search all days and library by S.epid
+  var p=null; var sourceDayId='';
+
+  // Search all days first
+  S.days.forEach(function(d){
+    if(!p)(d.properties||[]).forEach(function(x){if(x.id===S.epid){p=x;sourceDayId=d.id;}});
+  });
+
+  // If not found in days, check library
   if(!p){
-    // Search all days
-    S.days.forEach(function(d){
-      if(!p)(d.properties||[]).forEach(function(x){if(x.id===S.epid){p=x;sourceDayId=d.id;}});
-    });
-  }
-  if(!p){
-    // Check library
     p=(S.library||[]).find(function(x){return x.id===S.epid;});
     sourceDayId='';
+  }
+
+  // If coming from day-detail (S.did is set and matches), use that as sourceDayId
+  if(p&&S.did&&sourceDayId===S.did){
+    sourceDayId=S.did;
   }
   if(!p)return'<div class="wrap"><div class="card">Property not found.</div></div>';
 
