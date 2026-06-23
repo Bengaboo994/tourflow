@@ -196,21 +196,46 @@ function showUpgradeModal(){
   modal.innerHTML='<div style="background:#FCFBF7;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:32px 28px 36px;text-align:center" onclick="event.stopPropagation()">'+
     '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
     '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:26px;font-weight:300;color:#2D2B28;margin-bottom:8px">Your trial has ended</div>'+
-    '<div style="font-size:13px;color:#6b6560;line-height:1.6;margin-bottom:24px">Your 7 day free trial is over. Upgrade to keep adding clients, viewing days and properties — your existing data stays exactly as it is.</div>'+
-    '<button onclick="startCheckout()" style="width:100%;padding:14px 18px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:10px">Upgrade — €19/month</button>'+
+    '<div style="font-size:13px;color:#6b6560;line-height:1.6;margin-bottom:24px">Upgrade to keep adding clients, viewing days and properties — your existing data stays exactly as it is.</div>'+
+    '<div style="display:flex;background:#f5f2ec;border-radius:10px;padding:3px;margin-bottom:20px">'+
+    '<button id="up-tog-monthly" onclick="selectUpgradePlan(\'monthly\')" style="flex:1;padding:9px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:#071226;color:#C9A14A">Monthly</button>'+
+    '<button id="up-tog-yearly" onclick="selectUpgradePlan(\'yearly\')" style="flex:1;padding:9px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#9e9a94">Yearly</button>'+
+    '</div>'+
+    '<div id="up-price-block" style="margin-bottom:20px">'+
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€29<span style="font-size:18px;color:#9e9a94">/month</span></div>'+
+    '</div>'+
+    '<button onclick="startCheckout()" style="width:100%;padding:14px 18px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:10px">Upgrade now</button>'+
     '<button onclick="hideUpgradeModal()" style="width:100%;padding:14px 18px;background:transparent;color:#6b6560;border:1.5px solid #edeae4;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit">Not now</button>'+
     '</div>';
   document.body.appendChild(modal);
+  window._upgradePlan='monthly';
 }
 function hideUpgradeModal(){
   var modal=document.getElementById('upgrade-modal');
   if(modal)modal.style.display='none';
+}
+function selectUpgradePlan(plan){
+  window._upgradePlan=plan;
+  var mBtn=document.getElementById('up-tog-monthly');
+  var yBtn=document.getElementById('up-tog-yearly');
+  var block=document.getElementById('up-price-block');
+  if(plan==='yearly'){
+    if(mBtn){mBtn.style.background='transparent';mBtn.style.color='#9e9a94';}
+    if(yBtn){yBtn.style.background='#071226';yBtn.style.color='#C9A14A';}
+    if(block)block.innerHTML='<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€228<span style="font-size:18px;color:#9e9a94">/year</span></div>'+
+      '<div style="font-size:12px;color:#059669;font-weight:600;margin-top:4px">Save €120 — equivalent to €19/month</div>';
+  }else{
+    if(mBtn){mBtn.style.background='#071226';mBtn.style.color='#C9A14A';}
+    if(yBtn){yBtn.style.background='transparent';yBtn.style.color='#9e9a94';}
+    if(block)block.innerHTML='<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€29<span style="font-size:18px;color:#9e9a94">/month</span></div>';
+  }
 }
 function startCheckout(){
   if(!currentUser||!currentUser.email){
     showUpgradeModal();
     return;
   }
+  var plan=window._upgradePlan||'monthly';
   var modal=document.getElementById('upgrade-modal');
   var btn=modal?modal.querySelector('button[onclick="startCheckout()"]'):null;
   var origHtml=btn?btn.innerHTML:'';
@@ -224,6 +249,7 @@ function startCheckout(){
     body:JSON.stringify({
       email:currentUser.email,
       userId:currentUser.id,
+      plan:plan,
       successUrl:window.location.origin+window.location.pathname+'?checkout=success',
       cancelUrl:window.location.origin+window.location.pathname+'?checkout=cancelled'
     })
@@ -469,7 +495,7 @@ function topNav(){
       '<span style="width:7px;height:7px;border-radius:50%;background:'+acct.ring+';display:inline-block"></span>'+
       '<span style="font-size:13px;font-weight:600;color:#2D2B28">'+acct.label+'</span></div>'+
       '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>'+
-      (acct.label==='Trial ended'?'<button onclick="closeAccountMenu();showUpgradeModal()" style="width:100%;padding:9px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">Upgrade \u2014 \u20ac19/month</button>':'')+
+      (acct.label==='Trial ended'?'<button onclick="closeAccountMenu();showUpgradeModal()" style="width:100%;padding:9px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">Upgrade \u2014 from \u20ac29/month</button>':'')+
       '<button onclick="closeAccountMenu();signOut()" style="width:100%;padding:9px;background:transparent;color:#6b6560;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Sign out</button>')
     :('<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:4px">Guest</div>'+
       '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>'+
