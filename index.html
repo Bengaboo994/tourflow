@@ -1142,7 +1142,7 @@ function render(){
   if(s==="pick-prop-source") {el.innerHTML=pgPickPropSource();return;}
   if(s==="from-library")     {el.innerHTML=pgFromLibrary();return;}
   if(s==="output")           {el.innerHTML=pgOutput();return;}
-  if(s==="add-lib-prop")     {el.innerHTML=pgAddLibraryProp();return;}
+  if(s==="add-lib-prop")     {el.innerHTML=pgAddLibraryProp();setTimeout(restoreDraft,50);return;}
   if(S.tab==="settings")     {el.innerHTML=pgSettings();return;}
   if(S.tab==="clients")      {el.innerHTML=pgClients();return;}
   if(S.tab==="days")         {el.innerHTML=pgDays();return;}
