@@ -1078,7 +1078,7 @@ function openDay(did,cid){
 }
 function openEditProp(pid,dayId){
   S.epid=pid;
-  if(dayId)S.did=dayId;
+  S.did=dayId||''; // clear S.did if no dayId so pgEditProp searches correctly
   go('edit-prop');
 }
 function openTourOutput(did,cid){
@@ -2419,9 +2419,9 @@ function pgEditProp(){
     '<input class="inp" id="ep-url" '+v(p.url||'')+' placeholder="https://idealista.com/..."/>'+
     '</div>'+
 
-    '<div class="card" style="margin-bottom:14px">'+
+    (sourceDayId?'<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
-    '<input type="time" class="inp" id="ep-time" '+v(p.time||'')+'/></div>'+
+    '<input type="time" class="inp" id="ep-time" '+v(p.time||'')+'/></div>':'')+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
@@ -3168,6 +3168,7 @@ function goAddLibProp(){go('add-lib-prop');}
 
 // ── ADD LIBRARY PROPERTY ──────────────────────────────────────────────────────
 function pgAddLibraryProp(){
+  if(!window._libNewHighlights)window._libNewHighlights=[];
   var bf=[["Title","alp-title","Property title"],["Address","alp-addr","Street address"],["Area","alp-area","Area"],["Price","alp-price","Price"],["Bedrooms","alp-rooms","3"],["Bathrooms","alp-bath","2"],["Built size","alp-sqm","120"]];
   var bfHtml=bf.map(function(f,fi){
     var isAddr=f[1]==='alp-addr',isArea=f[1]==='alp-area';
@@ -3421,6 +3422,7 @@ function sanitizeTourForClient(day, client, cfg){
   var cleanProps=(day.properties||[]).map(function(p){
     return {
       id:p.id,
+      url:p.url||'',
       time:p.time||'',
       title:p.title||'',
       address:p.address||'',
@@ -3436,8 +3438,6 @@ function sanitizeTourForClient(day, client, cfg){
       areaNote:p.areaNote||'',
       travelTime:p.travelTime||'',
       topPick:p.topPick||false
-      // Deliberately excluded: commission, contact, contactPhone,
-      // firm, location, note, sold
     };
   });
 
