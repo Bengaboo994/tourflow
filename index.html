@@ -2574,6 +2574,7 @@ function pgOutput(){
     '<div style="display:flex;align-items:flex-start;min-width:max-content">'+
     tlItems.map(function(tl,tli){
       var isLast=tli===tlItems.length-1;
+      var isFirst=tli===0;
       var dot=tl.type==='prop'
         ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
         :tl.type==='mp'
@@ -2581,14 +2582,14 @@ function pgOutput(){
         :tl.type==='ev'
         ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
         :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
-      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px"></div>':'';
-      var preLine=tli>0&&isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px"></div>':'';
-      return'<div style="display:flex;align-items:flex-start;flex:'+(isLast?'0':'1')+'">'+
-        preLine+
+      // Each item: [line-before?][node-column]
+      // Line before every item except the first
+      var lineBefore=!isFirst?'<div style="height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px;flex:1"></div>':'';
+      return lineBefore+
         '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">'+dot+
         '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2;white-space:nowrap">'+tl.sub+'</div>'+
         '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2;white-space:nowrap">'+tl.label+'</div>'+
-        '</div>'+line+'</div>';
+        '</div>';
     }).join('')+
     '</div></div>':'';
 
