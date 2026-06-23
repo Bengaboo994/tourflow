@@ -3534,7 +3534,6 @@ function copyPublicLink(publicId){
   // On iOS, async clipboard often fails — show the link visibly instead
   var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
   if(isIOS){
-    // Show a modal with the link so user can copy manually
     var existing=document.getElementById('link-modal');
     if(existing)existing.remove();
     var modal=document.createElement('div');
@@ -3542,10 +3541,10 @@ function copyPublicLink(publicId){
     modal.style.cssText='position:fixed;inset:0;background:rgba(7,18,38,.6);z-index:8000;display:flex;align-items:center;justify-content:center;padding:24px';
     modal.innerHTML='<div style="background:#FCFBF7;border-radius:16px;padding:24px;width:100%;max-width:380px;text-align:center">'+
       '<div style="font-size:14px;font-weight:600;color:#2D2B28;margin-bottom:8px">Client Link Ready</div>'+
-      '<div style="font-size:11px;color:#9e9a94;margin-bottom:14px">Press and hold the link below to copy it</div>'+
-      '<div onclick="selectLinkText(this)" style="background:#f5f2ec;border:1.5px solid #edeae4;border-radius:8px;padding:12px;font-size:11px;color:#2D2B28;word-break:break-all;text-align:left;cursor:pointer;-webkit-user-select:all;user-select:all" id="link-text">'+url+'</div>'+
-      '<div style="font-size:10px;color:#9e9a94;margin-top:8px;margin-bottom:16px">Tap the link to select it, then copy</div>'+
-      '<button onclick="document.getElementById(\'link-modal\').remove()" style="width:100%;padding:12px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Done</button>'+
+      '<div style="font-size:11px;color:#9e9a94;margin-bottom:14px">Tap the link to copy it</div>'+
+      '<div id="link-copy-box" onclick="copyLinkText(\''+url.replace(/'/g,"\\'")+'\')" style="background:#f5f2ec;border:1.5px solid #edeae4;border-radius:8px;padding:12px;font-size:11px;color:#2D2B28;word-break:break-all;text-align:left;cursor:pointer">'+url+'</div>'+
+      '<div id="link-copy-msg" style="font-size:12px;color:#059669;font-weight:600;margin-top:10px;min-height:18px"></div>'+
+      '<button onclick="document.getElementById(\'link-modal\').remove()" style="width:100%;margin-top:14px;padding:12px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Done</button>'+
       '</div>';
     document.body.appendChild(modal);
     return;
@@ -3565,12 +3564,27 @@ function copyPublicLink(publicId){
   } else { fallback(url,done); }
   function fallback(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
 }
-function selectLinkText(el){
-  var range=document.createRange();
-  range.selectNodeContents(el);
-  var sel=window.getSelection();
-  sel.removeAllRanges();
-  sel.addRange(range);
+function copyLinkText(url){
+  var msg=document.getElementById('link-copy-msg');
+  var box=document.getElementById('link-copy-box');
+  function showCopied(){
+    if(msg)msg.textContent='✓ Copied!';
+    if(box){box.style.background='#f0fdf4';box.style.borderColor='#86efac';}
+  }
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(showCopied).catch(function(){
+      fallbackCopy(url,showCopied);
+    });
+  } else {
+    fallbackCopy(url,showCopied);
+  }
+  function fallbackCopy(t,cb){
+    var ta=document.createElement('textarea');
+    ta.value=t;ta.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(ta);ta.focus();ta.select();
+    try{document.execCommand('copy');cb();}catch(e){}
+    document.body.removeChild(ta);
+  }
 }
 
 function handleCreateClientLink(){
