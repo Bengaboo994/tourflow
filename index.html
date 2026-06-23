@@ -2467,6 +2467,15 @@ function uploadEditPropImg(input){
 }
 
 function saveEditProp(dayId,pid){
+  // If dayId not explicitly set, try to find which day this property belongs to
+  if(!dayId){
+    S.days.forEach(function(d){
+      (d.properties||[]).forEach(function(p){
+        if(p.id===pid)dayId=d.id;
+      });
+    });
+  }
+
   var updates={
     url:gv('ep-url'),time:gv('ep-time'),
     title:gv('ep-title'),address:gv('ep-addr'),area:gv('ep-area2'),
