@@ -2574,8 +2574,7 @@ function pgOutput(){
   var timelineHtml=!isAg&&tlItems.length>1?
     '<div style="background:#071226;padding:10px 20px 14px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
     '<div style="position:relative;display:flex;align-items:flex-start;min-width:max-content">'+
-    // Single continuous line behind all nodes
-    '<div style="position:absolute;top:11px;left:12px;right:12px;height:1.5px;background:rgba(201,161,74,.25)"></div>'+
+    '<div style="position:absolute;top:11px;left:0;right:0;height:1.5px;background:rgba(201,161,74,.25)"></div>'+
     tlItems.map(function(tl,tli){
       var dot=tl.type==='prop'
         ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1">'+tl.num+'</div>'
@@ -2584,7 +2583,7 @@ function pgOutput(){
         :tl.type==='ev'
         ?'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;position:relative;z-index:1">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
         :'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
-      return '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:60px;padding:0 4px">'+dot+
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:56px">'+dot+
         '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2;white-space:nowrap">'+tl.sub+'</div>'+
         '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2;white-space:nowrap">'+tl.label+'</div>'+
         '</div>';
