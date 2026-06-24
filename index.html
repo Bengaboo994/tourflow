@@ -1711,6 +1711,7 @@ function pgPickClient(){
     '<button class="btn" onclick="go(\'add-client\')">+ New client instead</button>'+
     '</div></div>';
 }
+function tfScroll(el){var t=document.getElementById(el.getAttribute('data-target'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}
 function selectBR(idPrefix,val){
   window['_br_'+idPrefix]=val;
   var btns=document.querySelectorAll('[data-brid="'+idPrefix+'"]');
@@ -2688,24 +2689,61 @@ function pgOutput(){
     }
   });
   tlItems.push({label:'End',sub:'End of tour',type:'end'});
-  var timelineHtml=!isAg&&tlItems.length>1?
-    '<div style="background:#071226;padding:10px 20px 14px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
-    '<div style="position:relative;display:flex;align-items:flex-start;min-width:max-content">'+
-    '<div style="position:absolute;top:11px;left:0;right:0;height:1.5px;background:rgba(201,161,74,.25)"></div>'+
-    tlItems.map(function(tl,tli){
-      var dot=tl.type==='prop'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1">'+tl.num+'</div>'
-        :tl.type==='mp'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid #C9A14A;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
-        :tl.type==='ev'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;position:relative;z-index:1">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
-        :'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
-      return '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:56px">'+dot+
-        '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2;white-space:nowrap">'+tl.sub+'</div>'+
-        '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2;white-space:nowrap">'+tl.label+'</div>'+
-        '</div>';
-    }).join('')+
-    '</div></div>':'';
+  // ── MOCKUP-STYLE VERTICAL ITINERARY ─────────────────────────────────────
+  var timelineHtml='';
+  if(!isAg&&tlItems.length>1){
+    var propByNum={};var pni=0;
+    sortedProps.forEach(function(pp){pni++;propByNum[pni]=pp;});
+    var itinRows=tlItems.map(function(tl,i){
+      var isLast=tl.type==='end';
+      var lineEl=!isLast?'<div style="position:absolute;left:38px;top:56px;bottom:0;width:1.5px;background:rgba(201,161,74,.2)"></div>':'';
+      if(tl.type==='prop'){
+        var pp=propByNum[tl.num]||{};
+        var thumb=pp.ogImage
+          ?'<img src="'+pp.ogImage+'" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0"/>'
+          :'<div style="width:52px;height:52px;border-radius:10px;background:rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:rgba(255,255,255,.2)">'+tl.num+'</div>';
+        var fmtPr=(function(){var pr=(pp.price||'').replace(/EUR/i,'').replace(/€/g,'').replace(/[^0-9]/g,'');return pr?'€'+parseInt(pr,10).toLocaleString('en-US'):'';})();
+        var propName=pp.area||pp.title||('Property '+tl.num);
+        var scrollId='tf-sec-'+(tl.num-1);
+        return '<div onclick="tfScroll(this)" data-target="'+scrollId+'" style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer">'+
+          lineEl+
+          '<div style="width:38px;flex-shrink:0;text-align:right">'+
+          (tl.sub?'<div style="font-size:12px;font-weight:700;color:#C9A14A">'+tl.sub+'</div>':'<div style="font-size:10px;color:rgba(255,255,255,.2)">—</div>')+
+          '</div>'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:#C9A14A;flex-shrink:0;box-shadow:0 0 0 3px rgba(201,161,74,.2)"></div>'+
+          '<div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:10px;min-width:0">'+
+          thumb+
+          '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Property '+tl.num+'</div>'+
+          '<div style="font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">'+propName+'</div>'+
+          (fmtPr?'<div style="font-size:12px;font-weight:700;color:#C9A14A;margin-top:2px">'+fmtPr+'</div>':'')+
+          '</div>'+
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
+          '</div></div>';
+      } else if(tl.type==='ev'||tl.type==='mp'){
+        var evIcon=tl.type==='mp'?'&#128205;':(getET(tl.evType).icon||'&#9749;');
+        return '<div style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 0">'+
+          lineEl+
+          '<div style="width:38px;flex-shrink:0;text-align:right">'+
+          (tl.sub?'<div style="font-size:11px;color:rgba(255,255,255,.35)">'+tl.sub+'</div>':'')+
+          '</div>'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0"></div>'+
+          '<div style="display:flex;align-items:center;gap:8px;padding:4px 0">'+
+          '<span style="font-size:16px">'+evIcon+'</span>'+
+          '<div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.6)">'+tl.label+'</div>'+
+          '</div></div>';
+      } else {
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0 4px">'+
+          '<div style="width:38px;flex-shrink:0"></div>'+
+          '<div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);flex-shrink:0"></div>'+
+          '<div style="display:flex;align-items:center;gap:6px">'+
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>'+
+          '<div style="font-size:11px;color:rgba(255,255,255,.3)">End of tour</div>'+
+          '</div></div>';
+      }
+    }).join('');
+    timelineHtml='<div style="padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,.06)">'+itinRows+'</div>';
+  }
 
   var orderedLocs=[];
   var mpEv=(day.events||[]).find(function(ev){return ev.type==='meetingpoint';});
@@ -2838,6 +2876,7 @@ function pgOutput(){
     }
 
     return dtBlock+
+      '<div id="tf-sec-'+idx+'" style="scroll-margin-top:8px"></div>'+
       '<div style="border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07);margin-bottom:28px;border:1px solid #edeae4;background:#fff">'+
       imgHtml+
       '<div style="padding:18px 18px 22px">'+
