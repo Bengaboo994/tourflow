@@ -52,6 +52,49 @@ exports.handler = async function(event) {
       return m ? m[0] : null;
     }
 
+    // ── HIGHLIGHT DETECTION ───────────────────────────────────────────────
+    // Maps keywords found in HTML to TourFlow highlight chips
+    function detectHighlights(text) {
+      const t = text.toLowerCase();
+      const found = [];
+      const rules = [
+        // Location
+        [['beach', 'playa', 'strand', 'beachfront', 'walking distance to beach', 'beläget vid stranden', 'nära stranden'], 'Walking distance to beach'],
+        [['prime location', 'prime area', 'privileged', 'privilegiada', 'exclusive area', 'prime position'], 'Prime location'],
+        [['quiet', 'tranquil', 'tranquila', 'lugnt', 'peaceful', 'privat läge'], 'Quiet area'],
+        [['golf', 'golf course', 'campo de golf', 'golfbana'], 'Near golf'],
+        [['amenities', 'restaurant', 'shops', 'shopping', 'comercios', 'restaurantes'], 'Close to amenities'],
+        // Features
+        [['private pool', 'piscina privada', 'privat pool', 'privat pool', 'egen pool', 'heated pool', 'infinity pool'], 'Private pool'],
+        [['community pool', 'piscina comunitaria', 'gemensam pool'], 'Community pool'],
+        [['garage', 'garaje', 'garaget', 'parking'], 'Garage'],
+        [['sea view', 'sea views', 'vistas al mar', 'havsutsikt', 'panoramic sea', 'ocean view', 'mediterranean view'], 'Sea view'],
+        [['south facing', 'orientación sur', 'söderläge', 'south-facing', 'orientado al sur'], 'South facing'],
+        [['large terrace', 'covered terrace', 'terraza', 'terrass', 'solarium', 'private terrace'], 'Large terrace'],
+        [['private garden', 'garden', 'jardín', 'trädgård', 'landscaped'], 'Private garden'],
+        [['key ready', 'move-in ready', 'llave en mano', 'inflyttningsklar', 'ready to move'], 'Key ready'],
+        [['renovated', 'renovated', 'renoverad', 'reformed', 'reformada', 'newly renovated'], 'Recently renovated'],
+        [['excellent condition', 'perfect condition', 'utmärkt skick', 'immaculate'], 'Excellent condition'],
+        [['good condition', 'good state', 'buen estado', 'bra skick'], 'Good condition'],
+        [['lift', 'elevator', 'ascensor', 'hiss'], 'Lift'],
+        // Value
+        [['rental', 'rental income', 'alquiler', 'uthyrning', 'investment potential'], 'Rental potential'],
+        [['excellent value', 'great value', 'price reduced', 'reduced price', 'bargain'], 'Excellent value'],
+        // Lifestyle
+        [['family', 'family-friendly', 'familiar', 'barnvänlig'], 'Family friendly'],
+        [['restaurants nearby', 'near restaurants', 'restaurantes cercanos'], 'Restaurants nearby'],
+        [['holiday', 'vacation home', 'holiday home', 'semesterbostad'], 'Holiday home potential'],
+      ];
+      rules.forEach(function(rule) {
+        const keywords = rule[0];
+        const label = rule[1];
+        if (found.indexOf(label) < 0 && keywords.some(k => t.indexOf(k) >= 0)) {
+          found.push(label);
+        }
+      });
+      return found;
+    }
+
     // ── IMAGE (always from OG) ────────────────────────────────────────────
     const image = og('image') || meta('twitter:image') || null;
 
@@ -86,10 +129,12 @@ exports.handler = async function(event) {
       // No address on reveny (seller privacy)
       address = null;
 
+      const highlights = detectHighlights(html);
+
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address })
+        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights })
       };
     }
 
@@ -129,10 +174,12 @@ exports.handler = async function(event) {
       const addrM = (og('title') || '').match(/en venta en\s+([^,]+)/i);
       address = addrM ? addrM[1].trim() : null;
 
+      const highlights = detectHighlights(html);
+
       return {
         statusCode: 200,
         headers,
-        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address })
+        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights })
       };
     }
     const ogTitle = og('title') || '';
@@ -188,10 +235,12 @@ exports.handler = async function(event) {
       if (!isOffice) { address = candidate; break; }
     }
 
+    const highlights = detectHighlights(html);
+
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address })
+      body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights })
     };
 
   } catch (err) {
