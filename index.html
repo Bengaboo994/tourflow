@@ -3091,7 +3091,7 @@ function pgPickPropSource(){
       '</div></div>')+
 
     // Add new
-    '<button onclick="go(\'add-prop\')" style="background:#fff;border:1.5px solid #edeae4;border-radius:16px;padding:20px;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px">'+
+    '<button onclick="clearDraft();window._newHighlights=[];window._ogImage=null;go(\'add-prop\')" style="background:#fff;border:1.5px solid #edeae4;border-radius:16px;padding:20px;text-align:left;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px">'+
       '<div style="width:44px;height:44px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
       '<div>'+
@@ -3197,7 +3197,7 @@ function saveSettings(){
 function showOnboarding(){S._showOnboarding=true;showTab('home');}
 function hideOnboarding(){S._showOnboarding=false;showTab('home');}
 
-function goAddLibProp(){go('add-lib-prop');}
+function goAddLibProp(){clearDraft();window._libNewHighlights=[];window._libNewImage=null;go('add-lib-prop');}
 
 // ── ADD LIBRARY PROPERTY ──────────────────────────────────────────────────────
 function pgAddLibraryProp(){
