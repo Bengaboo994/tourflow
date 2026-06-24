@@ -151,9 +151,10 @@ exports.handler = async function(event) {
       /"price"\s*:\s*"?([\d\.]+)"?/,
       /"Price"\s*:\s*"?([\d\.]+)"?/,
       /itemprop="price"[^>]+content="([\d\.]+)"/i,
+      /\u20AC\s*([\d\s\.,']+)(?:\s|<)/,
       /(\d[\d\s\.]{4,})\s*EUR/i,
       /EUR\s*([\d\s\.,']+)/i,
-      /\u20AC\s*([\d\s\.,']+)(?:\s|<)/,
+      /([\d][\d\s]{4,})\s*kr(?:\s|<)/i,
     ]);
     price = cleanPrice(rawPrice);
 
@@ -171,7 +172,7 @@ exports.handler = async function(event) {
 
     // Sqm - find all matches, pick the largest valid one (avoids picking terrace/plot size)
     const sqmMatches = [];
-    const sqmPatterns = [/"buildingArea"\s*:\s*(\d+)/i, /(\d{2,4})\s*m[²2](?!\d)/gi];
+    const sqmPatterns = [/"buildingArea"\s*:\s*(\d+)/i, /(\d{2,4})\s*m[²2](?!\d)/gi, /(\d{2,4})\s*kvm(?!\d)/gi];
     for (const p of sqmPatterns) {
       let m; const re = new RegExp(p.source, p.flags.includes('g') ? p.flags : p.flags + 'g');
       while ((m = re.exec(html)) !== null) { const n = parseInt(m[1], 10); if (n >= 50 && n <= 2000) sqmMatches.push(n); }
@@ -183,7 +184,7 @@ exports.handler = async function(event) {
       try {
         const urlObj = new URL(url);
         const pathParts = urlObj.pathname.split('/').filter(Boolean);
-        const skip = /^(till-salu|for-sale|en-venta|resale|new-build|inmueble|property|properties|hitta-hem|lagenhet|radhus|villa|townhouse|penthouse|bungalow|finca|house|r\d+|en|es|sv|de|nl|spain|spanien|costa-blanca|costa-calida|costa-del-sol|\d+)$/i;
+        const skip = /^(till-salu|for-sale|en-venta|resale|new-build|inmueble|property|properties|hitta-hem|lagenhet|radhus|apartment|townhouse|penthouse|bungalow|finca|house|r\d+|en|es|sv|de|nl|spain|spanien|costa-blanca|costa-calida|costa-del-sol|\d+)$/i;
         // Take the last non-skipped segment (most specific location)
         const locationParts = pathParts.filter(p => !skip.test(p) && p.length > 2);
         const areaPart = locationParts[locationParts.length - 1];
