@@ -17,11 +17,13 @@ exports.handler = async function(event) {
       headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
         'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'sv,en;q=0.9'
+        'Accept-Language': 'sv,en;q=0.9',
+        'Accept-Charset': 'utf-8'
       },
       redirect: 'follow'
     });
-    const html = await res.text();
+    const buffer = await res.arrayBuffer();
+    const html = new TextDecoder('utf-8').decode(buffer);
 
     // ── HELPERS ──────────────────────────────────────────────────────────
     function og(prop) {
