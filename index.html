@@ -2628,44 +2628,66 @@ function pgOutput(){
     }
   });
   tlItems.push({label:'End',sub:'End of tour',type:'end'});
-  // ── NEW VERTICAL ITINERARY TIMELINE ─────────────────────────────────────
+  // ── MOCKUP-STYLE VERTICAL ITINERARY ─────────────────────────────────────
   var timelineHtml='';
   if(!isAg&&tlItems.length>1){
-    // Build itinerary rows
-    var itin=tlItems.map(function(tl,i){
-      var anchorId='tf-prop-'+i;
+    var propByNum={};
+    var pni=0;
+    sortedProps.forEach(function(pp){pni++;propByNum[pni]=pp;});
+
+    var itinRows=tlItems.map(function(tl,i){
       var isLast=tl.type==='end';
-      var dot,timeLabel,nameLabel,clickAttr='';
+      var lineEl=!isLast?'<div style="position:absolute;left:38px;top:64px;bottom:0;width:1.5px;background:rgba(201,161,74,.2)"></div>':'';
+
       if(tl.type==='prop'){
-        dot='<div style="width:28px;height:28px;border-radius:50%;background:#C9A14A;color:#071226;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(201,161,74,.35)">'+tl.num+'</div>';
-        timeLabel=tl.sub||'';
-        nameLabel=tl.label;
-        clickAttr=' onclick="document.getElementById(\'tf-sec-'+i+'\').scrollIntoView({behavior:\'smooth\',block:\'start\'})" style="cursor:pointer"';
+        var pp=propByNum[tl.num]||{};
+        var thumb=pp.ogImage
+          ?'<img src="'+pp.ogImage+'" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0"/>'
+          :'<div style="width:52px;height:52px;border-radius:10px;background:rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/></svg></div>';
+        var fmtPr=(function(){var pr=(pp.price||'').replace(/EUR/i,'').replace(/€/g,'').replace(/[^0-9]/g,'');return pr?'€'+parseInt(pr,10).toLocaleString('en-US'):'';})();
+        var propName=pp.area||pp.title||('Property '+tl.num);
+        var scrollId='tf-sec-'+i;
+        return '<div onclick="document.getElementById(\''+scrollId+'\').scrollIntoView({behavior:\'smooth\',block:\'start\'})" style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer">'+
+          lineEl+
+          '<div style="width:38px;flex-shrink:0;text-align:right">'+
+          (tl.sub?'<div style="font-size:12px;font-weight:700;color:#C9A14A">'+tl.sub+'</div>':'<div style="font-size:10px;color:rgba(255,255,255,.2)">—</div>')+
+          '</div>'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:#C9A14A;flex-shrink:0;box-shadow:0 0 0 3px rgba(201,161,74,.2)"></div>'+
+          '<div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:10px;min-width:0">'+
+          thumb+
+          '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Property '+tl.num+'</div>'+
+          '<div style="font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">'+propName+'</div>'+
+          (fmtPr?'<div style="font-size:12px;font-weight:700;color:#C9A14A;margin-top:2px">'+fmtPr+'</div>':'')+
+          '</div>'+
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
+          '</div></div>';
+
       } else if(tl.type==='ev'||tl.type==='mp'){
         var evIcon=tl.type==='mp'?'&#128205;':(getET(tl.evType).icon||'&#9749;');
-        dot='<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px">'+evIcon+'</div>';
-        timeLabel=tl.sub||'';
-        nameLabel=tl.label;
+        return '<div style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 0">'+
+          lineEl+
+          '<div style="width:38px;flex-shrink:0;text-align:right">'+
+          (tl.sub?'<div style="font-size:11px;color:rgba(255,255,255,.35)">'+tl.sub+'</div>':'')+
+          '</div>'+
+          '<div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0"></div>'+
+          '<div style="display:flex;align-items:center;gap:8px;padding:4px 0">'+
+          '<span style="font-size:16px">'+evIcon+'</span>'+
+          '<div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.6)">'+tl.label+'</div>'+
+          '</div></div>';
+
       } else {
-        // End
-        dot='<div style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/></svg></div>';
-        timeLabel='';
-        nameLabel='End of tour';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0 4px">'+
+          '<div style="width:38px;flex-shrink:0"></div>'+
+          '<div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);flex-shrink:0"></div>'+
+          '<div style="display:flex;align-items:center;gap:6px">'+
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>'+
+          '<div style="font-size:11px;color:rgba(255,255,255,.3)">End of tour</div>'+
+          '</div></div>';
       }
-      var lineEl=!isLast?'<div style="position:absolute;left:13px;top:28px;bottom:-4px;width:1.5px;background:rgba(201,161,74,.18)"></div>':'';
-      return '<div'+clickAttr+' style="display:flex;align-items:flex-start;gap:12px;padding:8px 0;position:relative">'+
-        lineEl+dot+
-        '<div style="padding-top:4px;min-width:0">'+
-        (timeLabel?'<div style="font-size:11px;font-weight:700;color:#C9A14A;letter-spacing:.04em;line-height:1;margin-bottom:2px">'+timeLabel+'</div>':'')+
-        '<div style="font-size:12px;color:rgba(255,255,255,'+(tl.type==='prop'?'.85':'.45')+');font-weight:'+(tl.type==='prop'?'500':'400')+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px">'+nameLabel+'</div>'+
-        '</div></div>';
     }).join('');
 
-    timelineHtml=
-      '<div style="padding:16px 20px 4px;border-bottom:1px solid rgba(255,255,255,.06)">'+
-      '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:12px">Today&#39;s Schedule</div>'+
-      itin+
-      '</div>';
+    timelineHtml='<div style="padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,.06)">'+itinRows+'</div>';
   };
 
   var orderedLocs=[];
