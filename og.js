@@ -1,6 +1,5 @@
 // Netlify function: /.netlify/functions/og
 // Fetches a property listing URL and extracts as much data as possible.
-// Supports: reveny.es, idealista.com, fotocasa.es, kyero.com, and generic OG tags.
 
 exports.handler = async function(event) {
   const headers = {
@@ -34,23 +33,15 @@ exports.handler = async function(event) {
       const m = html.match(new RegExp('<meta[^>]+name=["\']' + name + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'));
       return m ? m[1].trim() : null;
     }
-    function between(str, start, end) {
-      const si = str.indexOf(start);
-      if (si < 0) return null;
-      const ei = str.indexOf(end, si + start.length);
-      if (ei < 0) return null;
-      return str.slice(si + start.length, ei).trim();
-    }
     function firstMatch(patterns) {
       for (const p of patterns) {
         const m = html.match(p);
-        if (m) return m[1].trim();
+        if (m && m[1]) return m[1].trim();
       }
       return null;
     }
     function cleanPrice(s) {
       if (!s) return null;
-      // Keep only digits and separators, format nicely
       const num = parseInt(s.replace(/[^0-9]/g, ''), 10);
       if (!num || num < 10000) return null;
       return '€' + num.toLocaleString('en-US');
@@ -65,22 +56,31 @@ exports.handler = async function(event) {
     const image = og('image') || meta('twitter:image') || null;
 
     // ── TITLE ─────────────────────────────────────────────────────────────
-    let title = og('title') || meta('twitter:title') || null;
-    // Clean up common suffixes
-    if (title) {
-      title = title
-        .replace(/\s*[\|\-–]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria).*$/i, '')
-        .replace(/\s*(till salu|for sale|en venta|à vendre)\s*,?\s*/i, '')
-        .trim();
-      // If title is just area + location like "Altea Hills   Altea Hills, Alicante"
-      // take just the first part
-      title = title.split(/\s{2,}/)[0].trim();
+    // For reveny.es: OG title = "Detached Villa till salu, Villamartín   Villamartín, Alicante"
+    // We want just the location/area part, not the property type
+    let title = null;
+    const ogTitle = og('title') || '';
+
+    if (ogTitle) {
+      // Pattern: "Type till salu, AREA   AREA, Province" — extract AREA
+      const revenyMatch = ogTitle.match(/(?:till salu|for sale|en venta)[,\s]+([A-Za-záéíóúñÁÉÍÓÚÑ\s]+?)(?:\s{2,}|\s*,\s*[A-Z])/i);
+      if (revenyMatch) {
+        title = revenyMatch[1].trim();
+      } else {
+        // Generic: strip site name and property type prefix
+        title = ogTitle
+          .replace(/\s*[\|\-–]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria).*$/i, '')
+          .replace(/^(Detached Villa|Semi-detached|Apartment|Villa|Townhouse|Penthouse|Bungalow|Finca)\s+/i, '')
+          .replace(/\s*(till salu|for sale|en venta|à vendre)\s*,?\s*/i, '')
+          .split(/\s{2,}/)[0]
+          .trim();
+      }
     }
 
     // ── PRICE ─────────────────────────────────────────────────────────────
     const rawPrice = firstMatch([
       /(\d[\d\s\.]{4,})\s*EUR/i,
-      /€\s*([\d\s\.]+)/,
+      /€\s*([\d\s\.,']+)(?:\s|<)/,
       /"price"\s*:\s*"?([\d\.]+)"?/,
       /precio[^>]*>\s*([€\d\s\.]+)/i,
       /pris[^>]*>\s*([€\d\s\.]+)/i,
@@ -90,66 +90,73 @@ exports.handler = async function(event) {
     // ── BEDROOMS ─────────────────────────────────────────────────────────
     const rawRooms = firstMatch([
       /(\d+)\s*(?:sovrum|bedroom|dormitorio|chambre)/i,
+      /ob_bed[^"']*["'][^>]*>[\s\S]{0,30}?(\d+)/i,
       /"bedrooms"\s*:\s*(\d+)/i,
-      /ob_bed[^>]*>.*?(\d+)/i,
-      /class="[^"]*bed[^"]*"[^>]*>\s*(\d+)/i,
+      /class="[^"]*bed[^"]*"[^>]*>[\s\S]{0,20}?(\d+)/i,
     ]);
     const rooms = cleanNum(rawRooms);
 
     // ── BATHROOMS ─────────────────────────────────────────────────────────
     const rawBath = firstMatch([
-      /(\d+)\s*(?:[Bb]adrum|bathroom|ba[ñn]o|salle[s]?\s*de\s*bain)/i,
+      /(\d+)\s*[Bb]adrum/i,
+      /(\d+)\s*[Bb]athroom/i,
+      /(\d+)\s*[Bb]a[ñn]o/i,
+      /ob_bath[^"']*["'][^>]*>[\s\S]{0,30}?(\d+)/i,
       /"bathrooms"\s*:\s*(\d+)/i,
-      /ob_bath[^>]*>.*?(\d+)/i,
-      /class="[^"]*bath[^"]*"[^>]*>\s*(\d+)/i,
     ]);
     const bathrooms = cleanNum(rawBath);
 
     // ── BUILT SIZE ────────────────────────────────────────────────────────
+    // Must be a plausible property size: 30-2000 m²
+    // Avoid matching prices or reference numbers
     const rawSqm = firstMatch([
-      /(\d+)\s*m[²2]/i,
+      /(\d{2,4})\s*m[²2](?!\d)/i,          // 2-4 digit number followed by m² 
+      /ob_floorplan[^"']*["'][^>]*>[\s\S]{0,50}?(\d{2,4})\s*m/i,
       /"buildingArea"\s*:\s*(\d+)/i,
-      /ob_floorplan[^>]*>.*?(\d+)/i,
-      /construida[^>]*>.*?(\d+)/i,
+      /construida[:\s]+(\d{2,4})/i,
+      /superficie[:\s]+(\d{2,4})/i,
+      /area[:\s]+(\d{2,4})\s*m/i,
     ]);
-    const sqm = cleanNum(rawSqm);
+    // Validate: must be between 30 and 2000
+    let sqm = null;
+    if (rawSqm) {
+      const n = parseInt(rawSqm, 10);
+      if (n >= 30 && n <= 2000) sqm = String(n);
+    }
 
     // ── AREA / LOCATION ───────────────────────────────────────────────────
     let area = null;
-    // Try from OG title — reveny format: "Detached Villa till salu, Altea Hills   Altea Hills, Alicante"
-    const ogTitle = og('title') || '';
-    const areaFromTitle = ogTitle.match(/,\s*([A-Z][a-zA-Z\s]+?)\s{2,}/);
-    if (areaFromTitle) area = areaFromTitle[1].trim();
-    // Try from URL
-    if (!area) {
-      const urlArea = url.match(/\/([a-z-]+)\/r\d+/i);
-      if (urlArea) area = urlArea[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    // From OG title for reveny.es format
+    if (ogTitle) {
+      const areaMatch = ogTitle.match(/(?:till salu|for sale|en venta)[,\s]+([A-Za-záéíóúñÁÉÍÓÚÑ\s]+?)(?:\s{2,})/i);
+      if (areaMatch) area = areaMatch[1].trim();
     }
-    // Generic: look for location in meta description
+    // From URL path — but skip generic words
     if (!area) {
-      const desc = og('description') || meta('description') || '';
-      const locMatch = desc.match(/(?:in|en|i)\s+([A-Z][a-zA-Z\s,]+?)(?:\.|,|$)/);
-      if (locMatch) area = locMatch[1].trim();
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/').filter(Boolean);
+      // Skip parts that are just language codes, listing types, or reference numbers
+      const skip = /^(till-salu|for-sale|en-venta|inmueble|property|r\d+|en|es|sv|de|nl|\d+)$/i;
+      const areaPart = pathParts.find(p => !skip.test(p) && p.length > 2);
+      if (areaPart) area = areaPart.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
 
     // ── ADDRESS ───────────────────────────────────────────────────────────
+    // Only extract if it looks like a property address, not office address
+    // Skip if it's the same as known office addresses (Calle Niágara = Reveny office)
     let address = null;
-    const addrMatch = html.match(/(?:Calle|Avenida|Carrer|Urb|Urbanización|Plaza|C\.)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/i);
-    if (addrMatch) address = addrMatch[0].trim().slice(0, 60);
+    const officeAddresses = ['niágara', 'niagara', 'iiwi', 'guadalmina', 'primera llarga', 'långgatan'];
+    const addrMatches = html.matchAll(/(?:Calle|Avenida|Carrer|Urb\.?|Urbanización|Plaza|Paseo|C\.|Av\.)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/gi);
+    for (const m of addrMatches) {
+      const candidate = m[0].trim().slice(0, 60);
+      const isOffice = officeAddresses.some(o => candidate.toLowerCase().includes(o));
+      if (!isOffice) { address = candidate; break; }
+    }
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({
-        image,
-        title,
-        price,
-        rooms,
-        bathrooms,
-        sqm,
-        area,
-        address
-      })
+      body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address })
     };
 
   } catch (err) {
@@ -160,3 +167,4 @@ exports.handler = async function(event) {
     };
   }
 };
+
