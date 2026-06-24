@@ -19,12 +19,8 @@ body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:#2D2B28;ma
 .card{background:#fff;border-radius:14px;border:1px solid #edeae4;padding:16px;margin-bottom:14px}
 .lbl{font-size:10px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
 .pill{background:#f5f2ec;color:#6b6560;font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;display:inline-block}
-
-/* Loading */
 #loading{position:fixed;inset:0;background:#071226;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
 #error{display:none;padding:40px 24px;text-align:center}
-
-/* Property cards */
 .prop-card{border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07);margin-bottom:28px;border:1px solid #edeae4;background:#fff}
 .prop-img{height:280px;overflow:hidden;position:relative}
 .prop-img img{width:100%;height:100%;object-fit:cover}
@@ -32,33 +28,29 @@ body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:#2D2B28;ma
 .spec-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .spec-chip{display:flex;align-items:center;gap:4px;background:#f5f2ec;border:1px solid #edeae4;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;color:#2D2B28}
 .hl-chip{display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px;font-size:10px;font-weight:500;color:#6b6560;white-space:nowrap}
-
-/* Timeline */
-.timeline-wrap{background:#071226;padding:10px 20px 14px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)}
-.timeline{display:flex;align-items:flex-start;min-width:max-content}
-
-/* Footer */
 .footer{background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:170px}
 .closing{background:#071226;padding:36px 28px 32px;text-align:center;border-top:1px solid rgba(201,161,74,.15)}
+/* Sticky nav */
+#tf-sticky{position:sticky;top:0;z-index:50;background:rgba(252,251,247,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid #edeae4;padding:8px 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+#tf-sticky::-webkit-scrollbar{display:none}
+.snav-btn{flex-shrink:0;padding:5px 12px;border-radius:100px;border:1.5px solid #edeae4;background:#fff;font-family:inherit;font-size:11px;font-weight:600;color:#9e9a94;cursor:pointer;transition:all .2s;white-space:nowrap}
+.snav-btn.active{background:#071226;color:#C9A14A;border-color:#071226}
 </style>
 </head>
 <body>
 
-<!-- Loading splash -->
 <div id="loading">
   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:18px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
   <span style="font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:#fff;letter-spacing:.02em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
   <span style="font-size:13px;color:rgba(255,255,255,.4);margin-top:16px">Loading your viewing day...</span>
 </div>
 
-<!-- Error state -->
 <div id="error">
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
   <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:#2D2B28;margin-bottom:8px">Tour not found</div>
   <div style="font-size:13px;color:#9e9a94;line-height:1.6">This link may have expired or been removed. Please contact your agent for a new link.</div>
 </div>
 
-<!-- Main content -->
 <div id="main" style="display:none"></div>
 
 <script>
@@ -67,7 +59,6 @@ var SUPA_KEY='sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY';
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function fmtDate(d){if(!d)return'';try{return new Date(d+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});}catch(e){return d;}}
-function getDomain(url){try{return new URL(url).hostname.replace('www.','');}catch(e){return url||'';}}
 
 var ICON={
   'Walking distance to beach':'🌊','Pool':'🏊','Private pool':'🏊','Community pool':'🏊',
@@ -106,7 +97,7 @@ function render(tour){
   var lastTime=props.length>1?props[props.length-1].time:'';
   var pLen=props.length;
 
-  // ── TIMELINE ──────────────────────────────────────────────────────────
+  // ── TIMELINE ITEMS ────────────────────────────────────────────────────
   var tlItems=[];
   var tlAll=[];
   evs.forEach(function(ev){tlAll.push({t:ev.time||'',ev:ev});});
@@ -124,26 +115,63 @@ function render(tour){
   });
   tlItems.push({label:'End',sub:'End of tour',type:'end'});
 
-  var tlHtml=tlItems.length>1?
-    '<div class="timeline-wrap"><div class="timeline">'+
-    tlItems.map(function(tl,tli){
-      var isLast=tli===tlItems.length-1;
-      var dot=tl.type==='prop'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
-        :tl.type==='mp'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(201,161,74,.2);border:1.5px solid #C9A14A;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px">🏠</div>'
-        :tl.type==='ev'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px">'+(getET(tl.evType).icon||'📌')+'</div>'
-        :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
-      var line=!isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px"></div>':'';
-      var preLine=tli>0&&isLast?'<div style="flex:1;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;min-width:20px"></div>':'';
-      return'<div style="display:flex;align-items:flex-start;flex:'+(isLast?'0':'1')+'">'+preLine+
-        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">'+dot+
-        '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2;white-space:nowrap">'+tl.sub+'</div>'+
-        '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2;white-space:nowrap">'+tl.label+'</div>'+
-        '</div>'+line+'</div>';
-    }).join('')+
-    '</div></div>':'';
+  // ── MOCKUP-STYLE VERTICAL ITINERARY ──────────────────────────────────
+  var propByNum={};
+  var pni=0;
+  props.forEach(function(pp){pni++;propByNum[pni]=pp;});
+
+  var itinRows=tlItems.map(function(tl,i){
+    var isLast=tl.type==='end';
+    var lineEl=!isLast?'<div style="position:absolute;left:38px;top:56px;bottom:0;width:1.5px;background:rgba(201,161,74,.2)"></div>':'';
+
+    if(tl.type==='prop'){
+      var pp=propByNum[tl.num]||{};
+      var thumb=pp.ogImage
+        ?'<img src="'+esc(pp.ogImage)+'" style="width:52px;height:52px;border-radius:10px;object-fit:cover;flex-shrink:0"/>'
+        :'<div style="width:52px;height:52px;border-radius:10px;background:rgba(255,255,255,.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;color:rgba(255,255,255,.2)">'+tl.num+'</div>';
+      var fmtPr=(function(){var pr=(pp.price||'').replace(/EUR/i,'').replace(/\u20AC/g,'').replace(/[^0-9]/g,'');return pr?'\u20AC'+parseInt(pr,10).toLocaleString('en-US'):'';})();
+      var propName=pp.area||pp.title||('Property '+tl.num);
+      return '<div onclick="scrollTo(\'tf-sec-'+i+'\')" style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer">'+
+        lineEl+
+        '<div style="width:38px;flex-shrink:0;text-align:right">'+
+        (tl.sub?'<div style="font-size:12px;font-weight:700;color:#C9A14A">'+tl.sub+'</div>':'<div style="font-size:10px;color:rgba(255,255,255,.2)">—</div>')+
+        '</div>'+
+        '<div style="width:10px;height:10px;border-radius:50%;background:#C9A14A;flex-shrink:0;box-shadow:0 0 0 3px rgba(201,161,74,.2)"></div>'+
+        '<div style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:10px;min-width:0">'+
+        thumb+
+        '<div style="flex:1;min-width:0">'+
+        '<div style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Property '+tl.num+'</div>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px">'+propName+'</div>'+
+        (fmtPr?'<div style="font-size:12px;font-weight:700;color:#C9A14A;margin-top:2px">'+fmtPr+'</div>':'')+
+        '</div>'+
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
+        '</div></div>';
+
+    } else if(tl.type==='ev'||tl.type==='mp'){
+      var evIcon=tl.type==='mp'?'📍':(getET(tl.evType).icon||'📌');
+      return '<div style="position:relative;display:flex;align-items:center;gap:10px;padding:6px 0">'+
+        lineEl+
+        '<div style="width:38px;flex-shrink:0;text-align:right">'+
+        (tl.sub?'<div style="font-size:11px;color:rgba(255,255,255,.35)">'+tl.sub+'</div>':'')+
+        '</div>'+
+        '<div style="width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0"></div>'+
+        '<div style="display:flex;align-items:center;gap:8px;padding:4px 0">'+
+        '<span style="font-size:16px">'+evIcon+'</span>'+
+        '<div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.6)">'+tl.label+'</div>'+
+        '</div></div>';
+
+    } else {
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0 4px">'+
+        '<div style="width:38px;flex-shrink:0"></div>'+
+        '<div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);flex-shrink:0"></div>'+
+        '<div style="display:flex;align-items:center;gap:6px">'+
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,.3)">End of tour</div>'+
+        '</div></div>';
+    }
+  }).join('');
+
+  var tlHtml='<div style="padding:16px 20px 12px;border-bottom:1px solid rgba(255,255,255,.06)">'+itinRows+'</div>';
 
   // ── STATS BAR ─────────────────────────────────────────────────────────
   var statsBar='<div style="background:#071226;padding:10px 20px;display:flex;justify-content:space-around;border-bottom:1px solid rgba(255,255,255,.06)">'+
@@ -186,8 +214,8 @@ function render(tour){
   if(req.budget)reqLines.push(budgetLabels[req.budget]||req.budget);
   if(req.minrooms&&req.minrooms!=='studio')reqLines.push(req.minrooms+'+ bedrooms');
   if(req.type&&req.type.length){
-    var tl={apt:'Apartment',villa:'Villa',townhouse:'Townhouse',semidetached:'Semi-detached',quad:'Quad house',bungalow:'Bungalow',penthouse:'Penthouse'};
-    reqLines.push((Array.isArray(req.type)?req.type:[req.type]).map(function(t){return tl[t]||t;}).join(', '));
+    var tl2={apt:'Apartment',villa:'Villa',townhouse:'Townhouse',semidetached:'Semi-detached',quad:'Quad house',bungalow:'Bungalow',penthouse:'Penthouse'};
+    reqLines.push((Array.isArray(req.type)?req.type:[req.type]).map(function(t){return tl2[t]||t;}).join(', '));
   }
   mustHave.forEach(function(f){reqLines.push(f);});
   var reqHtml=reqLines.length?
@@ -197,11 +225,21 @@ function render(tour){
     reqLines.map(function(r){return'<span style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,.75)">✓ '+esc(r)+'</span>';}).join('')+
     '</div></div>':'';
 
-  // ── WELCOME MESSAGE ───────────────────────────────────────────────────
   var welcomeHtml=day.welcomeMsg?
     '<div style="padding:22px 22px 16px;border-top:1px solid rgba(255,255,255,.06)">'+
     '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">A personal note</div>'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>'+
+    '</div>':'';
+
+  // ── STICKY NAV ────────────────────────────────────────────────────────
+  var propItems=tlItems.filter(function(x){return x.type==='prop'||x.type==='ev';});
+  var stickyNav=propItems.length>2?
+    '<div id="tf-sticky">'+
+    propItems.map(function(tl,i){
+      var label=tl.type==='ev'?(getET(tl.evType).icon+' '+tl.label):(tl.sub||('Prop '+tl.num));
+      var targetIdx=tl.type==='prop'?tl.num-1:-1;
+      return'<button class="snav-btn" id="snav-'+i+'" onclick="scrollTo(\'tf-sec-'+targetIdx+'\')">'+label+'</button>';
+    }).join('')+
     '</div>':'';
 
   // ── PROPERTY ROWS ─────────────────────────────────────────────────────
@@ -210,37 +248,38 @@ function render(tour){
     if(item.k==='e'){
       var e=item.d, et=getET(e.type);
       if(e.type==='meetingpoint'){
-        return'<div style="background:#071226;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+        return'<div style="background:#071226;padding:11px 20px;margin-bottom:28px;border-radius:12px;display:flex;align-items:center;gap:12px">'+
           '<div style="font-size:20px">📍</div>'+
           '<div><div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
           '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
           (e.time?'<div style="font-size:11px;color:rgba(255,255,255,.4)">'+esc(e.time)+'</div>':'')+
           '</div></div>';
       }
-      return'<div style="padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #edeae4;background:'+et.col+'">'+
+      return'<div style="padding:12px 0;display:flex;align-items:center;gap:12px;border-bottom:1px solid #edeae4;margin-bottom:12px">'+
         '<span style="font-size:18px">'+et.icon+'</span>'+
         '<div>'+(e.time?'<span style="font-weight:700;font-size:13px;color:'+et.txt+'">'+esc(e.time)+'</span> ':'')+
         '<span style="font-size:13px;color:'+et.txt+';font-weight:600">'+esc(e.title||et.label)+'</span>'+
-        (e.note?'<span style="font-size:12px;color:'+et.txt+';opacity:.7"> · '+esc(e.note)+'</span>':'')+
+        (e.note?'<span style="font-size:12px;opacity:.7"> · '+esc(e.note)+'</span>':'')+
         '</div></div>';
     }
 
     var p=item.d; var idx=pi++;
-    var fmtPrice=(function(){var pr=(p.price||'').trim().replace(/EUR/i,'').replace(/€/g,'').replace(/kr$/,'').trim();if(!pr)return'';return'€'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US');})();
+    var fmtPrice=(function(){var pr=(p.price||'').trim().replace(/EUR/i,'').replace(/€/g,'').replace(/kr$/,'').trim();if(!pr)return'';return'\u20AC'+parseInt(pr.replace(/[^0-9]/g,''),10).toLocaleString('en-US');})();
     var hl=p.highlights||[];
     var displayArea=p.area||'';
     var street=p.address||'';
 
     var imgHtml=p.ogImage
-      ?'<div class="prop-img"><img src="'+esc(p.ogImage)+'" alt="Property"/>'+(p.topPick?'<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A14A,#d4a84b);border-radius:5px;padding:3px 8px;font-size:8px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.08em">⭐ Top Pick</div>':'')+'</div>'
-      :'<div style="height:80px;background:linear-gradient(135deg,#1a2535,#071226);position:relative;display:flex;align-items:center;justify-content:center">'+(p.topPick?'<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A14A,#d4a84b);border-radius:5px;padding:3px 8px;font-size:8px;font-weight:600;color:#fff;text-transform:uppercase">⭐ Top Pick</div>':'')+
+      ?'<div class="prop-img"><img src="'+esc(p.ogImage)+'" alt="Property"/>'+(p.topPick?'<div style="position:absolute;top:10px;left:10px;background:linear-gradient(90deg,#C9A14A,#d4a84b);border-radius:5px;padding:3px 8px;font-size:8px;font-weight:600;color:#fff;text-transform:uppercase">⭐ Top Pick</div>':'')+'</div>'
+      :'<div style="height:80px;background:linear-gradient(135deg,#1a2535,#071226);position:relative;display:flex;align-items:center;justify-content:center">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:rgba(201,161,74,.1)">'+(idx+1)+'</div></div>';
 
     var hlChips=hl.slice(0,8).map(function(h){
       return'<span class="hl-chip">'+(ICON[h]?'<span>'+ICON[h]+'</span> ':'')+esc(h)+'</span>';
     }).join('');
 
-    return'<div class="prop-card">'+
+    return'<div id="tf-sec-'+idx+'" style="scroll-margin-top:52px"></div>'+
+      '<div class="prop-card">'+
       imgHtml+
       '<div class="prop-body">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
@@ -274,7 +313,7 @@ function render(tour){
   var footer='<div class="footer">'+
     '<div style="flex:6;padding:26px 24px;display:flex;flex-direction:column;justify-content:center">'+
     '<div style="font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:12px">Property Consultant</div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:27px;color:#fff;font-weight:300;line-height:1.1;letter-spacing:-.2px;margin-bottom:4px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:27px;color:#fff;font-weight:300;line-height:1.1;margin-bottom:4px">'+esc(cfg.agent||cfg.agency||'Your Agent')+'</div>'+
     '<div style="font-size:11px;color:rgba(201,161,74,.55);font-style:italic;font-family:\'Cormorant Garamond\',serif;margin-bottom:18px">'+esc(cfg.agency||'Real Estate')+'</div>'+
     (wa?'<a href="'+wa+'" style="display:inline-flex;align-items:center;gap:9px;text-decoration:none;margin-bottom:9px">'+
     '<div style="width:26px;height:26px;border-radius:50%;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);display:flex;align-items:center;justify-content:center;font-size:13px">💬</div>'+
@@ -293,89 +332,76 @@ function render(tour){
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:19px;font-weight:300;color:rgba(255,255,255,.85);line-height:1.7;font-style:italic;margin-bottom:18px;max-width:280px;margin-left:auto;margin-right:auto">I hope one of these homes felt right.</div>'+
     '<div style="font-size:12px;color:rgba(255,255,255,.45);line-height:1.7;margin-bottom:22px;max-width:300px;margin-left:auto;margin-right:auto">Please feel free to contact me if you would like a second viewing or more information.</div>'+
     '<div style="width:24px;height:1px;background:rgba(201,161,74,.3);margin:0 auto 18px"></div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;font-weight:300;color:#C9A14A;letter-spacing:.02em">'+esc(cfg.agent||'Your Consultant')+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;font-weight:300;color:#C9A14A">'+esc(cfg.agent||'Your Consultant')+'</div>'+
     '</div>';
 
   // ── ASSEMBLE ──────────────────────────────────────────────────────────
   var html=
-    // Top nav
-    '<div style="padding:16px 18px 0;display:flex;align-items:center;justify-content:space-between;margin-bottom:0">'+
+    '<div style="padding:16px 18px 0;display:flex;align-items:center;margin-bottom:0">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
     '</div></div>'+
-
-    // Dark cover card
     '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:20px;overflow:hidden;margin:16px 18px 32px;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
-    statsBar+
-    tlHtml+
-    coverHdr+
-    welcomeHtml+
-    reqHtml+
+    statsBar+tlHtml+coverHdr+welcomeHtml+reqHtml+
     '</div>'+
-
-    // Property cards
-    '<div style="padding:0 18px">'+
-    rows+
-    '</div>'+
-
-    // Footer
-    footer+
-    closing+
-
-    // TourFlow credit
+    stickyNav+
+    '<div style="padding:0 18px">'+rows+'</div>'+
+    footer+closing+
     '<div style="text-align:center;padding:20px 0">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:13px;font-weight:400;color:#2D2B28;opacity:.18;letter-spacing:.04em">Tour<span style="font-style:italic">Flow</span></div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:13px;color:#2D2B28;opacity:.18">Tour<span style="font-style:italic">Flow</span></div>'+
     '</div>';
 
   document.getElementById('main').innerHTML=html;
   document.getElementById('main').style.display='block';
   document.getElementById('loading').style.display='none';
-
-  // Update page title
   if(c.name)document.title=c.name+'\'s Viewing Day — TourFlow';
+
+  // Scroll helper
+  window.scrollTo=function(id){
+    var el=document.getElementById(id);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  };
+
+  // IntersectionObserver for sticky nav
+  setTimeout(function(){
+    var sects=document.querySelectorAll('[id^="tf-sec-"]');
+    var btns=document.querySelectorAll('.snav-btn');
+    if(!sects.length||!btns.length)return;
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var idx=parseInt(e.target.id.replace('tf-sec-',''),10);
+          btns.forEach(function(b,i){
+            b.classList.toggle('active',i===idx);
+            if(i===idx)b.scrollIntoView({block:'nearest',inline:'center'});
+          });
+        }
+      });
+    },{threshold:0.3,rootMargin:'-50px 0px -60% 0px'});
+    sects.forEach(function(s){obs.observe(s);});
+  },400);
 }
 
-// ── LOAD TOUR ────────────────────────────────────────────────────────────────
+// ── LOAD ──────────────────────────────────────────────────────────────────────
 var params=new URLSearchParams(window.location.search);
 var publicId=params.get('id');
-
 if(!publicId){
   document.getElementById('loading').style.display='none';
   document.getElementById('error').style.display='block';
-} else {
-  // Try Supabase first
+}else{
   fetch(SUPA_URL+'/rest/v1/public_tours?public_id=eq.'+encodeURIComponent(publicId)+'&select=tour_data',{
-    headers:{
-      'apikey':SUPA_KEY,
-      'Authorization':'Bearer '+SUPA_KEY
-    }
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
   }).then(function(r){return r.json();})
   .then(function(data){
-    if(data&&data.length&&data[0].tour_data){
-      render(data[0].tour_data);
-    } else {
-      // Fallback to localStorage (for offline/demo)
-      try{
-        var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
-        var tour=store[publicId];
-        if(tour){render(tour);}
-        else{throw new Error('not found');}
-      }catch(e){
-        document.getElementById('loading').style.display='none';
-        document.getElementById('error').style.display='block';
-      }
-    }
+    if(data&&data.length&&data[0].tour_data){render(data[0].tour_data);}
+    else{throw new Error('not found');}
   }).catch(function(){
-    // Fallback to localStorage
     try{
       var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
       var tour=store[publicId];
       if(tour){render(tour);}
-      else{
-        document.getElementById('loading').style.display='none';
-        document.getElementById('error').style.display='block';
-      }
+      else{document.getElementById('loading').style.display='none';document.getElementById('error').style.display='block';}
     }catch(e){
       document.getElementById('loading').style.display='none';
       document.getElementById('error').style.display='block';
