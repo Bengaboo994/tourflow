@@ -2663,7 +2663,7 @@ function pgOutput(){
 
     timelineHtml=
       '<div style="padding:16px 20px 4px;border-bottom:1px solid rgba(255,255,255,.06)">'+
-      '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:12px">Today's Schedule</div>'+
+      '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:12px">Today&#39;s Schedule</div>'+
       itin+
       '</div>';
   };
@@ -3061,7 +3061,7 @@ function pgOutput(){
         var isEv=tl.type==='ev';
         var evIcon=isEv?(getET(tl.evType).icon||'&#9749;'):'';
         var targetIdx=isEv?-1:tl.num-1;
-        var clickTarget=isEv?'':" onclick="document.getElementById('tf-sec-"+targetIdx+"').scrollIntoView({behavior:'smooth',block:'start'})"";
+        var clickTarget=isEv?'':' onclick="document.getElementById(\'tf-sec-'+targetIdx+'\'). scrollIntoView({behavior:\'smooth\',block:\'start\'})"';
         return '<button id="tf-snav-'+i+'"'+clickTarget+' style="flex-shrink:0;display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:100px;border:1.5px solid #edeae4;background:#fff;font-family:inherit;font-size:11px;font-weight:600;color:#9e9a94;cursor:pointer;transition:all .2s;white-space:nowrap">'+
           (isEv?evIcon+' '+esc(tl.label):tl.sub||('Prop '+tl.num))+'</button>';
       }).join('')+
