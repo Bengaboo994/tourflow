@@ -2223,7 +2223,8 @@ function pgAddProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL *</label>'+
-    '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
+    '<input class="inp" id="ap-url" placeholder="https://www.realestatebyniklas.com/property/123"/>'+
+    '<p style="font-size:11px;color:#9e9a94;margin-top:6px;line-height:1.5">💡 Tip: Links from agency websites work best. If fetching fails, try the agent\'s direct listing URL instead of portals like Idealista.</p>'+
     '<div id="ap-og-status" style="margin-top:4px"></div>'+
     '<div style="font-size:11px;color:#9e9a94;margin-top:6px">Paste listing URL</div></div>'+
 
@@ -2469,11 +2470,12 @@ function pgEditProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL</label>'+
-    '<input class="inp" id="ep-url" '+v(p.url||'')+' placeholder="https://idealista.com/..."/>'+
+    '<input class="inp" id="ep-url" '+v(p.url||'')+' placeholder="https://www.realestatebyniklas.com/property/123"/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
     '<button id="ep-fetch-btn" onclick="fetchOg(document.getElementById(\'ep-url\').value,\'ep\')" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
     '<span id="ep-fetch-status" style="font-size:11px;color:#9e9a94"></span>'+
     '</div>'+
+    '<p style="font-size:11px;color:#9e9a94;margin-top:6px;line-height:1.5">💡 Tip: Links from agency websites work best. If fetching fails, try the agent\'s direct listing URL instead of portals like Idealista.</p>'+
     '</div>'+
 
     (sourceDayId?'<div class="card" style="margin-bottom:14px">'+
@@ -3241,11 +3243,12 @@ function pgAddLibraryProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL</label>'+
-    '<input class="inp" id="alp-url" placeholder="https://idealista.com/..."/>'+
+    '<input class="inp" id="alp-url" placeholder="https://www.realestatebyniklas.com/property/123"/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
     '<button id="alp-fetch-btn" onclick="fetchOg(document.getElementById(\'alp-url\').value,\'alp\')" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
     '<span id="alp-fetch-status" style="font-size:11px;color:#9e9a94"></span>'+
     '</div>'+
+    '<p style="font-size:11px;color:#9e9a94;margin-top:6px;line-height:1.5">💡 Tip: Links from agency websites work best. If fetching fails, try the agent\'s direct listing URL instead of portals like Idealista.</p>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
