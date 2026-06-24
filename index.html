@@ -2331,6 +2331,24 @@ function fetchOg(url, formPrefix) {
       fill(p + 'bath', data.bathrooms || '');
       fill(p + 'sqm', data.sqm || '');
 
+      // Highlights
+      if (data.highlights && data.highlights.length) {
+        if (formPrefix === 'ep') {
+          window._editHighlights = data.highlights;
+          var wrap = document.getElementById('ep-hl-wrap');
+          if (wrap) wrap.innerHTML = hlPickerHtml('__edit__', S.epid, window._editHighlights);
+        } else if (formPrefix === 'alp') {
+          window._libNewHighlights = data.highlights;
+          var wrap = document.getElementById('alp-hl-wrap');
+          if (wrap) wrap.innerHTML = hlPickerHtml('__lib__', '__lib__', window._libNewHighlights);
+        } else {
+          window._newHighlights = data.highlights;
+          var wrap = document.getElementById('ap-hl-wrap');
+          if (wrap) wrap.innerHTML = hlPickerHtml('__new__', '__new__', window._newHighlights);
+        }
+        filled.push('highlights');
+      }
+
       // Status
       var statusEl = document.getElementById(formPrefix + '-fetch-status');
       if (statusEl) {
