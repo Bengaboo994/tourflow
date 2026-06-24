@@ -52,101 +52,95 @@ exports.handler = async function(event) {
       return m ? m[0] : null;
     }
 
-    // ── IMAGE ─────────────────────────────────────────────────────────────
+    // ── IMAGE (always from OG) ────────────────────────────────────────────
     const image = og('image') || meta('twitter:image') || null;
 
-    // ── TITLE ─────────────────────────────────────────────────────────────
-    // For reveny.es: OG title = "Detached Villa till salu, Villamartín   Villamartín, Alicante"
-    // We want just the location/area part, not the property type
-    let title = null;
-    const ogTitle = og('title') || '';
+    // Declare variables for all fields
+    let title = null, price = null, rooms = null, bathrooms = null, sqm = null, area = null, address = null;
 
-    if (ogTitle) {
-      // Pattern: "Type till salu, AREA   AREA, Province" — extract AREA
-      const revenyMatch = ogTitle.match(/(?:till salu|for sale|en venta)[,\s]+([A-Za-záéíóúñÁÉÍÓÚÑ\s]+?)(?:\s{2,}|\s*,\s*[A-Z])/i);
-      if (revenyMatch) {
-        title = revenyMatch[1].trim();
-      } else {
-        // Generic: strip site name and property type prefix
-        title = ogTitle
-          .replace(/\s*[\|\-–]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria).*$/i, '')
-          .replace(/^(Detached Villa|Semi-detached|Apartment|Villa|Townhouse|Penthouse|Bungalow|Finca)\s+/i, '')
-          .replace(/\s*(till salu|for sale|en venta|à vendre)\s*,?\s*/i, '')
-          .split(/\s{2,}/)[0]
-          .trim();
-      }
+    // ── REVENY.ES SPECIFIC ────────────────────────────────────────────────
+    if (url.includes('reveny.es')) {
+      // Title from H1
+      const h1 = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
+      title = h1 ? h1[1].trim() : null;
+
+      // Price: "2.950.000EUR"
+      const revPrice = firstMatch([/(\d[\d\.]+)\s*EUR/i]);
+      price = cleanPrice(revPrice);
+
+      // Sqm: validate 30-2000
+      const revSqm = firstMatch([/(\d{2,4})\s*m[²2]/i]);
+      if (revSqm) { const n = parseInt(revSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+
+      // Rooms: "4 sovrum"
+      rooms = cleanNum(firstMatch([/(\d+)\s*sovrum/i]));
+
+      // Bathrooms: "6 Badrum"
+      bathrooms = cleanNum(firstMatch([/(\d+)\s*[Bb]adrum/i]));
+
+      // Area from OG title: "Detached Villa till salu, Villamartín   Villamartin, Alicante"
+      const ogT = og('title') || '';
+      const areaM = ogT.match(/,\s*([^,]+?)\s{2,}/);
+      area = areaM ? areaM[1].trim() : null;
+
+      // No address on reveny (seller privacy)
+      address = null;
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address })
+      };
     }
 
-    // ── PRICE ─────────────────────────────────────────────────────────────
+    // ── GENERIC FALLBACK ──────────────────────────────────────────────────
+    const ogTitle = og('title') || '';
+
+    // Title
+    if (ogTitle) {
+      title = ogTitle
+        .replace(/\s*[\|\-–]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria).*$/i, '')
+        .replace(/^(Detached Villa|Semi-detached|Apartment|Villa|Townhouse|Penthouse|Bungalow|Finca)\s+/i, '')
+        .replace(/\s*(till salu|for sale|en venta|à vendre)\s*,?\s*/i, '')
+        .split(/\s{2,}/)[0].trim();
+    }
+
+    // Price
     const rawPrice = firstMatch([
       /(\d[\d\s\.]{4,})\s*EUR/i,
       /€\s*([\d\s\.,']+)(?:\s|<)/,
       /"price"\s*:\s*"?([\d\.]+)"?/,
-      /precio[^>]*>\s*([€\d\s\.]+)/i,
-      /pris[^>]*>\s*([€\d\s\.]+)/i,
     ]);
-    const price = cleanPrice(rawPrice);
+    price = cleanPrice(rawPrice);
 
-    // ── BEDROOMS ─────────────────────────────────────────────────────────
-    const rawRooms = firstMatch([
-      /(\d+)\s*(?:sovrum|bedroom|dormitorio|chambre)/i,
-      /ob_bed[^"']*["'][^>]*>[\s\S]{0,30}?(\d+)/i,
+    // Bedrooms
+    rooms = cleanNum(firstMatch([
+      /(\d+)\s*(?:sovrum|bedroom|dormitorio)/i,
       /"bedrooms"\s*:\s*(\d+)/i,
-      /class="[^"]*bed[^"]*"[^>]*>[\s\S]{0,20}?(\d+)/i,
-    ]);
-    const rooms = cleanNum(rawRooms);
+    ]));
 
-    // ── BATHROOMS ─────────────────────────────────────────────────────────
-    const rawBath = firstMatch([
-      /(\d+)\s*[Bb]adrum/i,
-      /(\d+)\s*[Bb]athroom/i,
-      /(\d+)\s*[Bb]a[ñn]o/i,
-      /ob_bath[^"']*["'][^>]*>[\s\S]{0,30}?(\d+)/i,
+    // Bathrooms
+    bathrooms = cleanNum(firstMatch([
+      /(\d+)\s*(?:[Bb]adrum|bathroom|ba[ñn]o)/i,
       /"bathrooms"\s*:\s*(\d+)/i,
-    ]);
-    const bathrooms = cleanNum(rawBath);
+    ]));
 
-    // ── BUILT SIZE ────────────────────────────────────────────────────────
-    // Must be a plausible property size: 30-2000 m²
-    // Avoid matching prices or reference numbers
-    const rawSqm = firstMatch([
-      /(\d{2,4})\s*m[²2](?!\d)/i,          // 2-4 digit number followed by m² 
-      /ob_floorplan[^"']*["'][^>]*>[\s\S]{0,50}?(\d{2,4})\s*m/i,
-      /"buildingArea"\s*:\s*(\d+)/i,
-      /construida[:\s]+(\d{2,4})/i,
-      /superficie[:\s]+(\d{2,4})/i,
-      /area[:\s]+(\d{2,4})\s*m/i,
-    ]);
-    // Validate: must be between 30 and 2000
-    let sqm = null;
-    if (rawSqm) {
-      const n = parseInt(rawSqm, 10);
-      if (n >= 30 && n <= 2000) sqm = String(n);
-    }
+    // Sqm
+    const rawSqm = firstMatch([/(\d{2,4})\s*m[²2](?!\d)/i, /"buildingArea"\s*:\s*(\d+)/i]);
+    if (rawSqm) { const n = parseInt(rawSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
 
-    // ── AREA / LOCATION ───────────────────────────────────────────────────
-    let area = null;
-    // From OG title for reveny.es format
-    if (ogTitle) {
-      const areaMatch = ogTitle.match(/(?:till salu|for sale|en venta)[,\s]+([A-Za-záéíóúñÁÉÍÓÚÑ\s]+?)(?:\s{2,})/i);
-      if (areaMatch) area = areaMatch[1].trim();
-    }
-    // From URL path — but skip generic words
+    // Area from URL
     if (!area) {
       const urlObj = new URL(url);
       const pathParts = urlObj.pathname.split('/').filter(Boolean);
-      // Skip parts that are just language codes, listing types, or reference numbers
       const skip = /^(till-salu|for-sale|en-venta|inmueble|property|r\d+|en|es|sv|de|nl|\d+)$/i;
       const areaPart = pathParts.find(p => !skip.test(p) && p.length > 2);
       if (areaPart) area = areaPart.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     }
 
-    // ── ADDRESS ───────────────────────────────────────────────────────────
-    // Only extract if it looks like a property address, not office address
-    // Skip if it's the same as known office addresses (Calle Niágara = Reveny office)
-    let address = null;
+    // Address — skip known office addresses
     const officeAddresses = ['niágara', 'niagara', 'iiwi', 'guadalmina', 'primera llarga', 'långgatan'];
-    const addrMatches = html.matchAll(/(?:Calle|Avenida|Carrer|Urb\.?|Urbanización|Plaza|Paseo|C\.|Av\.)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/gi);
+    const addrMatches = html.matchAll(/(?:Calle|Avenida|Carrer|Urb\.?|Urbanización|Plaza|Paseo)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/gi);
     for (const m of addrMatches) {
       const candidate = m[0].trim().slice(0, 60);
       const isOffice = officeAddresses.some(o => candidate.toLowerCase().includes(o));
