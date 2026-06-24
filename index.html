@@ -1970,7 +1970,7 @@ function pgDayDetail(){
           '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
         '</div>'+
         '<div class="g2" style="margin:12px 0 10px">'+
-        '<div><label class="lbl">Time</label><input type="time" class="inp" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
+        '<div><label class="lbl">Time</label><input type="time" step="900" class="inp" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
         '<div><label class="lbl">Price</label><input class="inp" value="'+esc(p.price||'')+'" placeholder="Price" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)||this.value})"/></div></div>'+
         bf.map(function(f,fi){
           var isAddrField=f[1]==='address'&&bf[fi+1]&&bf[fi+1][1]==='area';
@@ -2064,7 +2064,7 @@ function pgDayDetail(){
     '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:14px">Add schedule item</div>'+
     '<div class="g2" style="margin-bottom:11px">'+
     '<div><label class="lbl">Type</label><select class="inp ins" id="ev-type">'+evOpts+'</select></div>'+
-    '<div><label class="lbl">Time</label><input type="time" class="inp ins" id="ev-time"/></div></div>'+
+    '<div><label class="lbl">Time</label><input type="time" step="900" class="inp ins" id="ev-time"/></div></div>'+
     '<div style="margin-bottom:10px"><label class="lbl">Title</label><input class="inp" id="ev-title" placeholder="e.g. Lunch at La Zenia Boulevard"/></div>'+
     '<div style="margin-bottom:14px"><label class="lbl">Note</label><input class="inp" id="ev-note" placeholder="e.g. Booked at Restaurante Sol"/></div>'+
     '<div style="margin-bottom:14px"><label class="lbl">Google Maps link</label><input class="inp" id="ev-maps" placeholder="https://maps.google.com/?q=..."/></div>'+
@@ -2220,7 +2220,7 @@ function pgAddProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
-    '<input type="time" class="inp" id="ap-time"/></div>'+
+    '<input type="time" step="900" class="inp" id="ap-time"/></div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
@@ -2421,7 +2421,7 @@ function pgEditProp(){
 
     (sourceDayId?'<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Viewing time</label>'+
-    '<input type="time" class="inp" id="ep-time" '+v(p.time||'')+'/></div>':'')+
+    '<input type="time" step="900" class="inp" id="ep-time" '+v(p.time||'')+'/></div>':'')+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
@@ -2573,26 +2573,21 @@ function pgOutput(){
   tlItems.push({label:'End',sub:'End of tour',type:'end'});
   var timelineHtml=!isAg&&tlItems.length>1?
     '<div style="background:#071226;padding:10px 20px 14px;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,.06)">'+
-    '<div style="display:flex;align-items:flex-start;min-width:max-content">'+
+    '<div style="position:relative;display:flex;align-items:flex-start;min-width:max-content">'+
+    // Single continuous line behind all nodes
+    '<div style="position:absolute;top:11px;left:12px;right:12px;height:1.5px;background:rgba(201,161,74,.25)"></div>'+
     tlItems.map(function(tl,tli){
-      var isLast=tli===tlItems.length-1;
-      var isFirst=tli===0;
       var dot=tl.type==='prop'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+tl.num+'</div>'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:#C9A14A;color:#071226;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1">'+tl.num+'</div>'
         :tl.type==='mp'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(201,161,74,.2);border:1.5px solid #C9A14A;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid #C9A14A;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>'
         :tl.type==='ev'
-        ?'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
-        :'<div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
-      // Wrap each node in a flex item that also contains the connecting line after it
-      // Structure: [node-col] [line?]
-      // The line is after every node except the last
-      var lineAfter=!isLast?'<div style="width:24px;height:1.5px;background:rgba(201,161,74,.25);margin-top:11px;flex:1;min-width:16px;align-self:flex-start"></div>':'';
-      return '<div style="display:flex;align-items:flex-start;'+(isLast?'':'flex:1;')+'">'+
-        '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0">'+dot+
+        ?'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;position:relative;z-index:1">'+(getET(tl.evType).icon||'&#128204;')+'</div>'
+        :'<div style="width:24px;height:24px;border-radius:50%;background:#071226;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative;z-index:1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>';
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;min-width:60px;padding:0 4px">'+dot+
         '<div style="font-size:8px;font-weight:500;color:#fff;text-align:center;line-height:1.2;white-space:nowrap">'+tl.sub+'</div>'+
         '<div style="font-size:7px;color:rgba(255,255,255,.35);text-align:center;line-height:1.2;white-space:nowrap">'+tl.label+'</div>'+
-        '</div>'+lineAfter+'</div>';
+        '</div>';
     }).join('')+
     '</div></div>':'';
 
@@ -2609,7 +2604,7 @@ function pgOutput(){
     if(item.k==="e"){
       var e=item.d, et=getET(e.type);
       if(et.isMeetingPoint){
-        return '<div style="background:#071226;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px">'+
+        return '<div style="background:#071226;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px;margin-bottom:28px;border-radius:12px">'+
           '<div style="width:28px;height:28px;border-radius:50%;background:rgba(201,161,74,.15);border:1px solid rgba(201,161,74,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px">&#128205;</div>'+
           '<div><div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:1px">Meeting Point</div>'+
           '<div style="font-size:14px;color:#fff;font-weight:500">'+esc(e.title||'Meeting Point')+'</div>'+
