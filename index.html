@@ -873,6 +873,15 @@ function driveTimeHtml(from,to){
 var HIGHLIGHTS=[["Location", "&#127958;", "Walking distance to beach"], ["Location", "&#128205;", "Prime location"], ["Location", "&#127807;", "Quiet area"], ["Location", "&#9971;", "Near golf"], ["Location", "&#127869;", "Close to amenities"], ["Features", "&#127946;", "Private pool"], ["Features", "&#127946;", "Community pool"], ["Features", "&#128664;", "Garage"], ["Features", "&#127754;", "Sea view"], ["Features", "&#9728;", "South facing"], ["Features", "&#127795;", "Large terrace"], ["Features", "&#127968;", "Private garden"], ["Features", "&#128273;", "Key ready"], ["Features", "&#128296;", "Recently renovated"], ["Features", "&#10024;", "Excellent condition"], ["Features", "&#128077;", "Good condition"], ["Features", "&#128078;", "Poor condition"], ["Value", "&#11088;", "Excellent value"], ["Value", "&#128200;", "Rental potential"], ["Value", "&#128293;", "Hot listing"], ["Lifestyle", "&#128106;", "Family friendly"], ["Lifestyle", "&#127860;", "Restaurants nearby"], ["Lifestyle", "&#127965;", "Holiday home potential"], ["Lifestyle", "&#127936;", "Everything within walking distance"],["Features","&#11014;","Lift"]];
 
 function toggleHighlight(dayId,propId,label){
+  if(dayId==='__edit__'){
+    window._editHighlights=window._editHighlights||[];
+    var ei=window._editHighlights.indexOf(label);
+    if(ei>=0)window._editHighlights.splice(ei,1);
+    else window._editHighlights.push(label);
+    var wrap=document.getElementById('ep-hl-wrap');
+    if(wrap)wrap.innerHTML=hlPickerHtml('__edit__',propId,window._editHighlights);
+    return;
+  }
   if(dayId==='__lib__'){
     window._libNewHighlights=window._libNewHighlights||[];
     var ni=window._libNewHighlights.indexOf(label);
@@ -2409,6 +2418,9 @@ function pgEditProp(){
   window._editHighlights=(p.highlights||[]).slice();
   var backScreen=sourceDayId?'day-detail':'properties';
 
+  // Use __edit__ as dayId so toggleHighlight updates _editHighlights without re-rendering
+  var hlDayId='__edit__';
+
   return '<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
     '<button class="bback" onclick="go(\''+backScreen+'\')">&larr; Cancel</button>'+
@@ -2440,7 +2452,7 @@ function pgEditProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
-    '<div id="ep-hl-wrap">'+hlPickerHtml(sourceDayId,S.epid,window._editHighlights)+'</div>'+
+    '<div id="ep-hl-wrap">'+hlPickerHtml(hlDayId,S.epid,window._editHighlights)+'</div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
     '<textarea class="inp" id="ep-rec" rows="2" style="resize:none;line-height:1.5">'+esc(p.agentRec||'')+'</textarea></div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
