@@ -46,7 +46,7 @@ exports.handler = async function(event) {
       if (!s) return null;
       const num = parseInt(s.replace(/[^0-9]/g, ''), 10);
       if (!num || num < 10000) return null;
-      return '€' + num.toLocaleString('en-US');
+      return '\u20AC' + num.toLocaleString('en-US');
     }
     function cleanNum(s) {
       if (!s) return null;
@@ -253,4 +253,3 @@ exports.handler = async function(event) {
     };
   }
 };
-
