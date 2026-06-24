@@ -93,7 +93,48 @@ exports.handler = async function(event) {
       };
     }
 
-    // ── GENERIC FALLBACK ──────────────────────────────────────────────────
+    // ── IDEALISTA.COM SPECIFIC ────────────────────────────────────────────
+    if (url.includes('idealista.com')) {
+      // Title: area + city from OG title
+      // "Casa o chalet independiente en venta en Calle Covadonga, Los Balcones, Torrevieja"
+      const ogT = og('title') || '';
+      const ideaArea = ogT.match(/(?:en venta en [^,]+,\s*)([^,—]+)/i);
+      title = ideaArea ? ideaArea[1].trim() : null;
+      if (!title) {
+        // Fallback: take city from description
+        const descCity = (og('description') || '').match(/Torrevieja|Orihuela|Alicante|Benidorm|Altea|Calpe|Jávea|Murcia|Cartagena/i);
+        title = descCity ? descCity[0] : null;
+      }
+
+      // Price: "1.800.000 €"
+      const ideaPrice = firstMatch([/(\d[\d\.]+)\s*€/, /(\d[\d\.]+)\s*EUR/i]);
+      price = cleanPrice(ideaPrice);
+
+      // Sqm: "900 m² construidos"
+      const ideaSqm = firstMatch([/(\d{2,4})\s*m[²2]\s*construidos/i, /(\d{2,4})\s*m[²2]/i]);
+      if (ideaSqm) { const n = parseInt(ideaSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+
+      // Rooms: "7 habitaciones"
+      rooms = cleanNum(firstMatch([/(\d+)\s*habitacion/i, /(\d+)\s*hab\./i]));
+
+      // Bathrooms: "7 baños"
+      bathrooms = cleanNum(firstMatch([/(\d+)\s*ba[ñn]o/i]));
+
+      // Area: neighbourhood + city
+      const areaMatch = (og('description') || '').match(/en\s+([A-Za-záéíóúñÁÉÍÓÚÑ\s\-]+),\s*(Torrevieja|Orihuela|Alicante|Benidorm|Altea|Calpe|Jávea|Murcia)/i);
+      area = areaMatch ? areaMatch[1].trim().split(' - ')[0] : null;
+      if (!area) area = title;
+
+      // Address: "Calle Covadonga"
+      const addrM = (og('title') || '').match(/en venta en\s+([^,]+)/i);
+      address = addrM ? addrM[1].trim() : null;
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address })
+      };
+    }
     const ogTitle = og('title') || '';
 
     // Title
