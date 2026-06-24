@@ -2034,8 +2034,9 @@ function pgDayDetail(){
         '<div style="border-top:1px solid var(--fog);margin-top:14px;padding-top:14px;display:flex;align-items:center;justify-content:space-between">'+
         '<div style="font-size:12px;font-weight:600;color:var(--ink)">Status</div>'+
         '<div style="display:flex;gap:8px">'+
-        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:false});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.sold?'var(--fog)':'#C9A14A')+';background:'+(p.sold?'var(--mist)':'#071226')+';color:'+(p.sold?'var(--slate)':'#C9A14A')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Active</button>'+
-        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:true});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.sold?'#C9A14A':'var(--fog)')+';background:'+(p.sold?'#071226':'var(--mist)')+';color:'+(p.sold?'#C9A14A':'var(--slate)')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Sold</button>'+
+        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:false,reserved:false});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(!p.sold&&!p.reserved?'#C9A14A':'var(--fog)')+';background:'+(!p.sold&&!p.reserved?'#071226':'var(--mist)')+';color:'+(!p.sold&&!p.reserved?'#C9A14A':'var(--slate)')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Active</button>'+
+        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:false,reserved:true});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.reserved?'#C9A14A':'var(--fog)')+';background:'+(p.reserved?'#071226':'var(--mist)')+';color:'+(p.reserved?'#C9A14A':'var(--slate)')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Reserved</button>'+
+        '<button onclick="updProp(\''+day.id+'\',\''+p.id+'\',{sold:true,reserved:false});render()" style="padding:5px 12px;border-radius:100px;border:1.5px solid '+(p.sold?'#C9A14A':'var(--fog)')+';background:'+(p.sold?'#071226':'var(--mist)')+';color:'+(p.sold?'#C9A14A':'var(--slate)')+';font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">Sold</button>'+
         '</div></div>'+
         '</div>';
     }
