@@ -4,7 +4,7 @@
 exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json; charset=utf-8'
   };
 
   const url = event.queryStringParameters && event.queryStringParameters.url;
@@ -29,11 +29,11 @@ exports.handler = async function(event) {
     function og(prop) {
       const m = html.match(new RegExp('<meta[^>]+property=["\']og:' + prop + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
              || html.match(new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:' + prop + '["\']', 'i'));
-      return m ? m[1].trim() : null;
+      return m ? decodeHtmlEntities(m[1].trim()) : null;
     }
     function meta(name) {
       const m = html.match(new RegExp('<meta[^>]+name=["\']' + name + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'));
-      return m ? m[1].trim() : null;
+      return m ? decodeHtmlEntities(m[1].trim()) : null;
     }
     function firstMatch(patterns) {
       for (const p of patterns) {
@@ -41,6 +41,21 @@ exports.handler = async function(event) {
         if (m && m[1]) return m[1].trim();
       }
       return null;
+    }
+    function decodeHtmlEntities(s) {
+      if (!s) return s;
+      return s
+        .replace(/&raquo;/gi, '\u00BB')
+        .replace(/&laquo;/gi, '\u00AB')
+        .replace(/&amp;/gi, '&')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#039;/gi, "'")
+        .replace(/&apos;/gi, "'")
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+        .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
     }
     function cleanPrice(s) {
       if (!s) return null;
@@ -55,19 +70,16 @@ exports.handler = async function(event) {
     }
 
     // ── HIGHLIGHT DETECTION ───────────────────────────────────────────────
-    // Maps keywords found in HTML to TourFlow highlight chips
     function detectHighlights(text) {
       const t = text.toLowerCase();
       const found = [];
       const rules = [
-        // Location
         [['beach', 'playa', 'strand', 'beachfront', 'walking distance to beach', 'beläget vid stranden', 'nära stranden'], 'Walking distance to beach'],
         [['prime location', 'prime area', 'privileged', 'privilegiada', 'exclusive area', 'prime position'], 'Prime location'],
         [['quiet', 'tranquil', 'tranquila', 'lugnt', 'peaceful', 'privat läge'], 'Quiet area'],
         [['golf', 'golf course', 'campo de golf', 'golfbana'], 'Near golf'],
         [['amenities', 'restaurant', 'shops', 'shopping', 'comercios', 'restaurantes'], 'Close to amenities'],
-        // Features
-        [['private pool', 'piscina privada', 'privat pool', 'privat pool', 'egen pool', 'heated pool', 'infinity pool'], 'Private pool'],
+        [['private pool', 'piscina privada', 'privat pool', 'egen pool', 'heated pool', 'infinity pool'], 'Private pool'],
         [['community pool', 'piscina comunitaria', 'gemensam pool'], 'Community pool'],
         [['garage', 'garaje', 'garaget', 'parking'], 'Garage'],
         [['sea view', 'sea views', 'vistas al mar', 'havsutsikt', 'panoramic sea', 'ocean view', 'mediterranean view'], 'Sea view'],
@@ -75,14 +87,12 @@ exports.handler = async function(event) {
         [['large terrace', 'covered terrace', 'terraza', 'terrass', 'solarium', 'private terrace'], 'Large terrace'],
         [['private garden', 'garden', 'jardín', 'trädgård', 'landscaped'], 'Private garden'],
         [['key ready', 'move-in ready', 'llave en mano', 'inflyttningsklar', 'ready to move'], 'Key ready'],
-        [['renovated', 'renovated', 'renoverad', 'reformed', 'reformada', 'newly renovated'], 'Recently renovated'],
+        [['renovated', 'renoverad', 'reformed', 'reformada', 'newly renovated'], 'Recently renovated'],
         [['excellent condition', 'perfect condition', 'utmärkt skick', 'immaculate'], 'Excellent condition'],
         [['good condition', 'good state', 'buen estado', 'bra skick'], 'Good condition'],
         [['lift', 'elevator', 'ascensor', 'hiss'], 'Lift'],
-        // Value
         [['rental', 'rental income', 'alquiler', 'uthyrning', 'investment potential'], 'Rental potential'],
         [['excellent value', 'great value', 'price reduced', 'reduced price', 'bargain'], 'Excellent value'],
-        // Lifestyle
         [['family', 'family-friendly', 'familiar', 'barnvänlig'], 'Family friendly'],
         [['restaurants nearby', 'near restaurants', 'restaurantes cercanos'], 'Restaurants nearby'],
         [['holiday', 'vacation home', 'holiday home', 'semesterbostad'], 'Holiday home potential'],
@@ -97,140 +107,93 @@ exports.handler = async function(event) {
       return found;
     }
 
-    // ── IMAGE (always from OG) ────────────────────────────────────────────
+    // ── IMAGE ─────────────────────────────────────────────────────────────
     const image = og('image') || meta('twitter:image') || null;
 
-    // Declare variables for all fields
     let title = null, price = null, rooms = null, bathrooms = null, sqm = null, area = null, address = null;
 
     // ── REVENY.ES SPECIFIC ────────────────────────────────────────────────
     if (url.includes('reveny.es')) {
-      // Title from H1
       const h1 = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
       title = h1 ? h1[1].trim() : null;
-
-      // Price: "2.950.000EUR"
       const revPrice = firstMatch([/(\d[\d\.]+)\s*EUR/i]);
       price = cleanPrice(revPrice);
-
-      // Sqm: validate 30-2000
       const revSqm = firstMatch([/(\d{2,4})\s*m[²2]/i]);
       if (revSqm) { const n = parseInt(revSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
-
-      // Rooms: "4 sovrum"
       rooms = cleanNum(firstMatch([/(\d+)\s*sovrum/i]));
-
-      // Bathrooms: "6 Badrum"
       bathrooms = cleanNum(firstMatch([/(\d+)\s*[Bb]adrum/i]));
-
-      // Area from OG title: "Detached Villa till salu, Villamartín   Villamartin, Alicante"
       const ogT = og('title') || '';
       const areaM = ogT.match(/,\s*([^,]+?)\s{2,}/);
       area = areaM ? areaM[1].trim() : null;
-
-      // No address on reveny (seller privacy)
       address = null;
-
       const highlights = detectHighlights(html);
-
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights })
-      };
+      return { statusCode: 200, headers, body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights }) };
     }
 
-    // ── IDEALISTA.COM SPECIFIC ────────────────────────────────────────────
-    if (url.includes('idealista.com')) {
-      // Title: area + city from OG title
-      // "Casa o chalet independiente en venta en Calle Covadonga, Los Balcones, Torrevieja"
-      const ogT = og('title') || '';
-      const ideaArea = ogT.match(/(?:en venta en [^,]+,\s*)([^,—]+)/i);
-      title = ideaArea ? ideaArea[1].trim() : null;
-      if (!title) {
-        // Fallback: take city from description
-        const descCity = (og('description') || '').match(/Torrevieja|Orihuela|Alicante|Benidorm|Altea|Calpe|Jávea|Murcia|Cartagena/i);
-        title = descCity ? descCity[0] : null;
-      }
+    // ── GENERIC PARSER ────────────────────────────────────────────────────
 
-      // Price: "1.800.000 €"
-      const ideaPrice = firstMatch([/(\d[\d\.]+)\s*€/, /(\d[\d\.]+)\s*EUR/i]);
-      price = cleanPrice(ideaPrice);
-
-      // Sqm: "900 m² construidos"
-      const ideaSqm = firstMatch([/(\d{2,4})\s*m[²2]\s*construidos/i, /(\d{2,4})\s*m[²2]/i]);
-      if (ideaSqm) { const n = parseInt(ideaSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
-
-      // Rooms: "7 habitaciones"
-      rooms = cleanNum(firstMatch([/(\d+)\s*habitacion/i, /(\d+)\s*hab\./i]));
-
-      // Bathrooms: "7 baños"
-      bathrooms = cleanNum(firstMatch([/(\d+)\s*ba[ñn]o/i]));
-
-      // Area: neighbourhood + city
-      const areaMatch = (og('description') || '').match(/en\s+([A-Za-záéíóúñÁÉÍÓÚÑ\s\-]+),\s*(Torrevieja|Orihuela|Alicante|Benidorm|Altea|Calpe|Jávea|Murcia)/i);
-      area = areaMatch ? areaMatch[1].trim().split(' - ')[0] : null;
-      if (!area) area = title;
-
-      // Address: "Calle Covadonga"
-      const addrM = (og('title') || '').match(/en venta en\s+([^,]+)/i);
-      address = addrM ? addrM[1].trim() : null;
-
-      const highlights = detectHighlights(html);
-
-      return {
-        statusCode: 200,
-        headers,
-        body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights })
-      };
-    }
-    const ogTitle = og('title') || '';
-
-    // Title
+    // Title: clean OG title from HTML entities, site names, property type prefixes
+    const ogTitle = og('title') || '';  // og() already decodes entities
     if (ogTitle) {
       title = ogTitle
-        .replace(/\s*[\|\-–]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria).*$/i, '')
-        .replace(/^(Detached Villa|Semi-detached|Apartment|Villa|Townhouse|Penthouse|Bungalow|Finca)\s+/i, '')
+        .replace(/\s*[\|\-–]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria|Movr|Skandia|SkandiaMäklarna|Costa Blanca).*$/i, '')
+        .replace(/\s*[»›]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria|Movr|Skandia|SkandiaMäklarna).*$/i, '')
+        .replace(/^(Resale|Detached Villa|Semi-detached|Apartment|Villa|Townhouse|Penthouse|Bungalow|Finca)\s*[»›|\-]?\s*/i, '')
         .replace(/\s*(till salu|for sale|en venta|à vendre)\s*,?\s*/i, '')
-        .split(/\s{2,}/)[0].trim();
+        .replace(/\s*[»›]\s*/g, ', ')
+        .replace(/\s*\|\s*/g, ', ')
+        .replace(/,\s*,/g, ',')
+        .trim();
     }
 
-    // Price
+    // Price: try JSON-LD first, then common patterns
     const rawPrice = firstMatch([
-      /(\d[\d\s\.]{4,})\s*EUR/i,
-      /€\s*([\d\s\.,']+)(?:\s|<)/,
       /"price"\s*:\s*"?([\d\.]+)"?/,
+      /"Price"\s*:\s*"?([\d\.]+)"?/,
+      /itemprop="price"[^>]+content="([\d\.]+)"/i,
+      /(\d[\d\s\.]{4,})\s*EUR/i,
+      /EUR\s*([\d\s\.,']+)/i,
+      /\u20AC\s*([\d\s\.,']+)(?:\s|<)/,
     ]);
     price = cleanPrice(rawPrice);
 
     // Bedrooms
     rooms = cleanNum(firstMatch([
-      /(\d+)\s*(?:sovrum|bedroom|dormitorio)/i,
       /"bedrooms"\s*:\s*(\d+)/i,
+      /(\d+)\s*(?:sovrum|bedroom|dormitorio|hab\.)/i,
     ]));
 
     // Bathrooms
     bathrooms = cleanNum(firstMatch([
-      /(\d+)\s*(?:[Bb]adrum|bathroom|ba[ñn]o)/i,
       /"bathrooms"\s*:\s*(\d+)/i,
+      /(\d+)\s*(?:[Bb]adrum|bathroom|ba[ñn]o)/i,
     ]));
 
-    // Sqm
-    const rawSqm = firstMatch([/(\d{2,4})\s*m[²2](?!\d)/i, /"buildingArea"\s*:\s*(\d+)/i]);
-    if (rawSqm) { const n = parseInt(rawSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+    // Sqm - find all matches, pick the largest valid one (avoids picking terrace/plot size)
+    const sqmMatches = [];
+    const sqmPatterns = [/"buildingArea"\s*:\s*(\d+)/i, /(\d{2,4})\s*m[²2](?!\d)/gi];
+    for (const p of sqmPatterns) {
+      let m; const re = new RegExp(p.source, p.flags.includes('g') ? p.flags : p.flags + 'g');
+      while ((m = re.exec(html)) !== null) { const n = parseInt(m[1], 10); if (n >= 50 && n <= 2000) sqmMatches.push(n); }
+    }
+    if (sqmMatches.length > 0) sqm = String(Math.max(...sqmMatches));
 
-    // Area from URL
+    // Area: extract from URL path — skip generic segments, take the most specific location part
     if (!area) {
-      const urlObj = new URL(url);
-      const pathParts = urlObj.pathname.split('/').filter(Boolean);
-      const skip = /^(till-salu|for-sale|en-venta|inmueble|property|r\d+|en|es|sv|de|nl|\d+)$/i;
-      const areaPart = pathParts.find(p => !skip.test(p) && p.length > 2);
-      if (areaPart) area = areaPart.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      try {
+        const urlObj = new URL(url);
+        const pathParts = urlObj.pathname.split('/').filter(Boolean);
+        const skip = /^(till-salu|for-sale|en-venta|resale|new-build|inmueble|property|properties|hitta-hem|lagenhet|radhus|villa|townhouse|penthouse|bungalow|finca|house|r\d+|en|es|sv|de|nl|spain|spanien|costa-blanca|costa-calida|costa-del-sol|\d+)$/i;
+        // Take the last non-skipped segment (most specific location)
+        const locationParts = pathParts.filter(p => !skip.test(p) && p.length > 2);
+        const areaPart = locationParts[locationParts.length - 1];
+        if (areaPart) area = areaPart.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      } catch(e) {}
     }
 
-    // Address — skip known office addresses
-    const officeAddresses = ['niágara', 'niagara', 'iiwi', 'guadalmina', 'primera llarga', 'långgatan'];
-    const addrMatches = html.matchAll(/(?:Calle|Avenida|Carrer|Urb\.?|Urbanización|Plaza|Paseo)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/gi);
+    // Address — skip known office addresses and generic words
+    const officeAddresses = ['niágara', 'niagara', 'iiwi', 'guadalmina', 'primera llarga', 'långgatan', 'and villamartin'];
+    const addrMatches = html.matchAll(/(?:Calle|Avenida|Carrer|Urb\.?|Urbanización|Paseo)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/gi);
     for (const m of addrMatches) {
       const candidate = m[0].trim().slice(0, 60);
       const isOffice = officeAddresses.some(o => candidate.toLowerCase().includes(o));
