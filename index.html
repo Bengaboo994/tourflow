@@ -1736,8 +1736,20 @@ function pgClientDetail(){
     '<button class="bback" onclick="showTab(\'clients\')">&#8592; All clients</button>'+
     '<div style="display:flex;gap:14px;align-items:center;margin-bottom:20px">'+
     '<div style="width:52px;height:52px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:22px;color:var(--brass);flex-shrink:0">'+esc(initials(c.name))+'</div>'+
-    '<div style="flex:1"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
-    '<div style="font-size:13px;color:var(--slate)">'+esc(c.phone||"")+'</div></div>'+
+    '<div style="flex:1">'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:var(--ink)">'+esc(c.name)+'</div>'+
+    '<div style="font-size:13px;color:var(--slate);margin-bottom:'+(c.req&&c.req.buyerReadiness?'8':'0')+'px">'+esc(c.phone||"")+'</div>'+
+    (c.req&&c.req.buyerReadiness?(function(){
+      var b=getBR(c.req.buyerReadiness);
+      if(!b)return'';
+      return'<div style="display:inline-flex;align-items:center;gap:10px;background:'+b.bg+';border:1px solid '+b.col+'66;border-radius:100px;padding:6px 14px;margin-top:4px">'+
+        '<span style="width:8px;height:8px;border-radius:50%;background:'+b.col+';display:inline-block;flex-shrink:0"></span>'+
+        '<span style="font-size:12px;font-weight:500;color:'+b.col+'">'+b.label+'</span>'+
+        '<span style="width:1px;height:12px;background:'+b.col+'44;display:inline-block"></span>'+
+        '<span style="font-size:11px;color:'+b.col+';font-weight:500">'+b.v+' / 5</span>'+
+        '</div>';
+    })():'')+
+    '</div>'+
     '<button class="btn btn-sm" style="background:#071226;color:#C9A14A" onclick="go(\'edit-client\')">Edit</button>'+
     '<button class="bico" onclick="doDeleteClient()">&times;</button></div>'+
     '<div class="card" style="margin-bottom:18px">'+
