@@ -404,7 +404,7 @@ function checkExistingSession(){
       localStorage.setItem('tf-has-account','1');
       hideAuthGate();
       refreshSubscriptionStatus();
-      render();
+      cloudLoad(function(){render();});
     }
   });
   supa.auth.onAuthStateChange(function(event,session){
@@ -412,9 +412,12 @@ function checkExistingSession(){
       currentUser=session.user;
       localStorage.setItem('tf-has-account','1');
       hideAuthGate();
-      resumePendingAction();
       refreshSubscriptionStatus();
-      render();
+      // Load cloud data first, then resume + render
+      cloudLoad(function(){
+        resumePendingAction();
+        render();
+      });
     }else if(event==='SIGNED_OUT'){
       currentUser=null;
       S.isPremium=false;
@@ -507,7 +510,10 @@ function topNav(){
     '</div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
+    '<div style="position:relative">'+
     '<button onclick="toggleAccountMenu()" style="width:30px;height:30px;border-radius:50%;background:#071226;border:2px solid '+acct.ring+';color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-family:inherit">'+initials+'</button>'+
+    (currentUser?'<span style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:#22c55e;border:1.5px solid #FCFBF7"></span>':'')+
+    '</div>'+
     '</div>'+
     '<div id="account-menu" style="display:none;position:absolute;top:38px;right:0;background:#FCFBF7;border:1px solid #edeae4;border-radius:12px;padding:14px;width:220px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:500">'+
     menuBody+
@@ -1042,7 +1048,126 @@ function uploadExistingPropImg(input,dayId,propId){
   reader.readAsDataURL(file);
 }
 
-function persist(){save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});}
+function persist(){
+  // Always save locally first (instant, offline-safe)
+  save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+  // Then sync to Supabase if logged in
+  if(currentUser)cloudSync();
+}
+
+// ── CLOUD SYNC ────────────────────────────────────────────────────────────────
+var _syncTimer=null;
+function cloudSync(){
+  // Debounce — wait 1.5s after last change before syncing
+  clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(function(){_doCloudSync();},1500);
+}
+
+function _upsert(table,rows){
+  if(!rows||!rows.length)return Promise.resolve();
+  return fetch(SUPA_URL+'/rest/v1/'+table+'?on_conflict=id',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':SUPA_KEY,
+      'Authorization':'Bearer '+SUPA_KEY,
+      'Prefer':'resolution=merge-duplicates'
+    },
+    body:JSON.stringify(rows)
+  });
+}
+
+function _deleteRows(table,ids){
+  if(!ids||!ids.length)return Promise.resolve();
+  return fetch(SUPA_URL+'/rest/v1/'+table+'?id=in.('+ids.map(function(i){return'"'+i+'"';}).join(',')+')',{
+    method:'DELETE',
+    headers:{
+      'apikey':SUPA_KEY,
+      'Authorization':'Bearer '+SUPA_KEY
+    }
+  });
+}
+
+function _doCloudSync(){
+  if(!currentUser||!supa)return;
+  var uid=currentUser.id;
+
+  // Sync clients
+  var clientRows=S.clients.map(function(c){return{id:c.id,user_id:uid,data:c,updated_at:new Date().toISOString()};});
+  _upsert('agent_clients',clientRows).catch(function(e){console.error('Sync clients failed:',e);});
+
+  // Sync days
+  var dayRows=S.days.map(function(d){return{id:d.id,user_id:uid,data:d,updated_at:new Date().toISOString()};});
+  _upsert('agent_days',dayRows).catch(function(e){console.error('Sync days failed:',e);});
+
+  // Sync library
+  var libRows=(S.library||[]).map(function(p){return{id:p.id,user_id:uid,data:p,updated_at:new Date().toISOString()};});
+  if(libRows.length)_upsert('agent_library',libRows).catch(function(e){console.error('Sync library failed:',e);});
+
+  // Sync config
+  fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':SUPA_KEY,
+      'Authorization':'Bearer '+SUPA_KEY,
+      'Prefer':'resolution=merge-duplicates'
+    },
+    body:JSON.stringify([{user_id:uid,data:S.cfg,updated_at:new Date().toISOString()}])
+  }).catch(function(e){console.error('Sync cfg failed:',e);});
+}
+
+// Load all data from Supabase after login
+function cloudLoad(onDone){
+  if(!currentUser||!supa){if(onDone)onDone();return;}
+  var uid=currentUser.id;
+  var done=0;var total=4;
+  function check(){done++;if(done>=total&&onDone)onDone();}
+
+  // Clients
+  fetch(SUPA_URL+'/rest/v1/agent_clients?user_id=eq.'+uid+'&select=data',{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(rows&&rows.length){
+      S.clients=rows.map(function(r){return r.data;});
+      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+    }
+    check();
+  }).catch(function(){check();});
+
+  // Days
+  fetch(SUPA_URL+'/rest/v1/agent_days?user_id=eq.'+uid+'&select=data',{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(rows&&rows.length){
+      S.days=rows.map(function(r){return r.data;});
+      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+    }
+    check();
+  }).catch(function(){check();});
+
+  // Library
+  fetch(SUPA_URL+'/rest/v1/agent_library?user_id=eq.'+uid+'&select=data',{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(rows&&rows.length){
+      S.library=rows.map(function(r){return r.data;});
+      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+    }
+    check();
+  }).catch(function(){check();});
+
+  // Config
+  fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid+'&select=data',{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  }).then(function(r){return r.json();}).then(function(rows){
+    if(rows&&rows.length&&rows[0].data){
+      S.cfg=Object.assign({},S.cfg,rows[0].data);
+      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+    }
+    check();
+  }).catch(function(){check();});
+}
 
 // ── FORM AUTOSAVE ─────────────────────────────────────────────────────────────
 // Saves all input/select/textarea values to localStorage when user types,
@@ -1188,10 +1313,23 @@ function updateClient(cid){
   // mustHave and plus are updated live via toggleClientFeature
   persist();clearDraft();go('client-detail');
 }
-function delClient(id){S.clients=S.clients.filter(function(c){return c.id!==id;});S.days=S.days.filter(function(d){return d.clientId!==id;});persist();}
+function delClient(id){
+  S.clients=S.clients.filter(function(c){return c.id!==id;});
+  var removedDays=S.days.filter(function(d){return d.clientId===id;}).map(function(d){return d.id;});
+  S.days=S.days.filter(function(d){return d.clientId!==id;});
+  persist();
+  if(currentUser){
+    _deleteRows('agent_clients',[id]);
+    if(removedDays.length)_deleteRows('agent_days',removedDays);
+  }
+}
 function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();return d.id;}
 function updateDay(id,ch){S.days=S.days.map(function(d){return d.id===id?Object.assign({},d,ch):d;});persist();}
-function delDay(id){S.days=S.days.filter(function(d){return d.id!==id;});persist();}
+function delDay(id){
+  S.days=S.days.filter(function(d){return d.id!==id;});
+  persist();
+  if(currentUser)_deleteRows('agent_days',[id]);
+}
 function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();}
 function updProp(did,pid,ch){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.map(function(p){return p.id===pid?Object.assign({},p,ch):p;})}):d;});persist();}
 function delProp(did,pid){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.filter(function(p){return p.id!==pid;})}):d;});persist();}
@@ -3203,6 +3341,7 @@ function removeFromLibrary(pid){
   });
   S.library=(S.library||[]).filter(function(x){return x.id!==pid;});
   persist();
+  if(currentUser)_deleteRows('agent_library',[pid]);
   render();
 }
 
