@@ -2903,60 +2903,60 @@ function pgOutput(){
 
     var tlRows=tlAll.map(function(item,idx2){
       var notLast=idx2<tlAll.length-1;
-      var lineEl=notLast?"<div style='position:absolute;left:9px;top:22px;bottom:-16px;width:1.5px;background:linear-gradient(to bottom,rgba(201,161,74,.5),rgba(201,161,74,.1))'></div>":"";
+      var lineEl=notLast?"<div style='position:absolute;left:9px;top:24px;bottom:-20px;width:1px;background:linear-gradient(to bottom,rgba(201,161,74,.35),rgba(201,161,74,.08))'></div>":"";
       if(item.pp){
         var pp=item.pp;
         var fmtPr2=fmtPriceStr(pp);
         var propArea2=pp.area||"";
         var scrollId="tf-sec-"+(item.num-1);
-        return "<div onclick='tfScrollTo(\"" +scrollId+ "\")' style='position:relative;display:flex;align-items:flex-start;gap:12px;padding:0 0 16px;cursor:pointer'>"+
+        return "<div onclick='tfScrollTo(\"" +scrollId+ "\")' style='position:relative;display:flex;align-items:center;gap:14px;padding:14px 0;cursor:pointer;border-bottom:1px solid #f5f2ec'>"+
           lineEl+
-          "<div style='flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;width:20px'>"+
-          "<div style='width:20px;height:20px;border-radius:50%;background:#C9A14A;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#071226;flex-shrink:0'>"+item.num+"</div>"+
-          (pp.time?"<div style='font-size:10px;font-weight:700;color:#C9A14A;white-space:nowrap;letter-spacing:.01em'>"+esc(pp.time)+"</div>":"")+
+          "<div style='flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;width:22px'>"+
+          "<div style='width:22px;height:22px;border-radius:50%;background:#C9A14A;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#071226;flex-shrink:0;letter-spacing:-.3px'>"+item.num+"</div>"+
+          (pp.time?"<div style='font-size:11px;font-weight:700;color:#C9A14A;white-space:nowrap;letter-spacing:.01em'>"+esc(pp.time)+"</div>":"")+
           "</div>"+
-          "<div style='flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#071226;border:2px solid rgba(201,161,74,.35);display:flex;align-items:center;justify-content:center'>"+propIconSvg+"</div>"+
-          "<div style='flex:1;min-width:0;padding-top:6px'>"+
-          "<div style='font-family:Cormorant Garamond,serif;font-size:17px;font-weight:400;color:#2D2B28;line-height:1.2;margin-bottom:2px'>"+esc(pp.title||propArea2||("Property "+item.num))+"</div>"+
-          "<div style='font-size:11px;color:#9e9a94'>"+
+          "<div style='flex-shrink:0;width:44px;height:44px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.25);display:flex;align-items:center;justify-content:center'>"+propIconSvg+"</div>"+
+          "<div style='flex:1;min-width:0;padding-top:0'>"+
+          "<div style='font-family:Cormorant Garamond,serif;font-size:18px;font-weight:400;color:#1a1a1a;line-height:1.15;margin-bottom:3px;letter-spacing:-.1px'>"+esc(pp.title||propArea2||("Property "+item.num))+"</div>"+
+          "<div style='font-size:11px;color:#9e9a94;letter-spacing:.01em'>"+
           (propArea2?esc(propArea2)+(fmtPr2?" · ":""):"")+
           (fmtPr2?"<span style='color:#C9A14A;font-weight:600'>"+fmtPr2+"</span>":"")+
           "</div></div>"+
-          "<svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#c8bfb0' stroke-width='2' stroke-linecap='round' style='flex-shrink:0;margin-top:10px'><path d='M9 18l6-6-6-6'/></svg>"+
+          "<svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#d4cdc5' stroke-width='1.5' stroke-linecap='round' style='flex-shrink:0;margin-right:-2px'><path d='M9 18l6-6-6-6'/></svg>"+
           "</div>";
       } else {
         var ev=item.ev;
         var evIcon2=evIconMap[ev.type]||evIconMap["meeting"];
         var typeLabel2=typeLabels[ev.type]||"Stop";
-        return "<div style='position:relative;display:flex;align-items:flex-start;gap:12px;padding:0 0 16px'>"+
+        return "<div style='position:relative;display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f5f2ec'>"+
           lineEl+
-          "<div style='flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;width:20px'>"+
+          "<div style='flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;width:22px'>"+
           "<div style='width:14px;height:14px;border-radius:50%;background:rgba(201,161,74,.15);border:1.5px solid rgba(201,161,74,.3);flex-shrink:0'></div>"+
-          (ev.time?"<div style='font-size:10px;color:#9e9a94;white-space:nowrap'>"+esc(ev.time)+"</div>":"")+
+          (ev.time?"<div style='font-size:11px;color:#9e9a94;white-space:nowrap;font-weight:500'>"+esc(ev.time)+"</div>":"")+
           "</div>"+
-          "<div style='flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#071226;border:2px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center'>"+evIcon2+"</div>"+
-          "<div style='flex:1;min-width:0;padding-top:5px'>"+
-          "<div style='font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px'>"+typeLabel2+"</div>"+
-          "<div style='font-family:Cormorant Garamond,serif;font-size:17px;font-weight:400;color:#2D2B28;line-height:1.2'>"+esc(ev.title||typeLabel2)+"</div>"+
+          "<div style='flex-shrink:0;width:44px;height:44px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center'>"+evIcon2+"</div>"+
+          "<div style='flex:1;min-width:0;padding-top:0'>"+
+          "<div style='font-size:8px;font-weight:700;color:#b8b0a5;text-transform:uppercase;letter-spacing:.16em;margin-bottom:3px'>"+typeLabel2+"</div>"+
+          "<div style='font-family:Cormorant Garamond,serif;font-size:18px;font-weight:400;color:#1a1a1a;line-height:1.15;margin-bottom:2px;letter-spacing:-.1px'>"+esc(ev.title||typeLabel2)+"</div>"+
           (ev.note?"<div style='font-size:11px;color:#9e9a94;margin-top:1px'>"+esc(ev.note)+"</div>":"")+
-          "</div><svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#c8bfb0' stroke-width='2' stroke-linecap='round' style='flex-shrink:0;margin-top:10px'><path d='M9 18l6-6-6-6'/></svg>"+
+          "</div><svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#d4cdc5' stroke-width='1.5' stroke-linecap='round' style='flex-shrink:0;margin-right:-2px'><path d='M9 18l6-6-6-6'/></svg>"+
           "</div>";
       }
     }).join("");
 
-    var endRow="<div style='display:flex;align-items:flex-start;gap:12px;padding:0 0 4px'>"+
-      "<div style='flex-shrink:0;width:20px;display:flex;flex-direction:column;align-items:center;gap:3px'>"+
-      "<div style='width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(201,161,74,.2);background:rgba(201,161,74,.05);flex-shrink:0'></div>"+
+    var endRow="<div style='display:flex;align-items:center;gap:14px;padding:20px 0 6px'>"+
+      "<div style='flex-shrink:0;width:22px;display:flex;flex-direction:column;align-items:center;gap:2px'>"+
+      "<div style='width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(201,161,74,.25);background:transparent;flex-shrink:0'></div>"+
       (lastTime?"<div style='font-size:10px;color:#9e9a94;white-space:nowrap'>"+esc(lastTime)+"</div>":"")+
       "</div>"+
-      "<div style='flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#071226;border:2px solid rgba(201,161,74,.15);display:flex;align-items:center;justify-content:center'>"+endIconSvg+"</div>"+
-      "<div style='flex:1;padding-top:5px'>"+
-      "<div style='font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.12em;margin-bottom:2px'>Tour Complete</div>"+
-      (lastTime?"<div style='font-size:13px;color:#9e9a94'>Estimated finish "+esc(lastTime)+"</div>":"")+
+      "<div style='flex-shrink:0;width:44px;height:44px;border-radius:50%;background:rgba(201,161,74,.06);border:1px solid rgba(201,161,74,.15);display:flex;align-items:center;justify-content:center'>"+endIconSvg+"</div>"+
+      "<div style='flex:1;padding-top:0'>"+
+      "<div style='font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:3px'>Tour Complete</div>"+
+      (lastTime?"<div style='font-family:Cormorant Garamond,serif;font-size:15px;color:#9e9a94;font-style:italic'>Estimated finish "+esc(lastTime)+"</div>":"")+
       "</div></div>";
 
-    journeyCard="<div style='background:#fff;border-radius:18px;border:1px solid #edeae4;padding:18px 18px 14px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.04)'>"+
-      "<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:16px'>Your Viewing Journey</div>"+
+    journeyCard="<div style='background:#fff;border-radius:18px;border:1px solid #edeae4;padding:0 18px 4px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.04)'>"+
+      "<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;padding:18px 0 14px;border-bottom:1px solid #f5f2ec;margin-bottom:0'>Your Viewing Journey</div>"+
       tlRows+endRow+
       "</div>";
   }
@@ -3072,11 +3072,14 @@ function pgOutput(){
   })();
 
   var closingSection=!isAg?
-    "<div style='background:#071226;padding:36px 28px 32px;text-align:center;border-top:1px solid rgba(201,161,74,.15)'>"+
-    "<div style='font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.26em;margin-bottom:16px'>Thank You For Today</div>"+
-    "<div style='font-family:Cormorant Garamond,serif;font-size:19px;font-weight:300;color:rgba(255,255,255,.85);line-height:1.7;font-style:italic;margin-bottom:18px;max-width:280px;margin-left:auto;margin-right:auto'>I hope one of these homes felt right.</div>"+
-    "<div style='width:24px;height:1px;background:rgba(201,161,74,.3);margin:0 auto 18px'></div>"+
-    "<div style='font-family:Cormorant Garamond,serif;font-size:15px;font-weight:300;color:#C9A14A;letter-spacing:.02em'>"+esc(cfg.agent||"Your Consultant")+"</div>"+
+    "<div style='background:#071226;padding:52px 32px 48px;text-align:center;border-top:1px solid rgba(201,161,74,.12)'>"+
+    "<div style='width:32px;height:1px;background:rgba(201,161,74,.3);margin:0 auto 28px'></div>"+
+    "<div style='font-size:8px;font-weight:600;color:rgba(201,161,74,.55);text-transform:uppercase;letter-spacing:.28em;margin-bottom:20px'>Thank You For Today</div>"+
+    "<div style='font-family:Cormorant Garamond,serif;font-size:26px;font-weight:300;color:rgba(255,255,255,.9);line-height:1.6;font-style:italic;margin-bottom:10px;max-width:300px;margin-left:auto;margin-right:auto'>I hope one of these homes felt right.</div>"+
+    "<div style='font-size:12px;color:rgba(255,255,255,.3);line-height:1.8;margin-bottom:36px;max-width:260px;margin-left:auto;margin-right:auto'>Feel free to reach out if you would like a second viewing or have any questions.</div>"+
+    "<div style='width:20px;height:1px;background:rgba(201,161,74,.2);margin:0 auto 20px'></div>"+
+    "<div style='font-family:Cormorant Garamond,serif;font-size:17px;font-weight:300;color:#C9A14A;letter-spacing:.04em'>"+esc(cfg.agent||"Your Consultant")+"</div>"+
+    (cfg.agency?"<div style='font-size:10px;color:rgba(255,255,255,.2);letter-spacing:.1em;margin-top:5px'>"+esc(cfg.agency)+"</div>":"")+
     "</div>":"";
 
   var printStyle="<style id='ps'>@media print{.bback,.tog,.ban,.btn,.btn-g,.nav,.hdr{display:none!important}.wrap{padding:0!important}body{background:#fff!important;max-width:100%!important}div{break-inside:avoid}}</style>";
