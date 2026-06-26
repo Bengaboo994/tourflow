@@ -1862,6 +1862,7 @@ function pgPickClient(){
     '</div></div>';
 }
 function tfScroll(el){var t=document.getElementById(el.getAttribute('data-target'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}
+function tfScrollTo(id){var t=document.getElementById(id);if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}
 function selectBR(idPrefix,val){
   window['_br_'+idPrefix]=val;
   var btns=document.querySelectorAll('[data-brid="'+idPrefix+'"]');
@@ -2846,118 +2847,87 @@ function pgOutput(){
     var propByNum={};var pni=0;
     sortedProps.forEach(function(pp){pni++;propByNum[pni]=pp;});
 
-    // Ordinal labels for property stops
     var ordinals=['First viewing','Second viewing','Third viewing','Fourth viewing','Fifth viewing','Sixth viewing','Seventh viewing','Eighth viewing','Ninth viewing','Tenth viewing'];
 
-    // Build rows
-    var itinRows=tlItems.map(function(tl,i){
-      var isLast=tl.type==='end';
-      // Vertical gold line — connects all but last item
-      var lineEl=!isLast
-        ?'<div style="position:absolute;left:11px;top:24px;bottom:-12px;width:1px;background:linear-gradient(to bottom,rgba(201,161,74,.6),rgba(201,161,74,.15))"></div>'
-        :'';
+    // Build merged sorted list
+    var tlAll=[];
+    (day.events||[]).forEach(function(ev){tlAll.push({t:ev.time||'',ev:ev});});
+    var propNum=0;
+    sortedProps.forEach(function(pp){propNum++;tlAll.push({t:pp.time||'',pp:pp,num:propNum});});
+    tlAll.sort(function(a,b){return(a.t||'zz').localeCompare(b.t||'zz');});
 
-      if(tl.type==='prop'){
-        var pp=propByNum[tl.num]||{};
+    // Event icon map — dark circle icons matching reference
+    var evIconMap={
+      meetingpoint:'<svg width="18" height="18" viewBox="0 0 24 24" fill="#C9A14A" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>',
+      lunch:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 00-5 5v6h4"/><path d="M18 21v-1"/></svg>',
+      coffee:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
+      drive:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+      pickup:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+      meeting:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>',
+      other:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+    };
+    var propIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="#C9A14A" xmlns="http://www.w3.org/2000/svg"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>';
+    var endIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>';
+
+    var itinRows=tlAll.map(function(item,idx){
+      var isLast=(idx===tlAll.length-1);
+      var lineEl=!isLast?'<div style="position:absolute;left:19px;top:44px;bottom:-2px;width:2px;background:linear-gradient(to bottom,#C9A14A,rgba(201,161,74,.2))"></div>':'';
+
+      if(item.pp){
+        var pp=item.pp;
+        var scrollId='tf-sec-'+(item.num-1);
         var fmtPr=(function(){
-          var pr=(pp.price||'').replace(/EUR/i,'').replace(/\u20AC/g,'').replace(/[^0-9]/g,'');
-          return pr?'\u20AC'+parseInt(pr,10).toLocaleString('en-US'):'';
+          var pr=(pp.price||'').replace(/[^0-9]/g,'');
+          return pr?'€'+parseInt(pr,10).toLocaleString('en-US'):'';
         })();
-        var propTitle=pp.title||(pp.area?pp.area:'Property '+tl.num);
-        var propArea=pp.area||'';
-        var scrollId='tf-sec-'+(tl.num-1);
-        var ordLabel=ordinals[tl.num-1]||(tl.num+'th viewing');
-        var thumb=pp.ogImage
-          ?'<img src="'+pp.ogImage+'" style="width:100%;height:100%;object-fit:cover;border-radius:12px"/>'
-          :'<div style="width:100%;height:100%;background:rgba(255,255,255,.04);border-radius:12px;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.3)" stroke-width="1.5" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>';
-
-        return '<div style="position:relative;display:flex;gap:14px;padding-bottom:20px;cursor:pointer" onclick="tfScroll(this)" data-target="'+scrollId+'">'+
+        var subtitle=[pp.area,fmtPr].filter(Boolean).join(' • ');
+        return '<div style="position:relative;display:flex;align-items:center;gap:14px;padding:10px 0;cursor:pointer" onclick="tfScrollTo(\"'+scrollId+'\")">'+ 
           lineEl+
-          // Time column
-          '<div style="width:44px;flex-shrink:0;text-align:right;padding-top:3px">'+
-          (tl.sub?'<div style="font-size:13px;font-weight:700;color:#C9A14A;letter-spacing:.01em">'+tl.sub+'</div>':'<div style="font-size:11px;color:rgba(255,255,255,.2)">—</div>')+
-          (tl.sub?'<div style="font-size:8px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;margin-top:1px">'+ordLabel+'</div>':'')+
+          '<div style="font-size:13px;font-weight:700;color:#C9A14A;width:40px;flex-shrink:0;text-align:right">'+esc(item.t)+'</div>'+
+          '<div style="width:38px;height:38px;border-radius:50%;background:#071226;border:2px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+propIcon+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:15px;font-weight:500;color:#1a1a1a;line-height:1.2">'+esc(pp.title||pp.area||'Property '+item.num)+'</div>'+
+          (subtitle?'<div style="font-size:12px;color:#9e9a94;margin-top:2px">'+esc(subtitle)+'</div>':'')+
           '</div>'+
-          // Gold dot
-          '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:4px">'+
-          '<div style="width:14px;height:14px;border-radius:50%;background:#C9A14A;box-shadow:0 0 0 3px rgba(201,161,74,.15),0 0 12px rgba(201,161,74,.3);flex-shrink:0"></div>'+
-          '</div>'+
-          // Property card
-          '<div style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;overflow:hidden;min-width:0">'+
-          // Image row
-          '<div style="height:90px;overflow:hidden;position:relative">'+thumb+'</div>'+
-          // Info
-          '<div style="padding:10px 12px 12px">'+
-          '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px">'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;font-weight:400;color:#fff;line-height:1.2;letter-spacing:-.1px">'+propTitle+'</div>'+
-          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:2px"><path d="M9 18l6-6-6-6"/></svg>'+
-          '</div>'+
-          (propArea?'<div style="display:flex;align-items:center;gap:4px;margin-bottom:6px"><svg width="9" height="9" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg><span style="font-size:11px;color:rgba(255,255,255,.45)">'+propArea+'</span></div>':'')+
-          (fmtPr?'<div style="font-size:15px;font-weight:700;color:#C9A14A;font-family:\'Cormorant Garamond\',serif;margin-bottom:6px">'+fmtPr+'</div>':'')+
-          ((pp.rooms||pp.bathrooms||pp.sqm)?'<div style="display:flex;gap:10px">'+
-            (pp.rooms?'<span style="font-size:10px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:3px">&#x1F6CF;&#xFE0F; '+pp.rooms+'</span>':'')+
-            (pp.bathrooms?'<span style="font-size:10px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:3px">&#x1F6C1; '+pp.bathrooms+'</span>':'')+
-            (pp.sqm?'<span style="font-size:10px;color:rgba(255,255,255,.4)">'+pp.sqm+' m\u00B2</span>':'')+
-          '</div>':'')+
-          '</div>'+
-          '</div>'+
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
           '</div>';
 
-      } else if(tl.type==='ev'||tl.type==='mp'){
-        var evIcons={meetingpoint:'&#128205;',lunch:'&#127869;',coffee:'&#9749;',drive:'&#128663;',pickup:'&#128663;',meeting:'&#129309;',hotel:'&#127970;',other:'&#128204;',stop:'&#128204;'};
-        var evIcon=evIcons[tl.evType]||evIcons[tl.type]||'&#128204;';
-        if(tl.type==='mp')evIcon='&#128205;';
-        var evNote='';
-        // Find the event note
-        var matchEv=(day.events||[]).find(function(ev){return ev.title===tl.label||esc(ev.title)===tl.label;});
-        if(matchEv&&matchEv.note)evNote=matchEv.note;
-
-        return '<div style="position:relative;display:flex;gap:14px;padding-bottom:18px">'+
+      } else if(item.ev){
+        var ev=item.ev;
+        var isMp=ev.type==='meetingpoint';
+        var icon=evIconMap[ev.type]||evIconMap.other;
+        var evLabel=isMp?'MEETING POINT':(ev.type==='coffee'?'COFFEE BREAK':ev.type==='lunch'?'LUNCH':ev.type==='drive'?'DRIVE':'EVENT');
+        var evTitle=ev.title||(isMp?'Meeting Point':ev.type);
+        return '<div style="position:relative;display:flex;align-items:center;gap:14px;padding:10px 0">'+
           lineEl+
-          '<div style="width:44px;flex-shrink:0;text-align:right;padding-top:3px">'+
-          (tl.sub?'<div style="font-size:12px;color:rgba(255,255,255,.3)">'+tl.sub+'</div>':'')+
+          '<div style="font-size:13px;font-weight:700;color:#C9A14A;width:40px;flex-shrink:0;text-align:right">'+(ev.time?esc(ev.time):'')+'</div>'+
+          '<div style="width:38px;height:38px;border-radius:50%;background:#071226;border:2px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+icon+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">'+evLabel+'</div>'+
+          '<div style="font-size:15px;font-weight:500;color:#1a1a1a;line-height:1.2">'+esc(evTitle)+'</div>'+
+          (ev.note?'<div style="font-size:12px;color:#9e9a94;margin-top:2px">'+esc(ev.note)+'</div>':'')+
           '</div>'+
-          '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding-top:4px">'+
-          '<div style="width:14px;height:14px;border-radius:50%;background:rgba(201,161,74,.25);border:1px solid rgba(201,161,74,.4);flex-shrink:0;display:flex;align-items:center;justify-content:center"></div>'+
-          '</div>'+
-          '<div style="display:flex;align-items:center;gap:10px;padding-top:2px">'+
-          '<span style="font-size:18px;line-height:1">'+evIcon+'</span>'+
-          '<div>'+
-          '<div style="font-size:13px;font-weight:500;color:rgba(255,255,255,.65)">'+tl.label+'</div>'+
-          (evNote?'<div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:1px">'+evNote+'</div>':'')+
-          '</div>'+
-          '</div>'+
-          '</div>';
-
-      } else {
-        // Tour complete
-        var endTime=lastTime||'';
-        return '<div style="display:flex;gap:14px;padding-top:4px;padding-bottom:4px">'+
-          '<div style="width:44px;flex-shrink:0;text-align:right;padding-top:3px">'+
-          (endTime?'<div style="font-size:12px;color:rgba(255,255,255,.3)">'+endTime+'</div>':'')+
-          '</div>'+
-          '<div style="flex-shrink:0;padding-top:4px">'+
-          '<div style="width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(255,255,255,.15);flex-shrink:0"></div>'+
-          '</div>'+
-          '<div style="display:flex;align-items:center;gap:10px;padding-top:2px">'+
-          '<div style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(201,161,74,.3);background:rgba(201,161,74,.08);display:flex;align-items:center;justify-content:center">'+
-          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>'+
-          '</div>'+
-          '<div>'+
-          '<div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.5)">Tour complete</div>'+
-          (endTime?'<div style="font-size:10px;color:rgba(255,255,255,.25);margin-top:1px">Estimated finish '+endTime+'</div>':'')+
-          '</div>'+
-          '</div>'+
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
           '</div>';
       }
+      return '';
     }).join('');
 
+    // Tour complete row
+    var endTime=lastTime||'';
+    var completeRow='<div style="display:flex;align-items:center;gap:14px;padding:10px 0">'+
+      '<div style="font-size:13px;font-weight:700;color:#C9A14A;width:40px;flex-shrink:0;text-align:right">'+(endTime?esc(endTime):'')+'</div>'+
+      '<div style="width:38px;height:38px;border-radius:50%;background:#071226;border:2px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+endIcon+'</div>'+
+      '<div style="flex:1">'+
+      '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">TOUR COMPLETE</div>'+
+      '<div style="font-size:14px;color:#9e9a94">Estimated finish '+(endTime?esc(endTime):'')+'</div>'+
+      '</div></div>';
+
     timelineHtml=
-      '<div style="padding:20px 20px 8px;border-bottom:1px solid rgba(255,255,255,.06)">'+
-      // Section heading
-      '<div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:18px;text-align:center">Your Viewing Journey</div>'+
-      // Timeline rows
+      '<div style="background:#fff;border-radius:16px;padding:18px 18px 10px;margin-bottom:16px;border:1px solid #edeae4">'+
+      '<div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Your Viewing Journey</div>'+
       itinRows+
+      completeRow+
       '</div>';
   }
 
@@ -3290,36 +3260,41 @@ function pgOutput(){
     (isAg?'<div style="display:flex;align-items:center;gap:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:12px;font-weight:500;color:#78350f"><span style="font-size:14px">&#128274;</span>Internal — keep for yourself.</div>':'<div style="margin-bottom:4px"></div>')+
 
     // ── DARK COVER CARD (stats + timeline + personalised viewing day) ─────
-    '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:20px;overflow:hidden;margin-bottom:32px;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
+    '<div style="background:linear-gradient(150deg,#0d1f38 0%,#071226 60%,#050e1a 100%);border-radius:20px;overflow:hidden;margin-bottom:8px;box-shadow:0 4px 24px rgba(7,18,38,.2)">'+
     statsBar+
-    timelineHtml+
     coverHdr+
 
-    (!isAg&&day.welcomeMsg?
-      '<div style="padding:22px 22px 16px;border-top:1px solid rgba(255,255,255,.06)">'+
-      '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px">A personal note</div>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic;margin-bottom:12px">&ldquo;'+esc(day.welcomeMsg)+'&rdquo;</div>':'')+
+    // Close dark header card
+    '</div>'+
 
+    // ── REQUIREMENTS CARD (light) ──────────────────────────────────────────
     (!isAg&&c&&c.req?(function(){
       var req=Object.assign({},c.req);
       if(typeof req.type==='string'){req.type=req.type&&req.type!=='any'?[req.type]:[];}
       if(!Array.isArray(req.type)){req.type=[];}
-      var mustHave=req.mustHave||[]; var plus=req.plus||[];
-      var budgetLabels={'b150':'€0 – 150k','b250':'€150k – 250k','b400':'€250k – 400k','b600':'€400k – 600k','b1000':'€600k – 1M','b2000':'€1M – 2M','nolimit':'No limit'};
+      var mustHave=req.mustHave||[];
+      var budgetLabels={'b150':'\u20AC0 \u2013 150k','b250':'\u20AC150k \u2013 250k','b400':'\u20AC250k \u2013 400k','b600':'\u20AC400k \u2013 600k','b1000':'\u20AC600k \u2013 1M','b2000':'\u20AC1M \u2013 2M','nolimit':'No limit'};
       var lines=[];
       if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
       if(req.minrooms&&req.minrooms!=='studio')lines.push(req.minrooms+'+ bedrooms');
-      if(req.type&&req.type.length){var tl={apt:'Apartment',villa:'Villa',townhouse:'Townhouse',semidetached:'Semi-detached house',quad:'Quad house',bungalow:'Bungalow',penthouse:'Penthouse'};lines.push(req.type.map(function(t){return tl[t]||t;}).join(', '));}
+      if(req.type&&req.type.length){var tl={apt:'Apartment',villa:'Villa',townhouse:'Townhouse',semidetached:'Semi-detached',quad:'Quad house',bungalow:'Bungalow',penthouse:'Penthouse'};lines.push(req.type.map(function(t){return tl[t]||t;}).join(', '));}
       mustHave.forEach(function(f){lines.push(f);});
       if(!lines.length)return'';
-      return'<div style="padding:16px 22px;border-top:1px solid rgba(255,255,255,.06)">'+
-        '<div style="font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px">Your Requirements</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:5px">'+
-        lines.map(function(r){return'<span style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,.75)">&#10003; '+esc(r)+'</span>';}).join('')+
+      return'<div style="background:#fff;border-radius:16px;padding:18px 18px 14px;margin-bottom:16px;border:1px solid #edeae4">'+
+        '<div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:12px">Your Requirements</div>'+
+        '<div style="display:flex;flex-wrap:wrap;gap:7px">'+
+        lines.map(function(r){
+          return'<span style="display:inline-flex;align-items:center;gap:6px;background:#f9f7f4;border:1px solid #edeae4;border-radius:100px;padding:5px 13px;font-size:12px;color:#2D2B28">'+
+            '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>'+
+            esc(r)+'</span>';
+        }).join('')+
         '</div></div>';
     })():'')+
 
-    '</div>'+
+    // ── VIEWING JOURNEY (light card) ────────────────────────────────────────
+    (!isAg?timelineHtml:'')+
+
+
 
     // ── AGENT INTERNAL INFO — rendered per property inside rows ─────────
     ''+ 
