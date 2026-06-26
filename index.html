@@ -1651,12 +1651,58 @@ function quickDay(){
 // ── CLIENTS ───────────────────────────────────────────────────────────────────
 function pgClients(){
   var q=(S._clientSearch||'').toLowerCase();
+  var sortF=S._clientSort||'recent';
+  var filterF=S._clientFilter||'all';
 
   var filtered=S.clients.filter(function(c){
-    if(!q)return true;
-    var hay=((c.name||'')+(c.phone||'')+(c.nationality||'')+(c.email||'')).toLowerCase();
-    return hay.indexOf(q)>=0;
+    // Search
+    if(q){
+      var hay=((c.name||'')+(c.phone||'')+(c.nationality||'')+(c.email||'')).toLowerCase();
+      if(hay.indexOf(q)<0)return false;
+    }
+    // Filter
+    if(filterF==='active'){
+      var cd=cDays(c.id);
+      var hasUpcoming=cd.some(function(d){return dayStatus(d.date)!=='done';});
+      if(!hasUpcoming)return false;
+    }
+    if(filterF==='past'){
+      var cd2=cDays(c.id);
+      var hasPast=cd2.some(function(d){return dayStatus(d.date)==='done';});
+      if(!hasPast)return false;
+    }
+    return true;
   });
+
+  // Sort
+  var budgetOrder={'b150':1,'b250':2,'b400':3,'b600':4,'b1000':5,'b2000':6,'nolimit':7};
+  if(sortF==='budget-hi'){
+    filtered=filtered.slice().sort(function(a,b){
+      var ba=(a.req&&a.req.budget)?budgetOrder[a.req.budget]||0:0;
+      var bb=(b.req&&b.req.budget)?budgetOrder[b.req.budget]||0:0;
+      return bb-ba;
+    });
+  } else if(sortF==='readiness'){
+    filtered=filtered.slice().sort(function(a,b){
+      var ra=(a.req&&a.req.buyerReadiness)||0;
+      var rb=(b.req&&b.req.buyerReadiness)||0;
+      return rb-ra;
+    });
+  } else if(sortF==='tours'){
+    filtered=filtered.slice().sort(function(a,b){
+      return cDays(b.id).length-cDays(a.id).length;
+    });
+  } else if(sortF==='name'){
+    filtered=filtered.slice().sort(function(a,b){
+      return(a.name||'').localeCompare(b.name||'');
+    });
+  }
+
+  function chip(label,active,onclick){
+    return'<button onclick="'+onclick+'" style="padding:6px 14px;border-radius:100px;border:1.5px solid '+(active?'#071226':'#edeae4')+';background:'+(active?'#071226':'transparent')+';color:'+(active?'#C9A14A':'#6b6560')+';font-size:12px;font-weight:'+(active?'600':'400')+';cursor:pointer;font-family:inherit;white-space:nowrap">'+label+'</button>';
+  }
+
+  var sortLabel={'recent':'Recently added','budget-hi':'Budget: High to low','readiness':'Buyer Readiness','tours':'Most tours','name':'Name (A–Z)'};
 
   var h='<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
@@ -1664,17 +1710,39 @@ function pgClients(){
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">'+
     '<div>'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1">Clients</div>'+
+    '<div style="font-size:12px;color:#9e9a94;margin-top:4px">Manage your client relationships</div>'+
     '</div>'+
     '<button onclick="go(\'add-client\')" style="background:#071226;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;flex-shrink:0;margin-top:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New client</button>'+
     '</div>'+
+
     // Search
-    '<div style="position:relative;margin-top:20px;margin-bottom:20px">'+
+    '<div style="position:relative;margin-top:20px;margin-bottom:12px">'+
     '<svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%)" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'+
     '<input class="inp" id="client-search" placeholder="Search clients…" value="'+esc(S._clientSearch||'')+'" oninput="S._clientSearch=this.value;render()" style="padding-left:40px;background:#fff"/>'+
-    '</div>';
+    '</div>'+
+
+    // Filter chips
+    '<div style="margin-bottom:8px">'+
+    '<div style="font-size:10px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Status</div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+    chip('All',filterF==='all',"S._clientFilter='all';render()")+
+    chip('Active buyers',filterF==='active',"S._clientFilter='active';render()")+
+    chip('Past clients',filterF==='past',"S._clientFilter='past';render()")+
+    '</div></div>'+
+
+    // Count + sort
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:14px">'+
+    '<div style="font-size:13px;color:#6b6560">'+filtered.length+' client'+(filtered.length===1?'':'s')+'</div>'+
+    '<div style="position:relative">'+
+    '<select onchange="S._clientSort=this.value;render()" style="appearance:none;-webkit-appearance:none;background:#fff;border:1.5px solid #edeae4;border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
+    ['recent','budget-hi','readiness','tours','name'].map(function(v){return'<option value="'+v+'"'+(sortF===v?' selected':'')+'>'+sortLabel[v]+'</option>';}).join('')+
+    '</select>'+
+    '<svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>'+
+    '</div></div>';
 
   if(S.clients.length===0){
     h+='<div style="text-align:center;padding:48px 24px">'+
+      '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" style="margin-bottom:16px;opacity:.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No clients yet</div>'+
       '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Add your first client to get started</div>'+
       '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'add-client\')">Add client</button></div>';
@@ -1682,14 +1750,14 @@ function pgClients(){
     h+='<div style="text-align:center;padding:40px 24px">'+
       '<div style="font-size:32px;margin-bottom:12px">&#128269;</div>'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#2D2B28;margin-bottom:6px">No results</div>'+
-      '<div style="font-size:13px;color:#9e9a94;margin-bottom:16px">Try a different name, phone or nationality</div>'+
-      '<button onclick="S._clientSearch=\'\';render()" style="padding:9px 18px;background:#f5f2ec;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#2D2B28">Clear search</button>'+
+      '<div style="font-size:13px;color:#9e9a94;margin-bottom:16px">Try adjusting your search or filters</div>'+
+      '<button onclick="S._clientSearch=\'\';S._clientFilter=\'all\';render()" style="padding:9px 18px;background:#f5f2ec;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#2D2B28">Clear filters</button>'+
       '</div>';
   } else {
     h+=filtered.map(function(c){
       var cd=cDays(c.id);
       var req=c.req||{};
-      var upc=cd.filter(function(d){return dayStatus(d.date)!=="done";});
+      var upc=cd.filter(function(d){return dayStatus(d.date)!=='done';});
       var budgetLabels={"b150":"€0–150k","b250":"€150–250k","b400":"€250–400k","b600":"€400–600k","b1000":"€600k–1M","b2000":"€1M–2M","nolimit":"No limit"};
       var budgetStr=req.budget?budgetLabels[req.budget]||(c.budget||""):c.budget||"";
       var ini=initials(c.name);
@@ -1713,6 +1781,7 @@ function pgClients(){
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
       '</div>';
     }).join("");
+    h+='<div style="text-align:center;padding:20px 0 8px;font-size:12px;color:#c8bfb0">Can\'t find a client? <button onclick="go(\'add-client\')" style="background:none;border:none;color:#C9A14A;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Add a new one.</button></div>';
   }
   return h+'</div>';
 }
