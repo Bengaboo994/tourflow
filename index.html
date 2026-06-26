@@ -1010,10 +1010,11 @@ function generateWelcomeMsg(v){
   var v2=(v!=null?v:Math.floor(Math.random()*3))%3;
   var sig=agentName?"\n\n"+agentName:"";
   var msgs=[
-    "Dear "+firstName+",\n\nI have selected "+n+" propert"+(single?"y":"ies")+" based on the criteria we discussed. "+(single?"It offers":"Each offers")+" unique strengths and potential.\n\nI look forward to showing "+(single?"it":"them")+" to you today and helping you find the right "+t+"."+sig,
-    "Dear "+firstName+",\n\nWelcome to your personalised viewing day. "+(single?"The property I have chosen meets":"The "+n+" properties I have chosen all meet")+" your key requirements \u2014 I am confident "+(single?"it will feel right":"at least one will feel right")+".\n\nI am here throughout the day to answer any questions."+sig,
-    "Dear "+firstName+",\n\nToday I will guide you through "+n+" carefully selected propert"+(single?"y":"ies")+". "+(single?"It has":"Each has")+" been chosen with your specific needs in mind.\n\nMy goal is to help you find not just a property, but the right one."+sig
+    "Dear "+firstName+",\n\nI have selected "+n+" propert"+(single?"y":"ies")+" based on everything we discussed.\n\nEach offers something unique, and I look forward to showing "+(single?"it":"them")+" to you today."+sig,
+    "Dear "+firstName+",\n\nYour personalised viewing day is ready.\n\n"+(single?"The property I have selected":"The "+n+" properties I have selected")+" reflect exactly what we talked about — I look forward to guiding you through "+(single?"it":"them")+" today."+sig,
+    "Dear "+firstName+",\n\nI have carefully selected "+n+" propert"+(single?"y":"ies")+" for today.\n\nI look forward to showing you around and helping you find the right home."+sig
   ];
+    "Dear "+firstName+",\n\nI have carefully selected "+n+" propert"+(single?"y":"ies")+" for today.\n\nI look forward to showing you around and helping you find the right home."+sig
   d.welcomeMsg=msgs[v2];
   persist();
   var ta=document.getElementById("welcome-ta");
@@ -2955,7 +2956,7 @@ function pgOutput(){
       (lastTime?"<div style='font-family:Cormorant Garamond,serif;font-size:15px;color:#9e9a94;font-style:italic'>Estimated finish "+esc(lastTime)+"</div>":"")+
       "</div></div>";
 
-    journeyCard="<div style='background:#fff;border-radius:18px;border:1px solid #edeae4;padding:0 18px 4px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.04)'>"+
+    journeyCard="<div style='background:#fff;border-radius:18px;border:1px solid #edeae4;padding:0 18px 4px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.04)'>"+
       "<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;padding:18px 0 14px;border-bottom:1px solid #f5f2ec;margin-bottom:0'>Your Viewing Journey</div>"+
       tlRows+endRow+
       "</div>";
@@ -3023,31 +3024,32 @@ function pgOutput(){
       .join("")+"</div>":"";
 
     var displayArea=p.area||""; var street=p.address||"";
-    return "<div id='tf-sec-"+idx+"' style='scroll-margin-top:8px;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.07);margin-bottom:24px;border:1px solid #edeae4;background:#fff'>"+
+    return "<div id='tf-sec-"+idx+"' style='scroll-margin-top:8px;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:16px;border:1px solid #edeae4;background:#fff'>"+
       imgBlock+
-      "<div style='padding:18px 18px 20px'>"+
-      "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px'>"+
+      "<div style='padding:14px 16px 16px'>"+
+      "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:6px'>"+
       "<div style='display:flex;align-items:center;gap:8px'>"+
       "<div style='width:24px;height:24px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;color:#C9A14A;font-size:10px;font-weight:700;flex-shrink:0'>"+(idx+1)+"</div>"+
       (p.time?"<span style='font-size:14px;font-weight:600;color:#2D2B28'>"+esc(p.time)+"</span>":"")+
       "</div>"+
       (fmtPr?"<div style='font-family:Cormorant Garamond,serif;font-size:28px;color:#C9A14A;font-weight:600;letter-spacing:-.3px'>"+fmtPr+"</div>":"")+
       "</div>"+
+      "<div style='font-size:9px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:6px;margin-top:2px'>"+(['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth'][idx]||('No '+(idx+1)))+" viewing</div>"+
       (p.title?"<div style='font-family:Cormorant Garamond,serif;font-size:24px;color:#071226;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px'>"+esc(p.title)+"</div>":"")+
-      "<div style='margin-bottom:12px'>"+
+      "<div style='margin-bottom:10px'>"+
       (displayArea?"<span style='font-size:14px;font-weight:600;color:#2D2B28'>"+esc(displayArea)+"</span>":"")+
       (displayArea&&street?"<span style='font-size:13px;color:#9e9a94'> &middot; </span>":"")+
       (street?"<span style='font-size:13px;color:#9e9a94'>"+esc(street)+"</span>":"")+
       "</div>"+
       (p.rooms||p.bathrooms||p.sqm?
-        "<div style='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px'>"+
+        "<div style='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px'>"+
         (p.rooms?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'>&#x1F6CF;&#xFE0F;<span style='font-size:12px;font-weight:700;color:#2D2B28'>"+esc(p.rooms)+"</span></div>":"")+
         (p.bathrooms?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'>&#x1F6C1;<span style='font-size:12px;font-weight:700;color:#2D2B28'>"+esc(p.bathrooms)+"</span></div>":"")+
         (p.sqm?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#C9A14A' stroke-width='2.2' stroke-linecap='round'><path d='M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5'/></svg><span style='font-size:12px;font-weight:700;color:#2D2B28'>"+esc((p.sqm||"").replace(/m2$/i,""))+"m²</span></div>":"")+
         "</div>":"")+
       hlChips+costsBlock+
       (p.mapsUrl?"<a href='"+esc(p.mapsUrl)+"' target='_blank' style='display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#6b6560;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:8px 13px;background:#faf8f4;margin-bottom:10px;margin-right:8px'><svg width='10' height='12' viewBox='0 0 24 24' fill='#C9A14A'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/></svg>Directions</a>":"")+
-      (p.url?"<a href='"+esc(p.url)+"' target='_blank' style='display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#C9A14A;text-decoration:none;background:#071226;border-radius:8px;padding:10px 13px;margin-bottom:12px;gap:6px'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><path d='M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6'/><path d='M15 3h6v6'/><path d='M10 14L21 3'/></svg>View full listing</a>":"")+
+      (p.url?"<a href='"+esc(p.url)+"' target='_blank' style='display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#C9A14A;text-decoration:none;background:#071226;border-radius:8px;padding:10px 13px;margin-bottom:10px;gap:6px;box-shadow:0 2px 8px rgba(7,18,38,.25);letter-spacing:.03em;-webkit-tap-highlight-color:rgba(201,161,74,.1);transition:opacity .15s' ontouchstart='this.style.opacity=.75' ontouchend='this.style.opacity=1'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><path d='M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6'/><path d='M15 3h6v6'/><path d='M10 14L21 3'/></svg>View full listing</a>":"")+
       (!isAg&&p.agentRec?"<div style='border-top:1px solid #f0ece8;padding-top:10px;font-size:12px;color:#6b6560;line-height:1.6;font-style:italic'>“"+esc(p.agentRec)+"”</div>":"")+
       ibox+
       "</div></div>";
@@ -3057,17 +3059,17 @@ function pgOutput(){
   var footerHtml=(function(){
     var wa=cfg.phone?"https://wa.me/"+cfg.phone.replace(/[^0-9]/g,""):"";
     var agentFirst=cfg.agent?cfg.agent.split(" ")[0]:"";
-    return "<div style='background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:170px'>"+
-      "<div style='flex:6;padding:26px 24px;display:flex;flex-direction:column;justify-content:center'>"+
-      "<div style='font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:12px'>Your Property Consultant</div>"+
-      "<div style='font-family:Cormorant Garamond,serif;font-size:27px;color:#fff;font-weight:300;line-height:1.1;letter-spacing:-.2px;margin-bottom:4px'>"+esc(cfg.agent||cfg.agency||"Your Agent")+"</div>"+
-      "<div style='font-size:11px;color:rgba(201,161,74,.55);font-style:italic;font-family:Cormorant Garamond,serif;margin-bottom:18px'>"+(cfg.agency?esc(cfg.agency):"Real Estate"+(agentFirst?" by "+esc(agentFirst):""))+"</div>"+
+    return "<div style='background:#0e1824;overflow:hidden;display:flex;align-items:stretch;min-height:190px'>"+
+      "<div style='flex:6;padding:24px 22px;display:flex;flex-direction:column;justify-content:center'>"+
+      "<div style='font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px'>Your Property Consultant</div>"+
+      "<div style='font-family:Cormorant Garamond,serif;font-size:27px;color:#fff;font-weight:300;line-height:1.1;letter-spacing:-.2px;margin-bottom:3px'>"+esc(cfg.agent||cfg.agency||"Your Agent")+"</div>"+
+      "<div style='font-size:11px;color:rgba(201,161,74,.55);font-style:italic;font-family:Cormorant Garamond,serif;margin-bottom:14px'>"+( cfg.agency?esc(cfg.agency):"Real Estate"+(agentFirst?" by "+esc(agentFirst):""   ))+"</div>"+
       "<div style='display:flex;gap:12px'>"+
       (wa?"<a href='"+wa+"' style='width:42px;height:42px;border-radius:50%;background:rgba(201,161,74,.1);border:1.5px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;text-decoration:none'><svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#C9A14A' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z'/></svg></a>":"")+
       (cfg.phone?"<a href='tel:"+esc(cfg.phone)+"' style='width:42px;height:42px;border-radius:50%;background:rgba(201,161,74,.1);border:1.5px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;text-decoration:none'><svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#C9A14A' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z'/></svg></a>":"")+
       (cfg.email?"<a href='mailto:"+esc(cfg.email)+"' style='width:42px;height:42px;border-radius:50%;background:rgba(201,161,74,.1);border:1.5px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;text-decoration:none'><svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#C9A14A' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z'/><path d='M22 6l-10 7L2 6'/></svg></a>":"")+
       "</div></div>"+
-      (cfg.photo?"<div style='flex:4;position:relative;overflow:hidden'><img src='"+cfg.photo+"' style='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center'/><div style='position:absolute;inset:0;background:linear-gradient(to right,rgba(14,24,36,.15),transparent 30%)'></div></div>":"<div style='flex:4'></div>")+
+      (cfg.photo?"<div style='flex:5;position:relative;overflow:hidden'><img src='"+cfg.photo+"' style='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center'/><div style='position:absolute;inset:0;background:linear-gradient(to right,rgba(14,24,36,.2),transparent 25%)'></div></div>":"<div style='flex:5'></div>")+
       "</div>";
   })();
 
@@ -3118,7 +3120,7 @@ function pgOutput(){
     // WHITE JOURNEY CARD
     journeyCard+
     // YOUR PROPERTIES LABEL
-    (!isAg&&props.length?"<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:16px'>Your Properties</div>":"")+
+    (!isAg&&props.length?"<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px'>Your Properties</div>":"")+
     // LARGE PROPERTY CARDS
     propCards+
     // FOOTER
