@@ -1470,9 +1470,9 @@ function pgHome(){
         function stepCard(num,title,sub,icon,action,active,done){
           var border=done?'1.5px solid #C9A14A':active?'1.5px solid #C9A14A':'1px solid #edeae4';
           var bg='#fff';
-          var opacity='1';
+          var opacity=active||done?'1':'0.35';
           var iconBg=done?'#071226':active?'#071226':'#edeae4';
-          var clickAttr='onclick="'+action+'" style="cursor:pointer;';
+          var clickAttr=active&&!done?'onclick="'+action+'" style="cursor:pointer;':'style="cursor:default;';
           var badge=done
             ?'<div style="width:22px;height:22px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>'
             :active
@@ -1498,7 +1498,7 @@ function pgHome(){
           'goAddLibProp()',hasClients&&!hasProps,hasProps);
         var s3=stepCard(4,'Create your first tour','Build your first viewing day',
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+(hasTours?'#C9A14A':hasProps?'#C9A14A':'#9e9a94')+'" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
-          'quickDay()',true,hasTours);
+          'quickDay()',hasProps&&!hasTours,hasTours);
 
         var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
           '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
