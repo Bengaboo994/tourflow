@@ -2267,7 +2267,7 @@ function pgDayDetail(){
           '<input type="file" accept="image/*" style="display:none" onchange="uploadExistingPropImg(this,\''+day.id+'\',\''+p.id+'\')"/></label>')+
         '</div>'+
         '<div class="g2" style="margin:12px 0 10px">'+
-        '<div><label class="lbl">Time</label><input type="time" step="900" class="inp" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
+        '<div><label class="lbl">Time</label><input type="time" step="900" class="inp" style="min-height:46px;-webkit-appearance:none;appearance:none" value="'+esc(p.time||'')+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{time:this.value})"/></div>'+
         '<div><label class="lbl">Price</label><input class="inp" value="'+esc(p.price||'')+'" placeholder="Price" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{price:formatPrice(this.value)||this.value})"/></div></div>'+
         bf.map(function(f,fi){
           var isAddrField=f[1]==='address'&&bf[fi+1]&&bf[fi+1][1]==='area';
@@ -2357,7 +2357,7 @@ function pgDayDetail(){
     '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:14px">Add schedule item</div>'+
     '<div class="g2" style="margin-bottom:11px">'+
     '<div><label class="lbl">Type</label><select class="inp ins" id="ev-type">'+evOpts+'</select></div>'+
-    '<div><label class="lbl">Time</label><input type="time" step="900" class="inp ins" id="ev-time"/></div></div>'+
+    '<div><label class="lbl">Time</label><input type="time" step="900" class="inp ins" id="ev-time" style="min-height:46px;-webkit-appearance:none;appearance:none"/></div></div>'+
     '<div style="margin-bottom:10px"><label class="lbl">Title</label><input class="inp" id="ev-title" placeholder="e.g. Lunch at La Zenia Boulevard"/></div>'+
     '<div style="margin-bottom:14px"><label class="lbl">Note</label><input class="inp" id="ev-note" placeholder="e.g. Booked at Restaurante Sol"/></div>'+
     '<div style="margin-bottom:14px"><label class="lbl">Google Maps link</label><input class="inp" id="ev-maps" placeholder="https://maps.google.com/?q=..."/></div>'+
@@ -2513,7 +2513,7 @@ function pgAddProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div class="g2" style="margin-bottom:0">'+
-    '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" id="ap-time"/></div>'+
+    '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" style="min-height:46px;-webkit-appearance:none;appearance:none" id="ap-time" style="min-height:46px;-webkit-appearance:none;appearance:none"/></div>'+
     '<div><label class="lbl">Price</label><input class="inp" id="ap-price" placeholder="Price"/></div>'+
     '</div></div>'+
 
@@ -2764,7 +2764,7 @@ function pgEditProp(){
 
     (sourceDayId?'<div class="card" style="margin-bottom:14px">'+
     '<div class="g2" style="margin-bottom:12px">'+
-    '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" id="ep-time" '+v(p.time||'')+'/></div>'+
+    '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" style="min-height:46px;-webkit-appearance:none;appearance:none" id="ep-time" '+v(p.time||'')+'/></div>'+
     '<div><label class="lbl">Price</label><input class="inp" id="ep-price" '+v(p.price||'')+' placeholder="Price"/></div>'+
     '</div>':'')+
 
