@@ -1650,42 +1650,57 @@ function quickDay(){
 
 // ── CLIENTS ───────────────────────────────────────────────────────────────────
 function pgClients(){
-  function pageHeader(title, actionLabel, actionFn){
-    return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
-      '<button onclick="'+actionFn+'" style="background:#071226;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
-      '</div>';
-  }
+  var q=(S._clientSearch||'').toLowerCase();
+
+  var filtered=S.clients.filter(function(c){
+    if(!q)return true;
+    var hay=((c.name||'')+(c.phone||'')+(c.nationality||'')+(c.email||'')).toLowerCase();
+    return hay.indexOf(q)>=0;
+  });
 
   var h='<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
-    pageHeader('Clients','+ New client',"go('add-client')");
+    // Header
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">'+
+    '<div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1">Clients</div>'+
+    '</div>'+
+    '<button onclick="go(\'add-client\')" style="background:#071226;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;flex-shrink:0;margin-top:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New client</button>'+
+    '</div>'+
+    // Search
+    '<div style="position:relative;margin-top:20px;margin-bottom:20px">'+
+    '<svg style="position:absolute;left:14px;top:50%;transform:translateY(-50%)" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'+
+    '<input class="inp" id="client-search" placeholder="Search clients…" value="'+esc(S._clientSearch||'')+'" oninput="S._clientSearch=this.value;render()" style="padding-left:40px;background:#fff"/>'+
+    '</div>';
 
   if(S.clients.length===0){
     h+='<div style="text-align:center;padding:48px 24px">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No clients yet</div>'+
       '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Add your first client to get started</div>'+
       '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'add-client\')">Add client</button></div>';
+  } else if(filtered.length===0){
+    h+='<div style="text-align:center;padding:40px 24px">'+
+      '<div style="font-size:32px;margin-bottom:12px">&#128269;</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#2D2B28;margin-bottom:6px">No results</div>'+
+      '<div style="font-size:13px;color:#9e9a94;margin-bottom:16px">Try a different name, phone or nationality</div>'+
+      '<button onclick="S._clientSearch=\'\';render()" style="padding:9px 18px;background:#f5f2ec;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#2D2B28">Clear search</button>'+
+      '</div>';
   } else {
-    h+=S.clients.map(function(c){
+    h+=filtered.map(function(c){
       var cd=cDays(c.id);
       var req=c.req||{};
       var upc=cd.filter(function(d){return dayStatus(d.date)!=="done";});
       var budgetLabels={"b150":"€0–150k","b250":"€150–250k","b400":"€250–400k","b600":"€400–600k","b1000":"€600k–1M","b2000":"€1M–2M","nolimit":"No limit"};
       var budgetStr=req.budget?budgetLabels[req.budget]||(c.budget||""):c.budget||"";
-
-      // Avatar with initials
       var ini=initials(c.name);
-      var bgColors=["#071226","#071226","#071226","#071226","#071226"];
-      var bg=bgColors[c.name.charCodeAt(0)%bgColors.length];
 
       return '<div onclick="go(\'client-detail\',{cid:\''+c.id+'\'})" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
-        '<div style="width:42px;height:42px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
+        '<div style="width:42px;height:42px;border-radius:50%;background:#071226;color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
         '<div style="flex:1;min-width:0">'+
         '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
         (c.req&&c.req.buyerReadiness?brDot(c.req.buyerReadiness,8):'<span style="width:8px;height:8px;border-radius:50%;background:#edeae4;display:inline-block;flex-shrink:0"></span>')+
         '<span style="font-size:15px;font-weight:500;color:#2D2B28">'+esc(c.name)+'</span>'+
-        (c.req&&c.req.buyerReadiness?(function(){var b=getBR(c.req.buyerReadiness);return b?('<span style="margin-left:auto;font-size:11px;font-weight:700;color:'+b.col+'">'+b.v+'</span>'):'';})():'')+ 
+        (c.req&&c.req.buyerReadiness?(function(){var b=getBR(c.req.buyerReadiness);return b?('<span style="margin-left:auto;font-size:11px;font-weight:700;color:'+b.col+'">'+b.v+'</span>'):'';})():'')+
         '</div>'+
         '<div style="font-size:12px;color:#9e9a94;margin-bottom:6px">'+
           (c.phone?esc(c.phone):'')+(c.nationality?' &middot; '+esc(c.nationality):'')+
@@ -1701,6 +1716,7 @@ function pgClients(){
   }
   return h+'</div>';
 }
+
 function pgClientDetail(){
   var c=curC();if(!c)return"";
   var cd=cDays(c.id);
