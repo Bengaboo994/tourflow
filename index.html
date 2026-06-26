@@ -573,11 +573,10 @@ var ET=[
   {key:"meetingpoint",icon:"&#128205;",label:"Meeting Point",col:"#071226",brd:"#C9A14A",txt:"#fff",isMeetingPoint:true},
   {key:"lunch",icon:"&#127869;",label:"Lunch",col:"#f2f7f2",brd:"#c8ddc8",txt:"#2d5a2d"},
   {key:"coffee",icon:"&#9749;",label:"Coffee",col:"#fef9ee",brd:"#fde68a",txt:"#78350f"},
-  {key:"drive",icon:"&#128663;",label:"Drive",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
   {key:"meeting",icon:"&#128083;",label:"Meeting",col:"#eff6ff",brd:"#bfdbfe",txt:"#1e40af"},
+  {key:"tourcomplete",icon:"&#127937;",label:"Tour Complete",col:"#071226",brd:"rgba(201,161,74,.3)",txt:"#C9A14A"},
   {key:"other",icon:"&#128204;",label:"Other",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
-  {key:"pickup",icon:"&#128663;",label:"Pickup",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"},
-  {key:"stop",icon:"&#128204;",label:"Stop",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"}
+  {key:"pickup",icon:"&#128663;",label:"Pickup",col:"#f8fafc",brd:"#e2e8f0",txt:"#475569"}
 ];
 function getET(k){for(var i=0;i<ET.length;i++){if(ET[i].key===k)return ET[i];}return ET[4];}
 
@@ -2305,12 +2304,7 @@ function pgDayDetail(){
         '<div style="font-size:11px;color:#9e9a94">Highlight this property for the client</div></div>'+
         '<button onclick="var d=curD();var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp){var was=pp.topPick;d.properties.forEach(function(x){x.topPick=false;});pp.topPick=!was;}persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#C9A14A':'#edeae4')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
         '</div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:9px">'+
-        '<div><label class="lbl">Travel time</label>'+
-        '<input class="inp ins" value="'+esc(p.travelTime||'')+'" placeholder="12 min drive" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{travelTime:this.value})"/></div>'+
-        '<div><label class="lbl">Area highlight</label>'+
-        '<input class="inp ins" value="'+esc(p.areaNote||'')+'" placeholder="Beachfront area" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{areaNote:this.value})"/></div>'+
-        '</div>'+
+        
         '<button style="width:100%;padding:11px 13px;background:none;border:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--fog)" onclick="S.eiid=S.eiid===\''+p.id+'\'?null:\''+p.id+'\';render()">'+
         '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
         '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
@@ -2486,7 +2480,7 @@ function copyWA(){
 // ── ADD PROPERTY ──────────────────────────────────────────────────────────────
 function pgAddProp(){
   var day=curD();if(!day)return"";
-  var bf=[["Title","ap-title","Property title"],["Address","ap-addr","Street address"],["Area","ap-area2","Area"],["Price","ap-price","Price"],["Bedrooms","ap-rooms","Bedrooms"],["Bathrooms","ap-bath","Bathrooms"],["Built size","ap-sqm","Size in m\u00b2"]];
+  var bf=[["Title","ap-title","Property title"],["Address","ap-addr","Street address"],["Area","ap-area2","Area"],["Bedrooms","ap-rooms","Bedrooms"],["Bathrooms","ap-bath","Bathrooms"],["Built size","ap-sqm","Size in m\u00b2"]];
   var iff=[["Commission","ap-comm","Commission"],["Contact person","ap-cont","Contact name"],["Contact phone","ap-cph","Contact phone"],["Their firm","ap-firm","Company name"],["Exact location/access","ap-loc","Access details"],["Internal notes","ap-note","Notes"]];
 
   var bfHtml=bf.map(function(f,fi){
@@ -2518,8 +2512,10 @@ function pgAddProp(){
     '<div style="font-size:11px;color:#9e9a94;margin-top:6px">Paste listing URL</div></div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
-    '<label class="lbl">Viewing time</label>'+
-    '<input type="time" step="900" class="inp" id="ap-time"/></div>'+
+    '<div class="g2" style="margin-bottom:0">'+
+    '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" id="ap-time"/></div>'+
+    '<div><label class="lbl">Price</label><input class="inp" id="ap-price" placeholder="Price"/></div>'+
+    '</div></div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
@@ -2540,8 +2536,7 @@ function pgAddProp(){
     '<div id="ap-hl-wrap">'+hlPickerHtml('__new__','__new__',window._newHighlights||[])+'</div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
     '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
-    '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
-    '<input class="inp" id="ap-area" placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
+    
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
@@ -2718,7 +2713,7 @@ function pgEditProp(){
   }
   if(!p)return'<div class="wrap"><div class="card">Property not found.</div></div>';
 
-  var bf=[["Title","ep-title","Property title"],["Address","ep-addr","Street address"],["Area","ep-area2","Area"],["Price","ep-price","Price"],["Bedrooms","ep-rooms","Bedrooms"],["Bathrooms","ep-bath","Bathrooms"],["Built size","ep-sqm","Size in m\u00b2"]];
+  var bf=[["Title","ep-title","Property title"],["Address","ep-addr","Street address"],["Area","ep-area2","Area"],["Bedrooms","ep-rooms","Bedrooms"],["Bathrooms","ep-bath","Bathrooms"],["Built size","ep-sqm","Size in m\u00b2"]];
   var iff=[["Commission","ep-comm","Commission"],["Contact person","ep-cont","Contact name"],["Contact phone","ep-cph","Contact phone"],["Their firm","ep-firm","Company name"],["Exact location/access","ep-loc","Access details"],["Internal notes","ep-note","Notes"]];
 
   function v(val){return val?'value="'+esc(val)+'"':'';}
@@ -2768,8 +2763,10 @@ function pgEditProp(){
     '</div>'+
 
     (sourceDayId?'<div class="card" style="margin-bottom:14px">'+
-    '<label class="lbl">Viewing time</label>'+
-    '<input type="time" step="900" class="inp" id="ep-time" '+v(p.time||'')+'/></div>':'')+
+    '<div class="g2" style="margin-bottom:12px">'+
+    '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" id="ep-time" '+v(p.time||'')+'/></div>'+
+    '<div><label class="lbl">Price</label><input class="inp" id="ep-price" '+v(p.price||'')+' placeholder="Price"/></div>'+
+    '</div>':'')+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
@@ -2791,8 +2788,7 @@ function pgEditProp(){
     '<div id="ep-hl-wrap">'+hlPickerHtml(hlDayId,S.epid,window._editHighlights)+'</div>'+
     '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
     '<textarea class="inp" id="ep-rec" rows="2" style="resize:none;line-height:1.5">'+esc(p.agentRec||'')+'</textarea></div>'+
-    '<div style="margin-bottom:11px"><label class="lbl">Area highlight</label>'+
-    '<input class="inp" id="ep-area" '+v(p.areaNote||'')+' placeholder="e.g. Beachfront area, Near golf, Marina"/></div>'+
+    
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
@@ -2830,7 +2826,7 @@ function saveEditProp(dayId,pid){
     url:gv('ep-url'),time:gv('ep-time'),
     title:gv('ep-title'),address:gv('ep-addr'),area:gv('ep-area2'),
     price:gv('ep-price'),rooms:gv('ep-rooms'),bathrooms:gv('ep-bath'),sqm:gv('ep-sqm'),
-    mapsUrl:gv('ep-maps'),agentRec:gv('ep-rec'),areaNote:gv('ep-area'),
+    mapsUrl:gv('ep-maps'),agentRec:gv('ep-rec'),
     commission:gv('ep-comm'),contact:gv('ep-cont'),contactPhone:gv('ep-cph'),
     firm:gv('ep-firm'),location:gv('ep-loc'),note:gv('ep-note'),
     highlights:window._editHighlights||[]
@@ -3033,20 +3029,11 @@ function pgOutput(){
       }
     }).join("");
 
-    var endRow="<div style='display:flex;align-items:center;gap:14px;padding:20px 0 6px'>"+
-      "<div style='flex-shrink:0;width:22px;display:flex;flex-direction:column;align-items:center;gap:2px'>"+
-      "<div style='width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(201,161,74,.25);background:transparent;flex-shrink:0'></div>"+
-      (lastTime?"<div style='font-size:10px;color:#9e9a94;white-space:nowrap'>"+esc(lastTime)+"</div>":"")+
-      "</div>"+
-      "<div style='flex-shrink:0;width:44px;height:44px;border-radius:50%;background:rgba(201,161,74,.06);border:1px solid rgba(201,161,74,.15);display:flex;align-items:center;justify-content:center'>"+endIconSvg+"</div>"+
-      "<div style='flex:1;padding-top:0'>"+
-      "<div style='font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:3px'>Tour Complete</div>"+
-      (lastTime?"<div style='font-family:Cormorant Garamond,serif;font-size:15px;color:#9e9a94;font-style:italic'>Estimated finish "+esc(lastTime)+"</div>":"")+
-      "</div></div>";
+    var endRow=""
 
     journeyCard="<div style='background:#fff;border-radius:18px;border:1px solid #edeae4;padding:0 18px 4px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.04)'>"+
       "<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;padding:18px 0 14px;border-bottom:1px solid #f5f2ec;margin-bottom:0'>Your Viewing Journey</div>"+
-      tlRows+endRow+
+      tlRows+
       "</div>";
   }
 
