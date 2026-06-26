@@ -2439,17 +2439,28 @@ function copyWA(){
     var firstTime=props.length?props[0].time:'';
     var hasLunch=(day.events||[]).some(function(e){return e.type==='lunch';});
 
-    var details=[];
-    if(pLen) details.push(pLen+' propert'+(pLen===1?'y':'ies'));
-    if(firstTime) details.push('Starting '+firstTime);
-    if(hasLunch) details.push('Lunch included');
     var pickupEv=(day.events||[]).find(function(e){return e.type==='pickup'||e.type==='meetingpoint';});
-    if(pickupEv) details.push('Pickup'+(pickupEv.time?' at '+pickupEv.time:'')+(pickupEv.note?' - '+pickupEv.note:''));
-
-    var agentLine=(cfg.agent||'')+(cfg.agency?' | '+cfg.agency:'');
+    var lastTime=props.length>1?props[props.length-1].time:'';
 
     var nl='\n';
-    var msg='Hi '+firstName+','+nl+nl+'Your viewing day for *'+dateStr+'* is ready.'+(details.length?nl+nl+details.join(' - '):'')+ nl+nl+'Open your viewing day here:'+nl+link+(agentLine?nl+nl+'- '+agentLine:'');
+
+    // Build details line
+    var detailParts=[];
+    if(pLen) detailParts.push(pLen+' propert'+(pLen===1?'y':'ies'));
+    if(firstTime) detailParts.push('Starting '+firstTime);
+    if(pickupEv&&pickupEv.note) detailParts.push('Pickup at '+pickupEv.note);
+
+    var msg=
+      'Hi '+firstName+','+nl+
+      nl+
+      'Your viewing day for *'+dateStr+'* is ready.'+nl+
+      nl+
+      (detailParts.length?detailParts.join(' · ')+nl+nl:'')+
+      'Open your viewing day here:'+nl+
+      link+nl+
+      nl+
+      'Regards'+nl+
+      (cfg.agent?cfg.agent:'')+(cfg.agency?nl+cfg.agency:'');
 
     var clientPhone=c?(c.phone||'').replace(/[^0-9]/g,''):'';
 
