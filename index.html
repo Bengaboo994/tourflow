@@ -1513,14 +1513,23 @@ function pgHome(){
           '</div>';
       }
     } else if(hasUpcoming){
-      // ── EXPERIENCED USER: has upcoming tours ──────────────────────────────
-      noTourCard='<div style="background:#F6F2E9;border-radius:18px;padding:16px 18px;border:1px solid #e8e0d0;margin-bottom:24px">'+
-        '<div>'+
-        '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px">Today</div>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#2D2B28">No tour scheduled</div>'+
-        '</div>'+
-        '<button onclick="quickDay()" style="background:#071226;color:#C9A14A;border:none;border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit">+ New tour</button>'+
-        '</div>';
+      // ── EXPERIENCED USER: same large card ────────────────────────────────
+      noTourCard='<div style="margin-bottom:28px">'+
+        '<div style="background:#F6F2E9;border-radius:18px;padding:32px 24px;text-align:center;border:1px solid #e8e0d0">'+
+        '<svg width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;opacity:.7">'+
+        '<path d="M10 60 Q30 20 60 25 Q90 30 110 10"/>'+
+        '<rect x="42" y="35" width="16" height="18" rx="1"/>'+
+        '<path d="M40 35l10-10 10 10"/>'+
+        '<rect x="48" y="46" width="4" height="7"/>'+
+        '<circle cx="90" cy="20" r="8"/>'+
+        '<path d="M90 12V8M90 32v-4M82 20H78M102 20h-4"/>'+
+        '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
+        '<line x1="5" y1="62" x2="115" y2="62"/>'+
+        '</svg>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
+        '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
+        '<button onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+        '</div></div>';
     } else {
       // ── HAS CLIENTS but no upcoming — standard empty state ────────────────
       noTourCard='<div style="margin-bottom:28px">'+
