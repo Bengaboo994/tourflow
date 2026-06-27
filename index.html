@@ -1151,11 +1151,12 @@ function cloudLoad(onDone){
     var token=(res.data&&res.data.session&&res.data.session.access_token)||SUPA_KEY;
     var headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+token};
     var done=0;var total=4;
-    function check(){done++;if(done>=total&&onDone)onDone();}
+    function check(){done++;console.log('cloudLoad check',done,'/4');if(done>=total&&onDone)onDone();}
 
     // Clients
     fetch(SUPA_URL+'/rest/v1/agent_clients?user_id=eq.'+uid+'&select=data',{headers:headers})
     .then(function(r){return r.json();}).then(function(rows){
+      console.log('cloudLoad clients rows:',rows&&rows.length,rows);
       if(rows&&rows.length){
         S.clients=rows.map(function(r){return r.data;});
         save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
