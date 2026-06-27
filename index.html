@@ -387,18 +387,14 @@ function resendOtp(){
   });
 }
 function signOut(){
-  if(!supa){
-    localStorage.removeItem(STORE);
-    location.reload();
-    return;
-  }
+  if(!supa){location.reload();return;}
+  // Only clear local data if user is logged in (their data is safe in Supabase)
+  // Keep localStorage intact for safety — Supabase is the source of truth
   supa.auth.signOut().then(function(){
-    // Clear all local data so next user starts fresh
-    localStorage.removeItem(STORE);
     localStorage.removeItem('tf-draft');
     localStorage.removeItem('tf-has-account');
     localStorage.removeItem('tf-has-generated');
-    localStorage.removeItem('tf-public');
+    // Keep STORE (tf-v2) so data isn't lost if sync failed
     location.reload();
   });
 }
