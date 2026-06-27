@@ -414,7 +414,10 @@ function checkExistingSession(){
       localStorage.setItem('tf-has-account','1');
       hideAuthGate();
       refreshSubscriptionStatus();
-      cloudLoad(function(){render();});
+      cloudLoad(function(){
+      S._showOnboarding=false;
+      showTab(S.tab||'home');
+    });
     }
   });
   supa.auth.onAuthStateChange(function(event,session){
@@ -425,8 +428,11 @@ function checkExistingSession(){
       refreshSubscriptionStatus();
       // Load cloud data first, then resume + render
       cloudLoad(function(){
+        // Reset onboarding flag so returning user sees proper home
+        S._showOnboarding=false;
         resumePendingAction();
-        render();
+        // Re-init from loaded data
+        showTab(S.tab||'home');
       });
     }else if(event==='SIGNED_OUT'){
       currentUser=null;
