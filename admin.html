@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#071226"/>
+<title>TourFlow Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Jost',system-ui,sans-serif;background:#060f1e;color:#e8e4dc;min-height:100vh;font-weight:300}
+input,button,select,textarea{font-family:inherit}
+
+/* Layout */
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:#071226;border-right:1px solid rgba(201,161,74,.1);display:flex;flex-direction:column;z-index:100}
+.main{margin-left:220px;padding:32px;min-height:100vh}
+@media(max-width:768px){.sidebar{width:100%;height:60px;flex-direction:row;bottom:auto;border-right:none;border-bottom:1px solid rgba(201,161,74,.1);align-items:center;padding:0 16px;justify-content:space-between}.main{margin-left:0;margin-top:60px;padding:20px 16px}}
+
+/* Sidebar */
+.logo{padding:28px 20px 24px;border-bottom:1px solid rgba(201,161,74,.1)}
+.logo-text{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:#fff;letter-spacing:.02em}
+.logo-text em{font-style:italic;color:#C9A14A}
+.logo-badge{font-size:9px;font-weight:700;color:#071226;background:#C9A14A;border-radius:4px;padding:2px 6px;margin-left:6px;letter-spacing:.08em;text-transform:uppercase;vertical-align:middle}
+.nav-section{padding:20px 0 8px}
+.nav-label{font-size:9px;font-weight:700;color:rgba(201,161,74,.35);text-transform:uppercase;letter-spacing:.2em;padding:0 20px;margin-bottom:8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:12px;font-weight:500;color:rgba(255,255,255,.45);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.nav-item:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.04)}
+.nav-item.active{color:#C9A14A;border-left-color:#C9A14A;background:rgba(201,161,74,.06)}
+.nav-item svg{flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(201,161,74,.1)}
+.admin-email{font-size:10px;color:rgba(255,255,255,.25);word-break:break-all;margin-bottom:10px}
+.signout-btn{font-size:11px;color:rgba(201,161,74,.5);background:none;border:none;cursor:pointer;padding:0;font-family:inherit}
+.signout-btn:hover{color:#C9A14A}
+
+/* Loading / access denied */
+#loading-screen,#access-denied{position:fixed;inset:0;background:#060f1e;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999}
+#access-denied{display:none}
+.denied-icon{font-size:48px;margin-bottom:16px}
+.denied-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#fff;margin-bottom:8px}
+.denied-sub{font-size:13px;color:rgba(255,255,255,.3);margin-bottom:24px}
+.denied-btn{padding:10px 24px;background:#C9A14A;color:#071226;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+
+/* Tabs */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Overview cards */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:#0d1f38;border:1px solid rgba(201,161,74,.1);border-radius:16px;padding:20px}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;color:#C9A14A;line-height:1;margin-bottom:4px}
+.stat-label{font-size:10px;font-weight:600;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.14em}
+.stat-sub{font-size:11px;color:rgba(255,255,255,.2);margin-top:6px}
+
+/* Section header */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:#fff}
+.section-sub{font-size:12px;color:rgba(255,255,255,.3);margin-top:2px}
+
+/* Search & filters */
+.filter-bar{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none}
+.search-inp{width:100%;background:#0d1f38;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px 9px 36px;font-size:12px;color:#e8e4dc;outline:none;font-family:inherit}
+.search-inp:focus{border-color:rgba(201,161,74,.4)}
+.filter-sel{background:#0d1f38;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,.6);outline:none;cursor:pointer;font-family:inherit}
+.filter-sel:focus{border-color:rgba(201,161,74,.4)}
+
+/* Table */
+.table-wrap{background:#0d1f38;border:1px solid rgba(201,161,74,.08);border-radius:16px;overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
+thead tr{border-bottom:1px solid rgba(255,255,255,.06)}
+thead th{padding:12px 16px;font-size:9px;font-weight:700;color:rgba(201,161,74,.5);text-transform:uppercase;letter-spacing:.16em;text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .1s}
+tbody tr:hover{background:rgba(255,255,255,.03)}
+tbody tr:last-child{border-bottom:none}
+td{padding:12px 16px;font-size:12px;color:rgba(255,255,255,.7);vertical-align:middle}
+.td-name{font-weight:500;color:#fff}
+.td-email{color:rgba(255,255,255,.4);font-size:11px}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:100px;font-size:10px;font-weight:600;white-space:nowrap}
+.badge-pro{background:rgba(201,161,74,.15);color:#C9A14A;border:1px solid rgba(201,161,74,.25)}
+.badge-trial{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.badge-free{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1)}
+.badge-lifetime{background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.25)}
+.badge-admin{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.badge-agent{background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.08)}
+.badge-beta{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.badge-active{background:rgba(34,197,94,.12);color:#4ade80}
+.badge-inactive{background:rgba(239,68,68,.1);color:#f87171}
+
+/* Action buttons in table */
+.action-btn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;font-family:inherit;transition:all .15s}
+.action-btn:hover{background:rgba(201,161,74,.1);border-color:rgba(201,161,74,.3);color:#C9A14A}
+.action-btn.danger:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#f87171}
+.actions-cell{display:flex;gap:6px;flex-wrap:wrap}
+
+/* Mini select in table */
+.mini-sel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 8px;font-size:10px;color:rgba(255,255,255,.6);outline:none;cursor:pointer;font-family:inherit}
+.mini-sel:focus{border-color:rgba(201,161,74,.4)}
+
+/* Domains / whitelist section */
+.list-card{background:#0d1f38;border:1px solid rgba(201,161,74,.08);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.list-header{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between}
+.list-title{font-size:13px;font-weight:600;color:#fff}
+.list-count{font-size:11px;color:rgba(255,255,255,.3)}
+.list-row{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.04);gap:12px}
+.list-row:last-child{border-bottom:none}
+.list-domain{font-size:13px;color:#C9A14A;font-weight:500}
+.list-email-text{font-size:12px;color:rgba(255,255,255,.7)}
+.list-meta{font-size:10px;color:rgba(255,255,255,.25);margin-top:2px}
+.add-form{padding:16px 20px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:8px;flex-wrap:wrap}
+.add-inp{flex:1;min-width:150px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:12px;color:#e8e4dc;outline:none;font-family:inherit}
+.add-inp:focus{border-color:rgba(201,161,74,.4)}
+.add-btn{padding:8px 16px;background:#C9A14A;color:#071226;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.add-btn:hover{background:#d4a84b}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#C9A14A;color:#071226;padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;display:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+
+/* Empty state */
+.empty{text-align:center;padding:48px 24px;color:rgba(255,255,255,.2);font-size:13px}
+
+/* Spinner */
+.spinner{width:20px;height:20px;border:2px solid rgba(201,161,74,.2);border-top-color:#C9A14A;border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:#fff;margin-bottom:8px">Tour<em style="font-style:italic;color:#C9A14A">Flow</em></div>
+  <div style="font-size:12px;color:rgba(255,255,255,.3);margin-top:8px">Loading admin...</div>
+  <div class="spinner" style="margin-top:24px"></div>
+</div>
+
+<div id="access-denied">
+  <div class="denied-icon">🔒</div>
+  <div class="denied-title">Access Denied</div>
+  <div class="denied-sub">You don't have permission to view this page.</div>
+  <button class="denied-btn" onclick="window.location.href='/'">Back to TourFlow</button>
+</div>
+
+<div id="admin-app" style="display:none">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-text">Tour<em>Flow</em> <span class="logo-badge">Admin</span></div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Dashboard</div>
+      <div class="nav-item active" onclick="showTab('overview')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </div>
+      <div class="nav-item" onclick="showTab('users')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg>
+        Users
+      </div>
+      <div class="nav-item" onclick="showTab('access')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Access Control
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Future</div>
+      <div class="nav-item" style="opacity:.35;cursor:default">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Billing
+      </div>
+      <div class="nav-item" style="opacity:.35;cursor:default">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Analytics
+      </div>
+      <div class="nav-item" style="opacity:.35;cursor:default">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        Feedback
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="admin-email" id="admin-email-label"></div>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <!-- ── OVERVIEW ─────────────────────────────────────────── -->
+    <div id="tab-overview" class="tab-content active">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Overview</div>
+          <div class="section-sub" id="last-refresh"></div>
+        </div>
+        <button onclick="loadAll()" style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">↻ Refresh</button>
+      </div>
+
+      <div class="cards-grid" id="stats-cards">
+        <div class="stat-card"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Recent signups -->
+      <div class="section-header" style="margin-top:8px">
+        <div>
+          <div class="section-title">Recent signups</div>
+          <div class="section-sub">Last 10 users</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Name / Email</th>
+            <th>Plan</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th>Last active</th>
+          </tr></thead>
+          <tbody id="recent-tbody"><tr><td colspan="5" class="empty"><div class="spinner"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── USERS ───────────────────────────────────────────── -->
+    <div id="tab-users" class="tab-content">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Users</div>
+          <div class="section-sub" id="user-count-label">Loading...</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input class="search-inp" id="user-search" placeholder="Search email, name, company…" oninput="filterUsers()"/>
+        </div>
+        <select class="filter-sel" id="filter-plan" onchange="filterUsers()">
+          <option value="">All plans</option>
+          <option value="trial">Trial</option>
+          <option value="pro">Pro</option>
+          <option value="free">Free</option>
+          <option value="lifetime">Lifetime</option>
+        </select>
+        <select class="filter-sel" id="filter-role" onchange="filterUsers()">
+          <option value="">All roles</option>
+          <option value="admin">Admin</option>
+          <option value="agent">Agent</option>
+          <option value="beta">Beta</option>
+        </select>
+        <select class="filter-sel" id="filter-active" onchange="filterUsers()">
+          <option value="">All status</option>
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>User</th>
+            <th>Company</th>
+            <th>Plan</th>
+            <th>Role</th>
+            <th>Tours</th>
+            <th>Links</th>
+            <th>Joined</th>
+            <th>Last active</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="users-tbody"><tr><td colspan="9" class="empty"><div class="spinner"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ACCESS CONTROL ──────────────────────────────────── -->
+    <div id="tab-access" class="tab-content">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Access Control</div>
+          <div class="section-sub">Manage free domains and whitelisted emails</div>
+        </div>
+      </div>
+
+      <!-- Free domains -->
+      <div class="list-card">
+        <div class="list-header">
+          <div>
+            <div class="list-title">Free access domains</div>
+            <div class="list-meta" style="font-size:10px;color:rgba(255,255,255,.25);margin-top:3px">All emails from these domains get Pro access automatically</div>
+          </div>
+          <div class="list-count" id="domains-count"></div>
+        </div>
+        <div id="domains-list"></div>
+        <div class="add-form">
+          <input class="add-inp" id="new-domain" placeholder="e.g. agency.com"/>
+          <select class="filter-sel" id="new-domain-plan" style="background:rgba(255,255,255,.06)">
+            <option value="pro">Pro</option>
+            <option value="lifetime">Lifetime</option>
+            <option value="free">Free</option>
+          </select>
+          <button class="add-btn" onclick="addDomain()">Add domain</button>
+        </div>
+      </div>
+
+      <!-- Whitelist emails -->
+      <div class="list-card">
+        <div class="list-header">
+          <div>
+            <div class="list-title">Whitelisted emails</div>
+            <div class="list-meta" style="font-size:10px;color:rgba(255,255,255,.25);margin-top:3px">Individual emails with custom plan & role</div>
+          </div>
+          <div class="list-count" id="whitelist-count"></div>
+        </div>
+        <div id="whitelist-list"></div>
+        <div class="add-form">
+          <input class="add-inp" id="new-wl-email" placeholder="email@example.com" style="flex:2"/>
+          <select class="filter-sel" id="new-wl-plan" style="background:rgba(255,255,255,.06)">
+            <option value="pro">Pro</option>
+            <option value="trial">Trial</option>
+            <option value="free">Free</option>
+            <option value="lifetime">Lifetime</option>
+          </select>
+          <select class="filter-sel" id="new-wl-role" style="background:rgba(255,255,255,.06)">
+            <option value="agent">Agent</option>
+            <option value="admin">Admin</option>
+            <option value="beta">Beta</option>
+          </select>
+          <button class="add-btn" onclick="addWhitelist()">Add email</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /admin-app -->
+
+<div id="toast"></div>
+
+<script>
+var SUPA_URL='https://smcubfgpnrkguxqxbgva.supabase.co';
+var SUPA_KEY='sb_publishable_bxMQR1TGA87XfM_n2lMCkw_7au6V0wY';
+var ADMIN_EMAILS=['niklasbengtsson@hotmail.com'];
+
+var supa=null;
+var currentUser=null;
+var allUsers=[];
+
+try{
+  if(window.supabase&&window.supabase.createClient){
+    supa=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+  }
+}catch(e){console.error('Supabase init:',e);}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtDate(d){if(!d)return'—';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch(e){return d;}}
+function fmtDateShort(d){if(!d)return'—';try{return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});}catch(e){return d;}}
+function timeAgo(d){
+  if(!d)return'Never';
+  var diff=Date.now()-new Date(d).getTime();
+  var mins=Math.floor(diff/60000);
+  if(mins<2)return'Just now';
+  if(mins<60)return mins+'m ago';
+  var hrs=Math.floor(mins/60);
+  if(hrs<24)return hrs+'h ago';
+  var days=Math.floor(hrs/24);
+  if(days<30)return days+'d ago';
+  return fmtDateShort(d);
+}
+function planBadge(plan){
+  var cls={'pro':'badge-pro','trial':'badge-trial','free':'badge-free','lifetime':'badge-lifetime'}[plan]||'badge-free';
+  return '<span class="badge '+cls+'">'+(plan||'trial')+'</span>';
+}
+function roleBadge(role){
+  var cls={'admin':'badge-admin','agent':'badge-agent','beta':'badge-beta'}[role]||'badge-agent';
+  return '<span class="badge '+cls+'">'+(role||'agent')+'</span>';
+}
+function toast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  setTimeout(function(){t.style.display='none';},2500);
+}
+
+// ── AUTH ─────────────────────────────────────────────────────────────────────
+function init(){
+  if(!supa){showAccessDenied();return;}
+  supa.auth.getSession().then(function(res){
+    var session=res.data&&res.data.session;
+    if(!session||!session.user){
+      // Not logged in — redirect to main app
+      window.location.href='/';
+      return;
+    }
+    currentUser=session.user;
+    var email=(currentUser.email||'').toLowerCase();
+    if(ADMIN_EMAILS.indexOf(email)<0){
+      showAccessDenied();
+      return;
+    }
+    // Admin confirmed — also check whitelist_emails table
+    checkAdminWhitelist(email);
+  }).catch(function(){showAccessDenied();});
+
+  supa.auth.onAuthStateChange(function(event,session){
+    if(event==='SIGNED_OUT'){window.location.href='/';}
+  });
+}
+function checkAdminWhitelist(email){
+  // Double-check against DB whitelist
+  supa.from('whitelist_emails')
+    .select('role,active')
+    .eq('email',email)
+    .maybeSingle()
+    .then(function(res){
+      var row=res.data;
+      // Allow if in frontend ADMIN_EMAILS list (fallback) OR db says admin
+      var isAdmin=ADMIN_EMAILS.indexOf(email)>=0||(row&&row.role==='admin'&&row.active);
+      if(!isAdmin){showAccessDenied();return;}
+      showAdmin();
+    }).catch(function(){
+      // DB check failed — fall back to frontend list
+      if(ADMIN_EMAILS.indexOf(email)>=0){showAdmin();}
+      else{showAccessDenied();}
+    });
+}
+function showAdmin(){
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('admin-app').style.display='block';
+  document.getElementById('admin-email-label').textContent=currentUser.email||'';
+  document.getElementById('last-refresh').textContent='Last refreshed: just now';
+  loadAll();
+}
+function showAccessDenied(){
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('access-denied').style.display='flex';
+}
+function signOut(){
+  supa.auth.signOut().then(function(){window.location.href='/';});
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────────────────────
+function showTab(tab){
+  document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('tab-'+tab).classList.add('active');
+  event&&event.currentTarget&&event.currentTarget.classList.add('active');
+  // Find nav item that opened this tab and activate it
+  document.querySelectorAll('.nav-item').forEach(function(el){
+    if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+tab+"'")){
+      el.classList.add('active');
+    }
+  });
+}
+
+// ── LOAD ALL DATA ─────────────────────────────────────────────────────────────
+function loadAll(){
+  loadStats();
+  loadUsers();
+  loadDomains();
+  loadWhitelist();
+  document.getElementById('last-refresh').textContent='Last refreshed: '+new Date().toLocaleTimeString();
+}
+
+function loadStats(){
+  document.getElementById('stats-cards').innerHTML='<div class="stat-card"><div class="spinner"></div></div>';
+  supa.from('profiles').select('*').then(function(res){
+    var users=res.data||[];
+    var now=Date.now();
+    var week=7*24*60*60*1000;
+    var active7=users.filter(function(u){return u.last_active&&(now-new Date(u.last_active).getTime())<week;}).length;
+    var totalTours=users.reduce(function(s,u){return s+(u.tour_count||0);},0);
+    var totalLinks=users.reduce(function(s,u){return s+(u.link_count||0);},0);
+    var proPlan=users.filter(function(u){return u.plan==='pro'||u.subscription_status==='active';}).length;
+
+    document.getElementById('stats-cards').innerHTML=
+      statCard(users.length,'Total users','All registered accounts')+
+      statCard(active7,'Active (7d)','Logged in this week')+
+      statCard(proPlan,'Pro users','Paying subscribers')+
+      statCard(totalTours,'Tours created','Across all users')+
+      statCard(totalLinks,'Links shared','Client links created')+
+      statCard(users.filter(function(u){return u.active===false;}).length,'Inactive','Deactivated accounts');
+
+    // Recent signups
+    var recent=users.slice().sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at);}).slice(0,10);
+    document.getElementById('recent-tbody').innerHTML=recent.map(function(u){
+      return '<tr>'+
+        '<td><div class="td-name">'+esc(u.agent_name||'—')+'</div><div class="td-email">'+esc(u.email||'')+'</div></td>'+
+        '<td>'+planBadge(u.plan||u.subscription_status)+'</td>'+
+        '<td>'+roleBadge(u.role)+'</td>'+
+        '<td>'+fmtDate(u.created_at)+'</td>'+
+        '<td>'+timeAgo(u.last_active)+'</td>'+
+      '</tr>';
+    }).join('')||'<tr><td colspan="5" class="empty">No users yet</td></tr>';
+  }).catch(function(e){
+    document.getElementById('stats-cards').innerHTML='<div class="stat-card" style="grid-column:1/-1"><div style="color:rgba(239,68,68,.7);font-size:12px">Could not load stats. Check RLS policies.</div></div>';
+  });
+}
+
+function statCard(val,label,sub){
+  return '<div class="stat-card">'+
+    '<div class="stat-value">'+val+'</div>'+
+    '<div class="stat-label">'+label+'</div>'+
+    '<div class="stat-sub">'+sub+'</div>'+
+  '</div>';
+}
+
+// ── USERS ─────────────────────────────────────────────────────────────────────
+function loadUsers(){
+  document.getElementById('users-tbody').innerHTML='<tr><td colspan="9" class="empty"><div class="spinner"></div></td></tr>';
+  supa.from('profiles').select('*').order('created_at',{ascending:false}).then(function(res){
+    allUsers=res.data||[];
+    document.getElementById('user-count-label').textContent=allUsers.length+' users total';
+    renderUsers(allUsers);
+  }).catch(function(){
+    document.getElementById('users-tbody').innerHTML='<tr><td colspan="9" class="empty">Could not load users. Check RLS policies.</td></tr>';
+  });
+}
+
+function filterUsers(){
+  var q=(document.getElementById('user-search').value||'').toLowerCase();
+  var plan=document.getElementById('filter-plan').value;
+  var role=document.getElementById('filter-role').value;
+  var activeF=document.getElementById('filter-active').value;
+
+  var filtered=allUsers.filter(function(u){
+    if(q){
+      var hay=((u.email||'')+(u.agent_name||'')+(u.agency||'')).toLowerCase();
+      if(hay.indexOf(q)<0)return false;
+    }
+    if(plan&&(u.plan||'trial')!==plan)return false;
+    if(role&&(u.role||'agent')!==role)return false;
+    if(activeF!==''&&String(u.active!==false)!==activeF)return false;
+    return true;
+  });
+  document.getElementById('user-count-label').textContent=filtered.length+' of '+allUsers.length+' users';
+  renderUsers(filtered);
+}
+
+function renderUsers(users){
+  if(!users.length){
+    document.getElementById('users-tbody').innerHTML='<tr><td colspan="9" class="empty">No users match your filters</td></tr>';
+    return;
+  }
+  document.getElementById('users-tbody').innerHTML=users.map(function(u){
+    var isActive=u.active!==false;
+    return '<tr>'+
+      '<td><div class="td-name">'+esc(u.agent_name||'—')+'</div><div class="td-email">'+esc(u.email||'')+'</div></td>'+
+      '<td style="color:rgba(255,255,255,.5);font-size:11px">'+esc(u.agency||'—')+'</td>'+
+      '<td>'+
+        '<select class="mini-sel" onchange="updateUser(\''+u.id+'\',\'plan\',this.value)">'+
+        ['trial','pro','free','lifetime'].map(function(p){return'<option value="'+p+'"'+((u.plan||'trial')===p?' selected':'')+'>'+p+'</option>';}).join('')+
+        '</select>'+
+      '</td>'+
+      '<td>'+
+        '<select class="mini-sel" onchange="updateUser(\''+u.id+'\',\'role\',this.value)">'+
+        ['agent','admin','beta'].map(function(r){return'<option value="'+r+'"'+((u.role||'agent')===r?' selected':'')+'>'+r+'</option>';}).join('')+
+        '</select>'+
+      '</td>'+
+      '<td style="color:rgba(255,255,255,.4)">'+(u.tour_count||0)+'</td>'+
+      '<td style="color:rgba(255,255,255,.4)">'+(u.link_count||0)+'</td>'+
+      '<td style="color:rgba(255,255,255,.3);font-size:11px">'+fmtDate(u.created_at)+'</td>'+
+      '<td style="color:rgba(255,255,255,.3);font-size:11px">'+timeAgo(u.last_active)+'</td>'+
+      '<td><div class="actions-cell">'+
+        '<button class="action-btn" onclick="givePro(\''+u.id+'\')">Give Pro</button>'+
+        '<button class="action-btn danger" onclick="toggleActive(\''+u.id+'\','+isActive+')">'+
+          (isActive?'Deactivate':'Activate')+
+        '</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function updateUser(id,field,value){
+  var update={};update[field]=value;
+  supa.from('profiles').update(update).eq('id',id).then(function(res){
+    if(res.error){toast('Error: '+res.error.message);return;}
+    toast(field+' updated');
+    // Update local cache
+    allUsers=allUsers.map(function(u){return u.id===id?Object.assign({},u,update):u;});
+  });
+}
+function givePro(id){
+  updateUser(id,'plan','pro');
+  updateUser(id,'active',true);
+}
+function toggleActive(id,currently){
+  updateUser(id,'active',!currently);
+  setTimeout(loadUsers,500);
+}
+
+// ── DOMAINS ───────────────────────────────────────────────────────────────────
+function loadDomains(){
+  supa.from('free_access_domains').select('*').order('created_at',{ascending:false}).then(function(res){
+    var rows=res.data||[];
+    document.getElementById('domains-count').textContent=rows.length+' domain'+(rows.length===1?'':'s');
+    document.getElementById('domains-list').innerHTML=rows.length?rows.map(function(d){
+      return '<div class="list-row">'+
+        '<div>'+
+        '<div class="list-domain">@'+esc(d.domain)+'</div>'+
+        '<div class="list-meta">'+planBadge(d.plan)+' &nbsp;·&nbsp; Added '+fmtDate(d.created_at)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;align-items:center">'+
+        '<span class="badge '+(d.active?'badge-active':'badge-inactive')+'">'+(d.active?'Active':'Inactive')+'</span>'+
+        '<button class="action-btn danger" onclick="removeDomain(\''+d.id+'\')">Remove</button>'+
+        '</div>'+
+      '</div>';
+    }).join(''):'<div class="empty">No domains yet</div>';
+  });
+}
+function addDomain(){
+  var domain=(document.getElementById('new-domain').value||'').trim().toLowerCase().replace(/^@/,'');
+  var plan=document.getElementById('new-domain-plan').value;
+  if(!domain){toast('Enter a domain');return;}
+  supa.from('free_access_domains').insert({domain:domain,plan:plan,active:true}).then(function(res){
+    if(res.error){toast('Error: '+res.error.message);return;}
+    document.getElementById('new-domain').value='';
+    toast('Domain added');
+    loadDomains();
+  });
+}
+function removeDomain(id){
+  if(!confirm('Remove this domain?'))return;
+  supa.from('free_access_domains').delete().eq('id',id).then(function(){toast('Domain removed');loadDomains();});
+}
+
+// ── WHITELIST ─────────────────────────────────────────────────────────────────
+function loadWhitelist(){
+  supa.from('whitelist_emails').select('*').order('created_at',{ascending:false}).then(function(res){
+    var rows=res.data||[];
+    document.getElementById('whitelist-count').textContent=rows.length+' email'+(rows.length===1?'':'s');
+    document.getElementById('whitelist-list').innerHTML=rows.length?rows.map(function(w){
+      return '<div class="list-row">'+
+        '<div>'+
+        '<div class="list-email-text">'+esc(w.email)+'</div>'+
+        '<div class="list-meta">'+planBadge(w.plan)+' '+roleBadge(w.role)+' &nbsp;·&nbsp; Added '+fmtDate(w.created_at)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;align-items:center">'+
+        '<span class="badge '+(w.active?'badge-active':'badge-inactive')+'">'+(w.active?'Active':'Inactive')+'</span>'+
+        '<button class="action-btn danger" onclick="removeWhitelist(\''+w.id+'\')">Remove</button>'+
+        '</div>'+
+      '</div>';
+    }).join(''):'<div class="empty">No whitelisted emails</div>';
+  });
+}
+function addWhitelist(){
+  var email=(document.getElementById('new-wl-email').value||'').trim().toLowerCase();
+  var plan=document.getElementById('new-wl-plan').value;
+  var role=document.getElementById('new-wl-role').value;
+  if(!email||email.indexOf('@')<0){toast('Enter a valid email');return;}
+  supa.from('whitelist_emails').insert({email:email,plan:plan,role:role,active:true}).then(function(res){
+    if(res.error){toast('Error: '+res.error.message);return;}
+    document.getElementById('new-wl-email').value='';
+    toast('Email whitelisted');
+    loadWhitelist();
+  });
+}
+function removeWhitelist(id){
+  if(!confirm('Remove from whitelist?'))return;
+  supa.from('whitelist_emails').delete().eq('id',id).then(function(){toast('Removed');loadWhitelist();});
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
