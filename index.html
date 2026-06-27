@@ -430,20 +430,39 @@ function checkExistingSession(){
 // both count as having access; anything else (canceled, past_due, missing) does not.
 // ── WHITELIST ────────────────────────────────────────────────────────────────
 // These accounts always have full access — no trial, no payment needed.
-var FREE_ACCOUNTS=[
-  'niklasbengtsson@hotmail.com'
-  // Add more emails here as needed, e.g.:
-  // 'testuser@agency.com'
-];
+var FREE_ACCOUNTS=['niklasbengtsson@hotmail.com'];
+var FREE_DOMAINS=['reveny.es','reveny.se'];
+var FREE_DOMAIN_DAYS=365;
+
 function isWhitelisted(){
   if(!currentUser||!currentUser.email)return false;
-  return FREE_ACCOUNTS.indexOf(currentUser.email.toLowerCase())>=0;
+  var email=currentUser.email.toLowerCase();
+  if(FREE_ACCOUNTS.indexOf(email)>=0)return true;
+  var domain=email.split('@')[1]||'';
+  return FREE_DOMAINS.indexOf(domain)>=0;
+}
+
+function domainAccessExpired(){
+  // Domain users get 365 days from account creation
+  if(!currentUser||!currentUser.created_at)return false;
+  var email=(currentUser.email||'').toLowerCase();
+  var domain=email.split('@')[1]||'';
+  if(FREE_DOMAINS.indexOf(domain)<0)return false;
+  var created=new Date(currentUser.created_at).getTime();
+  var expires=created+(FREE_DOMAIN_DAYS*24*60*60*1000);
+  return Date.now()>expires;
 }
 
 function refreshSubscriptionStatus(){
   if(!supa||!currentUser)return;
-  // Whitelisted accounts always get full access
-  if(isWhitelisted()){S.isPremium=true;render();return;}
+  // Domain users: free for 365 days
+  if(isWhitelisted()){
+    if(domainAccessExpired()){
+      // Domain access expired — fall through to check Stripe
+    } else {
+      S.isPremium=true;render();return;
+    }
+  }
   supa.from('profiles').select('subscription_status').eq('id',currentUser.id).maybeSingle()
     .then(function(res){
       var status=res.data&&res.data.subscription_status;
