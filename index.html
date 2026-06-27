@@ -387,15 +387,8 @@ function resendOtp(){
   });
 }
 function signOut(){
-  if(!supa){
-    localStorage.removeItem(STORE);
-    location.reload();
-    return;
-  }
+  if(!supa){location.reload();return;}
   supa.auth.signOut().then(function(){
-    // Clear all local data — Supabase is source of truth
-    localStorage.removeItem(STORE);
-    localStorage.removeItem('tf-draft');
     localStorage.removeItem('tf-has-account');
     localStorage.removeItem('tf-has-generated');
     location.reload();
