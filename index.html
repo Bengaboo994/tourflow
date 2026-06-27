@@ -1142,6 +1142,12 @@ function cloudLoad(onDone, accessToken){
 
   function doLoad(token){
     var headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+token};
+    // Pre-load from localStorage so UI shows immediately
+    var local=load();
+    if(local.clients&&local.clients.length){S.clients=local.clients;}
+    if(local.days&&local.days.length){S.days=local.days;}
+    if(local.library&&local.library.length){S.library=local.library;}
+    if(local.cfg&&local.cfg.agent){S.cfg=Object.assign({},S.cfg,local.cfg);}
     var done=0;var total=4;
     function check(){done++;if(done>=total&&onDone)onDone();}
 
