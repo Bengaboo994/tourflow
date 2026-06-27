@@ -1145,52 +1145,55 @@ function _doCloudSync(){
 function cloudLoad(onDone){
   if(!currentUser||!supa){if(onDone)onDone();return;}
   var uid=currentUser.id;
-  var done=0;var total=4;
-  function check(){done++;if(done>=total&&onDone)onDone();}
 
-  // Clients
-  fetch(SUPA_URL+'/rest/v1/agent_clients?user_id=eq.'+uid+'&select=data',{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-  }).then(function(r){return r.json();}).then(function(rows){
-    if(rows&&rows.length){
-      S.clients=rows.map(function(r){return r.data;});
-      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
-    }
-    check();
-  }).catch(function(){check();});
+  // Get fresh session token for RLS-authenticated requests
+  supa.auth.getSession().then(function(res){
+    var token=(res.data&&res.data.session&&res.data.session.access_token)||SUPA_KEY;
+    var headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+token};
+    var done=0;var total=4;
+    function check(){done++;if(done>=total&&onDone)onDone();}
 
-  // Days
-  fetch(SUPA_URL+'/rest/v1/agent_days?user_id=eq.'+uid+'&select=data',{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-  }).then(function(r){return r.json();}).then(function(rows){
-    if(rows&&rows.length){
-      S.days=rows.map(function(r){return r.data;});
-      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
-    }
-    check();
-  }).catch(function(){check();});
+    // Clients
+    fetch(SUPA_URL+'/rest/v1/agent_clients?user_id=eq.'+uid+'&select=data',{headers:headers})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(rows&&rows.length){
+        S.clients=rows.map(function(r){return r.data;});
+        save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+      }
+      check();
+    }).catch(function(){check();});
 
-  // Library
-  fetch(SUPA_URL+'/rest/v1/agent_library?user_id=eq.'+uid+'&select=data',{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-  }).then(function(r){return r.json();}).then(function(rows){
-    if(rows&&rows.length){
-      S.library=rows.map(function(r){return r.data;});
-      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
-    }
-    check();
-  }).catch(function(){check();});
+    // Days
+    fetch(SUPA_URL+'/rest/v1/agent_days?user_id=eq.'+uid+'&select=data',{headers:headers})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(rows&&rows.length){
+        S.days=rows.map(function(r){return r.data;});
+        save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+      }
+      check();
+    }).catch(function(){check();});
 
-  // Config
-  fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid+'&select=data',{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
-  }).then(function(r){return r.json();}).then(function(rows){
-    if(rows&&rows.length&&rows[0].data){
-      S.cfg=Object.assign({},S.cfg,rows[0].data);
-      save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
-    }
-    check();
-  }).catch(function(){check();});
+    // Library
+    fetch(SUPA_URL+'/rest/v1/agent_library?user_id=eq.'+uid+'&select=data',{headers:headers})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(rows&&rows.length){
+        S.library=rows.map(function(r){return r.data;});
+        save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+      }
+      check();
+    }).catch(function(){check();});
+
+    // Config
+    fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid+'&select=data',{headers:headers})
+    .then(function(r){return r.json();}).then(function(rows){
+      if(rows&&rows.length&&rows[0].data){
+        S.cfg=Object.assign({},S.cfg,rows[0].data);
+        save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
+      }
+      check();
+    }).catch(function(){check();});
+
+  }).catch(function(){if(onDone)onDone();});
 }
 
 // ── FORM AUTOSAVE ─────────────────────────────────────────────────────────────
