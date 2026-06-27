@@ -415,9 +415,9 @@ function checkExistingSession(){
       hideAuthGate();
       refreshSubscriptionStatus();
       cloudLoad(function(){
-      S._showOnboarding=false;
-      showTab(S.tab||'home');
-    });
+        S._showOnboarding=false;
+        showTab(S.tab||'home');
+      }, session.access_token);
     }
   });
   supa.auth.onAuthStateChange(function(event,session){
@@ -428,12 +428,10 @@ function checkExistingSession(){
       refreshSubscriptionStatus();
       // Load cloud data first, then resume + render
       cloudLoad(function(){
-        // Reset onboarding flag so returning user sees proper home
         S._showOnboarding=false;
         resumePendingAction();
-        // Re-init from loaded data
         showTab(S.tab||'home');
-      });
+      }, session.access_token);
     }else if(event==='SIGNED_OUT'){
       currentUser=null;
       S.isPremium=false;
@@ -1142,21 +1140,18 @@ function _doCloudSync(){
 }
 
 // Load all data from Supabase after login
-function cloudLoad(onDone){
+function cloudLoad(onDone, accessToken){
   if(!currentUser||!supa){if(onDone)onDone();return;}
   var uid=currentUser.id;
 
-  // Get fresh session token for RLS-authenticated requests
-  supa.auth.getSession().then(function(res){
-    var token=(res.data&&res.data.session&&res.data.session.access_token)||SUPA_KEY;
+  function doLoad(token){
     var headers={'apikey':SUPA_KEY,'Authorization':'Bearer '+token};
     var done=0;var total=4;
-    function check(){done++;console.log('cloudLoad check',done,'/4');if(done>=total&&onDone)onDone();}
+    function check(){done++;if(done>=total&&onDone)onDone();}
 
     // Clients
     fetch(SUPA_URL+'/rest/v1/agent_clients?user_id=eq.'+uid+'&select=data',{headers:headers})
     .then(function(r){return r.json();}).then(function(rows){
-      console.log('cloudLoad clients rows:',rows&&rows.length,rows);
       if(rows&&rows.length){
         S.clients=rows.map(function(r){return r.data;});
         save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
@@ -1194,7 +1189,16 @@ function cloudLoad(onDone){
       check();
     }).catch(function(){check();});
 
-  }).catch(function(){if(onDone)onDone();});
+  }
+
+  if(accessToken){
+    doLoad(accessToken);
+  } else {
+    supa.auth.getSession().then(function(res){
+      var token=(res.data&&res.data.session&&res.data.session.access_token)||SUPA_KEY;
+      doLoad(token);
+    }).catch(function(){if(onDone)onDone();});
+  }
 }
 
 // ── FORM AUTOSAVE ─────────────────────────────────────────────────────────────
