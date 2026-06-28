@@ -320,7 +320,7 @@ function sendOtp(){
   btn.innerHTML='<span class="auth-spinner"></span> Sending...';
   supa.auth.signInWithOtp({
     email:email,
-    options:{shouldCreateUser:true, data:{}, emailRedirectTo:null, channel:'email'}
+    options:{shouldCreateUser:true, channel:'email'}
   }).then(function(res){
     btn.disabled=false;
     btn.innerHTML='Send code';
