@@ -69,6 +69,51 @@ exports.handler = async function(event) {
       return m ? m[0] : null;
     }
 
+    // ── PROPERTY TYPE DETECTION ───────────────────────────────────────────
+    function detectPropertyType(text) {
+      const t = text.toLowerCase();
+      if (/\b(villa)\b/.test(t)) return 'Villa';
+      if (/\b(penthouse|atico|ático)\b/.test(t)) return 'Penthouse';
+      if (/\b(townhouse|town house|adosado|radhus)\b/.test(t)) return 'Townhouse';
+      if (/\b(apartment|apartamento|lägenhet|piso|flat)\b/.test(t)) return 'Apartment';
+      if (/\b(finca|cortijo|country house)\b/.test(t)) return 'Finca';
+      if (/\b(bungalow)\b/.test(t)) return 'Bungalow';
+      if (/\b(duplex|dúplex)\b/.test(t)) return 'Duplex';
+      if (/\b(chalet)\b/.test(t)) return 'Chalet';
+      return null;
+    }
+
+    // ── SMART TITLE GENERATION ────────────────────────────────────────────
+    function generateTitle(rawOgTitle, area, detectedRooms, detectedSqm, htmlText) {
+      // Detect property type from OG title + full HTML
+      const combined = (rawOgTitle || '') + ' ' + htmlText.slice(0, 3000);
+      const propType = detectPropertyType(combined);
+
+      // Detect key selling adjectives from OG title + HTML
+      const t = combined.toLowerCase();
+      const adjectives = [];
+      if (/\b(luxury|luxurious|exclusive|exclusiv|lyx)\b/.test(t)) adjectives.push('Luxury');
+      else if (/\b(modern|contemporary|contempor)\b/.test(t)) adjectives.push('Modern');
+      else if (/\b(traditional|rustic|charming|charmig)\b/.test(t)) adjectives.push('Charming');
+      else if (/\b(new build|nueva construcción|nybyggd|newly built)\b/.test(t)) adjectives.push('New Build');
+
+      // Detect key features for title
+      const features = [];
+      if (/\b(sea view|vistas al mar|havsutsikt|ocean view)\b/.test(t)) features.push('Sea View');
+      else if (/\b(golf|golf course)\b/.test(t)) features.push('Golf');
+      else if (/\b(beachfront|beach front|first line|primera línea)\b/.test(t)) features.push('Beachfront');
+      else if (/\b(private pool|piscina privada|pool)\b/.test(t)) features.push('Pool');
+
+      // Build title: [Adjective] [Type] [with Feature]
+      let parts = [];
+      if (adjectives.length) parts.push(adjectives[0]);
+      if (propType) parts.push(propType);
+      if (!propType) parts.push('Property'); // fallback
+      if (features.length) parts.push('with ' + features[0]);
+
+      return parts.join(' ');
+    }
+
     // ── HIGHLIGHT DETECTION ───────────────────────────────────────────────
     function detectHighlights(text) {
       const t = text.toLowerCase();
@@ -94,6 +139,7 @@ exports.handler = async function(event) {
         [['rental', 'rental income', 'alquiler', 'uthyrning', 'investment potential'], 'Rental potential'],
         [['excellent value', 'great value', 'price reduced', 'reduced price', 'bargain'], 'Excellent value'],
         [['family', 'family-friendly', 'familiar', 'barnvänlig'], 'Family friendly'],
+        [['furniture', 'furnished', 'möblerad', 'amueblado'], 'Furniture included'],
         [['restaurants nearby', 'near restaurants', 'restaurantes cercanos'], 'Restaurants nearby'],
         [['holiday', 'vacation home', 'holiday home', 'semesterbostad'], 'Holiday home potential'],
       ];
@@ -113,48 +159,91 @@ exports.handler = async function(event) {
     let title = null, price = null, rooms = null, bathrooms = null, sqm = null, area = null, address = null;
 
     // ── REVENY.ES SPECIFIC ────────────────────────────────────────────────
-    if (url.includes('reveny.es')) {
+    if (url.includes('reveny.es') || url.includes('reveny.se')) {
       const h1 = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
-      title = h1 ? h1[1].trim() : null;
+      const rawTitle = h1 ? h1[1].trim() : null;
       const revPrice = firstMatch([/(\d[\d\.]+)\s*EUR/i]);
       price = cleanPrice(revPrice);
       const revSqm = firstMatch([/(\d{2,4})\s*m[²2]/i]);
       if (revSqm) { const n = parseInt(revSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
-      rooms = cleanNum(firstMatch([/(\d+)\s*sovrum/i]));
-      bathrooms = cleanNum(firstMatch([/(\d+)\s*[Bb]adrum/i]));
+      rooms = cleanNum(firstMatch([/(\d+)\s*sovrum/i, /(\d+)\s*bedroom/i]));
+      bathrooms = cleanNum(firstMatch([/(\d+)\s*[Bb]adrum/i, /(\d+)\s*bathroom/i]));
       const ogT = og('title') || '';
       const areaM = ogT.match(/,\s*([^,]+?)\s{2,}/);
       area = areaM ? areaM[1].trim() : null;
       address = null;
+      title = generateTitle(rawTitle || ogT, area, rooms, sqm, html);
+      const highlights = detectHighlights(html);
+      return { statusCode: 200, headers, body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights }) };
+    }
+
+    // ── KYERO SPECIFIC ────────────────────────────────────────────────────
+    if (url.includes('kyero.com')) {
+      const ogT = og('title') || '';
+      const kyeroPrice = firstMatch([/(\d[\d,\.]+)\s*€/, /€\s*(\d[\d,\.]+)/]);
+      price = cleanPrice(kyeroPrice);
+      rooms = cleanNum(firstMatch([/(\d+)\s*bedroom/i, /(\d+)\s*bed/i]));
+      bathrooms = cleanNum(firstMatch([/(\d+)\s*bathroom/i, /(\d+)\s*bath/i]));
+      const sqmM = firstMatch([/(\d{2,4})\s*m²/i, /(\d{2,4})\s*sq\.?\s*m/i]);
+      if (sqmM) { const n = parseInt(sqmM, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+      // Extract area from URL
+      try {
+        const urlObj = new URL(url);
+        const parts = urlObj.pathname.split('/').filter(Boolean);
+        area = parts.find(p => p.length > 3 && !/^\d+$/.test(p) && p !== 'property')?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || null;
+      } catch(e) {}
+      title = generateTitle(ogT, area, rooms, sqm, html);
+      const highlights = detectHighlights(html);
+      return { statusCode: 200, headers, body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights }) };
+    }
+
+    // ── RIGHTMOVE SPECIFIC ────────────────────────────────────────────────
+    if (url.includes('rightmove.co.uk')) {
+      const ogT = og('title') || '';
+      price = cleanPrice(firstMatch([/£\s*([\d,]+)/, /(\d[\d,]+)\s*£/])) ||
+              cleanPrice(firstMatch([/€\s*([\d,]+)/, /(\d[\d,]+)\s*€/]));
+      rooms = cleanNum(firstMatch([/(\d+)\s*bedroom/i]));
+      bathrooms = cleanNum(firstMatch([/(\d+)\s*bathroom/i]));
+      const sqmM = firstMatch([/(\d{2,4})\s*m²/i, /(\d{3,5})\s*sq\s*ft/i]);
+      if (sqmM) { const n = parseInt(sqmM, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+      try {
+        const areaM = ogT.match(/in\s+([A-Za-z\s]+?)(?:\s*[,\|]|$)/i);
+        area = areaM ? areaM[1].trim() : null;
+      } catch(e) {}
+      title = generateTitle(ogT, area, rooms, sqm, html);
+      const highlights = detectHighlights(html);
+      return { statusCode: 200, headers, body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights }) };
+    }
+
+    // ── THINKSPAIN SPECIFIC ───────────────────────────────────────────────
+    if (url.includes('thinkspain.com')) {
+      const ogT = og('title') || '';
+      price = cleanPrice(firstMatch([/€\s*([\d,\.]+)/, /([\d,\.]+)\s*€/, /([\d,\.]+)\s*EUR/i]));
+      rooms = cleanNum(firstMatch([/(\d+)\s*bedroom/i, /(\d+)\s*bed/i]));
+      bathrooms = cleanNum(firstMatch([/(\d+)\s*bathroom/i, /(\d+)\s*bath/i]));
+      const sqmM = firstMatch([/(\d{2,4})\s*m²/i]);
+      if (sqmM) { const n = parseInt(sqmM, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+      try {
+        const urlObj = new URL(url);
+        const parts = urlObj.pathname.split('/').filter(Boolean);
+        area = parts[parts.length - 2]?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || null;
+      } catch(e) {}
+      title = generateTitle(ogT, area, rooms, sqm, html);
       const highlights = detectHighlights(html);
       return { statusCode: 200, headers, body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights }) };
     }
 
     // ── GENERIC PARSER ────────────────────────────────────────────────────
-
-    // Title: clean OG title from HTML entities, site names, property type prefixes
-    const ogTitle = og('title') || '';  // og() already decodes entities
-    if (ogTitle) {
-      title = ogTitle
-        .replace(/\s*[\|\-–]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria|Movr|Skandia|SkandiaMäklarna|Costa Blanca).*$/i, '')
-        .replace(/\s*[»›]\s*(Reveny|Idealista|Fotocasa|Kyero|Inmobiliaria|Movr|Skandia|SkandiaMäklarna).*$/i, '')
-        .replace(/^(Resale|Detached Villa|Semi-detached|Apartment|Villa|Townhouse|Penthouse|Bungalow|Finca)\s*[»›|\-]?\s*/i, '')
-        .replace(/\s*(till salu|for sale|en venta|à vendre)\s*,?\s*/i, '')
-        .replace(/\s*[»›]\s*/g, ', ')
-        .replace(/\s*\|\s*/g, ', ')
-        .replace(/,\s*,/g, ',')
-        .trim();
-    }
+    const ogTitle = og('title') || '';
 
     // Price: try JSON-LD first, then common patterns
     const rawPrice = firstMatch([
       /"price"\s*:\s*"?([\d\.]+)"?/,
       /"Price"\s*:\s*"?([\d\.]+)"?/,
       /itemprop="price"[^>]+content="([\d\.]+)"/i,
-      /\u20AC\s*([\d\s\.,']+)(?:\s|<)/,
+      /\u20AC\s*([\d\s\.,\']+)(?:\s|<)/,
       /(\d[\d\s\.]{4,})\s*EUR/i,
-      /EUR\s*([\d\s\.,']+)/i,
-      /([\d][\d\s]{4,})\s*kr(?:\s|<)/i,
+      /EUR\s*([\d\s\.,\']+)/i,
     ]);
     price = cleanPrice(rawPrice);
 
@@ -170,7 +259,7 @@ exports.handler = async function(event) {
       /(\d+)\s*(?:[Bb]adrum|bathroom|ba[ñn]o)/i,
     ]));
 
-    // Sqm - find all matches, pick the largest valid one (avoids picking terrace/plot size)
+    // Sqm
     const sqmMatches = [];
     const sqmPatterns = [/"buildingArea"\s*:\s*(\d+)/i, /(\d{2,4})\s*m[²2](?!\d)/gi, /(\d{2,4})\s*kvm(?!\d)/gi];
     for (const p of sqmPatterns) {
@@ -179,20 +268,19 @@ exports.handler = async function(event) {
     }
     if (sqmMatches.length > 0) sqm = String(Math.max(...sqmMatches));
 
-    // Area: extract from URL path — skip generic segments, take the most specific location part
+    // Area from URL
     if (!area) {
       try {
         const urlObj = new URL(url);
         const pathParts = urlObj.pathname.split('/').filter(Boolean);
         const skip = /^(till-salu|for-sale|en-venta|resale|new-build|inmueble|property|properties|hitta-hem|lagenhet|radhus|apartment|townhouse|penthouse|bungalow|finca|house|r\d+|en|es|sv|de|nl|spain|spanien|costa-blanca|costa-calida|costa-del-sol|\d+)$/i;
-        // Take the last non-skipped segment (most specific location)
         const locationParts = pathParts.filter(p => !skip.test(p) && p.length > 2);
         const areaPart = locationParts[locationParts.length - 1];
         if (areaPart) area = areaPart.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
       } catch(e) {}
     }
 
-    // Address — skip known office addresses and generic words
+    // Address
     const officeAddresses = ['niágara', 'niagara', 'iiwi', 'guadalmina', 'primera llarga', 'långgatan', 'and villamartin'];
     const addrMatches = html.matchAll(/(?:Calle|Avenida|Carrer|Urb\.?|Urbanización|Paseo)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/gi);
     for (const m of addrMatches) {
@@ -200,6 +288,9 @@ exports.handler = async function(event) {
       const isOffice = officeAddresses.some(o => candidate.toLowerCase().includes(o));
       if (!isOffice) { address = candidate; break; }
     }
+
+    // Smart title
+    title = generateTitle(ogTitle, area, rooms, sqm, html);
 
     const highlights = detectHighlights(html);
 
