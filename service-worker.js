@@ -5,7 +5,6 @@ const STATIC_ASSETS = [
   '/index.html',
   '/t.html'
 ];
-
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -14,7 +13,6 @@ self.addEventListener('install', event => {
   );
   self.skipWaiting();
 });
-
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -25,7 +23,6 @@ self.addEventListener('activate', event => {
   );
   self.clients.claim();
 });
-
 self.addEventListener('fetch', event => {
   const url = event.request.url;
   
@@ -39,6 +36,12 @@ self.addEventListener('fetch', event => {
     return; // Let browser handle it normally
   }
 
+  // Let admin.html and t.html pass through normally
+  if (url.includes('/admin.html') || url.includes('/t.html')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
   // For navigation requests, serve index.html
   if (event.request.mode === 'navigate') {
     event.respondWith(
@@ -46,7 +49,6 @@ self.addEventListener('fetch', event => {
     );
     return;
   }
-
   // Cache-first for static assets
   event.respondWith(
     caches.match(event.request).then(cached => {
