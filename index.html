@@ -410,6 +410,8 @@ function checkExistingSession(){
     if(session&&session.user){
       currentUser=session.user;
       localStorage.setItem('tf-has-account','1');
+      // Cache session token for sync operations
+      window._authToken=session.access_token;
       hideAuthGate();
       refreshSubscriptionStatus();
       cloudLoad(function(){
@@ -1085,15 +1087,19 @@ function cloudSync(){
 
 function _upsert(table,rows){
   if(!rows||!rows.length)return Promise.resolve();
-  return fetch(SUPA_URL+'/rest/v1/'+table+'?on_conflict=id',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':SUPA_KEY,
-      'Authorization':'Bearer '+SUPA_KEY,
-      'Prefer':'resolution=merge-duplicates'
-    },
-    body:JSON.stringify(rows)
+  return supa.auth.getSession().then(function(res){
+    var token=(res.data&&res.data.session&&res.data.session.access_token)||window._authToken||SUPA_KEY;
+    if(token&&token!==SUPA_KEY)window._authToken=token;
+    return fetch(SUPA_URL+'/rest/v1/'+table+'?on_conflict=id',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPA_KEY,
+        'Authorization':'Bearer '+token,
+        'Prefer':'resolution=merge-duplicates'
+      },
+      body:JSON.stringify(rows)
+    });
   });
 }
 
@@ -1103,7 +1109,7 @@ function _deleteRows(table,ids){
     method:'DELETE',
     headers:{
       'apikey':SUPA_KEY,
-      'Authorization':'Bearer '+SUPA_KEY
+      'Authorization':'Bearer '+(window._authToken||SUPA_KEY)
     }
   });
 }
@@ -1125,16 +1131,19 @@ function _doCloudSync(){
   if(libRows.length)_upsert('agent_library',libRows).catch(function(e){console.error('Sync library failed:',e);});
 
   // Sync config
-  fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid,{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':SUPA_KEY,
-      'Authorization':'Bearer '+SUPA_KEY,
-      'Prefer':'resolution=merge-duplicates'
-    },
-    body:JSON.stringify([{user_id:uid,data:S.cfg,updated_at:new Date().toISOString()}])
-  }).catch(function(e){console.error('Sync cfg failed:',e);});
+  supa.auth.getSession().then(function(res){
+    var token=(res.data&&res.data.session&&res.data.session.access_token)||SUPA_KEY;
+    fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPA_KEY,
+        'Authorization':'Bearer '+token,
+        'Prefer':'resolution=merge-duplicates'
+      },
+      body:JSON.stringify([{user_id:uid,data:S.cfg,updated_at:new Date().toISOString()}])
+    }).catch(function(e){console.error('Sync cfg failed:',e);});
+  });
 }
 
 // Load all data from Supabase after login
