@@ -1118,6 +1118,11 @@ function _doCloudSync(){
   if(!currentUser||!supa)return;
   var uid=currentUser.id;
 
+  // Get fresh token for all sync operations
+  supa.auth.getSession().then(function(res){
+    window._authToken=(res.data&&res.data.session&&res.data.session.access_token)||SUPA_KEY;
+  });
+
   // Sync clients
   var clientRows=S.clients.map(function(c){return{id:c.id,user_id:uid,data:c,updated_at:new Date().toISOString()};});
   _upsert('agent_clients',clientRows).catch(function(e){console.error('Sync clients failed:',e);});
@@ -1132,7 +1137,8 @@ function _doCloudSync(){
 
   // Sync config
   supa.auth.getSession().then(function(res){
-    var token=(res.data&&res.data.session&&res.data.session.access_token)||SUPA_KEY;
+    var token=(res.data&&res.data.session&&res.data.session.access_token)||window._authToken||SUPA_KEY;
+    if(token!==SUPA_KEY)window._authToken=token;
     fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid,{
       method:'POST',
       headers:{
