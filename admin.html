@@ -556,7 +556,8 @@ function loadUsers(){
     var clientsByUser = {};
     clientRows.forEach(function(r){ clientsByUser[r.user_id]=(clientsByUser[r.user_id]||0)+1; });
     var proMap = {};
-    profileRows.forEach(function(r){ proMap[r.id]=r.subscription_status; });
+    var loginEmailMap = {};
+    profileRows.forEach(function(r){ proMap[r.id]=r.subscription_status; loginEmailMap[r.id]=r.email||''; });
 
     allUsers = cfgRows.map(function(r){
       var cfg = r.data||{};
@@ -566,6 +567,7 @@ function loadUsers(){
         agent_name: cfg.agent||'',
         agency: cfg.agency||'',
         email: cfg.email||'',
+        login_email: loginEmailMap[r.user_id]||'',
         phone: cfg.phone||'',
         plan: status==='active'?'pro':status==='trialing'?'trial':'free',
         subscription_status: status,
@@ -612,7 +614,10 @@ function renderUsers(users){
   document.getElementById('users-tbody').innerHTML=users.map(function(u){
     var isActive=u.active!==false;
     return '<tr>'+
-      '<td><div class="td-name">'+esc(u.agent_name||'—')+'</div><div class="td-email">'+esc(u.email||'')+'</div></td>'+
+      '<td><div class="td-name">'+esc(u.agent_name||'—')+'</div>'+
+        '<div class="td-email">'+esc(u.login_email||u.email||'')+'</div>'+
+        (u.email&&u.email!==u.login_email?'<div class="td-email" style="color:rgba(201,161,74,.4)">✉ '+esc(u.email)+'</div>':'')+
+      '</td>'+
       '<td style="color:rgba(255,255,255,.5);font-size:11px">'+esc(u.agency||'—')+'</td>'+
       '<td>'+
         '<select class="mini-sel" onchange="updateUser(\''+u.id+'\',\'plan\',this.value)">'+
