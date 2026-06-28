@@ -1,6 +1,7 @@
 [build]
   publish = "."
   functions = "."
+  command = "npm install"
 
 [[headers]]
   for = "/*"
