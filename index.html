@@ -387,8 +387,14 @@ function resendOtp(){
   });
 }
 function signOut(){
-  if(!supa){location.reload();return;}
+  if(!supa){
+    localStorage.removeItem(STORE);
+    location.reload();
+    return;
+  }
   supa.auth.signOut().then(function(){
+    localStorage.removeItem(STORE);
+    localStorage.removeItem('tf-draft');
     localStorage.removeItem('tf-has-account');
     localStorage.removeItem('tf-has-generated');
     location.reload();
