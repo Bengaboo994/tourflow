@@ -240,18 +240,14 @@ function startCheckout(){
   var btn=modal?modal.querySelector('button[onclick="startCheckout()"]'):null;
   var origHtml=btn?btn.innerHTML:'';
   if(btn){btn.disabled=true;btn.innerHTML='<span class="auth-spinner"></span> Redirecting to checkout...';}
-  fetch(SUPA_URL+'/functions/v1/create-checkout',{
+  fetch('/.netlify/functions/create-checkout',{
     method:'POST',
     headers:{
-      'Content-Type':'application/json',
-      'Authorization':'Bearer '+SUPA_KEY
+      'Content-Type':'application/json'
     },
     body:JSON.stringify({
-      email:currentUser.email,
-      userId:currentUser.id,
-      plan:plan,
-      successUrl:window.location.origin+window.location.pathname+'?checkout=success',
-      cancelUrl:window.location.origin+window.location.pathname+'?checkout=cancelled'
+      priceId:plan==='yearly'?'price_1TnCn2PfZkvVHLRzWuZfsFlc':'price_1TnCfxPfZkvVHLRzd3d9PuCM',
+      userEmail:currentUser.email
     })
   }).then(function(res){return res.json();})
   .then(function(data){
