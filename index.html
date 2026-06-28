@@ -1139,7 +1139,7 @@ function _doCloudSync(){
   supa.auth.getSession().then(function(res){
     var token=(res.data&&res.data.session&&res.data.session.access_token)||window._authToken||SUPA_KEY;
     if(token!==SUPA_KEY)window._authToken=token;
-    fetch(SUPA_URL+'/rest/v1/agent_cfg?user_id=eq.'+uid,{
+    fetch(SUPA_URL+'/rest/v1/agent_cfg?on_conflict=id',{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
@@ -1147,7 +1147,7 @@ function _doCloudSync(){
         'Authorization':'Bearer '+token,
         'Prefer':'resolution=merge-duplicates'
       },
-      body:JSON.stringify([{user_id:uid,data:S.cfg,updated_at:new Date().toISOString()}])
+      body:JSON.stringify([{id:uid,user_id:uid,data:S.cfg,updated_at:new Date().toISOString()}])
     }).catch(function(e){console.error('Sync cfg failed:',e);});
   });
 }
