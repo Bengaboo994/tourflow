@@ -265,7 +265,7 @@ td{padding:12px 16px;font-size:12px;color:rgba(255,255,255,.7);vertical-align:mi
             <th>Plan</th>
             <th>Role</th>
             <th>Tours</th>
-            <th>Links</th>
+            <th>Clients</th>
             <th>Joined</th>
             <th>Last active</th>
             <th>Actions</th>
@@ -464,36 +464,68 @@ function loadAll(){
 
 function loadStats(){
   document.getElementById('stats-cards').innerHTML='<div class="stat-card"><div class="spinner"></div></div>';
-  supa.from('profiles').select('*').then(function(res){
-    var users=res.data||[];
-    var now=Date.now();
-    var week=7*24*60*60*1000;
-    var active7=users.filter(function(u){return u.last_active&&(now-new Date(u.last_active).getTime())<week;}).length;
-    var totalTours=users.reduce(function(s,u){return s+(u.tour_count||0);},0);
-    var totalLinks=users.reduce(function(s,u){return s+(u.link_count||0);},0);
-    var proPlan=users.filter(function(u){return u.plan==='pro'||u.subscription_status==='active';}).length;
+
+  // Load from agent_cfg (all registered users), agent_days (tours), agent_clients (clients)
+  Promise.all([
+    supa.from('agent_cfg').select('user_id, data, updated_at').order('updated_at',{ascending:false}),
+    supa.from('agent_days').select('user_id, updated_at'),
+    supa.from('agent_clients').select('user_id'),
+    supa.from('profiles').select('id, subscription_status, email')
+  ]).then(function(results){
+    var cfgRows = results[0].data||[];
+    var dayRows = results[1].data||[];
+    var clientRows = results[2].data||[];
+    var profileRows = results[3].data||[];
+
+    var totalUsers = cfgRows.length;
+    var now = Date.now();
+    var week = 7*24*60*60*1000;
+    var active7 = cfgRows.filter(function(r){
+      return r.updated_at && (now - new Date(r.updated_at).getTime()) < week;
+    }).length;
+
+    // Tours per user
+    var toursByUser = {};
+    dayRows.forEach(function(r){ toursByUser[r.user_id]=(toursByUser[r.user_id]||0)+1; });
+    var totalTours = dayRows.length;
+
+    // Clients per user
+    var clientsByUser = {};
+    clientRows.forEach(function(r){ clientsByUser[r.user_id]=(clientsByUser[r.user_id]||0)+1; });
+    var totalClients = clientRows.length;
+
+    // Pro users from profiles
+    var proIds = {};
+    profileRows.forEach(function(r){
+      if(r.subscription_status==='active'||r.subscription_status==='trialing') proIds[r.id]=true;
+    });
+    var proCount = Object.keys(proIds).length;
 
     document.getElementById('stats-cards').innerHTML=
-      statCard(users.length,'Total users','All registered accounts')+
-      statCard(active7,'Active (7d)','Logged in this week')+
-      statCard(proPlan,'Pro users','Paying subscribers')+
-      statCard(totalTours,'Tours created','Across all users')+
-      statCard(totalLinks,'Links shared','Client links created')+
-      statCard(users.filter(function(u){return u.active===false;}).length,'Inactive','Deactivated accounts');
+      statCard(totalUsers,'Total users','All registered agents')+
+      statCard(active7,'Active (7d)','Used the app this week')+
+      statCard(proCount,'Pro subscribers','Active Stripe plans')+
+      statCard(totalTours,'Tours created','Across all agents')+
+      statCard(totalClients,'Clients added','Across all agents')+
+      statCard(cfgRows.filter(function(r){return toursByUser[r.user_id]>0;}).length,'Converted','Agents with at least 1 tour');
 
-    // Recent signups
-    var recent=users.slice().sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at);}).slice(0,10);
-    document.getElementById('recent-tbody').innerHTML=recent.map(function(u){
+    // Recent activity — merge cfg with tour/client counts
+    var recent = cfgRows.slice(0,10).map(function(r){
+      var cfg = r.data||{};
+      var isPro = proIds[r.user_id];
       return '<tr>'+
-        '<td><div class="td-name">'+esc(u.agent_name||'—')+'</div><div class="td-email">'+esc(u.email||'')+'</div></td>'+
-        '<td>'+planBadge(u.plan||u.subscription_status)+'</td>'+
-        '<td>'+roleBadge(u.role)+'</td>'+
-        '<td>'+fmtDate(u.created_at)+'</td>'+
-        '<td>'+timeAgo(u.last_active)+'</td>'+
+        '<td><div class="td-name">'+esc(cfg.agent||'—')+'</div><div class="td-email">'+esc(cfg.email||cfg.agency||'')+'</div></td>'+
+        '<td>'+planBadge(isPro?'active':'free')+'</td>'+
+        '<td><span class="badge badge-agent">agent</span></td>'+
+        '<td>'+fmtDate(r.updated_at)+'</td>'+
+        '<td>'+(toursByUser[r.user_id]||0)+' tours · '+(clientsByUser[r.user_id]||0)+' clients</td>'+
       '</tr>';
-    }).join('')||'<tr><td colspan="5" class="empty">No users yet</td></tr>';
+    });
+    document.getElementById('recent-tbody').innerHTML=recent.join('')||'<tr><td colspan="5" class="empty">No users yet</td></tr>';
+
   }).catch(function(e){
-    document.getElementById('stats-cards').innerHTML='<div class="stat-card" style="grid-column:1/-1"><div style="color:rgba(239,68,68,.7);font-size:12px">Could not load stats. Check RLS policies.</div></div>';
+    console.error(e);
+    document.getElementById('stats-cards').innerHTML='<div class="stat-card" style="grid-column:1/-1"><div style="color:rgba(239,68,68,.7);font-size:12px">Could not load stats: '+e.message+'</div></div>';
   });
 }
 
@@ -508,8 +540,43 @@ function statCard(val,label,sub){
 // ── USERS ─────────────────────────────────────────────────────────────────────
 function loadUsers(){
   document.getElementById('users-tbody').innerHTML='<tr><td colspan="9" class="empty"><div class="spinner"></div></td></tr>';
-  supa.from('profiles').select('*').order('created_at',{ascending:false}).then(function(res){
-    allUsers=res.data||[];
+  Promise.all([
+    supa.from('agent_cfg').select('user_id, data, updated_at').order('updated_at',{ascending:false}),
+    supa.from('agent_days').select('user_id'),
+    supa.from('agent_clients').select('user_id'),
+    supa.from('profiles').select('id, subscription_status, email')
+  ]).then(function(results){
+    var cfgRows = results[0].data||[];
+    var dayRows = results[1].data||[];
+    var clientRows = results[2].data||[];
+    var profileRows = results[3].data||[];
+
+    var toursByUser = {};
+    dayRows.forEach(function(r){ toursByUser[r.user_id]=(toursByUser[r.user_id]||0)+1; });
+    var clientsByUser = {};
+    clientRows.forEach(function(r){ clientsByUser[r.user_id]=(clientsByUser[r.user_id]||0)+1; });
+    var proMap = {};
+    profileRows.forEach(function(r){ proMap[r.id]=r.subscription_status; });
+
+    allUsers = cfgRows.map(function(r){
+      var cfg = r.data||{};
+      var status = proMap[r.user_id]||'free';
+      return {
+        id: r.user_id,
+        agent_name: cfg.agent||'',
+        agency: cfg.agency||'',
+        email: cfg.email||'',
+        phone: cfg.phone||'',
+        plan: status==='active'?'pro':status==='trialing'?'trial':'free',
+        subscription_status: status,
+        role: r.user_id==='niklasbengtsson@hotmail.com'?'admin':'agent',
+        tour_count: toursByUser[r.user_id]||0,
+        client_count: clientsByUser[r.user_id]||0,
+        last_active: r.updated_at,
+        active: true
+      };
+    });
+
     document.getElementById('user-count-label').textContent=allUsers.length+' users total';
     renderUsers(allUsers);
   }).catch(function(){
@@ -558,7 +625,7 @@ function renderUsers(users){
         '</select>'+
       '</td>'+
       '<td style="color:rgba(255,255,255,.4)">'+(u.tour_count||0)+'</td>'+
-      '<td style="color:rgba(255,255,255,.4)">'+(u.link_count||0)+'</td>'+
+      '<td style="color:rgba(255,255,255,.4)">'+(u.client_count||0)+'</td>'+
       '<td style="color:rgba(255,255,255,.3);font-size:11px">'+fmtDate(u.created_at)+'</td>'+
       '<td style="color:rgba(255,255,255,.3);font-size:11px">'+timeAgo(u.last_active)+'</td>'+
       '<td><div class="actions-cell">'+
