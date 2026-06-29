@@ -2378,7 +2378,8 @@ function matchDisplayPicker(day){
     var bg=on?'#071226':'var(--card)';
     var col=on?'#C9A14A':'var(--slate)';
     var fw=on?'600':'400';
-    return '<button onclick="updateDay(&quot;'+did+'&quot;,{matchDisplay:&quot;'+val+'&quot;});render()" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px"><span>'+icon+'</span><span>'+label+'</span></button>';
+    return '<button onclick="updateDay(\"'+did+'\",{matchDisplay:\"'+val+'\"});render()" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px">'+
+      '<span>'+icon+'</span><span>'+label+'</span></button>';
   }
   return '<div style="margin-bottom:16px">'+
     '<label class="lbl" style="margin-bottom:8px">Match score visibility</label>'+
@@ -2386,7 +2387,6 @@ function matchDisplayPicker(day){
     mb('client','Client','&#128065;')+mb('agent','Agent','&#128274;')+mb('none','Hide','&#215;')+
     '</div></div>';
 }
-
 function pgDayDetail(){
   var day=curD();var c=curC();if(!day)return"";
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
@@ -3977,6 +3977,14 @@ function pgSettings(){
     (currentUser&&S.isPremium?'<div class="ban ban-gr" style="margin-bottom:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Premium plan active</div>':currentUser&&trialDaysLeft().total>0?'<div class="ban ban-am" style="margin-bottom:14px">'+trialLabel()+'</div>':currentUser?'<div class="ban" style="margin-bottom:14px;background:#fef2f2;color:#991b1b">Your trial has ended &middot; <a href="#" onclick="showUpgradeModal();return false" style="color:#991b1b;font-weight:600;text-decoration:underline">Upgrade</a></div>':'')+
     '<button onclick="signOut()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--fog);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:#6b6560">Sign out</button>'+
     '</div>'+
+    (currentUser&&currentUser.email&&currentUser.email.toLowerCase()==='niklasbengtsson@hotmail.com'?
+    '<div class="card" style="margin-top:16px;background:#071226;border:1px solid rgba(201,161,74,.2)">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Admin</div>'+
+    '<a href="/admin.html" style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:10px;text-decoration:none">'+
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#C9A14A">Admin Dashboard</div>'+
+    '<div style="font-size:11px;color:rgba(201,161,74,.5);margin-top:1px">Users, plans & access control</div></div></a>'+
+    '</div>':'')+ 
     '<div class="card" style="margin-top:16px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Install app</div>'+
     '<div style="font-size:12px;color:#6b6560;line-height:1.6;margin-bottom:10px">Add TourFlow to your home screen for the best experience — works like a native app, no App Store needed.</div>'+
