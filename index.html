@@ -1222,7 +1222,7 @@ function cloudLoad(onDone, accessToken){
 // and restores them after render() so iOS background-refresh doesn't lose data.
 var DRAFT_KEY='tf-draft';
 function saveDraft(){
-  var draft={screen:S.screen};
+  var draft={screen:S.screen,did:S.did,cid:S.cid,epid:S.epid,tab:S.tab};
   document.querySelectorAll('input[id],select[id],textarea[id]').forEach(function(el){
     if(el.type==='file')return;
     draft[el.id]=el.value;
@@ -1236,13 +1236,33 @@ function restoreDraft(){
     var draft=JSON.parse(raw);
     if(draft.screen!==S.screen)return;
     Object.keys(draft).forEach(function(id){
-      if(id==='screen')return;
+      if(id==='screen'||id==='did'||id==='cid'||id==='epid'||id==='tab')return;
       var el=document.getElementById(id);
       if(el&&el.type!=='file'&&draft[id]!==undefined&&draft[id]!==''){
         el.value=draft[id];
       }
     });
   }catch(e){}
+}
+function resumeFromDraft(){
+  // Called on app start — if iOS killed the app mid-form, bring the user back
+  try{
+    var raw=localStorage.getItem(DRAFT_KEY);
+    if(!raw)return false;
+    var draft=JSON.parse(raw);
+    var formScreens=['add-client','edit-client','add-prop','add-lib-prop','edit-prop'];
+    if(!draft.screen||formScreens.indexOf(draft.screen)<0)return false;
+    // Restore nav state
+    if(draft.did)S.did=draft.did;
+    if(draft.cid)S.cid=draft.cid;
+    if(draft.epid)S.epid=draft.epid;
+    if(draft.tab)S.tab=draft.tab;
+    S.screen=draft.screen;
+    render();
+    // Restore form values after render
+    setTimeout(restoreDraft,80);
+    return true;
+  }catch(e){return false;}
 }
 function clearDraft(){localStorage.removeItem(DRAFT_KEY);}
 // Listen for any input changes and autosave
@@ -4117,7 +4137,7 @@ function handleCreateClientLink(){
 // App always boots immediately — guest mode by default.
 // We only check in the background whether a session already exists,
 // so a returning logged-in user doesn't have to sign in again.
-showTab("home");
+if(!resumeFromDraft())showTab("home");
 checkExistingSession();
 handleCheckoutReturn();
 document.addEventListener('click',function(e){
