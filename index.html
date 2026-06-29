@@ -2369,17 +2369,20 @@ function pgDays(){
 
   return h+'</div>';
 }
+function setMatchDisplay(val){
+  var day=curD();if(!day)return;
+  updateDay(day.id,{matchDisplay:val});
+  render();
+}
 function matchDisplayPicker(day){
   var md=day.matchDisplay||'agent';
-  var did=day.id;
   function mb(val,label,icon){
     var on=md===val;
     var border=on?'#C9A14A':'var(--fog)';
     var bg=on?'#071226':'var(--card)';
     var col=on?'#C9A14A':'var(--slate)';
     var fw=on?'600':'400';
-    return '<button onclick="updateDay(\"'+did+'\",{matchDisplay:\"'+val+'\"});render()" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px">'+
-      '<span>'+icon+'</span><span>'+label+'</span></button>';
+    return '<button onclick="setMatchDisplay(&quot;'+val+'&quot;)" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px"><span>'+icon+'</span><span>'+label+'</span></button>';
   }
   return '<div style="margin-bottom:16px">'+
     '<label class="lbl" style="margin-bottom:8px">Match score visibility</label>'+
@@ -2387,6 +2390,7 @@ function matchDisplayPicker(day){
     mb('client','Client','&#128065;')+mb('agent','Agent','&#128274;')+mb('none','Hide','&#215;')+
     '</div></div>';
 }
+
 function pgDayDetail(){
   var day=curD();var c=curC();if(!day)return"";
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
