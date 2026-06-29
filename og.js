@@ -12,6 +12,83 @@ exports.handler = async function(event) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'No URL provided' }) };
   }
 
+  // ── URL-BASED FALLBACK PARSER ─────────────────────────────────────────
+  // Extracts title, area and highlights from the URL slug alone.
+  // Used when the site blocks our fetch request.
+  function parseFromUrl(url) {
+    try {
+      const urlObj = new URL(url);
+      const slug = urlObj.pathname.toLowerCase();
+      const parts = slug.split('/').filter(Boolean);
+
+      // Find the longest slug part (usually the property description)
+      const descPart = parts.sort((a, b) => b.length - a.length)[0] || '';
+      const words = descPart.split('-');
+
+      // Property type
+      const typeMap = {
+        'villa': 'Villa', 'apartment': 'Apartment', 'apartamento': 'Apartment',
+        'bungalow': 'Bungalow', 'townhouse': 'Townhouse', 'penthouse': 'Penthouse',
+        'finca': 'Finca', 'chalet': 'Chalet', 'duplex': 'Duplex',
+        'studio': 'Studio', 'house': 'House', 'piso': 'Apartment',
+        'adosado': 'Townhouse', 'ático': 'Penthouse', 'atico': 'Penthouse',
+        'ground': null, // handle "ground floor bungalow" below
+      };
+
+      // Detect property type — handle compound types
+      let propType = null;
+      const slugLower = descPart;
+      if (/ground.floor.bungalow/.test(slugLower)) propType = 'Ground Floor Bungalow';
+      else if (/ground.floor.apartment/.test(slugLower)) propType = 'Ground Floor Apartment';
+      else if (/top.floor/.test(slugLower)) propType = 'Top Floor Apartment';
+      else {
+        for (const [kw, val] of Object.entries(typeMap)) {
+          if (val && words.includes(kw)) { propType = val; break; }
+        }
+      }
+
+      // Highlights from URL keywords
+      const highlightRules = [
+        [['pool'], 'Private pool'],
+        [['sea', 'view', 'seaview', 'sea-view'], 'Sea view'],
+        [['beach', 'beachfront'], 'Walking distance to beach'],
+        [['golf'], 'Near golf'],
+        [['garage', 'parking'], 'Garage'],
+        [['garden'], 'Private garden'],
+        [['terrace', 'solarium'], 'Large terrace'],
+        [['luxury', 'luxurious'], 'Excellent condition'],
+        [['new', 'build', 'newbuild'], 'Key ready'],
+        [['lift', 'elevator'], 'Lift'],
+        [['furnished'], 'Furniture included'],
+      ];
+      const highlights = [];
+      for (const [kws, label] of highlightRules) {
+        if (kws.some(k => words.includes(k))) highlights.push(label);
+      }
+
+      // Area: find location words — skip common non-location words
+      const skipWords = new Set([
+        'property','for','sale','to','buy','in','at','with','and','the','a',
+        'floor','ground','top','new','build','villa','apartment','bungalow',
+        'townhouse','penthouse','finca','chalet','duplex','studio','house',
+        'pool','sea','view','beach','golf','garage','parking','garden',
+        'terrace','luxury','lift','furnished','bedroom','bathroom','modern',
+        'resale','costa','blanca','calida','sol','almeria','murcia',
+        'spain','spanien','es','en','sv','de','nl','ref',
+      ]);
+      const locationWords = words.filter(w => w.length > 3 && !/^\d+$/.test(w) && !skipWords.has(w));
+      // Take first 2 location words as area
+      const area = locationWords.slice(0, 2).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || null;
+
+      // Build title
+      const title = propType ? propType + (highlights.includes('Private pool') ? ' with Pool' : '') : null;
+
+      return { title, area, highlights };
+    } catch(e) {
+      return { title: null, area: null, highlights: [] };
+    }
+  }
+
   try {
     const res = await fetch(url, {
       headers: {
@@ -24,6 +101,26 @@ exports.handler = async function(event) {
     });
     const buffer = await res.arrayBuffer();
     const html = new TextDecoder('utf-8').decode(buffer);
+
+    // If response is too short, site is blocking — use URL fallback
+    if (html.length < 500) {
+      const fallback = parseFromUrl(url);
+      return {
+        statusCode: 200, headers,
+        body: JSON.stringify({
+          image: null,
+          title: fallback.title,
+          price: null,
+          rooms: null,
+          bathrooms: null,
+          sqm: null,
+          area: fallback.area,
+          address: null,
+          highlights: fallback.highlights,
+          _source: 'url-fallback'
+        })
+      };
+    }
 
     // ── HELPERS ──────────────────────────────────────────────────────────
     function og(prop) {
@@ -72,6 +169,9 @@ exports.handler = async function(event) {
     // ── PROPERTY TYPE DETECTION ───────────────────────────────────────────
     function detectPropertyType(text) {
       const t = text.toLowerCase();
+      if (/ground.floor.bungalow/.test(t)) return 'Ground Floor Bungalow';
+      if (/ground.floor.apartment/.test(t)) return 'Ground Floor Apartment';
+      if (/top.floor/.test(t)) return 'Top Floor Apartment';
       if (/\b(villa)\b/.test(t)) return 'Villa';
       if (/\b(penthouse|atico|ático)\b/.test(t)) return 'Penthouse';
       if (/\b(townhouse|town house|adosado|radhus)\b/.test(t)) return 'Townhouse';
@@ -85,32 +185,24 @@ exports.handler = async function(event) {
 
     // ── SMART TITLE GENERATION ────────────────────────────────────────────
     function generateTitle(rawOgTitle, area, detectedRooms, detectedSqm, htmlText) {
-      // Detect property type from OG title + full HTML
       const combined = (rawOgTitle || '') + ' ' + htmlText.slice(0, 3000);
       const propType = detectPropertyType(combined);
-
-      // Detect key selling adjectives from OG title + HTML
       const t = combined.toLowerCase();
       const adjectives = [];
       if (/\b(luxury|luxurious|exclusive|exclusiv|lyx)\b/.test(t)) adjectives.push('Luxury');
       else if (/\b(modern|contemporary|contempor)\b/.test(t)) adjectives.push('Modern');
       else if (/\b(traditional|rustic|charming|charmig)\b/.test(t)) adjectives.push('Charming');
       else if (/\b(new build|nueva construcción|nybyggd|newly built)\b/.test(t)) adjectives.push('New Build');
-
-      // Detect key features for title
       const features = [];
       if (/\b(sea view|vistas al mar|havsutsikt|ocean view)\b/.test(t)) features.push('Sea View');
       else if (/\b(golf|golf course)\b/.test(t)) features.push('Golf');
       else if (/\b(beachfront|beach front|first line|primera línea)\b/.test(t)) features.push('Beachfront');
       else if (/\b(private pool|piscina privada|pool)\b/.test(t)) features.push('Pool');
-
-      // Build title: [Adjective] [Type] [with Feature]
       let parts = [];
       if (adjectives.length) parts.push(adjectives[0]);
       if (propType) parts.push(propType);
-      if (!propType) parts.push('Property'); // fallback
+      if (!propType) parts.push('Property');
       if (features.length) parts.push('with ' + features[0]);
-
       return parts.join(' ');
     }
 
@@ -119,25 +211,25 @@ exports.handler = async function(event) {
       const t = text.toLowerCase();
       const found = [];
       const rules = [
-        [['beach', 'playa', 'strand', 'beachfront', 'walking distance to beach', 'beläget vid stranden', 'nära stranden'], 'Walking distance to beach'],
-        [['prime location', 'prime area', 'privileged', 'privilegiada', 'exclusive area', 'prime position'], 'Prime location'],
-        [['quiet', 'tranquil', 'tranquila', 'lugnt', 'peaceful', 'privat läge'], 'Quiet area'],
+        [['beach', 'playa', 'strand', 'beachfront', 'walking distance to beach', 'nära stranden'], 'Walking distance to beach'],
+        [['prime location', 'prime area', 'privileged', 'exclusive area'], 'Prime location'],
+        [['quiet', 'tranquil', 'tranquila', 'lugnt', 'peaceful'], 'Quiet area'],
         [['golf', 'golf course', 'campo de golf', 'golfbana'], 'Near golf'],
-        [['amenities', 'restaurant', 'shops', 'shopping', 'comercios', 'restaurantes'], 'Close to amenities'],
-        [['private pool', 'piscina privada', 'privat pool', 'egen pool', 'heated pool', 'infinity pool'], 'Private pool'],
+        [['amenities', 'restaurant', 'shops', 'shopping', 'comercios'], 'Close to amenities'],
+        [['private pool', 'piscina privada', 'privat pool', 'heated pool', 'infinity pool'], 'Private pool'],
         [['community pool', 'piscina comunitaria', 'gemensam pool'], 'Community pool'],
-        [['garage', 'garaje', 'garaget', 'parking'], 'Garage'],
-        [['sea view', 'sea views', 'vistas al mar', 'havsutsikt', 'panoramic sea', 'ocean view', 'mediterranean view'], 'Sea view'],
-        [['south facing', 'orientación sur', 'söderläge', 'south-facing', 'orientado al sur'], 'South facing'],
-        [['large terrace', 'covered terrace', 'terraza', 'terrass', 'solarium', 'private terrace'], 'Large terrace'],
+        [['garage', 'garaje', 'parking'], 'Garage'],
+        [['sea view', 'sea views', 'vistas al mar', 'havsutsikt', 'ocean view', 'mediterranean view'], 'Sea view'],
+        [['south facing', 'orientación sur', 'söderläge', 'south-facing'], 'South facing'],
+        [['large terrace', 'covered terrace', 'terraza', 'terrass', 'solarium'], 'Large terrace'],
         [['private garden', 'garden', 'jardín', 'trädgård', 'landscaped'], 'Private garden'],
-        [['key ready', 'move-in ready', 'llave en mano', 'inflyttningsklar', 'ready to move'], 'Key ready'],
+        [['key ready', 'move-in ready', 'llave en mano', 'inflyttningsklar'], 'Key ready'],
         [['renovated', 'renoverad', 'reformed', 'reformada', 'newly renovated'], 'Recently renovated'],
-        [['excellent condition', 'perfect condition', 'utmärkt skick', 'immaculate'], 'Excellent condition'],
+        [['excellent condition', 'perfect condition', 'immaculate'], 'Excellent condition'],
         [['good condition', 'good state', 'buen estado', 'bra skick'], 'Good condition'],
         [['lift', 'elevator', 'ascensor', 'hiss'], 'Lift'],
         [['rental', 'rental income', 'alquiler', 'uthyrning', 'investment potential'], 'Rental potential'],
-        [['excellent value', 'great value', 'price reduced', 'reduced price', 'bargain'], 'Excellent value'],
+        [['excellent value', 'price reduced', 'reduced price', 'bargain'], 'Excellent value'],
         [['family', 'family-friendly', 'familiar', 'barnvänlig'], 'Family friendly'],
         [['furniture', 'furnished', 'möblerad', 'amueblado'], 'Furniture included'],
         [['restaurants nearby', 'near restaurants', 'restaurantes cercanos'], 'Restaurants nearby'],
@@ -186,7 +278,6 @@ exports.handler = async function(event) {
       bathrooms = cleanNum(firstMatch([/(\d+)\s*bathroom/i, /(\d+)\s*bath/i]));
       const sqmM = firstMatch([/(\d{2,4})\s*m²/i, /(\d{2,4})\s*sq\.?\s*m/i]);
       if (sqmM) { const n = parseInt(sqmM, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
-      // Extract area from URL
       try {
         const urlObj = new URL(url);
         const parts = urlObj.pathname.split('/').filter(Boolean);
@@ -236,7 +327,7 @@ exports.handler = async function(event) {
     // ── GENERIC PARSER ────────────────────────────────────────────────────
     const ogTitle = og('title') || '';
 
-    // Price: try JSON-LD first, then common patterns
+    // Price
     const rawPrice = firstMatch([
       /"price"\s*:\s*"?([\d\.]+)"?/,
       /"Price"\s*:\s*"?([\d\.]+)"?/,
@@ -247,19 +338,16 @@ exports.handler = async function(event) {
     ]);
     price = cleanPrice(rawPrice);
 
-    // Bedrooms
     rooms = cleanNum(firstMatch([
       /"bedrooms"\s*:\s*(\d+)/i,
       /(\d+)\s*(?:sovrum|bedroom|dormitorio|hab\.)/i,
     ]));
 
-    // Bathrooms
     bathrooms = cleanNum(firstMatch([
       /"bathrooms"\s*:\s*(\d+)/i,
       /(\d+)\s*(?:[Bb]adrum|bathroom|ba[ñn]o)/i,
     ]));
 
-    // Sqm
     const sqmMatches = [];
     const sqmPatterns = [/"buildingArea"\s*:\s*(\d+)/i, /(\d{2,4})\s*m[²2](?!\d)/gi, /(\d{2,4})\s*kvm(?!\d)/gi];
     for (const p of sqmPatterns) {
@@ -281,7 +369,7 @@ exports.handler = async function(event) {
     }
 
     // Address
-    const officeAddresses = ['niágara', 'niagara', 'iiwi', 'guadalmina', 'primera llarga', 'långgatan', 'and villamartin'];
+    const officeAddresses = ['niágara', 'niagara', 'iiwi', 'guadalmina', 'primera llarga', 'långgatan'];
     const addrMatches = html.matchAll(/(?:Calle|Avenida|Carrer|Urb\.?|Urbanización|Paseo)\s+[A-Za-záéíóúñÁÉÍÓÚÑ\s\d,]+/gi);
     for (const m of addrMatches) {
       const candidate = m[0].trim().slice(0, 60);
@@ -289,22 +377,40 @@ exports.handler = async function(event) {
       if (!isOffice) { address = candidate; break; }
     }
 
-    // Smart title
     title = generateTitle(ogTitle, area, rooms, sqm, html);
 
+    // If generic parser got nothing useful, try URL fallback to supplement
+    const urlFallback = parseFromUrl(url);
+    if (!title && urlFallback.title) title = urlFallback.title;
+    if (!area && urlFallback.area) area = urlFallback.area;
+
     const highlights = detectHighlights(html);
+    const finalHighlights = highlights.length ? highlights : urlFallback.highlights;
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights })
+      body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights: finalHighlights })
     };
 
   } catch (err) {
+    // Network error or timeout — use URL fallback entirely
+    const fallback = parseFromUrl(url);
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ error: err.message })
+      body: JSON.stringify({
+        image: null,
+        title: fallback.title,
+        price: null,
+        rooms: null,
+        bathrooms: null,
+        sqm: null,
+        area: fallback.area,
+        address: null,
+        highlights: fallback.highlights,
+        _source: 'url-fallback'
+      })
     };
   }
 };
