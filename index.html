@@ -413,7 +413,7 @@ function checkExistingSession(){
       refreshSubscriptionStatus();
       cloudLoad(function(){
         S._showOnboarding=false;
-        showTab(S.tab||'home');
+        if(!resumeFromDraft())showTab(S.tab||'home');
       }, session.access_token);
     }
   });
@@ -427,7 +427,7 @@ function checkExistingSession(){
       cloudLoad(function(){
         S._showOnboarding=false;
         resumePendingAction();
-        showTab(S.tab||'home');
+        if(!resumeFromDraft())showTab(S.tab||'home');
       }, session.access_token);
     }else if(event==='SIGNED_OUT'){
       currentUser=null;
@@ -4137,7 +4137,7 @@ function handleCreateClientLink(){
 // App always boots immediately — guest mode by default.
 // We only check in the background whether a session already exists,
 // so a returning logged-in user doesn't have to sign in again.
-if(!resumeFromDraft())showTab("home");
+showTab("home");
 checkExistingSession();
 handleCheckoutReturn();
 document.addEventListener('click',function(e){
