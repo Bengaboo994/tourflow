@@ -413,7 +413,7 @@ function checkExistingSession(){
       refreshSubscriptionStatus();
       cloudLoad(function(){
         S._showOnboarding=false;
-        if(!resumeFromDraft())showTab(S.tab||'home');
+        if(!resumeNavState()&&!resumeFromDraft())showTab(S.tab||'home');
       }, session.access_token);
     }
   });
@@ -427,7 +427,7 @@ function checkExistingSession(){
       cloudLoad(function(){
         S._showOnboarding=false;
         resumePendingAction();
-        if(!resumeFromDraft())showTab(S.tab||'home');
+        if(!resumeNavState()&&!resumeFromDraft())showTab(S.tab||'home');
       }, session.access_token);
     }else if(event==='SIGNED_OUT'){
       currentUser=null;
@@ -1244,6 +1244,39 @@ function restoreDraft(){
     });
   }catch(e){}
 }
+function saveNavState(){
+  try{
+    var snap={
+      screen:S.screen,
+      tab:S.tab||'home',
+      did:S.did||'',
+      cid:S.cid||'',
+      epid:S.epid||''
+    };
+    localStorage.setItem('tf-nav',JSON.stringify(snap));
+  }catch(e){}
+}
+function resumeNavState(){
+  // Restore which screen the user was on before iOS killed the app
+  try{
+    var raw=localStorage.getItem('tf-nav');
+    if(!raw)return false;
+    var snap=JSON.parse(raw);
+    if(!snap.screen||snap.screen==='home'||snap.screen==='clients'||snap.screen==='properties'||snap.screen==='settings'){
+      // Simple tab — just restore tab
+      if(snap.tab)S.tab=snap.tab;
+      return false; // let showTab handle it
+    }
+    // Deeper screen — restore full state
+    if(snap.did)S.did=snap.did;
+    if(snap.cid)S.cid=snap.cid;
+    if(snap.epid)S.epid=snap.epid;
+    if(snap.tab)S.tab=snap.tab;
+    S.screen=snap.screen;
+    render();
+    return true;
+  }catch(e){return false;}
+}
 function resumeFromDraft(){
   // Called on app start — if iOS killed the app mid-form, bring the user back
   try{
@@ -1310,12 +1343,7 @@ function go(screen,extra){
     return;
   }
   if(extra)Object.assign(S,extra);if(screen!=='output')S._showCelebration=false;S.screen=screen;S.addEv=false;
-  // Save nav state immediately so iOS can restore if killed
-  var formScreens=['add-client','edit-client','add-prop','add-lib-prop','edit-prop'];
-  if(formScreens.indexOf(screen)>=0){
-    var navSnap={screen:screen,did:S.did||'',cid:S.cid||'',epid:S.epid||'',tab:S.tab||'home'};
-    localStorage.setItem(DRAFT_KEY,JSON.stringify(navSnap));
-  }
+  saveNavState();
   render();
   window.scrollTo(0,0);
 }
@@ -1327,6 +1355,7 @@ function showTab(tab){
     var btn=document.getElementById("nl-"+t);
     if(btn)btn.className="nb"+(t===tab?" on":"");
   });
+  saveNavState();
   render();
   window.scrollTo(0,0);
 }
