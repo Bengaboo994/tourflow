@@ -2369,20 +2369,17 @@ function pgDays(){
 
   return h+'</div>';
 }
-function setMatchDisplay(val){
-  var day=curD();if(!day)return;
-  updateDay(day.id,{matchDisplay:val});
-  render();
-}
 function matchDisplayPicker(day){
   var md=day.matchDisplay||'agent';
+  var did=day.id;
   function mb(val,label,icon){
     var on=md===val;
     var border=on?'#C9A14A':'var(--fog)';
     var bg=on?'#071226':'var(--card)';
     var col=on?'#C9A14A':'var(--slate)';
     var fw=on?'600':'400';
-    return '<button onclick="setMatchDisplay(&quot;'+val+'&quot;)" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px"><span>'+icon+'</span><span>'+label+'</span></button>';
+    return '<button onclick="updateDay(\"'+did+'\",{matchDisplay:\"'+val+'\"});render()" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px">'+
+      '<span>'+icon+'</span><span>'+label+'</span></button>';
   }
   return '<div style="margin-bottom:16px">'+
     '<label class="lbl" style="margin-bottom:8px">Match score visibility</label>'+
@@ -2390,7 +2387,6 @@ function matchDisplayPicker(day){
     mb('client','Client','&#128065;')+mb('agent','Agent','&#128274;')+mb('none','Hide','&#215;')+
     '</div></div>';
 }
-
 function pgDayDetail(){
   var day=curD();var c=curC();if(!day)return"";
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
@@ -2665,9 +2661,12 @@ function pgAddProp(){
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL *</label>'+
-    '<input class="inp" id="ap-url" placeholder="https://idealista.com/..."/>'+
-    '<div id="ap-og-status" style="margin-top:4px"></div>'+
-    '<div style="font-size:11px;color:#9e9a94;margin-top:6px">Paste listing URL</div></div>'+
+    '<input class="inp" id="ap-url" placeholder="https://idealista.com/..." oninput="this.value=this.value.trim()"/>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
+    '<button id="ap-fetch-btn" onclick="fetchOg(document.getElementById(&quot;ap-url&quot;).value,&quot;ap&quot;)" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
+    '<span id="ap-fetch-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '</div>'+
+    '<div style="font-size:11px;color:#9e9a94;margin-top:6px">Paste listing URL and tap Auto fetch</div></div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div class="g2" style="margin-bottom:0">'+
