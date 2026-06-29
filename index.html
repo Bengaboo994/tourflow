@@ -1309,7 +1309,14 @@ function go(screen,extra){
     showUpgradeModal();
     return;
   }
-  if(extra)Object.assign(S,extra);if(screen!=='output')S._showCelebration=false;S.screen=screen;S.addEv=false;render();
+  if(extra)Object.assign(S,extra);if(screen!=='output')S._showCelebration=false;S.screen=screen;S.addEv=false;
+  // Save nav state immediately so iOS can restore if killed
+  var formScreens=['add-client','edit-client','add-prop','add-lib-prop','edit-prop'];
+  if(formScreens.indexOf(screen)>=0){
+    var navSnap={screen:screen,did:S.did||'',cid:S.cid||'',epid:S.epid||'',tab:S.tab||'home'};
+    localStorage.setItem(DRAFT_KEY,JSON.stringify(navSnap));
+  }
+  render();
   window.scrollTo(0,0);
 }
 
