@@ -95,7 +95,12 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 .row:last-child{border-bottom:none}
 .row-label{font-size:13px;color:rgba(255,255,255,.4)}
 .row-value{font-size:14px;color:#fff;font-weight:500;text-align:right}
-.section-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:16px}
+.section-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:16px;animation:cardIn .35s ease backwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.btn-go, .btn-secondary{transition:transform .12s ease, opacity .12s ease}
+.btn-go:active, .btn-secondary:active{transform:scale(.97)}
+.screen{animation:screenIn .3s ease}
+@keyframes screenIn{from{opacity:.6}to{opacity:1}}
 .section-title{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin-bottom:4px}
 .action-btn{
   flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
@@ -301,6 +306,126 @@ function renderApp(){
 
   // Wire up drive time fetches
   fetchAllDriveTimes();
+
+  // Mount the persistent floating progress pill + modal, once
+  mountProgressUI();
+}
+
+// ── TOUR PROGRESS (persistent floating button + overview) ─────────────────
+var currentStopIdx = 0; // which stop the agent is actively on, drives the floating pill label
+
+function mountProgressUI(){
+  if(document.getElementById('progress-pill')) return; // already mounted
+
+  var pill = document.createElement('button');
+  pill.id = 'progress-pill';
+  pill.onclick = openProgressModal;
+  pill.style.cssText = 'position:fixed;bottom:24px;right:20px;z-index:400;background:rgba(7,18,38,.92);backdrop-filter:blur(8px);border:1.5px solid rgba(201,161,74,.35);border-radius:100px;padding:10px 18px;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;align-items:center;gap:6px';
+  pill.innerHTML = '<span id="progress-pill-label">1 / ' + GS.properties.length + '</span>';
+  document.body.appendChild(pill);
+
+  var modal = document.createElement('div');
+  modal.id = 'progress-modal';
+  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(7,18,38,.97);z-index:600;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)';
+  modal.onclick = function(e){ if(e.target === modal) closeProgressModal(); };
+  modal.innerHTML = '<div style="width:100%;max-width:480px;background:var(--navy);border-radius:24px 24px 0 0;padding:28px 24px;padding-bottom:calc(28px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto" class="fade-in">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
+    '<div class="eyebrow" style="margin-bottom:0">Tour Progress</div>' +
+    '<button onclick="closeProgressModal()" style="background:rgba(255,255,255,.08);border:none;width:28px;height:28px;border-radius:50%;color:#fff;cursor:pointer;font-size:16px">&times;</button>' +
+    '</div>' +
+    '<div id="progress-modal-list"></div>' +
+    '</div>';
+  document.body.appendChild(modal);
+
+  // Show the pill only once a tour is actually in progress (not on Today's Tour / Preparing)
+  observeScreenForProgressPill();
+}
+
+function observeScreenForProgressPill(){
+  var container = document.getElementById('scroll-container');
+  if(!container) return;
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(!entry.isIntersecting) return;
+      var id = entry.target.id || '';
+      var pill = document.getElementById('progress-pill');
+      if(!pill) return;
+      if(id === 'screen-today' || id === 'screen-preparing' || id === 'screen-complete'){
+        pill.style.display = 'none';
+        return;
+      }
+      pill.style.display = 'flex';
+      var m = id.match(/^screen-(?:nav|prop|drive)-(\d+)$/);
+      if(m){
+        var idx = parseInt(m[1], 10);
+        // drive-N screens point to stop N+2 visually (next destination)
+        var displayIdx = id.indexOf('drive-') >= 0 ? idx + 1 : idx;
+        currentStopIdx = displayIdx;
+        var label = document.getElementById('progress-pill-label');
+        if(label) label.textContent = (displayIdx+1) + ' / ' + GS.properties.length;
+      }
+    });
+  }, { threshold: 0.6 });
+  GS.properties.forEach(function(p, i){
+    var navEl = document.getElementById('screen-nav-' + i);
+    var propEl = document.getElementById('screen-prop-' + i);
+    var driveEl = document.getElementById('screen-drive-' + i);
+    if(navEl) io.observe(navEl);
+    if(propEl) io.observe(propEl);
+    if(driveEl) io.observe(driveEl);
+  });
+  var todayEl = document.getElementById('screen-today');
+  var prepEl = document.getElementById('screen-preparing');
+  var completeEl = document.getElementById('screen-complete');
+  if(todayEl) io.observe(todayEl);
+  if(prepEl) io.observe(prepEl);
+  if(completeEl) io.observe(completeEl);
+}
+
+function openProgressModal(){
+  var list = document.getElementById('progress-modal-list');
+  if(!list) return;
+  list.innerHTML = GS.properties.map(function(p, i){
+    var status = completedSet[i] ? 'done' : (i === currentStopIdx ? 'current' : 'upcoming');
+    var icon, col, bg;
+    if(status === 'done'){ icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>'; col = '#22c55e'; bg = '#22c55e'; }
+    else if(status === 'current'){ icon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#071226"><path d="M8 5v14l11-7z"/></svg>'; col = '#C9A14A'; bg = '#C9A14A'; }
+    else { icon = (i+1); col = 'rgba(255,255,255,.3)'; bg = 'rgba(255,255,255,.08)'; }
+    var statusLabel = status === 'done' ? 'Completed' : status === 'current' ? 'Current' : 'Upcoming';
+    var statusCol = status === 'done' ? '#4ade80' : status === 'current' ? '#C9A14A' : 'rgba(255,255,255,.3)';
+    return '<div onclick="jumpToStop(' + i + ')" style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer">' +
+      '<div style="width:30px;height:30px;border-radius:50%;background:' + bg + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:' + (status==='upcoming'?'rgba(255,255,255,.4)':'#071226') + '">' + icon + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:14px;font-weight:500;color:#fff">' + esc(p.title || p.area || 'Property ' + (i+1)) + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.35)">' + (p.time ? esc(p.time) + ' \u00b7 ' : '') + statusLabel + '</div>' +
+      '</div>' +
+      '</div>';
+  }).join('');
+  document.getElementById('progress-modal').style.display = 'flex';
+}
+function closeProgressModal(){
+  var m = document.getElementById('progress-modal');
+  if(m) m.style.display = 'none';
+}
+function jumpToStop(idx){
+  closeProgressModal();
+  if(completedSet[idx]){
+    goToScreen('prop-' + idx);
+  } else {
+    goToScreen(idx === 0 ? 'nav-0' : 'drive-' + (idx-1));
+  }
+}
+
+function calcEstimatedFinish(props){
+  if(!props.length) return '—';
+  var lastTime = props[props.length-1].time;
+  if(!lastTime) return '—';
+  var parts = lastTime.split(':');
+  if(parts.length < 2) return lastTime;
+  var mins = parseInt(parts[0],10)*60 + parseInt(parts[1],10) + 30; // assume ~30min for the final viewing
+  var h = Math.floor(mins/60) % 24;
+  var m = mins % 60;
+  return (h<10?'0':'')+h + ':' + (m<10?'0':'')+m;
 }
 
 // ── SCREEN 1: TODAY'S TOUR ─────────────────────────────────────────────────
@@ -331,7 +456,7 @@ function renderTodaysTourScreen(){
     '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
     '<div style="text-align:center"><div id="total-distance" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">—</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Total Km</div></div>' +
     '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
-    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + (firstTime && lastTime ? firstTime+'–'+lastTime : '—') + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Schedule</div></div>' +
+    '<div style="text-align:center"><div id="est-finish" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + calcEstimatedFinish(props) + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Est. Finish</div></div>' +
     '</div>' +
 
     '<div class="section-card">' +
@@ -435,17 +560,10 @@ function renderNavigationScreen(idx){
 
     '</div>' +
 
-    // Arrival overlay — hidden by default, shown when user returns from Maps
+    // Arrival overlay — hidden by default, content driven by resetArrivalOverlayToWelcome()
     '<div id="arrival-overlay-' + idx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
-    '<div style="text-align:center;width:100%;max-width:300px" class="fade-in">' +
+    '<div style="text-align:center;width:100%;max-width:300px" id="arrival-body-' + idx + '"></div>' +
     '<div id="arrival-gps-status-' + idx + '"></div>' +
-    '<div style="font-size:40px;margin-bottom:16px">&#128205;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px">' + esc(p.title || 'This property') + '</div>' +
-    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
-    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
-    '</div>' +
-    '</div>' +
 
     '</div>';
 }
@@ -467,17 +585,16 @@ function manualArrival(idx){
 }
 
 function reopenMaps(idx, mapsUrl){
-  hideArrivalOverlay(idx);
   if(mapsUrl) window.open(mapsUrl, '_blank');
   trackMapsOpen(idx);
+  resetArrivalOverlayToWelcome(idx);
 }
 
 function showArrivalOverlay(idx){
   var el = document.getElementById('arrival-overlay-' + idx);
-  if(el){
-    el.style.display = 'flex';
-    attemptGpsArrivalCheck(idx);
-  }
+  if(!el) return;
+  el.style.display = 'flex';
+  resetArrivalOverlayToWelcome(idx);
 }
 function hideArrivalOverlay(idx){
   var el = document.getElementById('arrival-overlay-' + idx);
@@ -491,11 +608,10 @@ function confirmArrival(idx){
 }
 
 // Visibility-based return detection: when the tab regains focus after the user
-// opened Maps, automatically surface the arrival check.
+// opened Maps, automatically surface the arrival check with a "Welcome back" beat.
 document.addEventListener('visibilitychange', function(){
   if(document.visibilityState !== 'visible') return;
   if(navState.pendingStopIdx === null) return;
-  // Small delay so the overlay doesn't flash during the tab-switch animation
   setTimeout(function(){
     if(navState.pendingStopIdx !== null){
       showArrivalOverlay(navState.pendingStopIdx);
@@ -511,26 +627,72 @@ window.addEventListener('focus', function(){
   }, 300);
 });
 
+// ── ARRIVAL DETECTION FLOW ─────────────────────────────────────────────────
+// Sequence per spec: "Welcome back" (brief) -> GPS check if available ->
+// either auto-confirm ("Looks like you've arrived") or fall back to the
+// manual Yes / Open Maps again buttons. Always degrades gracefully.
+function resetArrivalOverlayToWelcome(idx){
+  var statusEl = document.getElementById('arrival-gps-status-' + idx);
+  var bodyEl = document.getElementById('arrival-body-' + idx);
+  if(!statusEl || !bodyEl) return;
+
+  statusEl.innerHTML = '';
+  bodyEl.innerHTML =
+    '<div style="font-size:36px;margin-bottom:12px">&#128075;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:24px">Welcome back</div>' +
+    '<div class="spinner" style="margin:0 auto"></div>';
+
+  // Brief beat, then attempt GPS — falls back to manual state either way
+  setTimeout(function(){ attemptGpsArrivalCheck(idx); }, 600);
+}
+
+function renderManualArrivalState(idx, propTitle, mapsUrl){
+  return '<div class="fade-in">' +
+    '<div style="font-size:36px;margin-bottom:12px">&#128205;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
+    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
+    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
+    '</div>';
+}
+
+function renderAutoArrivedState(idx, propTitle){
+  return '<div class="fade-in" style="text-align:center">' +
+    '<div style="width:64px;height:64px;border-radius:50%;background:rgba(34,197,94,.15);border:1.5px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">' +
+    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:6px">Looks like you\u2019ve arrived</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
+    '<button class="btn-go" onclick="confirmArrival(' + idx + ')">Open Property</button>' +
+    '</div>';
+}
+
 // ── OPTIONAL GPS ENHANCEMENT ──────────────────────────────────────────────
 // Progressive enhancement only. If geolocation is unavailable, denied, or the
-// property has no coordinates, this silently does nothing and the manual
-// "Yes, show property" button remains the primary path.
+// property has no coordinates, falls back to the manual arrival state.
 function attemptGpsArrivalCheck(idx){
-  var statusEl = document.getElementById('arrival-gps-status-' + idx);
-  if(!statusEl) return;
-  if(!navigator.geolocation){ return; }
-
+  var bodyEl = document.getElementById('arrival-body-' + idx);
+  if(!bodyEl) return;
   var p = GS.properties[idx];
-  var coords = extractCoords(p.mapsUrl);
-  if(!coords){ return; } // no coordinates to compare against — skip silently
+  var mapsUrl = p.mapsUrl || '';
+
+  function fallbackToManual(){
+    bodyEl.innerHTML = renderManualArrivalState(idx, p.title || p.area, mapsUrl);
+  }
+
+  if(!navigator.geolocation){ fallbackToManual(); return; }
+  var coords = extractCoords(mapsUrl);
+  if(!coords){ fallbackToManual(); return; }
 
   navigator.geolocation.getCurrentPosition(function(pos){
     var dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, coords.lat, coords.lng);
     if(dist <= 100){
-      statusEl.innerHTML = '<div style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#4ade80">&#9989; You\u2019re within ' + Math.round(dist) + 'm of this property</div>';
+      bodyEl.innerHTML = renderAutoArrivedState(idx, p.title || p.area);
+    } else {
+      fallbackToManual();
     }
   }, function(){
-    // Permission denied or unavailable — fail silently, manual button still works
+    fallbackToManual(); // permission denied or unavailable
   }, { timeout: 4000, maximumAge: 30000 });
 }
 
@@ -636,6 +798,7 @@ function renderPropertyScreen(p, idx){
     (p.rooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.rooms) + ' bed</div>' : '') +
     (p.bathrooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.bathrooms) + ' bath</div>' : '') +
     (p.sqm ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
+    (p.distanceToSea ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.distanceToSea) + ' to sea</div>' : '') +
     '</div>' +
 
     collapsibleSection('cq-' + idx, 'Customer Questions', customerQuestionsHtml, false) +
@@ -647,16 +810,59 @@ function renderPropertyScreen(p, idx){
     '<div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">' + esc(p.note) + '</div>' +
     '</div>' : '') +
 
+    renderViewingChecklist(idx) +
+
     '</div>' +
 
     '</div>' + // end scrollable content
 
     // Fixed bottom action bar — always visible, never scrolls away
-    '<div style="flex-shrink:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:16px 20px;padding-bottom:calc(16px + env(safe-area-inset-bottom))">' +
-    '<button class="btn-go" style="max-width:none" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
+    '<div id="complete-bar-' + idx + '" style="flex-shrink:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:16px 20px;padding-bottom:calc(16px + env(safe-area-inset-bottom))">' +
+    '<button class="btn-go" style="max-width:none;transition:transform .15s" onmousedown="this.style.transform=\'scale(.97)\'" onmouseup="this.style.transform=\'scale(1)\'" ontouchstart="this.style.transform=\'scale(.97)\'" ontouchend="this.style.transform=\'scale(1)\'" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
     '</div>' +
 
     '</div>';
+}
+
+// ── VIEWING CHECKLIST ──────────────────────────────────────────────────────
+// Soft reinforcement only — the Complete Viewing button stays enabled
+// regardless of checklist state, per spec.
+var checklistState = {}; // { idx: { viewed:bool, questions:bool, feedback:bool } }
+function getChecklist(idx){
+  if(!checklistState[idx]) checklistState[idx] = { viewed:false, questions:false, feedback:false };
+  return checklistState[idx];
+}
+function renderViewingChecklist(idx){
+  var cl = getChecklist(idx);
+  var items = [
+    ['viewed','Property viewed'],
+    ['questions','Questions answered'],
+    ['feedback','Customer feedback added']
+  ];
+  var doneCount = items.filter(function(it){ return cl[it[0]]; }).length;
+  return '<div class="section-card" id="checklist-' + idx + '">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+    '<span class="section-title" style="margin-bottom:0">Viewing Checklist</span>' +
+    '<span id="checklist-count-' + idx + '" style="font-size:11px;color:rgba(255,255,255,.35)">' + doneCount + ' / ' + items.length + '</span>' +
+    '</div>' +
+    items.map(function(it){
+      var checked = cl[it[0]];
+      return '<button onclick="toggleChecklistItem(' + idx + ',\'' + it[0] + '\')" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:8px 0;cursor:pointer;font-family:inherit;text-align:left">' +
+        '<div style="width:18px;height:18px;border-radius:5px;border:1.5px solid ' + (checked?'#C9A14A':'rgba(255,255,255,.25)') + ';background:' + (checked?'#C9A14A':'transparent') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        (checked ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#071226" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
+        '</div>' +
+        '<span style="font-size:13px;color:' + (checked?'rgba(255,255,255,.9)':'rgba(255,255,255,.5)') + '">' + it[1] + '</span>' +
+        '</button>';
+    }).join('') +
+    '</div>';
+}
+function toggleChecklistItem(idx, key){
+  var cl = getChecklist(idx);
+  cl[key] = !cl[key];
+  var container = document.getElementById('checklist-' + idx);
+  if(container){
+    container.outerHTML = renderViewingChecklist(idx);
+  }
 }
 
 // ── DRIVE SCREEN ──────────────────────────────────────────────────────────
@@ -705,15 +911,8 @@ function renderDriveScreen(idx){
 
     // Arrival overlay — same mechanism as Navigation Screen
     '<div id="arrival-overlay-' + nextIdx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
-    '<div style="text-align:center;width:100%;max-width:300px" class="fade-in">' +
+    '<div style="text-align:center;width:100%;max-width:300px" id="arrival-body-' + nextIdx + '"></div>' +
     '<div id="arrival-gps-status-' + nextIdx + '"></div>' +
-    '<div style="font-size:40px;margin-bottom:16px">&#128205;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px">' + esc(nextProp.title || 'This property') + '</div>' +
-    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + nextIdx + ')">Yes, show property</button>' +
-    '<button class="btn-secondary" onclick="reopenMaps(' + nextIdx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
-    '</div>' +
-    '</div>' +
 
     '</div>';
 }
@@ -776,10 +975,16 @@ function fetchAllDriveTimes(){
 // ── COMPLETE SCREEN ───────────────────────────────────────────────────────
 function renderCompleteScreen(){
   return '<div class="screen center" id="screen-complete" style="padding:40px 24px">' +
-    '<div style="text-align:center;width:100%;max-width:320px" class="fade-in">' +
+    '<div style="text-align:center;width:100%;max-width:340px" class="fade-in">' +
     '<div style="font-size:48px;margin-bottom:16px">&#127881;</div>' +
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:8px">Tour Completed</div>' +
-    '<div id="completed-count" style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:32px">0 of ' + GS.properties.length + ' properties viewed</div>' +
+    '<div id="completed-count" style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:28px">0 of ' + GS.properties.length + ' viewings completed</div>' +
+
+    '<div id="completion-stats" style="display:flex;justify-content:center;gap:24px;margin-bottom:32px">' +
+    statBlock('\u2026', 'Total km') +
+    statBlock('\u2026', 'Drive time') +
+    statBlock('\u2026', 'Viewing time') +
+    '</div>' +
 
     '<button class="btn-secondary" style="margin-bottom:10px" onclick="exportNotes()">Export Notes</button>' +
     '<button class="btn-secondary" style="margin-bottom:24px" onclick="copyWhatsappSummary()">Copy WhatsApp Summary</button>' +
@@ -789,40 +994,109 @@ function renderCompleteScreen(){
     '</div></div>';
 }
 
+function updateCompletionStats(){
+  var countEl = document.getElementById('completed-count');
+  if(countEl) countEl.textContent = Object.keys(completedSet).length + ' of ' + GS.properties.length + ' viewings completed';
+
+  var statsEl = document.getElementById('completion-stats');
+  if(!statsEl) return;
+
+  // Total distance from cached drive times
+  var totalKm = 0, totalDriveMin = 0;
+  for(var i = 0; i < GS.properties.length - 1; i++){
+    var a = GS.properties[i], b = GS.properties[i+1];
+    var key = (a.mapsUrl||a.address||'') + '||' + (b.mapsUrl||b.address||'');
+    var d = driveTimeCache[key];
+    if(d && d.ok){
+      totalKm += parseFloat(d.distanceKm) || 0;
+      totalDriveMin += parseInt(d.durationMin) || 0;
+    }
+  }
+
+  var viewingMin = tourStartTime ? Math.round((Date.now() - tourStartTime) / 60000) : null;
+
+  statsEl.innerHTML =
+    statBlock(totalKm > 0 ? Math.round(totalKm) : '\u2014', 'Total km') +
+    statBlock(totalDriveMin > 0 ? totalDriveMin : '\u2014', 'Drive min') +
+    statBlock(viewingMin != null ? viewingMin : '\u2014', 'Tour min');
+}
+
 var completedSet = {};
+var tourStartTime = null;
+
 function completeViewing(idx){
   completedSet[idx] = true;
-  var countEl = document.getElementById('completed-count');
-  if(countEl) countEl.textContent = Object.keys(completedSet).length + ' of ' + GS.properties.length + ' properties viewed';
+  if(!tourStartTime) tourStartTime = Date.now();
 
+  // Haptic feedback if supported
+  if(navigator.vibrate){ navigator.vibrate(40); }
+
+  showCompletionCelebration(idx);
+}
+
+function showCompletionCelebration(idx){
   var isLast = idx >= GS.properties.length - 1;
-  var nextLabel = isLast ? 'Tour complete' : 'Drive to Stop ' + (idx+2);
+  var nextProp = isLast ? null : GS.properties[idx+1];
+  var driveInfo = nextProp ? driveTimeCache[(GS.properties[idx].mapsUrl||GS.properties[idx].address||'') + '||' + (nextProp.mapsUrl||nextProp.address||'')] : null;
 
-  // Replace the button area with a brief success/handoff state
-  var btn = event.target.closest('button');
-  var container = btn ? btn.parentElement : null;
-  if(btn){
-    btn.style.display = 'none';
-  }
-  if(container){
-    var handoff = document.createElement('div');
-    handoff.className = 'fade-in';
-    handoff.style.cssText = 'text-align:center;padding:13px';
-    handoff.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:center;gap:8px;color:#4ade80;font-size:14px;font-weight:600;margin-bottom:4px">' +
-      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
-      'Viewing completed</div>' +
-      '<div style="font-size:12px;color:rgba(255,255,255,.4)">Next: ' + nextLabel + '</div>';
-    container.appendChild(handoff);
-  }
+  var overlay = document.createElement('div');
+  overlay.id = 'celebration-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(7,18,38,.97);z-index:700;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(8px)';
 
-  setTimeout(function(){
-    if(idx < GS.properties.length - 1){
-      goToScreen('drive-' + idx);
-    } else {
-      goToScreen('complete');
-    }
-  }, 900);
+  overlay.innerHTML =
+    '<div style="text-align:center;width:100%;max-width:320px">' +
+    '<div id="celebration-check" style="width:84px;height:84px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.5);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;transform:scale(0);transition:transform .4s cubic-bezier(.34,1.56,.64,1)">' +
+    '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:4px;opacity:0;transition:opacity .4s ease .2s" id="celebration-title">Viewing completed!</div>' +
+    '<div style="font-size:14px;color:rgba(255,255,255,.4);margin-bottom:32px;opacity:0;transition:opacity .4s ease .3s" id="celebration-sub">Great job.</div>' +
+
+    (nextProp
+      ? '<div id="celebration-next" style="opacity:0;transition:opacity .4s ease .45s;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">' +
+        (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:10px;color:rgba(201,161,74,.7);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">Next destination</div>' +
+        '<div style="font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
+        (driveInfo && driveInfo.ok ? '<div style="font-size:12px;color:rgba(255,255,255,.4)">' + driveInfo.durationMin + ' min drive</div>' : '') +
+        '</div>' +
+        '</div>'
+      : '') +
+
+    '<button id="celebration-cta" class="btn-go" style="opacity:0;transition:opacity .4s ease .55s" onclick="proceedAfterCelebration(' + idx + ')">' +
+    (isLast ? 'View Summary' : 'Continue to next stop &rarr;') +
+    '</button>' +
+    '<button id="celebration-progress-btn" style="opacity:0;transition:opacity .4s ease .6s;margin-top:10px;background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;font-family:inherit;cursor:pointer" onclick="closeCelebrationAndOpenProgress()">View full tour progress</button>' +
+
+    '</div>';
+
+  document.body.appendChild(overlay);
+
+  // Stagger the entrance animation
+  requestAnimationFrame(function(){
+    document.getElementById('celebration-check').style.transform = 'scale(1)';
+    document.getElementById('celebration-title').style.opacity = '1';
+    document.getElementById('celebration-sub').style.opacity = '1';
+    var nextEl = document.getElementById('celebration-next');
+    if(nextEl) nextEl.style.opacity = '1';
+    document.getElementById('celebration-cta').style.opacity = '1';
+    document.getElementById('celebration-progress-btn').style.opacity = '1';
+  });
+}
+
+function proceedAfterCelebration(idx){
+  var overlay = document.getElementById('celebration-overlay');
+  if(overlay) overlay.remove();
+  if(idx < GS.properties.length - 1){
+    goToScreen('drive-' + idx);
+  } else {
+    goToScreen('complete');
+  }
+}
+
+function closeCelebrationAndOpenProgress(){
+  var overlay = document.getElementById('celebration-overlay');
+  if(overlay) overlay.remove();
+  openProgressModal();
 }
 
 function exportNotes(){
@@ -857,6 +1131,7 @@ function goToScreen(target){
     setTimeout(runPreparingSequence, 350);
   } else if(target === 'complete'){
     id = 'screen-complete';
+    updateCompletionStats();
   } else {
     id = 'screen-' + target;
   }
