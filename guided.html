@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#071226"/>
+<title>TourFlow — Guided Tour</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#2D2B28;
+  --paper:#FCFBF7;
+  --brass:#C9A14A;
+  --slate:#6b6560;
+  --fog:#edeae4;
+  --mist:#f5f2ec;
+  --navy:#071226;
+}
+body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;min-height:100vh;font-weight:300;overscroll-behavior-y:contain}
+.screen{
+  min-height:100vh;
+  min-height:100dvh;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  scroll-snap-align:start;
+}
+#scroll-container{
+  scroll-snap-type:y mandatory;
+  overflow-y:auto;
+  height:100vh;
+  height:100dvh;
+}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.btn-go{
+  width:100%;
+  max-width:340px;
+  padding:18px;
+  background:linear-gradient(90deg,#C9A14A,#d4a84b);
+  color:var(--navy);
+  border:none;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:.03em;
+  cursor:pointer;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  box-shadow:0 8px 24px rgba(201,161,74,.25);
+}
+.btn-secondary{
+  width:100%;
+  max-width:340px;
+  padding:16px;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border:1.5px solid rgba(255,255,255,.15);
+  border-radius:14px;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  font-family:inherit;
+}
+.eyebrow{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:rgba(201,161,74,.6);
+  margin-bottom:10px;
+}
+#loading-screen{
+  position:fixed;inset:0;background:var(--navy);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;
+}
+.spinner{width:24px;height:24px;border:2.5px solid rgba(201,161,74,.2);border-top-color:#C9A14A;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.checkmark{
+  width:18px;height:18px;border-radius:50%;
+  background:rgba(201,161,74,.15);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.row:last-child{border-bottom:none}
+.row-label{font-size:13px;color:rgba(255,255,255,.4)}
+.row-value{font-size:14px;color:#fff;font-weight:500;text-align:right}
+.section-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:16px}
+.section-title{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin-bottom:4px}
+.action-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:14px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;color:#fff;text-decoration:none;font-size:11px;font-weight:500;
+}
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#fff;margin-bottom:18px">Tour<em style="font-style:italic;color:#C9A14A">Flow</em></div>
+  <div class="spinner"></div>
+</div>
+
+<div id="access-denied" style="display:none;position:fixed;inset:0;background:var(--navy);align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px">
+  <div style="font-size:40px;margin-bottom:16px">🔒</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:8px">Guided Tour Mode</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.4);max-width:280px;line-height:1.6">This experimental feature is currently in private testing.</div>
+  <a href="/index.html" style="margin-top:24px;color:var(--brass);font-size:13px;text-decoration:none">&larr; Back to TourFlow</a>
+</div>
+
+<div id="scroll-container" style="display:none"></div>
+
+<script>
+// ── BETA WHITELIST ───────────────────────────────────────────────────────
+var BETA_USERS = ['niklasbengtsson@hotmail.com'];
+
+// ── SUPABASE ─────────────────────────────────────────────────────────────
+var SUPA_URL = 'https://dhcqbdyrbviormfsdcyr.supabase.co';
+var SUPA_KEY = 'sb_publishable_ZKyT9nBrTruUnVDZF0VrWQ_HefTPZB3';
+var supa = null;
+try {
+  if (window.supabase && window.supabase.createClient) {
+    supa = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  }
+} catch(e) { console.error('Supabase init failed:', e); }
+
+// ── STATE ────────────────────────────────────────────────────────────────
+var GS = {
+  did: null,
+  day: null,
+  client: null,
+  cfg: null,
+  currentUser: null,
+  properties: [],
+  currentIndex: -1, // -1 = today's tour screen, 0+ = property index, 'complete' string for final
+};
+
+function esc(s){return (s||"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function fmtDate(d){if(!d)return"";try{return new Date(d+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});}catch(e){return d;}}
+function fmtPrice(p){
+  if(!p)return"";
+  var n=parseInt((p+"").replace(/[^0-9]/g,""),10);
+  return isNaN(n)?p:"\u20AC"+n.toLocaleString("en-US");
+}
+
+// ── LOAD DATA ────────────────────────────────────────────────────────────
+function getQueryParam(name){
+  var params = new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+function loadGuidedTour(){
+  var did = getQueryParam('did');
+  if(!did){
+    showAccessDenied('No tour specified.');
+    return;
+  }
+  GS.did = did;
+
+  if(!supa){
+    showAccessDenied('Could not connect.');
+    return;
+  }
+
+  supa.auth.getSession().then(function(res){
+    var session = res.data && res.data.session;
+    if(!session || !session.user){
+      showAccessDenied('Please sign in to TourFlow first.');
+      return;
+    }
+    GS.currentUser = session.user;
+    var email = (session.user.email || '').toLowerCase();
+    if(BETA_USERS.indexOf(email) < 0){
+      showAccessDenied();
+      return;
+    }
+    fetchTourData(session.access_token);
+  }).catch(function(){
+    showAccessDenied('Could not verify session.');
+  });
+}
+
+function fetchTourData(token){
+  var headers = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + token};
+
+  fetch(SUPA_URL + '/rest/v1/agent_days?id=eq.' + GS.did + '&select=data', {headers: headers})
+    .then(function(r){ return r.json(); })
+    .then(function(rows){
+      if(!rows || !rows.length){
+        showAccessDenied('Tour not found.');
+        return;
+      }
+      GS.day = rows[0].data;
+      GS.properties = (GS.day.properties || []).slice().sort(function(a,b){
+        return (a.time||'zz').localeCompare(b.time||'zz');
+      });
+
+      var clientId = GS.day.clientId;
+      var cfgPromise = fetch(SUPA_URL + '/rest/v1/agent_cfg?user_id=eq.' + GS.currentUser.id + '&select=data', {headers: headers}).then(function(r){return r.json();});
+      var clientPromise = clientId
+        ? fetch(SUPA_URL + '/rest/v1/agent_clients?id=eq.' + clientId + '&select=data', {headers: headers}).then(function(r){return r.json();})
+        : Promise.resolve([]);
+
+      Promise.all([cfgPromise, clientPromise]).then(function(results){
+        var cfgRows = results[0];
+        var clientRows = results[1];
+        GS.cfg = (cfgRows && cfgRows[0] && cfgRows[0].data) || {};
+        GS.client = (clientRows && clientRows[0] && clientRows[0].data) || null;
+        renderApp();
+      });
+    })
+    .catch(function(e){
+      console.error(e);
+      showAccessDenied('Could not load tour data.');
+    });
+}
+
+function showAccessDenied(msg){
+  document.getElementById('loading-screen').style.display = 'none';
+  var denied = document.getElementById('access-denied');
+  denied.style.display = 'flex';
+  if(msg){
+    var sub = denied.querySelector('div[style*="rgba(255,255,255,.4)"]');
+    if(sub) sub.textContent = msg;
+  }
+}
+
+// ── DRIVE TIME (reuses existing Netlify function) ─────────────────────────
+var driveTimeCache = {};
+function fetchDriveTime(from, to, cb){
+  var key = from + '||' + to;
+  if(driveTimeCache[key]){ cb(driveTimeCache[key]); return; }
+  if(!from || !to){ cb(null); return; }
+  fetch('/.netlify/functions/drivetime', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({segments: [{from: from, to: to}]})
+  }).then(function(r){return r.json();}).then(function(data){
+    var result = data.results && data.results[0];
+    if(result) driveTimeCache[key] = result;
+    cb(result || null);
+  }).catch(function(){ cb(null); });
+}
+
+// ── MATCH SCORE (simplified reuse) ────────────────────────────────────────
+function matchScore(client, prop){
+  if(!client || !client.req) return null;
+  var req = client.req;
+  var hl = prop.highlights || [];
+  var results = [];
+  if(req.budget){
+    var budgetMap = {'b150':150000,'b250':250000,'b400':400000,'b600':600000,'b1000':1000000,'b2000':2000000,'nolimit':99999999};
+    var bMax = budgetMap[req.budget] || 9999999;
+    var rawPrice = parseFloat((prop.price||'').replace(/[^0-9.]/g,''))||0;
+    if(rawPrice > 0) results.push(rawPrice <= bMax);
+  }
+  (req.mustHave||[]).forEach(function(f){ results.push(hl.indexOf(f) >= 0); });
+  if(!results.length) return null;
+  var passed = results.filter(Boolean).length;
+  return Math.round(passed / results.length * 100);
+}
+function matchLabel(score){
+  if(score == null) return null;
+  if(score >= 90) return 'Excellent Match';
+  if(score >= 75) return 'Good Match';
+  if(score >= 60) return 'Possible Match';
+  return 'Low Match';
+}
+
+// ── RENDER APP SHELL ───────────────────────────────────────────────────────
+function renderApp(){
+  document.getElementById('loading-screen').style.display = 'none';
+  var container = document.getElementById('scroll-container');
+  container.style.display = 'block';
+
+  var html = '';
+  html += renderTodaysTourScreen();
+  html += renderPreparingScreen();
+
+  // Interleave: nav -> property -> drive -> property -> drive ... -> complete
+  GS.properties.forEach(function(p, i){
+    html += renderNavigationScreen(i);
+    html += renderPropertyScreen(p, i);
+    if(i < GS.properties.length - 1){
+      html += renderDriveScreen(i);
+    }
+  });
+  html += renderCompleteScreen();
+
+  container.innerHTML = html;
+
+  // Wire up drive time fetches
+  fetchAllDriveTimes();
+}
+
+// ── SCREEN 1: TODAY'S TOUR ─────────────────────────────────────────────────
+function renderTodaysTourScreen(){
+  var day = GS.day;
+  var client = GS.client;
+  var props = GS.properties;
+  var clientName = client ? client.name : 'Client';
+
+  var firstTime = props.length ? props[0].time : '';
+  var lastTime = props.length > 1 ? props[props.length-1].time : '';
+
+  var timelineRows = props.map(function(p, i){
+    return '<div class="row">' +
+      '<div class="row-label">' + esc(p.time||'—') + '</div>' +
+      '<div class="row-value">' + esc(p.title || p.area || ('Property ' + (i+1))) + '</div>' +
+      '</div>';
+  }).join('');
+
+  return '<div class="screen center" id="screen-today" style="padding:40px 24px">' +
+    '<div class="fade-in" style="width:100%;max-width:380px">' +
+    '<div class="eyebrow" style="text-align:center">Today\'s Tour</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;text-align:center;margin-bottom:6px">' + esc(clientName) + '</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:32px">' + fmtDate(day.date) + '</div>' +
+
+    '<div style="display:flex;justify-content:center;gap:28px;margin-bottom:32px">' +
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + props.length + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Properties</div></div>' +
+    '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
+    '<div style="text-align:center"><div id="total-distance" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">—</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Total Km</div></div>' +
+    '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + (firstTime && lastTime ? firstTime+'–'+lastTime : '—') + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Schedule</div></div>' +
+    '</div>' +
+
+    '<div class="section-card">' +
+    '<div class="section-title" style="margin-bottom:10px">Timeline</div>' +
+    timelineRows +
+    '</div>' +
+
+    '<div style="display:flex;justify-content:center;margin-top:32px">' +
+    '<button class="btn-go" onclick="goToScreen(\'preparing\')">&#9654; Start Tour</button>' +
+    '</div>' +
+    '<div style="text-align:center;margin-top:16px">' +
+    '<a href="/index.html" style="color:rgba(255,255,255,.3);font-size:12px;text-decoration:none">&larr; Exit guided mode</a>' +
+    '</div>' +
+
+    '</div></div>';
+}
+
+// ── SCREEN 2: PREPARING ─────────────────────────────────────────────────────
+function renderPreparingScreen(){
+  return '<div class="screen center" id="screen-preparing" style="padding:40px 24px">' +
+    '<div style="width:100%;max-width:320px;text-align:center" id="preparing-content">' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;margin-bottom:32px">Preparing today\u2019s tour&hellip;</div>' +
+    '<div id="prep-steps" style="text-align:left;margin-bottom:32px"></div>' +
+    '<div style="height:4px;background:rgba(255,255,255,.08);border-radius:100px;overflow:hidden;margin-bottom:32px">' +
+    '<div id="prep-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#C9A14A,#d4a84b);transition:width .3s ease"></div>' +
+    '</div>' +
+    '<div id="prep-done" style="display:none">' +
+    '<div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:24px">Everything is ready</div>' +
+    '<button class="btn-go" onclick="goToScreen(\'nav-0\')">&#9654; GO</button>' +
+    '</div>' +
+    '</div></div>';
+}
+
+function runPreparingSequence(){
+  var steps = ['Loading properties', 'Preparing route', 'Loading contacts', 'Preparing agent notes', 'Optimising itinerary'];
+  var stepsEl = document.getElementById('prep-steps');
+  var barEl = document.getElementById('prep-bar');
+  var doneEl = document.getElementById('prep-done');
+  if(!stepsEl) return;
+  stepsEl.innerHTML = '';
+  doneEl.style.display = 'none';
+  barEl.style.width = '0%';
+
+  var i = 0;
+  function nextStep(){
+    if(i >= steps.length){
+      setTimeout(function(){ doneEl.style.display = 'block'; }, 200);
+      return;
+    }
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;color:rgba(255,255,255,.7)';
+    row.innerHTML = '<span class="checkmark pulse"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></span><span>' + steps[i] + '</span>';
+    stepsEl.appendChild(row);
+    barEl.style.width = Math.round(((i+1)/steps.length)*100) + '%';
+    i++;
+    setTimeout(nextStep, 380);
+  }
+  nextStep();
+}
+
+// ── NAVIGATION SCREEN ────────────────────────────────────────────────────
+function renderNavigationScreen(idx){
+  var p = GS.properties[idx];
+  var mapsUrl = p.mapsUrl || (p.address ? 'https://maps.google.com/?q=' + encodeURIComponent(p.address) : '');
+  return '<div class="screen center" id="screen-nav-' + idx + '" style="padding:40px 24px">' +
+    '<div style="text-align:center;width:100%;max-width:320px">' +
+    '<div class="eyebrow">Navigation</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:8px">Stop ' + (idx+1) + '</div>' +
+    '<div style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:32px">' + esc(p.title || p.area || 'Property') + '</div>' +
+    (mapsUrl
+      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex">Open Google Maps</a>'
+      : '<div style="font-size:13px;color:rgba(255,255,255,.3)">No address available</div>') +
+    '<div style="margin-top:24px">' +
+    '<button class="btn-secondary" onclick="goToScreen(\'prop-' + idx + '\')">I\u2019ve arrived &rarr;</button>' +
+    '</div>' +
+    '</div></div>';
+}
+
+// ── PROPERTY SCREEN ──────────────────────────────────────────────────────
+function renderPropertyScreen(p, idx){
+  var ms = matchScore(GS.client, p);
+  var mLabel = matchLabel(ms);
+
+  var heroImg = p.ogImage
+    ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:220px;object-fit:cover"/>'
+    : '<div style="width:100%;height:140px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:40px;color:rgba(201,161,74,.1)">' + (idx+1) + '</div>';
+
+  function statRow(label, val){
+    return '<div class="row"><div class="row-label">' + label + '</div><div class="row-value">' + (val ? esc(val) : '\u2014') + '</div></div>';
+  }
+
+  var mapsUrl = p.mapsUrl || '';
+  var phone = (p.contactPhone || '').replace(/[^0-9+]/g,'');
+  var waUrl = phone ? 'https://wa.me/' + phone.replace('+','') : '';
+
+  return '<div class="screen" id="screen-prop-' + idx + '" style="overflow-y:auto">' +
+
+    heroImg +
+
+    '<div style="padding:20px 20px 100px">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
+    '<div class="eyebrow" style="margin-bottom:0">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
+    (ms != null ? '<div style="font-size:10px;font-weight:700;color:#C9A14A;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:100px;padding:3px 10px">' + mLabel + '</div>' : '') +
+    '</div>' +
+    (p.price ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#C9A14A;font-weight:600;margin-bottom:4px">' + fmtPrice(p.price) + '</div>' : '') +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:16px">' + esc(p.title || p.area || 'Property') + '</div>' +
+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">' +
+    (p.rooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.rooms) + ' bed</div>' : '') +
+    (p.bathrooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.bathrooms) + ' bath</div>' : '') +
+    (p.sqm ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
+    '</div>' +
+
+    (mapsUrl ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="margin:0 0 24px;text-decoration:none;display:flex">Open Google Maps</a>' : '') +
+
+    '<div class="section-card">' +
+    '<div class="section-title">Customer Questions</div>' +
+    statRow('Community Fee', p.communityFee) +
+    statRow('IBI', p.ibi) +
+    statRow('Basura', p.basura) +
+    statRow('Year Built', p.yearBuilt) +
+    statRow('Energy Certificate', p.energyCert) +
+    statRow('Orientation', p.orientation) +
+    statRow('Parking', p.parking) +
+    statRow('Storage', p.storage) +
+    statRow('Furniture Included', p.furnished) +
+    statRow('Distance to Sea', p.distanceToSea) +
+    statRow('Distance to Beach', p.distanceToBeach) +
+    statRow('Distance to Restaurants', p.distanceToRestaurants) +
+    statRow('Distance to Supermarkets', p.distanceToSupermarkets) +
+    '</div>' +
+
+    '<div class="section-card">' +
+    '<div class="section-title" style="margin-bottom:14px">Listing Agent</div>' +
+    '<div style="font-size:14px;margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
+    '<div style="display:flex;gap:8px">' +
+    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
+    (waUrl ? '<a href="' + waUrl + '" target="_blank" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>' : '')+
+    '</div>' +
+    '</div>' +
+
+    (p.commission || p.firm || p.location ? '<div class="section-card">' +
+    '<div class="section-title">Internal</div>' +
+    statRow('Commission', p.commission) +
+    statRow('Key Collection', p.location) +
+    '</div>' : '') +
+
+    (p.note ? '<div class="section-card">' +
+    '<div class="section-title">Agent Notes</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">' + esc(p.note) + '</div>' +
+    '</div>' : '') +
+
+    '</div>' +
+
+    '<div style="position:sticky;bottom:0;background:linear-gradient(to top,var(--navy) 70%,transparent);padding:20px;display:flex;justify-content:center">' +
+    '<button class="btn-go" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
+    '</div>' +
+
+    '</div>';
+}
+
+// ── DRIVE SCREEN ──────────────────────────────────────────────────────────
+function renderDriveScreen(idx){
+  var nextProp = GS.properties[idx+1];
+  var ms = matchScore(GS.client, nextProp);
+  var mLabel = matchLabel(ms);
+  var mapsUrl = nextProp.mapsUrl || (nextProp.address ? 'https://maps.google.com/?q=' + encodeURIComponent(nextProp.address) : '');
+
+  return '<div class="screen center" id="screen-drive-' + idx + '" style="padding:40px 24px">' +
+    '<div style="text-align:center;width:100%;max-width:320px">' +
+    '<div style="font-size:44px;margin-bottom:16px">&#128663;</div>' +
+    '<div class="eyebrow">Driving</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:24px">Drive to Stop ' + (idx+2) + '</div>' +
+
+    '<div style="display:flex;justify-content:center;gap:32px;margin-bottom:32px" id="drive-stats-' + idx + '">' +
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">&hellip;</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Minutes</div></div>' +
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">&hellip;</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Kilometers</div></div>' +
+    '</div>' +
+
+    (mapsUrl ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex;margin-bottom:32px">Open Google Maps</a>' : '<div style="margin-bottom:32px"></div>') +
+
+    '<div style="border-top:1px solid rgba(255,255,255,.08);padding-top:24px">' +
+    '<div class="eyebrow" style="margin-bottom:14px">Next Property</div>' +
+    '<div onclick="goToScreen(\'prop-' + (idx+1) + '\')" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px;cursor:pointer;text-align:left">' +
+    (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:52px;height:52px;border-radius:8px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
+    '<div style="flex:1;min-width:0">' +
+    '<div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
+    '<div style="font-size:12px;color:#C9A14A">' + fmtPrice(nextProp.price) + (mLabel ? ' \u00b7 ' + mLabel : '') + '</div>' +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+
+    '<button class="btn-secondary" style="margin-top:24px" onclick="goToScreen(\'prop-' + (idx+1) + '\')">Skip to property &rarr;</button>' +
+
+    '</div></div>';
+}
+
+function fetchAllDriveTimes(){
+  var locs = [];
+  GS.properties.forEach(function(p){ locs.push(p.mapsUrl || p.address || ''); });
+
+  var totalKm = 0;
+  var pending = locs.length - 1;
+  if(pending <= 0){ pending = 0; }
+
+  for(var i = 0; i < locs.length - 1; i++){
+    (function(idx){
+      fetchDriveTime(locs[idx], locs[idx+1], function(result){
+        var statsEl = document.getElementById('drive-stats-' + idx);
+        if(statsEl && result && result.ok){
+          statsEl.innerHTML =
+            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Minutes</div></div>' +
+            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Kilometers</div></div>';
+          totalKm += parseFloat(result.distanceKm) || 0;
+        } else if(statsEl){
+          statsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.3)">Drive time unavailable</div>';
+        }
+        pending--;
+        if(pending <= 0){
+          var totalEl = document.getElementById('total-distance');
+          if(totalEl) totalEl.textContent = totalKm > 0 ? Math.round(totalKm) : '\u2014';
+        }
+      });
+    })(i);
+  }
+}
+
+// ── COMPLETE SCREEN ───────────────────────────────────────────────────────
+function renderCompleteScreen(){
+  return '<div class="screen center" id="screen-complete" style="padding:40px 24px">' +
+    '<div style="text-align:center;width:100%;max-width:320px" class="fade-in">' +
+    '<div style="font-size:48px;margin-bottom:16px">&#127881;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:8px">Tour Completed</div>' +
+    '<div id="completed-count" style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:32px">0 of ' + GS.properties.length + ' properties viewed</div>' +
+
+    '<button class="btn-secondary" style="margin-bottom:10px" onclick="exportNotes()">Export Notes</button>' +
+    '<button class="btn-secondary" style="margin-bottom:24px" onclick="copyWhatsappSummary()">Copy WhatsApp Summary</button>' +
+
+    '<a href="/index.html" class="btn-go" style="text-decoration:none;display:inline-flex">Finish Tour</a>' +
+
+    '</div></div>';
+}
+
+var completedSet = {};
+function completeViewing(idx){
+  completedSet[idx] = true;
+  var countEl = document.getElementById('completed-count');
+  if(countEl) countEl.textContent = Object.keys(completedSet).length + ' of ' + GS.properties.length + ' properties viewed';
+
+  // Brief visual confirmation, then move on
+  var btn = event.target.closest('button');
+  if(btn){
+    var orig = btn.innerHTML;
+    btn.innerHTML = '&#10003; Completed';
+    btn.style.background = '#166534';
+    btn.style.color = '#fff';
+  }
+
+  setTimeout(function(){
+    if(idx < GS.properties.length - 1){
+      goToScreen('drive-' + idx);
+    } else {
+      goToScreen('complete');
+    }
+  }, 500);
+}
+
+function exportNotes(){
+  var lines = [];
+  GS.properties.forEach(function(p, i){
+    lines.push((i+1) + '. ' + (p.title || p.area || 'Property') + ' \u2014 ' + fmtPrice(p.price));
+    if(p.note) lines.push('   Note: ' + p.note);
+  });
+  var text = lines.join('\n');
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){ alert('Notes copied to clipboard'); });
+  }
+}
+
+function copyWhatsappSummary(){
+  var client = GS.client;
+  var lines = ['Viewing day summary' + (client ? ' \u2014 ' + client.name : '') + ':', ''];
+  GS.properties.forEach(function(p, i){
+    lines.push((i+1) + '. ' + (p.title || p.area || 'Property') + ' \u2014 ' + fmtPrice(p.price));
+  });
+  var text = lines.join('\n');
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){ alert('Summary copied — paste into WhatsApp'); });
+  }
+}
+
+// ── NAVIGATION BETWEEN SCREENS ────────────────────────────────────────────
+function goToScreen(target){
+  var id;
+  if(target === 'preparing'){
+    id = 'screen-preparing';
+    setTimeout(runPreparingSequence, 350);
+  } else if(target === 'complete'){
+    id = 'screen-complete';
+  } else if(target.indexOf('nav-') === 0){
+    id = 'screen-' + target;
+  } else if(target.indexOf('prop-') === 0){
+    id = 'screen-' + target;
+  } else if(target.indexOf('drive-') === 0){
+    id = 'screen-' + target;
+  } else {
+    id = 'screen-' + target;
+  }
+  var el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+loadGuidedTour();
+</script>
+</body>
+</html>
