@@ -554,6 +554,28 @@ function haversineMeters(lat1, lon1, lat2, lon2){
 }
 
 // ── PROPERTY SCREEN ──────────────────────────────────────────────────────
+function collapsibleSection(id, title, contentHtml, startOpen){
+  startOpen = !!startOpen;
+  return '<div class="section-card" style="padding:0;overflow:hidden">' +
+    '<button onclick="toggleSection(\'' + id + '\')" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;padding:20px;cursor:pointer;font-family:inherit;text-align:left">' +
+    '<span class="section-title" style="margin-bottom:0">' + title + '</span>' +
+    '<svg id="' + id + '-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s;transform:rotate(' + (startOpen ? '180' : '0') + 'deg);flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>' +
+    '</button>' +
+    '<div id="' + id + '" style="display:' + (startOpen ? 'block' : 'none') + ';padding:0 20px 20px">' +
+    contentHtml +
+    '</div>' +
+    '</div>';
+}
+
+function toggleSection(id){
+  var el = document.getElementById(id);
+  var chevron = document.getElementById(id + '-chevron');
+  if(!el) return;
+  var isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'block';
+  if(chevron) chevron.style.transform = 'rotate(' + (isOpen ? '0' : '180') + 'deg)';
+}
+
 function renderPropertyScreen(p, idx){
   var ms = matchScore(GS.client, p);
   var mLabel = matchLabel(ms);
@@ -570,11 +592,39 @@ function renderPropertyScreen(p, idx){
   var phone = (p.contactPhone || '').replace(/[^0-9+]/g,'');
   var waUrl = phone ? 'https://wa.me/' + phone.replace('+','') : '';
 
-  return '<div class="screen" id="screen-prop-' + idx + '" style="overflow-y:auto">' +
+  var customerQuestionsHtml =
+    statRow('Community Fee', p.communityFee) +
+    statRow('IBI', p.ibi) +
+    statRow('Basura', p.basura) +
+    statRow('Year Built', p.yearBuilt) +
+    statRow('Energy Certificate', p.energyCert) +
+    statRow('Orientation', p.orientation) +
+    statRow('Parking', p.parking) +
+    statRow('Storage', p.storage) +
+    statRow('Furniture Included', p.furnished) +
+    statRow('Distance to Sea', p.distanceToSea) +
+    statRow('Distance to Beach', p.distanceToBeach) +
+    statRow('Distance to Restaurants', p.distanceToRestaurants) +
+    statRow('Distance to Supermarkets', p.distanceToSupermarkets);
+
+  var listingAgentHtml =
+    '<div style="font-size:14px;margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
+    '<div style="display:flex;gap:8px">' +
+    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
+    (waUrl ? '<a href="' + waUrl + '" target="_blank" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>' : '')+
+    '</div>';
+
+  var internalHtml = statRow('Commission', p.commission) + statRow('Key Collection', p.location);
+
+  return '<div class="screen" id="screen-prop-' + idx + '" style="display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden">' +
+
+    // Scrollable content area
+    '<div style="flex:1;overflow-y:auto;padding-bottom:16px">' +
 
     heroImg +
 
-    '<div style="padding:20px 20px 100px">' +
+    '<div style="padding:20px 20px 0">' +
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
     '<div class="eyebrow" style="margin-bottom:0">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
     (ms != null ? '<div style="font-size:10px;font-weight:700;color:#C9A14A;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:100px;padding:3px 10px">' + mLabel + '</div>' : '') +
@@ -588,40 +638,9 @@ function renderPropertyScreen(p, idx){
     (p.sqm ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
     '</div>' +
 
-    (mapsUrl ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="margin:0 0 24px;text-decoration:none;display:flex">Open Google Maps</a>' : '') +
-
-    '<div class="section-card">' +
-    '<div class="section-title">Customer Questions</div>' +
-    statRow('Community Fee', p.communityFee) +
-    statRow('IBI', p.ibi) +
-    statRow('Basura', p.basura) +
-    statRow('Year Built', p.yearBuilt) +
-    statRow('Energy Certificate', p.energyCert) +
-    statRow('Orientation', p.orientation) +
-    statRow('Parking', p.parking) +
-    statRow('Storage', p.storage) +
-    statRow('Furniture Included', p.furnished) +
-    statRow('Distance to Sea', p.distanceToSea) +
-    statRow('Distance to Beach', p.distanceToBeach) +
-    statRow('Distance to Restaurants', p.distanceToRestaurants) +
-    statRow('Distance to Supermarkets', p.distanceToSupermarkets) +
-    '</div>' +
-
-    '<div class="section-card">' +
-    '<div class="section-title" style="margin-bottom:14px">Listing Agent</div>' +
-    '<div style="font-size:14px;margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
-    '<div style="display:flex;gap:8px">' +
-    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
-    (waUrl ? '<a href="' + waUrl + '" target="_blank" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>' : '')+
-    '</div>' +
-    '</div>' +
-
-    (p.commission || p.firm || p.location ? '<div class="section-card">' +
-    '<div class="section-title">Internal</div>' +
-    statRow('Commission', p.commission) +
-    statRow('Key Collection', p.location) +
-    '</div>' : '') +
+    collapsibleSection('cq-' + idx, 'Customer Questions', customerQuestionsHtml, false) +
+    collapsibleSection('la-' + idx, 'Listing Agent', listingAgentHtml, false) +
+    ((p.commission || p.location) ? collapsibleSection('int-' + idx, 'Internal', internalHtml, false) : '') +
 
     (p.note ? '<div class="section-card">' +
     '<div class="section-title">Agent Notes</div>' +
@@ -630,8 +649,11 @@ function renderPropertyScreen(p, idx){
 
     '</div>' +
 
-    '<div style="position:sticky;bottom:0;background:linear-gradient(to top,var(--navy) 70%,transparent);padding:20px;display:flex;justify-content:center">' +
-    '<button class="btn-go" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
+    '</div>' + // end scrollable content
+
+    // Fixed bottom action bar — always visible, never scrolls away
+    '<div style="flex-shrink:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:16px 20px;padding-bottom:calc(16px + env(safe-area-inset-bottom))">' +
+    '<button class="btn-go" style="max-width:none" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
     '</div>' +
 
     '</div>';
