@@ -393,21 +393,164 @@ function runPreparingSequence(){
 }
 
 // ── NAVIGATION SCREEN ────────────────────────────────────────────────────
+// State: tracks whether the user has tapped "Open Google Maps" for the current stop,
+// so we know whether to show the arrival check when they come back to the tab.
+var navState = {
+  pendingStopIdx: null,   // index of property the user is currently navigating to
+  mapsOpenedAt: null      // timestamp when Maps was opened, for sanity-checking the return
+};
+
 function renderNavigationScreen(idx){
   var p = GS.properties[idx];
   var mapsUrl = p.mapsUrl || (p.address ? 'https://maps.google.com/?q=' + encodeURIComponent(p.address) : '');
-  return '<div class="screen center" id="screen-nav-' + idx + '" style="padding:40px 24px">' +
-    '<div style="text-align:center;width:100%;max-width:320px">' +
-    '<div class="eyebrow">Navigation</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:8px">Stop ' + (idx+1) + '</div>' +
-    '<div style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:32px">' + esc(p.title || p.area || 'Property') + '</div>' +
-    (mapsUrl
-      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex">Open Google Maps</a>'
-      : '<div style="font-size:13px;color:rgba(255,255,255,.3)">No address available</div>') +
-    '<div style="margin-top:24px">' +
-    '<button class="btn-secondary" onclick="goToScreen(\'prop-' + idx + '\')">I\u2019ve arrived &rarr;</button>' +
+  var driveInfo = idx > 0 ? driveTimeCache[(GS.properties[idx-1].mapsUrl||GS.properties[idx-1].address||'') + '||' + (p.mapsUrl||p.address||'')] : null;
+
+  return '<div class="screen center" id="screen-nav-' + idx + '" style="padding:40px 24px;position:relative">' +
+
+    '<div style="text-align:center;width:100%;max-width:340px">' +
+    '<div class="eyebrow">Next Destination</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:6px;line-height:1.2">' + esc(p.title || p.area || 'Property') + '</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px">' + esc(p.address || p.area || '') + '</div>' +
+
+    '<div id="nav-drive-stats-' + idx + '" style="display:flex;justify-content:center;gap:32px;margin-bottom:28px">' +
+    (driveInfo && driveInfo.ok
+      ? statBlock(driveInfo.durationMin, 'Min drive') + statBlock(driveInfo.distanceKm, 'Km away')
+      : '<div style="font-size:12px;color:rgba(255,255,255,.25)">Calculating route&hellip;</div>') +
     '</div>' +
-    '</div></div>';
+
+    (mapsUrl
+      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex" onclick="trackMapsOpen(' + idx + ')">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
+        'Open Google Maps</a>'
+      : '<div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:16px">No address available</div>') +
+
+    '<button class="btn-secondary" style="margin-top:10px" onclick="manualArrival(' + idx + ')">I\u2019ve already arrived</button>' +
+
+    '<div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">' +
+    '<div style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em">After arrival</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px">Property details will open automatically</div>' +
+    '</div>' +
+
+    '</div>' +
+
+    // Arrival overlay — hidden by default, shown when user returns from Maps
+    '<div id="arrival-overlay-' + idx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
+    '<div style="text-align:center;width:100%;max-width:300px" class="fade-in">' +
+    '<div id="arrival-gps-status-' + idx + '"></div>' +
+    '<div style="font-size:40px;margin-bottom:16px">&#128205;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px">' + esc(p.title || 'This property') + '</div>' +
+    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
+    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
+    '</div>' +
+    '</div>' +
+
+    '</div>';
+}
+
+function statBlock(val, label){
+  return '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + val + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">' + label + '</div></div>';
+}
+
+// Called when the user taps "Open Google Maps" — arms the visibility listener
+// so that returning to this tab shows the arrival check automatically.
+function trackMapsOpen(idx){
+  navState.pendingStopIdx = idx;
+  navState.mapsOpenedAt = Date.now();
+}
+
+// Called when the user taps "I've already arrived" directly, without leaving the tab
+function manualArrival(idx){
+  showArrivalOverlay(idx);
+}
+
+function reopenMaps(idx, mapsUrl){
+  hideArrivalOverlay(idx);
+  if(mapsUrl) window.open(mapsUrl, '_blank');
+  trackMapsOpen(idx);
+}
+
+function showArrivalOverlay(idx){
+  var el = document.getElementById('arrival-overlay-' + idx);
+  if(el){
+    el.style.display = 'flex';
+    attemptGpsArrivalCheck(idx);
+  }
+}
+function hideArrivalOverlay(idx){
+  var el = document.getElementById('arrival-overlay-' + idx);
+  if(el) el.style.display = 'none';
+}
+
+function confirmArrival(idx){
+  hideArrivalOverlay(idx);
+  navState.pendingStopIdx = null;
+  goToScreen('prop-' + idx);
+}
+
+// Visibility-based return detection: when the tab regains focus after the user
+// opened Maps, automatically surface the arrival check.
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState !== 'visible') return;
+  if(navState.pendingStopIdx === null) return;
+  // Small delay so the overlay doesn't flash during the tab-switch animation
+  setTimeout(function(){
+    if(navState.pendingStopIdx !== null){
+      showArrivalOverlay(navState.pendingStopIdx);
+    }
+  }, 300);
+});
+window.addEventListener('focus', function(){
+  if(navState.pendingStopIdx === null) return;
+  setTimeout(function(){
+    if(navState.pendingStopIdx !== null){
+      showArrivalOverlay(navState.pendingStopIdx);
+    }
+  }, 300);
+});
+
+// ── OPTIONAL GPS ENHANCEMENT ──────────────────────────────────────────────
+// Progressive enhancement only. If geolocation is unavailable, denied, or the
+// property has no coordinates, this silently does nothing and the manual
+// "Yes, show property" button remains the primary path.
+function attemptGpsArrivalCheck(idx){
+  var statusEl = document.getElementById('arrival-gps-status-' + idx);
+  if(!statusEl) return;
+  if(!navigator.geolocation){ return; }
+
+  var p = GS.properties[idx];
+  var coords = extractCoords(p.mapsUrl);
+  if(!coords){ return; } // no coordinates to compare against — skip silently
+
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, coords.lat, coords.lng);
+    if(dist <= 100){
+      statusEl.innerHTML = '<div style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#4ade80">&#9989; You\u2019re within ' + Math.round(dist) + 'm of this property</div>';
+    }
+  }, function(){
+    // Permission denied or unavailable — fail silently, manual button still works
+  }, { timeout: 4000, maximumAge: 30000 });
+}
+
+// Extracts lat/lng from a Google Maps URL if present (covers common formats)
+function extractCoords(mapsUrl){
+  if(!mapsUrl) return null;
+  var m = mapsUrl.match(/[@,]\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+  if(m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  var q = mapsUrl.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if(q) return { lat: parseFloat(q[1]), lng: parseFloat(q[2]) };
+  return null;
+}
+
+function haversineMeters(lat1, lon1, lat2, lon2){
+  var R = 6371000;
+  var dLat = (lat2-lat1) * Math.PI/180;
+  var dLon = (lon2-lon1) * Math.PI/180;
+  var a = Math.sin(dLat/2)*Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
 }
 
 // ── PROPERTY SCREEN ──────────────────────────────────────────────────────
@@ -495,39 +638,62 @@ function renderPropertyScreen(p, idx){
 }
 
 // ── DRIVE SCREEN ──────────────────────────────────────────────────────────
+// Functionally identical to the Navigation Screen — same arrival-overlay system —
+// but framed as "driving to the next stop" rather than the very first destination.
 function renderDriveScreen(idx){
   var nextProp = GS.properties[idx+1];
+  var nextIdx = idx + 1;
   var ms = matchScore(GS.client, nextProp);
   var mLabel = matchLabel(ms);
   var mapsUrl = nextProp.mapsUrl || (nextProp.address ? 'https://maps.google.com/?q=' + encodeURIComponent(nextProp.address) : '');
 
-  return '<div class="screen center" id="screen-drive-' + idx + '" style="padding:40px 24px">' +
-    '<div style="text-align:center;width:100%;max-width:320px">' +
-    '<div style="font-size:44px;margin-bottom:16px">&#128663;</div>' +
-    '<div class="eyebrow">Driving</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:24px">Drive to Stop ' + (idx+2) + '</div>' +
+  return '<div class="screen center" id="screen-drive-' + idx + '" style="padding:40px 24px;position:relative">' +
+    '<div style="text-align:center;width:100%;max-width:340px">' +
 
-    '<div style="display:flex;justify-content:center;gap:32px;margin-bottom:32px" id="drive-stats-' + idx + '">' +
-    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">&hellip;</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Minutes</div></div>' +
-    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">&hellip;</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Kilometers</div></div>' +
+    '<div class="eyebrow">Next Destination</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px">Stop ' + (nextIdx+1) + ' of ' + GS.properties.length + '</div>' +
+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:6px;line-height:1.2">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px">' + esc(nextProp.address || nextProp.area || '') + '</div>' +
+
+    '<div id="drive-stats-' + idx + '" style="display:flex;justify-content:center;gap:32px;margin-bottom:28px">' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.25)">Calculating route&hellip;</div>' +
     '</div>' +
 
-    (mapsUrl ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex;margin-bottom:32px">Open Google Maps</a>' : '<div style="margin-bottom:32px"></div>') +
+    (mapsUrl
+      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex" onclick="trackMapsOpen(' + nextIdx + ')">' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
+        'Open Google Maps</a>'
+      : '<div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:16px">No address available</div>') +
 
-    '<div style="border-top:1px solid rgba(255,255,255,.08);padding-top:24px">' +
-    '<div class="eyebrow" style="margin-bottom:14px">Next Property</div>' +
-    '<div onclick="goToScreen(\'prop-' + (idx+1) + '\')" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px;cursor:pointer;text-align:left">' +
-    (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:52px;height:52px;border-radius:8px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
+    '<button class="btn-secondary" style="margin-top:10px" onclick="manualArrival(' + nextIdx + ')">I\u2019ve already arrived</button>' +
+
+    '<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">' +
+    '<div onclick="goToScreen(\'prop-' + nextIdx + '\')" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px;cursor:pointer;text-align:left">' +
+    (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
     '<div style="flex:1;min-width:0">' +
-    '<div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
-    '<div style="font-size:12px;color:#C9A14A">' + fmtPrice(nextProp.price) + (mLabel ? ' \u00b7 ' + mLabel : '') + '</div>' +
+    '<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
+    '<div style="font-size:11px;color:#C9A14A">' + fmtPrice(nextProp.price) + (mLabel ? ' \u00b7 ' + mLabel : '') + '</div>' +
     '</div>' +
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>' +
     '</div>' +
     '</div>' +
 
-    '<button class="btn-secondary" style="margin-top:24px" onclick="goToScreen(\'prop-' + (idx+1) + '\')">Skip to property &rarr;</button>' +
+    '</div>' +
 
-    '</div></div>';
+    // Arrival overlay — same mechanism as Navigation Screen
+    '<div id="arrival-overlay-' + nextIdx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
+    '<div style="text-align:center;width:100%;max-width:300px" class="fade-in">' +
+    '<div id="arrival-gps-status-' + nextIdx + '"></div>' +
+    '<div style="font-size:40px;margin-bottom:16px">&#128205;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px">' + esc(nextProp.title || 'This property') + '</div>' +
+    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + nextIdx + ')">Yes, show property</button>' +
+    '<button class="btn-secondary" onclick="reopenMaps(' + nextIdx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
+    '</div>' +
+    '</div>' +
+
+    '</div>';
 }
 
 function fetchAllDriveTimes(){
@@ -538,14 +704,18 @@ function fetchAllDriveTimes(){
   var pending = locs.length - 1;
   if(pending <= 0){ pending = 0; }
 
+  // drive-stats-N (between properties N and N+1) feeds two places:
+  // the "drive screen" between stop N and N+1, AND the first nav screen if N===0... wait,
+  // actually nav-drive-stats-0 (the very first destination) has no "from" location unless
+  // a meeting point exists, so we only wire that up if locs has a meaningful start.
   for(var i = 0; i < locs.length - 1; i++){
     (function(idx){
       fetchDriveTime(locs[idx], locs[idx+1], function(result){
         var statsEl = document.getElementById('drive-stats-' + idx);
         if(statsEl && result && result.ok){
           statsEl.innerHTML =
-            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Minutes</div></div>' +
-            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Kilometers</div></div>';
+            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Min drive</div></div>' +
+            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Km away</div></div>';
           totalKm += parseFloat(result.distanceKm) || 0;
         } else if(statsEl){
           statsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.3)">Drive time unavailable</div>';
@@ -557,6 +727,27 @@ function fetchAllDriveTimes(){
         }
       });
     })(i);
+  }
+
+  // First nav screen (the very first destination) — only has drive time if there's
+  // a meeting point set in the day. If not, leave it as "no route to calculate" since
+  // the agent's own starting location is unknown.
+  var mpEv = (GS.day.events || []).find(function(e){ return e.type === 'meetingpoint'; });
+  var startLoc = mpEv ? (mpEv.title || mpEv.note || '') : '';
+  if(startLoc && GS.properties.length){
+    fetchDriveTime(startLoc, locs[0], function(result){
+      var statsEl = document.getElementById('nav-drive-stats-0');
+      if(statsEl && result && result.ok){
+        statsEl.innerHTML =
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Min drive</div></div>' +
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Km away</div></div>';
+      } else if(statsEl){
+        statsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.25)">Set a meeting point to see drive time</div>';
+      }
+    });
+  } else {
+    var firstStatsEl = document.getElementById('nav-drive-stats-0');
+    if(firstStatsEl) firstStatsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.25)">Tap below to start navigating</div>';
   }
 }
 
@@ -582,13 +773,25 @@ function completeViewing(idx){
   var countEl = document.getElementById('completed-count');
   if(countEl) countEl.textContent = Object.keys(completedSet).length + ' of ' + GS.properties.length + ' properties viewed';
 
-  // Brief visual confirmation, then move on
+  var isLast = idx >= GS.properties.length - 1;
+  var nextLabel = isLast ? 'Tour complete' : 'Drive to Stop ' + (idx+2);
+
+  // Replace the button area with a brief success/handoff state
   var btn = event.target.closest('button');
+  var container = btn ? btn.parentElement : null;
   if(btn){
-    var orig = btn.innerHTML;
-    btn.innerHTML = '&#10003; Completed';
-    btn.style.background = '#166534';
-    btn.style.color = '#fff';
+    btn.style.display = 'none';
+  }
+  if(container){
+    var handoff = document.createElement('div');
+    handoff.className = 'fade-in';
+    handoff.style.cssText = 'text-align:center;padding:13px';
+    handoff.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;gap:8px;color:#4ade80;font-size:14px;font-weight:600;margin-bottom:4px">' +
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+      'Viewing completed</div>' +
+      '<div style="font-size:12px;color:rgba(255,255,255,.4)">Next: ' + nextLabel + '</div>';
+    container.appendChild(handoff);
   }
 
   setTimeout(function(){
@@ -597,7 +800,7 @@ function completeViewing(idx){
     } else {
       goToScreen('complete');
     }
-  }, 500);
+  }, 900);
 }
 
 function exportNotes(){
@@ -632,14 +835,13 @@ function goToScreen(target){
     setTimeout(runPreparingSequence, 350);
   } else if(target === 'complete'){
     id = 'screen-complete';
-  } else if(target.indexOf('nav-') === 0){
-    id = 'screen-' + target;
-  } else if(target.indexOf('prop-') === 0){
-    id = 'screen-' + target;
-  } else if(target.indexOf('drive-') === 0){
-    id = 'screen-' + target;
   } else {
     id = 'screen-' + target;
+  }
+  // Once the user lands on a property screen, the pending Maps round-trip is resolved —
+  // clear it so a stray tab-focus event later doesn't pop the arrival overlay again.
+  if(target.indexOf('prop-') === 0){
+    navState.pendingStopIdx = null;
   }
   var el = document.getElementById(id);
   if(el) el.scrollIntoView({behavior: 'smooth', block: 'start'});
