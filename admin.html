@@ -813,7 +813,7 @@ function renderAnalyticsKpis(rows){
   var el=document.getElementById('analytics-kpis');
   if(!el)return;
   el.innerHTML=
-    statCard(uniqSessions(rows.filter(function(r){return r.event_name==='page_view';}),'Sessions','Unique visitors'))+
+    statCard(uniqSessions(rows.filter(function(r){return r.event_name==='page_view';})),'Sessions','Unique visitors')+
     statCard(cnt('page_view'),'Page views','Total page loads')+
     statCard(cnt('login'),'Logins','Auth events')+
     statCard(cnt('user_registered'),'Registrations','New accounts')+
