@@ -107,7 +107,241 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   padding:14px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
   border-radius:12px;color:#fff;text-decoration:none;font-size:11px;font-weight:500;
 }
+/* ── TOUR MODE — MAP + BOTTOM SHEET ── */
+.tour-screen{
+  position:relative;
+  background:var(--navy);
+  overflow:hidden;
+}
+.tour-map{
+  position:absolute;
+  top:0;left:0;right:0;
+  height:52%;
+  z-index:1;
+}
+.tour-map .leaflet-container{
+  width:100%;height:100%;
+  background:#e8e4d8;
+}
+/* Leaflet attribution — keep but style small */
+.leaflet-control-attribution{font-size:8px!important;background:rgba(255,255,255,.6)!important}
+
+/* Tour pill overlay on map */
+.tour-pill{
+  position:absolute;
+  top:16px;left:16px;right:16px;
+  z-index:10;
+  background:rgba(7,18,38,.88);
+  backdrop-filter:blur(8px);
+  border-radius:100px;
+  padding:10px 18px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+}
+.tour-pill svg{flex-shrink:0}
+
+/* Bottom sheet */
+.tour-sheet{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  top:46%;
+  z-index:20;
+  background:#fff;
+  border-radius:22px 22px 0 0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 -4px 24px rgba(7,18,38,.18);
+}
+.tour-sheet-handle{
+  flex-shrink:0;
+  display:flex;justify-content:center;
+  padding:10px 0 6px;
+}
+.tour-sheet-handle::before{
+  content:'';
+  width:36px;height:4px;
+  background:#d0cdc8;
+  border-radius:2px;
+}
+.tour-sheet-scroll{
+  flex:1;
+  overflow-y:auto;
+  padding:0 18px 8px;
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Property hero row */
+.tour-prop-row{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:16px;
+}
+.tour-prop-img{
+  width:100px;height:80px;
+  border-radius:12px;
+  object-fit:cover;
+  flex-shrink:0;
+}
+.tour-prop-img-empty{
+  width:100px;height:80px;
+  border-radius:12px;
+  background:var(--mist);
+  flex-shrink:0;
+}
+.tour-prop-area{
+  font-family:'Cormorant Garamond',serif;
+  font-size:34px;
+  font-weight:600;
+  color:var(--navy);
+  line-height:1;
+  text-transform:uppercase;
+  letter-spacing:-.5px;
+}
+.tour-prop-title{
+  font-size:15px;
+  color:var(--slate);
+  margin-top:3px;
+  font-weight:400;
+}
+.tour-prop-address{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;color:var(--slate);
+  margin-top:5px;
+}
+
+/* Stat blocks */
+.tour-stats{
+  display:flex;
+  gap:0;
+  background:var(--mist);
+  border-radius:14px;
+  overflow:hidden;
+  margin-bottom:16px;
+}
+.tour-stat{
+  flex:1;
+  text-align:center;
+  padding:14px 8px 12px;
+  border-right:1px solid var(--fog);
+}
+.tour-stat:last-child{border-right:none}
+.tour-stat-icon{margin-bottom:6px;display:flex;justify-content:center}
+.tour-stat-val{
+  font-size:22px;
+  font-weight:700;
+  color:var(--navy);
+  line-height:1;
+}
+.tour-stat-lbl{
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--slate);
+  margin-top:3px;
+}
+.tour-stat-eta{
+  font-size:11px;
+  font-weight:600;
+  color:var(--brass);
+  margin-top:3px;
+}
+
+/* START TOUR button */
+.btn-start-tour{
+  width:100%;
+  background:var(--navy);
+  color:var(--brass);
+  border:none;
+  border-radius:16px;
+  padding:20px;
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:.06em;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  cursor:pointer;
+  margin-bottom:10px;
+  transition:transform 150ms var(--transition-spring),box-shadow 150ms;
+  box-shadow:0 6px 24px rgba(7,18,38,.25);
+  -webkit-appearance:none;
+}
+.btn-start-tour:active{
+  transform:scale(.97);
+  box-shadow:0 2px 10px rgba(7,18,38,.2);
+}
+.btn-start-tour-icon{
+  width:32px;height:32px;
+  background:var(--brass);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+
+/* Mark completed */
+.btn-mark-done{
+  width:100%;
+  background:#fff;
+  color:var(--navy);
+  border:1.5px solid var(--fog);
+  border-radius:14px;
+  padding:14px;
+  font-size:14px;
+  font-weight:600;
+  font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;
+  margin-bottom:12px;
+  transition:background .15s,transform .1s;
+  -webkit-appearance:none;
+}
+.btn-mark-done:active{background:var(--mist);transform:scale(.98)}
+
+/* Remaining stops */
+.remaining-stops-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;
+  border-top:1px solid var(--fog);
+  cursor:pointer;
+}
+.remaining-stops-list{
+  display:none;
+  padding-bottom:8px;
+}
+.remaining-stop-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;
+  border-bottom:1px solid var(--fog);
+}
+.remaining-stop-row:last-child{border-bottom:none}
+
+/* Leaflet custom markers */
+.tour-marker-active{
+  width:36px;height:36px;
+  background:var(--brass);
+  border-radius:50% 50% 50% 0;
+  transform:rotate(-45deg);
+  border:3px solid #fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+.tour-marker-num{
+  transform:rotate(45deg);
+  color:#fff;font-weight:800;font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;
+}
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
 
@@ -309,6 +543,9 @@ function renderApp(){
 
   // Mount the persistent floating progress pill + modal, once
   mountProgressUI();
+
+  // Init Leaflet maps (deferred so DOM exists)
+  setTimeout(initTourMaps, 200);
 }
 
 // ── TOUR PROGRESS (persistent floating button + overview) ─────────────────
@@ -644,183 +881,325 @@ function shareGuidedTour(){
   }
 }
 
-// ── NAVIGATION SCREEN ────────────────────────────────────────────────────
-// State: tracks whether the user has tapped "Open Google Maps" for the current stop,
-// so we know whether to show the arrival check when they come back to the tab.
-var navState = {
-  pendingStopIdx: null,   // index of property the user is currently navigating to
-  mapsOpenedAt: null      // timestamp when Maps was opened, for sanity-checking the return
-};
+// ── TOUR MODE STATE ───────────────────────────────────────────────────────────
+var navState = { pendingStopIdx: null, mapsOpenedAt: null };
+var tourMaps = {}; // Leaflet map instances keyed by screen id
+
+// ── SHARED TOUR SCREEN BUILDER ────────────────────────────────────────────────
+// Used by both nav (first arrival) and drive (subsequent) screens.
+// propIdx = the property being driven TO.
+// screenId = DOM id of the .screen div.
+function renderTourModeScreen(propIdx, screenId){
+  var p       = GS.properties[propIdx];
+  var props   = GS.properties;
+  var ms      = matchScore(GS.client, p);
+  var mLabel  = matchLabel(ms);
+  var mapsUrl = buildMapsUrl(p);
+
+  // Tour summary pill text
+  var totalKmText = '—';
+  var totalMinText = '—';
+  var remaining = props.length - propIdx;
+
+  // ETA calc: current time + driveMin
+  function calcEta(driveMin){
+    if(!driveMin) return '';
+    var d = new Date(Date.now() + driveMin * 60000);
+    return (d.getHours()<10?'0':'')+d.getHours() + ':' + (d.getMinutes()<10?'0':'')+d.getMinutes();
+  }
+
+  // Drive info for THIS leg (from previous stop or meeting point)
+  var driveKey = propIdx > 0
+    ? (props[propIdx-1].mapsUrl||props[propIdx-1].address||'') + '||' + (p.mapsUrl||p.address||'')
+    : null;
+  var driveInfo = driveKey ? driveTimeCache[driveKey] : null;
+  var durationMin = driveInfo && driveInfo.ok ? parseInt(driveInfo.durationMin,10) : null;
+  var distanceKm  = driveInfo && driveInfo.ok ? driveInfo.distanceKm : null;
+  var eta         = durationMin ? calcEta(durationMin) : null;
+
+  // Pill: total stops remaining, total km (all legs)
+  var pillParts = [remaining + ' stop' + (remaining===1?'':'s') + ' left'];
+  if(distanceKm) pillParts.push(distanceKm + ' km');
+  if(durationMin) pillParts.push(durationMin + ' min');
+  var estFinish = calcEstimatedFinish(props);
+  if(estFinish !== '—') pillParts.push('Finish ' + estFinish);
+
+  // Remaining stops list
+  var remainingList = props.slice(propIdx+1).map(function(rp, ri){
+    var rIdx = propIdx + 1 + ri;
+    return '<div class="remaining-stop-row">' +
+      '<div style="width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--brass);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (rIdx+1) + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:13px;font-weight:500;color:var(--navy)">' + esc(rp.area || rp.title || 'Property') + '</div>' +
+      (rp.time ? '<div style="font-size:11px;color:var(--slate)">' + esc(rp.time) + '</div>' : '') +
+      '</div>' +
+      '</div>';
+  }).join('');
+
+  return '<div class="screen tour-screen" id="' + screenId + '">' +
+
+    // ── MAP ────────────────────────────────────────────────────────────────
+    '<div class="tour-map" id="map-' + screenId + '"></div>' +
+
+    // Tour pill (overlaid on map)
+    '<div class="tour-pill" style="top:56px">' +
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+    pillParts.join('<span style="color:rgba(255,255,255,.3);margin:0 4px">•</span>') +
+    '</div>' +
+
+    // ── BOTTOM SHEET ───────────────────────────────────────────────────────
+    '<div class="tour-sheet">' +
+    '<div class="tour-sheet-handle"></div>' +
+    '<div class="tour-sheet-scroll">' +
+
+    // Property hero row
+    '<div class="tour-prop-row">' +
+    '<div style="flex:1;min-width:0">' +
+    '<div class="tour-prop-area">' + esc(p.area || p.title || 'Property ' + (propIdx+1)) + '</div>' +
+    (p.title && p.area ? '<div class="tour-prop-title">' + esc(p.title) + '</div>' : '') +
+    (p.address ? '<div class="tour-prop-address"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' + esc(p.address) + '</div>' : '') +
+    '</div>' +
+    (p.ogImage
+      ? '<img src="' + esc(p.ogImage) + '" class="tour-prop-img" alt=""/>'
+      : '<div class="tour-prop-img-empty"></div>') +
+    '</div>' +
+
+    // Stat blocks
+    '<div class="tour-stats">' +
+
+    // Appointment time
+    '<div class="tour-stat">' +
+    '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
+    '<div class="tour-stat-val" id="stat-time-' + propIdx + '">' + (p.time || '—') + '</div>' +
+    '<div class="tour-stat-lbl">Appointment</div>' +
+    '</div>' +
+
+    // Distance
+    '<div class="tour-stat">' +
+    '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>' +
+    '<div class="tour-stat-val" id="stat-dist-' + propIdx + '">' + (distanceKm || '—') + '</div>' +
+    '<div class="tour-stat-lbl">Distance</div>' +
+    '</div>' +
+
+    // Drive time + ETA
+    '<div class="tour-stat">' +
+    '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
+    '<div class="tour-stat-val" id="stat-min-' + propIdx + '">' + (durationMin ? durationMin + ' min' : '—') + '</div>' +
+    '<div class="tour-stat-lbl">Drive Time</div>' +
+    (eta ? '<div class="tour-stat-eta" id="stat-eta-' + propIdx + '">ETA ' + eta + '</div>' : '<div class="tour-stat-eta" id="stat-eta-' + propIdx + '"></div>') +
+    '</div>' +
+
+    '</div>' + // end tour-stats
+
+    // START TOUR button
+    '<button class="btn-start-tour" onclick="startNavigation(' + propIdx + ')">' +
+    '<div class="btn-start-tour-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--navy)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' +
+    'START TOUR' +
+    '</button>' +
+
+    // Mark as completed
+    '<button class="btn-mark-done" onclick="completeViewing(' + propIdx + ')">' +
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    'Mark as completed' +
+    '</button>' +
+
+    // Remaining stops (collapsible)
+    (remainingList
+      ? '<div class="remaining-stops-header" onclick="toggleRemaining(\'' + screenId + '\')">' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>' +
+        '<span style="font-size:13px;font-weight:600;color:var(--navy)">Remaining stops (' + (props.length - propIdx - 1) + ')</span>' +
+        '</div>' +
+        '<svg id="remaining-chevron-' + screenId + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>' +
+        '</div>' +
+        '<div id="remaining-list-' + screenId + '" class="remaining-stops-list">' +
+        remainingList +
+        '</div>'
+      : '') +
+
+    '<div style="height:env(safe-area-inset-bottom,16px)"></div>' +
+    '</div>' + // end sheet-scroll
+    '</div>' + // end tour-sheet
+
+    '</div>'; // end screen
+}
+
+function toggleRemaining(screenId){
+  var list = document.getElementById('remaining-list-' + screenId);
+  var chev = document.getElementById('remaining-chevron-' + screenId);
+  if(!list) return;
+  var open = list.style.display === 'block';
+  list.style.display = open ? 'none' : 'block';
+  if(chev) chev.style.transform = open ? 'rotate(0)' : 'rotate(180deg)';
+}
 
 function renderNavigationScreen(idx){
-  var p = GS.properties[idx];
-  var mapsUrl = p.mapsUrl || (p.address ? 'https://maps.google.com/?q=' + encodeURIComponent(p.address) : '');
-  var driveInfo = idx > 0 ? driveTimeCache[(GS.properties[idx-1].mapsUrl||GS.properties[idx-1].address||'') + '||' + (p.mapsUrl||p.address||'')] : null;
+  return renderTourModeScreen(idx, 'screen-nav-' + idx);
+}
 
-  return '<div class="screen center" id="screen-nav-' + idx + '" style="padding:40px 24px;position:relative">' +
+function renderDriveScreen(idx){
+  return renderTourModeScreen(idx + 1, 'screen-drive-' + idx);
+}
 
-    '<div style="text-align:center;width:100%;max-width:340px">' +
-    '<div class="eyebrow">Next Destination</div>' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
-
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:6px;line-height:1.2">' + esc(p.title || p.area || 'Property') + '</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px">' + esc(p.address || p.area || '') + '</div>' +
-
-    '<div id="nav-drive-stats-' + idx + '" style="display:flex;justify-content:center;gap:32px;margin-bottom:28px">' +
-    (driveInfo && driveInfo.ok
-      ? statBlock(driveInfo.durationMin, 'Min drive') + statBlock(driveInfo.distanceKm, 'Km away')
-      : '<div style="font-size:12px;color:rgba(255,255,255,.25)">Calculating route&hellip;</div>') +
-    '</div>' +
-
-    (mapsUrl
-      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex" onclick="trackMapsOpen(' + idx + ')">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
-        'Open Google Maps</a>'
-      : '<div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:16px">No address available</div>') +
-
-    '<button class="btn-secondary" style="margin-top:10px" onclick="manualArrival(' + idx + ')">I\u2019ve already arrived</button>' +
-
-    '<div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">' +
-    '<div style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em">After arrival</div>' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px">Property details will open automatically</div>' +
-    '</div>' +
-
-    '</div>' +
-
-    // Arrival overlay — hidden by default, content driven by resetArrivalOverlayToWelcome()
-    '<div id="arrival-overlay-' + idx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
-    '<div style="text-align:center;width:100%;max-width:300px" id="arrival-body-' + idx + '"></div>' +
-    '<div id="arrival-gps-status-' + idx + '"></div>' +
-
-    '</div>';
+// Build a Google Maps navigation URL from a property (lat/lng preferred, fallback address)
+function buildMapsUrl(p){
+  if(p.lat && p.lng){
+    return 'https://maps.google.com/?daddr=' + p.lat + ',' + p.lng + '&dirflg=d';
+  }
+  if(p.mapsUrl) return p.mapsUrl;
+  if(p.address) return 'https://maps.google.com/?q=' + encodeURIComponent(p.address);
+  return '';
 }
 
 function statBlock(val, label){
-  return '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + val + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">' + label + '</div></div>';
+  return '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#fff">' + val + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">' + label + '</div></div>';
 }
 
-// Called when the user taps "Open Google Maps" — arms the visibility listener
-// so that returning to this tab shows the arrival check automatically.
+// Arms the visibility listener so returning from Maps shows arrival overlay
 function trackMapsOpen(idx){
   navState.pendingStopIdx = idx;
   navState.mapsOpenedAt = Date.now();
 }
 
-// Called when the user taps "I've already arrived" directly, without leaving the tab
-function manualArrival(idx){
-  showArrivalOverlay(idx);
+function startNavigation(idx){
+  var p = GS.properties[idx];
+  var url = buildMapsUrl(p);
+  if(navigator.vibrate) navigator.vibrate(40);
+  trackMapsOpen(idx);
+  if(url) window.open(url, '_blank');
 }
+
+function manualArrival(idx){ showArrivalOverlay(idx); }
 
 function reopenMaps(idx, mapsUrl){
   if(mapsUrl) window.open(mapsUrl, '_blank');
   trackMapsOpen(idx);
-  resetArrivalOverlayToWelcome(idx);
+  var bodyEl = document.getElementById('arrival-body');
+  if(bodyEl) resetArrivalBodyToWelcome(idx);
+}
+
+// ── SHARED ARRIVAL OVERLAY ────────────────────────────────────────────────────
+function ensureArrivalOverlay(){
+  if(document.getElementById('arrival-overlay')) return;
+  var overlay = document.createElement('div');
+  overlay.id = 'arrival-overlay';
+  overlay.className = 'tf-overlay center-modal';
+  overlay.innerHTML =
+    '<div class="tf-overlay-bg"></div>' +
+    '<div class="tf-overlay-card" id="arrival-card" style="padding:28px 22px">' +
+    '<div id="arrival-body"></div>' +
+    '</div>';
+  document.body.appendChild(overlay);
 }
 
 function showArrivalOverlay(idx){
-  var el = document.getElementById('arrival-overlay-' + idx);
-  if(!el) return;
-  el.style.display = 'flex';
-  resetArrivalOverlayToWelcome(idx);
+  ensureArrivalOverlay();
+  var overlay = document.getElementById('arrival-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(function(){ overlay.classList.add('active'); });
+  document.body.classList.add('overlay-open');
+  resetArrivalBodyToWelcome(idx);
 }
-function hideArrivalOverlay(idx){
-  var el = document.getElementById('arrival-overlay-' + idx);
-  if(el) el.style.display = 'none';
+
+function hideArrivalOverlay(){
+  var overlay = document.getElementById('arrival-overlay');
+  if(overlay){
+    overlay.classList.remove('active');
+    document.body.classList.remove('overlay-open');
+    setTimeout(function(){ overlay.style.display = 'none'; }, 320);
+  }
 }
 
 function confirmArrival(idx){
-  hideArrivalOverlay(idx);
+  hideArrivalOverlay();
   navState.pendingStopIdx = null;
-  goToScreen('prop-' + idx);
+  setTimeout(function(){ goToScreen('prop-' + idx); }, 200);
 }
 
-// Visibility-based return detection: when the tab regains focus after the user
-// opened Maps, automatically surface the arrival check with a "Welcome back" beat.
 document.addEventListener('visibilitychange', function(){
   if(document.visibilityState !== 'visible') return;
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null){
-      showArrivalOverlay(navState.pendingStopIdx);
-    }
+    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
   }, 300);
 });
 window.addEventListener('focus', function(){
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null){
-      showArrivalOverlay(navState.pendingStopIdx);
-    }
+    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
   }, 300);
 });
 
 // ── ARRIVAL DETECTION FLOW ─────────────────────────────────────────────────
 // Sequence per spec: "Welcome back" (brief) -> GPS check if available ->
 // either auto-confirm ("Looks like you've arrived") or fall back to the
-// manual Yes / Open Maps again buttons. Always degrades gracefully.
-function resetArrivalOverlayToWelcome(idx){
-  var statusEl = document.getElementById('arrival-gps-status-' + idx);
-  var bodyEl = document.getElementById('arrival-body-' + idx);
-  if(!statusEl || !bodyEl) return;
-
-  statusEl.innerHTML = '';
+function resetArrivalBodyToWelcome(idx){
+  var bodyEl = document.getElementById('arrival-body');
+  if(!bodyEl) return;
   bodyEl.innerHTML =
-    '<div style="font-size:36px;margin-bottom:12px">&#128075;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:24px">Welcome back</div>' +
-    '<div class="spinner" style="margin:0 auto"></div>';
-
-  // Brief beat, then attempt GPS — falls back to manual state either way
-  setTimeout(function(){ attemptGpsArrivalCheck(idx); }, 600);
+    '<div class="fade-in" style="text-align:center;padding:8px 0 16px">' +
+    '<div style="font-size:32px;margin-bottom:10px">👋</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:20px">Welcome back</div>' +
+    '<div class="spinner" style="margin:0 auto"></div>' +
+    '</div>';
+  setTimeout(function(){ attemptGpsArrivalCheck(idx); }, 700);
 }
 
+// Keep old name as alias for backward compat
+var resetArrivalOverlayToWelcome = resetArrivalBodyToWelcome;
+
 function renderManualArrivalState(idx, propTitle, mapsUrl){
+  var p = GS.properties[idx];
   return '<div class="fade-in">' +
-    '<div style="font-size:36px;margin-bottom:12px">&#128205;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
-    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
-    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
+    (p && p.ogImage ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:120px;object-fit:cover;border-radius:14px;margin-bottom:14px"/>' : '') +
+    '<div style="margin-bottom:18px">' +
+    '<div style="font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(201,161,74,.7);margin-bottom:4px">Stop ' + (idx+1) + ' of ' + GS.properties.length + (p && p.time ? ' · ' + p.time : '') + '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff;line-height:1.2">' + esc(propTitle || 'This property') + '</div>' +
+    (p && p.address ? '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:3px">' + esc(p.address) + '</div>' : '') +
+    '</div>' +
+    '<button class="btn-go" style="margin-bottom:8px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
+    '<button class="btn-secondary" onclick="startNavigation(' + idx + ')">Open Google Maps again</button>' +
     '</div>';
 }
 
 function renderAutoArrivedState(idx, propTitle){
   return '<div class="fade-in" style="text-align:center">' +
-    '<div style="width:64px;height:64px;border-radius:50%;background:rgba(34,197,94,.15);border:1.5px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">' +
-    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    '<div style="width:56px;height:56px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">' +
+    '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
     '</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:6px">Looks like you\u2019ve arrived</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
+    '<div style="font-size:11px;color:#4ade80;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Arrived at Stop ' + (idx+1) + '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff;margin-bottom:20px">' + esc(propTitle || 'This property') + '</div>' +
     '<button class="btn-go" onclick="confirmArrival(' + idx + ')">Open Property</button>' +
     '</div>';
 }
 
-// ── OPTIONAL GPS ENHANCEMENT ──────────────────────────────────────────────
-// Progressive enhancement only. If geolocation is unavailable, denied, or the
-// property has no coordinates, falls back to the manual arrival state.
 function attemptGpsArrivalCheck(idx){
-  var bodyEl = document.getElementById('arrival-body-' + idx);
+  var bodyEl = document.getElementById('arrival-body');
   if(!bodyEl) return;
   var p = GS.properties[idx];
-  var mapsUrl = p.mapsUrl || '';
+  var mapsUrl = p ? (p.mapsUrl || '') : '';
 
   function fallbackToManual(){
-    bodyEl.innerHTML = renderManualArrivalState(idx, p.title || p.area, mapsUrl);
+    if(document.getElementById('arrival-body') === bodyEl){
+      bodyEl.innerHTML = renderManualArrivalState(idx, p ? (p.title || p.area) : '', mapsUrl);
+    }
   }
 
   if(!navigator.geolocation){ fallbackToManual(); return; }
-  var coords = extractCoords(mapsUrl);
+
+  // Use lat/lng directly if available, else try to parse from mapsUrl
+  var coords = (p && p.lat && p.lng) ? {lat:p.lat, lng:p.lng} : extractCoords(mapsUrl);
   if(!coords){ fallbackToManual(); return; }
 
   navigator.geolocation.getCurrentPosition(function(pos){
     var dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, coords.lat, coords.lng);
+    if(document.getElementById('arrival-body') !== bodyEl) return;
     if(dist <= 100){
-      bodyEl.innerHTML = renderAutoArrivedState(idx, p.title || p.area);
+      bodyEl.innerHTML = renderAutoArrivedState(idx, p ? (p.title || p.area) : '');
     } else {
       fallbackToManual();
     }
-  }, function(){
-    fallbackToManual(); // permission denied or unavailable
-  }, { timeout: 4000, maximumAge: 30000 });
+  }, function(){ fallbackToManual(); }, { timeout: 4000, maximumAge: 30000 });
 }
 
 // Extracts lat/lng from a Google Maps URL if present (covers common formats)
@@ -995,107 +1374,153 @@ function toggleChecklistItem(idx, key){
 // ── DRIVE SCREEN ──────────────────────────────────────────────────────────
 // Functionally identical to the Navigation Screen — same arrival-overlay system —
 // but framed as "driving to the next stop" rather than the very first destination.
-function renderDriveScreen(idx){
-  var nextProp = GS.properties[idx+1];
-  var nextIdx = idx + 1;
-  var ms = matchScore(GS.client, nextProp);
-  var mLabel = matchLabel(ms);
-  var mapsUrl = nextProp.mapsUrl || (nextProp.address ? 'https://maps.google.com/?q=' + encodeURIComponent(nextProp.address) : '');
+// ── LEAFLET MAP INIT ─────────────────────────────────────────────────────────
+function initTourMaps(){
+  if(typeof L === 'undefined') return;
 
-  return '<div class="screen center" id="screen-drive-' + idx + '" style="padding:40px 24px;position:relative">' +
-    '<div style="text-align:center;width:100%;max-width:340px">' +
+  var tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  var tileOpts = { maxZoom:19, attribution:'&copy; <a href="https://carto.com">CARTO</a>' };
 
-    '<div class="eyebrow">Next Destination</div>' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px">Stop ' + (nextIdx+1) + ' of ' + GS.properties.length + '</div>' +
+  GS.properties.forEach(function(p, i){
+    initMapForScreen('screen-nav-' + i, p, i);
+  });
+  for(var d = 0; d < GS.properties.length - 1; d++){
+    initMapForScreen('screen-drive-' + d, GS.properties[d+1], d+1);
+  }
 
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:6px;line-height:1.2">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px">' + esc(nextProp.address || nextProp.area || '') + '</div>' +
+  function initMapForScreen(screenId, activeProp, activeIdx){
+    var mapEl = document.getElementById('map-' + screenId);
+    if(!mapEl || mapEl._leaflet_id) return; // already inited
 
-    '<div id="drive-stats-' + idx + '" style="display:flex;justify-content:center;gap:32px;margin-bottom:28px">' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.25)">Calculating route&hellip;</div>' +
-    '</div>' +
+    var map = L.map(mapEl, {
+      zoomControl:false,
+      attributionControl:true,
+      dragging:true,
+      scrollWheelZoom:false,
+      doubleClickZoom:false
+    });
 
-    (mapsUrl
-      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex" onclick="trackMapsOpen(' + nextIdx + ')">' +
-        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
-        'Open Google Maps</a>'
-      : '<div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:16px">No address available</div>') +
+    L.tileLayer(tileUrl, tileOpts).addTo(map);
 
-    '<button class="btn-secondary" style="margin-top:10px" onclick="manualArrival(' + nextIdx + ')">I\u2019ve already arrived</button>' +
+    var markers = [];
+    var bounds = [];
 
-    '<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">' +
-    '<div onclick="goToScreen(\'prop-' + nextIdx + '\')" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px;cursor:pointer;text-align:left">' +
-    (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
-    '<div style="flex:1;min-width:0">' +
-    '<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
-    '<div style="font-size:11px;color:#C9A14A">' + fmtPrice(nextProp.price) + (mLabel ? ' \u00b7 ' + mLabel : '') + '</div>' +
-    '</div>' +
-    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>' +
-    '</div>' +
-    '</div>' +
+    GS.properties.forEach(function(p2, j){
+      var lat = p2.lat, lng = p2.lng;
+      if(!lat || !lng) return;
 
-    '</div>' +
+      var isActive = j === activeIdx;
+      var isCompleted = !!completedSet[j];
 
-    // Arrival overlay — same mechanism as Navigation Screen
-    '<div id="arrival-overlay-' + nextIdx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
-    '<div style="text-align:center;width:100%;max-width:300px" id="arrival-body-' + nextIdx + '"></div>' +
-    '<div id="arrival-gps-status-' + nextIdx + '"></div>' +
+      // Custom SVG marker
+      var color = isActive ? '#C9A14A' : isCompleted ? '#9ca3af' : '#071226';
+      var textColor = isActive ? '#071226' : '#fff';
+      var icon = L.divIcon({
+        className:'',
+        html: '<div style="width:32px;height:32px;border-radius:50%;background:' + color + ';' +
+              'border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);' +
+              'display:flex;align-items:center;justify-content:center;' +
+              'font-size:13px;font-weight:800;color:' + textColor + ';' +
+              'font-family:-apple-system,sans-serif">' + (j+1) + '</div>',
+        iconSize:[32,32],
+        iconAnchor:[16,16]
+      });
 
-    '</div>';
+      var marker = L.marker([lat, lng], {icon:icon}).addTo(map);
+      markers.push(marker);
+      bounds.push([lat, lng]);
+    });
+
+    // Draw route line between all properties that have coords
+    var routePoints = GS.properties
+      .filter(function(p2){ return p2.lat && p2.lng; })
+      .map(function(p2){ return [p2.lat, p2.lng]; });
+
+    if(routePoints.length > 1){
+      L.polyline(routePoints, {
+        color:'#071226',
+        weight:3,
+        opacity:.7,
+        dashArray:null
+      }).addTo(map);
+    }
+
+    // Fit map to show all markers, or center on active if only one
+    if(bounds.length > 1){
+      map.fitBounds(bounds, { padding:[40, 40] });
+    } else if(bounds.length === 1){
+      map.setView(bounds[0], 15);
+    } else if(activeProp.lat && activeProp.lng){
+      map.setView([activeProp.lat, activeProp.lng], 14);
+    }
+
+    tourMaps[screenId] = map;
+  }
 }
 
 function fetchAllDriveTimes(){
-  var locs = [];
-  GS.properties.forEach(function(p){ locs.push(p.mapsUrl || p.address || ''); });
-
+  var props = GS.properties;
+  var locs = props.map(function(p){ return p.lat && p.lng ? p.lat+','+p.lng : (p.mapsUrl || p.address || ''); });
   var totalKm = 0;
-  var pending = locs.length - 1;
-  if(pending <= 0){ pending = 0; }
+  var pending = Math.max(0, locs.length - 1);
 
-  // drive-stats-N (between properties N and N+1) feeds two places:
-  // the "drive screen" between stop N and N+1, AND the first nav screen if N===0... wait,
-  // actually nav-drive-stats-0 (the very first destination) has no "from" location unless
-  // a meeting point exists, so we only wire that up if locs has a meaningful start.
-  for(var i = 0; i < locs.length - 1; i++){
+  function updateStatBlocks(propIdx, result){
+    // Update nav screen for stop propIdx (arrives at this prop)
+    // Nav screen = screen-nav-propIdx, drive screen = screen-drive-(propIdx-1)
+    function setStats(prefix){
+      var distEl = document.getElementById('stat-dist-' + propIdx);
+      var minEl  = document.getElementById('stat-min-'  + propIdx);
+      var etaEl  = document.getElementById('stat-eta-'  + propIdx);
+      if(result && result.ok){
+        if(distEl) distEl.textContent = result.distanceKm;
+        if(minEl)  minEl.textContent  = result.durationMin + ' min';
+        if(etaEl){
+          var d = new Date(Date.now() + parseInt(result.durationMin,10)*60000);
+          var hh = d.getHours(), mm = d.getMinutes();
+          etaEl.textContent = 'ETA ' + (hh<10?'0':'')+hh + ':' + (mm<10?'0':'')+mm;
+        }
+        totalKm += parseFloat(result.distanceKm)||0;
+        driveTimeCache[locs[propIdx-1]+'||'+locs[propIdx]] = result;
+      }
+    }
+    setStats();
+    pending--;
+    if(pending <= 0){
+      var totalEl = document.getElementById('total-distance');
+      if(totalEl) totalEl.textContent = totalKm > 0 ? Math.round(totalKm) + ' km' : '—';
+    }
+  }
+
+  // Fetch leg between each pair of consecutive properties
+  for(var i = 1; i < props.length; i++){
     (function(idx){
-      fetchDriveTime(locs[idx], locs[idx+1], function(result){
-        var statsEl = document.getElementById('drive-stats-' + idx);
-        if(statsEl && result && result.ok){
-          statsEl.innerHTML =
-            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Min drive</div></div>' +
-            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Km away</div></div>';
-          totalKm += parseFloat(result.distanceKm) || 0;
-        } else if(statsEl){
-          statsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.3)">Drive time unavailable</div>';
-        }
-        pending--;
-        if(pending <= 0){
-          var totalEl = document.getElementById('total-distance');
-          if(totalEl) totalEl.textContent = totalKm > 0 ? Math.round(totalKm) : '\u2014';
-        }
+      fetchDriveTime(locs[idx-1], locs[idx], function(result){
+        updateStatBlocks(idx, result);
       });
     })(i);
   }
 
-  // First nav screen (the very first destination) — only has drive time if there's
-  // a meeting point set in the day. If not, leave it as "no route to calculate" since
-  // the agent's own starting location is unknown.
-  var mpEv = (GS.day.events || []).find(function(e){ return e.type === 'meetingpoint'; });
-  var startLoc = mpEv ? (mpEv.title || mpEv.note || '') : '';
-  if(startLoc && GS.properties.length){
+  // First stop: use meeting point as origin if set
+  var mpEv = (GS.day.events||[]).find(function(e){ return e.type==='meetingpoint'; });
+  var startLoc = mpEv ? (mpEv.title||mpEv.note||'') : '';
+  if(startLoc && props.length && locs[0]){
+    pending++;
     fetchDriveTime(startLoc, locs[0], function(result){
-      var statsEl = document.getElementById('nav-drive-stats-0');
-      if(statsEl && result && result.ok){
-        statsEl.innerHTML =
-          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Min drive</div></div>' +
-          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Km away</div></div>';
-      } else if(statsEl){
-        statsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.25)">Set a meeting point to see drive time</div>';
+      // Update nav-0 stats
+      var distEl = document.getElementById('stat-dist-0');
+      var minEl  = document.getElementById('stat-min-0');
+      var etaEl  = document.getElementById('stat-eta-0');
+      if(result && result.ok){
+        if(distEl) distEl.textContent = result.distanceKm;
+        if(minEl)  minEl.textContent  = result.durationMin + ' min';
+        if(etaEl){
+          var d = new Date(Date.now() + parseInt(result.durationMin,10)*60000);
+          var hh = d.getHours(), mm = d.getMinutes();
+          etaEl.textContent = 'ETA ' + (hh<10?'0':'')+hh + ':' + (mm<10?'0':'')+mm;
+        }
       }
+      pending--;
     });
-  } else {
-    var firstStatsEl = document.getElementById('nav-drive-stats-0');
-    if(firstStatsEl) firstStatsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.25)">Tap below to start navigating</div>';
   }
 }
 
