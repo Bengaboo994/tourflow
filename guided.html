@@ -559,6 +559,13 @@ function renderPreparingScreen(){
 
     '</div>' + // end preparing card
 
+    // Share link fixed at bottom of screen — always visible, never scrolled past
+    '<div id="prep-share-footer" style="display:none;flex-shrink:0;background:var(--navy);padding:4px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.06)">' +
+    '<button onclick="shareGuidedTour()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:none;border:none;padding:12px;cursor:pointer;font-family:inherit">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' +
+    '<span style="font-size:12px;color:rgba(255,255,255,.3)">Share tour with a colleague</span>' +
+    '</button></div>' +
+
     '</div>'; // end screen
 }
 
@@ -576,7 +583,7 @@ function runPreparingSequence(){
 
   var stepsEl = document.getElementById('prep-steps');
   var doneEl  = document.getElementById('prep-done');
-  var shareEl = document.getElementById('prep-share');
+  var shareEl = document.getElementById('prep-share-footer');
   if(!stepsEl) return;
   stepsEl.innerHTML = '';
   if(doneEl)  doneEl.style.display  = 'none';
