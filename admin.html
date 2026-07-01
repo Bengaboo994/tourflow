@@ -347,6 +347,11 @@ td{padding:12px 16px;font-size:12px;color:rgba(255,255,255,.7);vertical-align:mi
             <option value="30" selected>Last 30 days</option>
             <option value="90">Last 90 days</option>
           </select>
+          <select id="analytics-who" onchange="loadAnalytics()" style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit;outline:none">
+            <option value="all">All visitors</option>
+            <option value="external">Exclude me</option>
+            <option value="me">Only me</option>
+          </select>
           <button onclick="loadAnalytics()" style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">&#8635; Refresh</button>
         </div>
       </div>
@@ -781,14 +786,39 @@ function removeWhitelist(id){
 // ── ANALYTICS ─────────────────────────────────────────────────────────────────
 function loadAnalytics(){
   var days=parseInt((document.getElementById('analytics-range')||{}).value||30,10);
+  var who=(document.getElementById('analytics-who')||{}).value||'all';
   var since=new Date(Date.now()-days*24*60*60*1000).toISOString();
   var sub=document.getElementById('analytics-sub');
-  if(sub) sub.textContent='Last '+days+' day'+(days===1?'':'s');
-  supa.from('analytics_events').select('*').gte('created_at',since)
-    .order('created_at',{ascending:false}).limit(5000)
+
+  var whoLabel = who==='external' ? ' · Excluding your traffic' : who==='me' ? ' · Your traffic only' : '';
+  if(sub) sub.textContent='Last '+days+' day'+(days===1?'':'s')+whoLabel;
+
+  // My user_id — filter by it if needed
+  var myId = currentUser ? currentUser.id : null;
+
+  var query = supa.from('analytics_events').select('*').gte('created_at',since);
+  if(who==='external' && myId) query = query.neq('user_id', myId);
+  if(who==='me'       && myId) query = query.eq('user_id',  myId);
+
+  query.order('created_at',{ascending:false}).limit(5000)
     .then(function(res){
       if(res.error){renderAnalyticsError(res.error.message);return;}
       var rows=res.data||[];
+      // If filtering "external" also drop rows with no user_id that match our session
+      // (anonymous visits from our own browser can't be filtered server-side,
+      //  but we remove rows whose session_id matches our own current session)
+      if(who==='external'){
+        try{
+          var mySid=sessionStorage.getItem('tf_sid');
+          if(mySid) rows=rows.filter(function(r){return r.session_id!==mySid;});
+        }catch(e){}
+      }
+      if(who==='me'){
+        try{
+          var mySid2=sessionStorage.getItem('tf_sid');
+          if(mySid2) rows=rows.filter(function(r){return r.user_id===myId||r.session_id===mySid2;});
+        }catch(e){}
+      }
       renderAnalyticsKpis(rows);
       renderSources(rows);
       renderCountries(rows);
