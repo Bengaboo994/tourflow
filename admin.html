@@ -173,7 +173,7 @@ td{padding:12px 16px;font-size:12px;color:rgba(255,255,255,.7);vertical-align:mi
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
         Billing
       </div>
-      <div class="nav-item" style="opacity:.35;cursor:default">
+      <div class="nav-item" onclick="showTab('analytics')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Analytics
       </div>
@@ -334,6 +334,54 @@ td{padding:12px 16px;font-size:12px;color:rgba(255,255,255,.7);vertical-align:mi
           <button class="add-btn" onclick="addWhitelist()">Add email</button>
         </div>
       </div>
+    </div>
+
+    <!-- ── ANALYTICS ──────────────────────────────────────────── -->
+    <div id="tab-analytics" class="tab-content">
+      <div class="section-header">
+        <div><div class="section-title">Analytics</div><div class="section-sub" id="analytics-sub"></div></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="analytics-range" onchange="loadAnalytics()" style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit;outline:none">
+            <option value="1">Today</option>
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+          <button onclick="loadAnalytics()" style="background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:8px;padding:8px 14px;font-size:11px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">&#8635; Refresh</button>
+        </div>
+      </div>
+      <div class="cards-grid" id="analytics-kpis"><div class="stat-card"><div class="spinner"></div></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+        <div>
+          <div class="section-title" style="margin-bottom:12px;font-size:11px">Traffic sources</div>
+          <div class="table-wrap"><table style="min-width:0">
+            <thead><tr><th>Source</th><th>Sessions</th><th style="text-align:right">%</th></tr></thead>
+            <tbody id="analytics-sources"><tr><td colspan="3" class="empty"><div class="spinner"></div></td></tr></tbody>
+          </table></div>
+        </div>
+        <div>
+          <div class="section-title" style="margin-bottom:12px;font-size:11px">Countries</div>
+          <div class="table-wrap"><table style="min-width:0">
+            <thead><tr><th>Country</th><th>Sessions</th><th style="text-align:right">%</th></tr></thead>
+            <tbody id="analytics-countries"><tr><td colspan="3" class="empty"><div class="spinner"></div></td></tr></tbody>
+          </table></div>
+        </div>
+      </div>
+      <div class="section-header"><div><div class="section-title">Conversion funnel</div></div></div>
+      <div class="table-wrap" style="margin-bottom:32px"><table>
+        <thead><tr><th>Step</th><th>Count</th><th>Rate vs prev</th><th>Drop-off</th></tr></thead>
+        <tbody id="analytics-funnel"><tr><td colspan="4" class="empty"><div class="spinner"></div></td></tr></tbody>
+      </table></div>
+      <div class="section-header"><div><div class="section-title">Top pages</div></div></div>
+      <div class="table-wrap" style="margin-bottom:32px"><table>
+        <thead><tr><th>Page</th><th>Views</th><th>Unique sessions</th></tr></thead>
+        <tbody id="analytics-pages"><tr><td colspan="3" class="empty"><div class="spinner"></div></td></tr></tbody>
+      </table></div>
+      <div class="section-header"><div><div class="section-title">Recent events</div><div class="section-sub">Last 50</div></div></div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Event</th><th>Page</th><th>Device</th><th>Browser</th><th>Source</th><th>Time</th></tr></thead>
+        <tbody id="analytics-recent"><tr><td colspan="6" class="empty"><div class="spinner"></div></td></tr></tbody>
+      </table></div>
     </div>
 
   </div><!-- /main -->
@@ -729,6 +777,156 @@ function removeWhitelist(id){
   if(!confirm('Remove from whitelist?'))return;
   supa.from('whitelist_emails').delete().eq('id',id).then(function(){toast('Removed');loadWhitelist();});
 }
+
+// ── ANALYTICS ─────────────────────────────────────────────────────────────────
+function loadAnalytics(){
+  var days=parseInt((document.getElementById('analytics-range')||{}).value||30,10);
+  var since=new Date(Date.now()-days*24*60*60*1000).toISOString();
+  var sub=document.getElementById('analytics-sub');
+  if(sub) sub.textContent='Last '+days+' day'+(days===1?'':'s');
+  supa.from('analytics_events').select('*').gte('created_at',since)
+    .order('created_at',{ascending:false}).limit(5000)
+    .then(function(res){
+      if(res.error){renderAnalyticsError(res.error.message);return;}
+      var rows=res.data||[];
+      renderAnalyticsKpis(rows);
+      renderSources(rows);
+      renderCountries(rows);
+      renderFunnel(rows);
+      renderTopPages(rows);
+      renderRecentEvents(rows);
+    }).catch(function(e){renderAnalyticsError(e.message);});
+}
+
+function renderAnalyticsError(msg){
+  var el=document.getElementById('analytics-kpis');
+  if(el) el.innerHTML='<div class="stat-card" style="grid-column:1/-1"><div style="color:rgba(239,68,68,.7);font-size:12px">Could not load analytics: '+esc(msg)+'<br><span style="color:rgba(255,255,255,.3)">Run analytics_setup.sql in Supabase first.</span></div></div>';
+}
+
+function uniqSessions(rows){
+  var seen={};
+  return rows.filter(function(r){var k=r.session_id||r.id;if(seen[k])return false;seen[k]=true;return true;}).length;
+}
+
+function renderAnalyticsKpis(rows){
+  function cnt(name){return rows.filter(function(r){return r.event_name===name;}).length;}
+  var el=document.getElementById('analytics-kpis');
+  if(!el)return;
+  el.innerHTML=
+    statCard(uniqSessions(rows.filter(function(r){return r.event_name==='page_view';}),'Sessions','Unique visitors'))+
+    statCard(cnt('page_view'),'Page views','Total page loads')+
+    statCard(cnt('login'),'Logins','Auth events')+
+    statCard(cnt('user_registered'),'Registrations','New accounts')+
+    statCard(cnt('tour_created'),'Tours created','')+
+    statCard(cnt('client_created'),'Clients created','')+
+    statCard(cnt('whatsapp_shared'),'WhatsApp shares','')+
+    statCard(cnt('pdf_exported'),'PDF exports','');
+}
+
+function getDomain(url){try{return new URL(url).hostname.replace(/^www\./,'');}catch(e){return url||'direct';}}
+
+function renderBarTable(tbodyId,data,total){
+  var el=document.getElementById(tbodyId);if(!el)return;
+  if(!data.length){el.innerHTML='<tr><td colspan="3" class="empty">No data yet</td></tr>';return;}
+  el.innerHTML=data.map(function(row){
+    var pct=total>0?Math.round(row.n/total*100):0;
+    return '<tr><td style="color:#fff">'+esc(row.label)+'</td><td>'+row.n+'</td>'+
+      '<td style="text-align:right"><div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">'+
+      '<div style="width:44px;height:4px;background:rgba(255,255,255,.08);border-radius:2px">'+
+        '<div style="width:'+pct+'%;height:100%;background:#C9A14A;border-radius:2px"></div></div>'+
+      pct+'%</div></td></tr>';
+  }).join('');
+}
+
+function renderSources(rows){
+  var views=rows.filter(function(r){return r.event_name==='page_view';});
+  var map={};
+  views.forEach(function(r){var src=r.utm_source||(r.referrer?getDomain(r.referrer):'direct');map[src]=(map[src]||0)+1;});
+  var sorted=Object.keys(map).sort(function(a,b){return map[b]-map[a];}).slice(0,8).map(function(k){return{label:k,n:map[k]};});
+  renderBarTable('analytics-sources',sorted,views.length);
+}
+
+function renderCountries(rows){
+  var views=rows.filter(function(r){return r.event_name==='page_view';});
+  var map={};
+  views.forEach(function(r){var c=r.country||'Unknown';map[c]=(map[c]||0)+1;});
+  var sorted=Object.keys(map).sort(function(a,b){return map[b]-map[a];}).slice(0,8).map(function(k){return{label:k,n:map[k]};});
+  renderBarTable('analytics-countries',sorted,views.length);
+}
+
+function renderFunnel(rows){
+  function uniqCount(name){
+    var seen={};
+    return rows.filter(function(r){
+      if(r.event_name!==name)return false;
+      var k=r.session_id||r.user_id||String(r.id);
+      if(seen[k])return false;seen[k]=true;return true;
+    }).length;
+  }
+  var steps=[
+    {label:'Visitor (page view)',n:uniqCount('page_view')},
+    {label:'Signup clicked',n:uniqCount('signup_clicked')},
+    {label:'Registered',n:uniqCount('user_registered')},
+    {label:'Created first tour',n:uniqCount('tour_created')},
+    {label:'Shared (WA / PDF)',n:uniqCount('whatsapp_shared')+uniqCount('pdf_exported')}
+  ];
+  var el=document.getElementById('analytics-funnel');if(!el)return;
+  el.innerHTML=steps.map(function(step,i){
+    var prev=i===0?null:steps[i-1].n;
+    var rate=(prev&&prev>0)?Math.round(step.n/prev*100)+'%':'—';
+    var drop=(prev&&prev>0)?Math.round((1-step.n/prev)*100)+'%':'—';
+    var barPct=steps[0].n>0?Math.round(step.n/steps[0].n*100):0;
+    return '<tr>'+
+      '<td style="color:#fff"><div style="display:flex;align-items:center;gap:10px">'+
+        '<div style="width:20px;height:20px;border-radius:50%;background:rgba(201,161,74,.15);border:1px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#C9A14A;flex-shrink:0">'+(i+1)+'</div>'+
+        esc(step.label)+'</div></td>'+
+      '<td><div style="display:flex;align-items:center;gap:8px"><strong style="color:#fff">'+step.n+'</strong>'+
+        '<div style="flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;max-width:80px">'+
+          '<div style="width:'+barPct+'%;height:100%;background:#C9A14A;border-radius:2px"></div></div></div></td>'+
+      '<td style="color:'+(i===0?'rgba(255,255,255,.3)':'#4ade80')+'">'+rate+'</td>'+
+      '<td style="color:'+(i===0?'rgba(255,255,255,.3)':'rgba(239,68,68,.7)')+'">'+drop+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
+function renderTopPages(rows){
+  var map={};
+  rows.filter(function(r){return r.event_name==='page_view';}).forEach(function(r){
+    var p=r.page||'/';if(!map[p])map[p]={views:0,sess:{}};
+    map[p].views++;if(r.session_id)map[p].sess[r.session_id]=1;
+  });
+  var el=document.getElementById('analytics-pages');if(!el)return;
+  var sorted=Object.keys(map).sort(function(a,b){return map[b].views-map[a].views;}).slice(0,10);
+  el.innerHTML=sorted.length
+    ?sorted.map(function(p){return'<tr><td style="color:#fff;font-family:monospace;font-size:11px">'+esc(p)+'</td><td>'+map[p].views+'</td><td style="color:rgba(255,255,255,.4)">'+Object.keys(map[p].sess).length+'</td></tr>';}).join('')
+    :'<tr><td colspan="3" class="empty">No page views yet — add analytics.js to your pages</td></tr>';
+}
+
+function renderRecentEvents(rows){
+  var el=document.getElementById('analytics-recent');if(!el)return;
+  var colors={page_view:'rgba(255,255,255,.35)',signup_clicked:'#60a5fa',user_registered:'#4ade80',
+    login:'rgba(255,255,255,.55)',tour_created:'#C9A14A',client_created:'#a78bfa',
+    whatsapp_shared:'#34d399',pdf_exported:'#fb923c',property_added:'#f472b6'};
+  var recent=rows.slice(0,50);
+  el.innerHTML=recent.length
+    ?recent.map(function(r){
+        var col=colors[r.event_name]||'rgba(255,255,255,.4)';
+        var src=r.utm_source||(r.referrer?getDomain(r.referrer):'direct');
+        return '<tr>'+
+          '<td><span style="color:'+col+';font-weight:500;font-size:11px">'+esc(r.event_name)+'</span></td>'+
+          '<td style="color:rgba(255,255,255,.4);font-family:monospace;font-size:10px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.page||'/')+'</td>'+
+          '<td style="color:rgba(255,255,255,.4)">'+esc(r.device||'—')+'</td>'+
+          '<td style="color:rgba(255,255,255,.4)">'+esc(r.browser||'—')+'</td>'+
+          '<td style="color:rgba(255,255,255,.4);font-size:11px">'+esc(src)+'</td>'+
+          '<td style="color:rgba(255,255,255,.3);font-size:11px">'+timeAgo(r.created_at)+'</td>'+
+        '</tr>';
+      }).join('')
+    :'<tr><td colspan="6" class="empty">No events yet — add analytics.js to your pages</td></tr>';
+}
+
+// Auto-load when tab opened
+var _origShowTab=showTab;
+showTab=function(tab){_origShowTab(tab);if(tab==='analytics')loadAnalytics();};
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 init();
