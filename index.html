@@ -100,6 +100,7 @@ input,button,textarea,select{font-family:inherit}
 @keyframes authspin{to{transform:rotate(360deg)}}
 </style>
 </head>
+<script src="/analytics.js" defer></script>
 <body>
 <div id="auth-gate" style="display:none" onclick="if(event.target===this)hideAuthGate()">
   <div class="auth-card" style="position:relative">
@@ -326,6 +327,7 @@ function sendOtp(){
       return;
     }
     _otpEmail=email;
+    if(typeof tfTrack==='function') tfTrack('signup_clicked');
     document.getElementById('auth-otp-msg').textContent='We sent a 6-digit code to '+email+'. Enter it below.';
     document.getElementById('auth-step-email').style.display='none';
     document.getElementById('auth-step-otp').style.display='block';
@@ -421,6 +423,13 @@ function checkExistingSession(){
     if(event==='SIGNED_IN'&&session&&session.user){
       currentUser=session.user;
       localStorage.setItem('tf-has-account','1');
+      // Distinguish new vs returning user by checking account age (< 30s = new)
+      var isNewUser = currentUser.created_at &&
+        (Date.now() - new Date(currentUser.created_at).getTime()) < 30000;
+      if(typeof tfTrack==='function'){
+        if(isNewUser) tfTrack('user_registered');
+        else          tfTrack('login');
+      }
       hideAuthGate();
       refreshSubscriptionStatus();
       // Load cloud data first, then resume + render
@@ -578,7 +587,7 @@ function lucideIcon(name,size){
 function formatPrice(v){var n=v.replace(/[^0-9]/g,"");return n?"\u20AC"+parseInt(n,10).toLocaleString("en-US"):""}
 function onPriceInputAdd(el){el.value=formatPrice(el.value);}
 function setStatus(did,pid,st){var day=S.days.find(function(d){return d.id===did;});if(!day)return;var p=day.properties.find(function(x){return x.id===pid;});if(!p)return;p.status=p.status===st?null:st;persist();render();}
-function triggerPrint(){go("pdf-preview");}
+function triggerPrint(){if(typeof tfTrack==='function') tfTrack('pdf_exported');go("pdf-preview");}
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
 function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
 function uid(){return Math.random().toString(36).slice(2,9);}
@@ -1399,7 +1408,7 @@ function render(){
 }
 
 // ── MUTATIONS ─────────────────────────────────────────────────────────────────
-function addClient(data){var c=Object.assign({id:uid()},data);S.clients=[c].concat(S.clients);persist();return c.id;}
+function addClient(data){var c=Object.assign({id:uid()},data);S.clients=[c].concat(S.clients);persist();if(typeof tfTrack==='function') tfTrack('client_created');return c.id;}
 function updateClient(cid){
   var c=S.clients.find(function(x){return x.id===cid;});
   if(!c)return;
@@ -1428,14 +1437,14 @@ function delClient(id){
     if(removedDays.length)_deleteRows('agent_days',removedDays);
   }
 }
-function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();return d.id;}
+function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();if(typeof tfTrack==='function') tfTrack('tour_created');return d.id;}
 function updateDay(id,ch){S.days=S.days.map(function(d){return d.id===id?Object.assign({},d,ch):d;});persist();}
 function delDay(id){
   S.days=S.days.filter(function(d){return d.id!==id;});
   persist();
   if(currentUser)_deleteRows('agent_days',[id]);
 }
-function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();}
+function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();if(typeof tfTrack==='function') tfTrack('property_added');}
 function updProp(did,pid,ch){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.map(function(p){return p.id===pid?Object.assign({},p,ch):p;})}):d;});persist();}
 function delProp(did,pid){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.filter(function(p){return p.id!==pid;})}):d;});persist();}
 function addEv(did,ev){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.concat([Object.assign({id:uid()},ev)])}):d;});persist();}
@@ -2612,6 +2621,7 @@ function copyWA(){
 
     if(clientPhone){
       // Open WhatsApp directly to the client's chat with message pre-filled
+      if(typeof tfTrack==='function') tfTrack('whatsapp_shared');
       var waUrl='https://wa.me/'+clientPhone+'?text='+encodeURIComponent(msg);
       window.open(waUrl,'_blank');
       if(btn){
@@ -2620,6 +2630,7 @@ function copyWA(){
       }
     } else {
       // No phone on file — copy to clipboard so user can paste anywhere
+      if(typeof tfTrack==='function') tfTrack('whatsapp_shared');
       function done(){
         if(btn){btn.innerHTML='&#10003; Link copied — paste in WhatsApp';btn.style.color='#25D366';}
         setTimeout(function(){
