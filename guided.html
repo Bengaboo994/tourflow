@@ -22,7 +22,10 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 .screen{
   min-height:100vh;
   min-height:100dvh;
+  height:100vh;
+  height:100dvh;
   width:100%;
+  flex-shrink:0;
   display:flex;
   flex-direction:column;
   scroll-snap-align:start;
@@ -116,15 +119,38 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 .tour-map{
   position:absolute;
   top:0;left:0;right:0;
-  height:52%;
+  height:52vh;
+  height:52dvh;
   z-index:1;
 }
 .tour-map .leaflet-container{
-  width:100%;height:100%;
+  width:100%;
+  height:100%!important;
   background:#e8e4d8;
 }
-/* Leaflet attribution — keep but style small */
+/* Leaflet attribution */
 .leaflet-control-attribution{font-size:8px!important;background:rgba(255,255,255,.6)!important}
+/* Map fallback */
+.tour-map-fallback{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#f0ede6;
+  gap:10px;
+}
+/* Bottom sheet must sit at fixed position below map */
+.tour-sheet{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  top:48vh;
+  top:48dvh;
+  z-index:20;
+  background:#fff;
+  border-radius:22px 22px 0 0;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 -4px 24px rgba(7,18,38,.18);
+}
 
 /* Tour pill overlay on map */
 .tour-pill{
@@ -145,18 +171,6 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 .tour-pill svg{flex-shrink:0}
 
 /* Bottom sheet */
-.tour-sheet{
-  position:absolute;
-  bottom:0;left:0;right:0;
-  top:46%;
-  z-index:20;
-  background:#fff;
-  border-radius:22px 22px 0 0;
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  box-shadow:0 -4px 24px rgba(7,18,38,.18);
-}
 .tour-sheet-handle{
   flex-shrink:0;
   display:flex;justify-content:center;
@@ -601,6 +615,9 @@ function observeScreenForProgressPill(){
         var label = document.getElementById('progress-pill-label');
         if(label) label.textContent = (displayIdx+1) + ' / ' + GS.properties.length;
       }
+      // Invalidate Leaflet map when screen becomes visible
+      var m2 = tourMaps[id];
+      if(m2) setTimeout(function(){ m2.invalidateSize(); }, 100);
     });
   }, { threshold: 0.6 });
   GS.properties.forEach(function(p, i){
@@ -1441,13 +1458,20 @@ function toggleChecklistItem(idx, key){
 // but framed as "driving to the next stop" rather than the very first destination.
 // ── LEAFLET MAP INIT ─────────────────────────────────────────────────────────
 function initTourMaps(){
-  if(typeof L === 'undefined') return;
+  if(typeof L === 'undefined'){
+    // Leaflet failed to load — show fallback on all maps
+    document.querySelectorAll('.tour-map').forEach(function(el){
+      showMapFallback(el);
+    });
+    return;
+  }
 
-  var tileUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-  var tileOpts = { maxZoom:19, attribution:'&copy; <a href="https://carto.com">CARTO</a>' };
+  // Use OSM directly — most reliable, no API key, always available
+  var tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+  var tileOpts = { maxZoom:19, attribution:'&copy; OpenStreetMap contributors' };
 
-  // Init Today's Tour overview map (shows all stops)
-  initMapForScreen('screen-today', GS.properties[0], -1); // -1 = no active stop highlighted
+  // Init Today's Tour overview map
+  initMapForScreen('screen-today', GS.properties[0], -1);
 
   GS.properties.forEach(function(p, i){
     initMapForScreen('screen-nav-' + i, p, i);
@@ -1456,73 +1480,93 @@ function initTourMaps(){
     initMapForScreen('screen-drive-' + d, GS.properties[d+1], d+1);
   }
 
+  function showMapFallback(mapEl){
+    mapEl.innerHTML =
+      '<div class="tour-map-fallback">' +
+      '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+      '<div style="font-size:12px;color:var(--slate);text-align:center;padding:0 20px">Set pins on your properties to enable the route map</div>' +
+      '</div>';
+  }
+
   function initMapForScreen(screenId, activeProp, activeIdx){
     var mapEl = document.getElementById('map-' + screenId);
-    if(!mapEl || mapEl._leaflet_id) return; // already inited
+    if(!mapEl) return;
+    if(mapEl._leaflet_id) return; // already inited
 
-    var map = L.map(mapEl, {
-      zoomControl:false,
-      attributionControl:true,
-      dragging:true,
-      scrollWheelZoom:false,
-      doubleClickZoom:false
-    });
+    // Check if any property has coords
+    var hasCoords = GS.properties.some(function(p){ return p.lat && p.lng; });
+    if(!hasCoords){
+      showMapFallback(mapEl);
+      return;
+    }
 
-    L.tileLayer(tileUrl, tileOpts).addTo(map);
-
-    var markers = [];
-    var bounds = [];
-
-    GS.properties.forEach(function(p2, j){
-      var lat = p2.lat, lng = p2.lng;
-      if(!lat || !lng) return;
-
-      var isActive = activeIdx === -1 ? j === 0 : j === activeIdx; // first stop highlighted on overview
-      var isCompleted = activeIdx !== -1 && !!completedSet[j];
-
-      // Custom SVG marker
-      var color = isActive ? '#C9A14A' : isCompleted ? '#9ca3af' : '#071226';
-      var textColor = isActive ? '#071226' : '#fff';
-      var icon = L.divIcon({
-        className:'',
-        html: '<div style="width:32px;height:32px;border-radius:50%;background:' + color + ';' +
-              'border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);' +
-              'display:flex;align-items:center;justify-content:center;' +
-              'font-size:13px;font-weight:800;color:' + textColor + ';' +
-              'font-family:-apple-system,sans-serif">' + (j+1) + '</div>',
-        iconSize:[32,32],
-        iconAnchor:[16,16]
+    try{
+      var map = L.map(mapEl, {
+        zoomControl:false,
+        attributionControl:true,
+        dragging:true,
+        tap:false,
+        scrollWheelZoom:false,
+        doubleClickZoom:false
       });
 
-      var marker = L.marker([lat, lng], {icon:icon}).addTo(map);
-      markers.push(marker);
-      bounds.push([lat, lng]);
-    });
+      L.tileLayer(tileUrl, tileOpts).addTo(map);
 
-    // Draw route line between all properties that have coords
-    var routePoints = GS.properties
-      .filter(function(p2){ return p2.lat && p2.lng; })
-      .map(function(p2){ return [p2.lat, p2.lng]; });
+      var bounds = [];
 
-    if(routePoints.length > 1){
-      L.polyline(routePoints, {
-        color:'#071226',
-        weight:3,
-        opacity:.7,
-        dashArray:null
-      }).addTo(map);
+      GS.properties.forEach(function(p2, j){
+        var lat = parseFloat(p2.lat), lng = parseFloat(p2.lng);
+        if(!lat || !lng) return;
+
+        var isActive    = activeIdx === -1 ? j === 0 : j === activeIdx;
+        var isCompleted = activeIdx !== -1 && !!completedSet[j];
+
+        var bg   = isActive ? '#C9A14A' : isCompleted ? '#9ca3af' : '#071226';
+        var fg   = isActive ? '#071226' : '#fff';
+        var size = isActive ? 36 : 30;
+
+        var icon = L.divIcon({
+          className:'',
+          html:'<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+bg+';' +
+               'border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);' +
+               'display:flex;align-items:center;justify-content:center;' +
+               'font-size:12px;font-weight:800;color:'+fg+';font-family:-apple-system,sans-serif">'+
+               (j+1)+'</div>',
+          iconSize:[size,size],
+          iconAnchor:[size/2,size/2]
+        });
+
+        L.marker([lat,lng], {icon:icon}).addTo(map);
+        bounds.push([lat,lng]);
+      });
+
+      // Route polyline
+      if(bounds.length > 1){
+        L.polyline(bounds, {color:'#071226',weight:3,opacity:.65}).addTo(map);
+      }
+
+      // Set view
+      if(bounds.length > 1){
+        map.fitBounds(bounds, {padding:[44,44]});
+      } else if(bounds.length === 1){
+        map.setView(bounds[0], 15);
+      } else {
+        // Fallback to Costa Blanca area
+        map.setView([37.98,-0.68], 11);
+      }
+
+      tourMaps[screenId] = map;
+
+      // CRITICAL: invalidateSize after a tick so Leaflet sees real dimensions
+      requestAnimationFrame(function(){
+        map.invalidateSize();
+        setTimeout(function(){ map.invalidateSize(); }, 300);
+      });
+
+    }catch(e){
+      console.error('Map init error:', e);
+      showMapFallback(mapEl);
     }
-
-    // Fit map to show all markers, or center on active if only one
-    if(bounds.length > 1){
-      map.fitBounds(bounds, { padding:[40, 40] });
-    } else if(bounds.length === 1){
-      map.setView(bounds[0], 15);
-    } else if(activeProp.lat && activeProp.lng){
-      map.setView([activeProp.lat, activeProp.lng], 14);
-    }
-
-    tourMaps[screenId] = map;
   }
 }
 
