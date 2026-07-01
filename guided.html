@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-
 :root{
   --ink:#2D2B28;
   --paper:#FCFBF7;
@@ -18,260 +17,96 @@
   --fog:#edeae4;
   --mist:#f5f2ec;
   --navy:#071226;
-  --card:#ffffff;
-  --r-card:20px;
-  --r-modal:28px;
-  --shadow-card:0 2px 12px rgba(0,0,0,.06);
-  --shadow-modal:0 24px 64px rgba(7,18,38,.18),0 4px 16px rgba(7,18,38,.1);
-  --transition-spring:cubic-bezier(.34,1.4,.64,1);
-  --transition-smooth:cubic-bezier(.4,0,.2,1);
 }
-
-body{
-  font-family:'Jost',system-ui,sans-serif;
-  background:var(--paper);
-  color:var(--ink);
-  min-height:100vh;
-  font-weight:300;
-  overscroll-behavior-y:contain;
-  max-width:480px;
-  margin:0 auto;
-}
-
-/* ── SCROLL CONTAINER ── */
-#scroll-container{
-  scroll-snap-type:y mandatory;
-  overflow-y:auto;
-  width:100%;
-  height:100vh;
-  height:100dvh;
-}
+body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;min-height:100vh;font-weight:300;overscroll-behavior-y:contain;max-width:480px;margin:0 auto}
 .screen{
   min-height:100vh;
   min-height:100dvh;
   width:100%;
-  flex-shrink:0;
   display:flex;
   flex-direction:column;
-  background:var(--paper);
   scroll-snap-align:start;
 }
-
-/* ── LAYOUT ── */
+#scroll-container{
+  scroll-snap-type:y mandatory;
+  overflow-y:auto;
+  height:100vh;
+  height:100dvh;
+}
 .center{display:flex;flex-direction:column;align-items:center;justify-content:center}
-.phase-light{background:var(--paper);color:var(--ink)}
-
-/* ── TYPOGRAPHY ── */
-.eyebrow-light{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);margin-bottom:6px;display:block}
-.eyebrow-dark{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(201,161,74,.65);margin-bottom:6px;display:block}
-
-/* ── NAVY CARDS (focus moments) ── */
-.navy-card{
-  background:var(--navy);
-  border-radius:var(--r-card);
-  padding:22px;
-  box-shadow:var(--shadow-modal);
-}
-
-/* ── LIGHT CARDS ── */
-.card{
-  background:var(--card);
-  border-radius:14px;
-  border:1px solid var(--fog);
-  padding:16px;
-  margin-bottom:12px;
-  box-shadow:var(--shadow-card);
-}
-
-/* ── SECTION CARDS (collapsible in property screen) ── */
-.section-card{
-  background:var(--card);
-  border:1px solid var(--fog);
-  border-radius:14px;
-  margin-bottom:8px;
-  overflow:hidden;
-}
-.section-title{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brass)}
-
-/* ── ROWS ── */
-.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--fog)}
-.row:last-child{border-bottom:none}
-.row-label{font-size:13px;color:var(--slate)}
-.row-value{font-size:13px;color:var(--ink);font-weight:500;text-align:right;max-width:55%}
-
-/* ── PRIMARY BUTTON (gold, used everywhere) ── */
 .btn-go{
-  width:100%;padding:17px;
-  background:linear-gradient(135deg,#C9A14A 0%,#d4a84b 100%);
-  color:var(--navy);border:none;border-radius:14px;
-  font-size:15px;font-weight:700;letter-spacing:.02em;
-  cursor:pointer;font-family:inherit;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  box-shadow:0 6px 20px rgba(201,161,74,.3);
-  -webkit-appearance:none;
+  width:100%;
+  max-width:340px;
+  padding:18px;
+  background:linear-gradient(90deg,#C9A14A,#d4a84b);
+  color:var(--navy);
+  border:none;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:.03em;
+  cursor:pointer;
+  font-family:inherit;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  box-shadow:0 8px 24px rgba(201,161,74,.25);
 }
-
-/* ── SECONDARY BUTTON (transparent, on dark bg) ── */
 .btn-secondary{
-  width:100%;padding:14px;
-  background:rgba(255,255,255,.07);
-  color:rgba(255,255,255,.8);
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:14px;font-size:14px;font-weight:500;
-  cursor:pointer;font-family:inherit;
-  -webkit-appearance:none;
+  width:100%;
+  max-width:340px;
+  padding:16px;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border:1.5px solid rgba(255,255,255,.15);
+  border-radius:14px;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  font-family:inherit;
 }
-
-/* ── OUTLINE BUTTON (on light bg) ── */
-.btn-outline{
-  width:100%;padding:13px;background:transparent;
-  color:var(--ink);border:1.5px solid var(--fog);
-  border-radius:12px;font-size:13px;font-weight:500;
-  cursor:pointer;font-family:inherit;
-  -webkit-appearance:none;
+.eyebrow{
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:rgba(201,161,74,.6);
+  margin-bottom:10px;
 }
-
-/* ── DARK PRIMARY (navy bg) ── */
-.btn{
-  width:100%;padding:14px;background:var(--navy);color:var(--brass);
-  border:none;border-radius:12px;font-size:14px;font-weight:600;
-  cursor:pointer;font-family:inherit;
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  -webkit-appearance:none;
-}
-
-/* ── AGENT CONTACT BUTTONS ── */
-.action-btn{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
-  padding:12px 8px;background:var(--mist);border:1px solid var(--fog);
-  border-radius:12px;color:var(--ink);text-decoration:none;font-size:11px;font-weight:500;
-}
-
-/* ── ALL BUTTON PRESS STATES ── */
-.btn-go,.btn-secondary,.btn-outline,.btn,.action-btn{
-  transition:transform 120ms var(--transition-smooth),opacity 120ms;
-  -webkit-user-select:none;user-select:none;
-}
-.btn-go:active,.btn-secondary:active,.btn-outline:active,.btn:active,.action-btn:active{
-  transform:scale(.96);opacity:.9;
-}
-
-/* ── LOADING ── */
 #loading-screen{
   position:fixed;inset:0;background:var(--navy);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   z-index:9999;
 }
-.spinner{width:22px;height:22px;border:2.5px solid rgba(201,161,74,.2);border-top-color:#C9A14A;border-radius:50%;animation:spin .8s linear infinite}
-
-/* ── OVERLAY SYSTEM ── */
-/* Full-screen overlay with frosted glass effect */
-.tf-overlay{
-  position:fixed;inset:0;
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-  z-index:600;
-  padding:0 0 env(safe-area-inset-bottom) 0;
-}
-.tf-overlay.active{display:flex}
-/* Blurred background */
-.tf-overlay-bg{
-  position:absolute;inset:0;
-  background:rgba(252,251,247,.75);
-  backdrop-filter:blur(16px) saturate(180%);
-  -webkit-backdrop-filter:blur(16px) saturate(180%);
-  transition:opacity 250ms var(--transition-smooth);
-  opacity:0;
-}
-.tf-overlay.active .tf-overlay-bg{opacity:1}
-/* The card that slides up */
-.tf-overlay-card{
-  position:relative;
-  width:100%;
-  max-width:480px;
-  background:var(--navy);
-  border-radius:var(--r-modal) var(--r-modal) 0 0;
-  padding:28px 22px;
-  padding-bottom:calc(28px + env(safe-area-inset-bottom));
-  box-shadow:var(--shadow-modal);
-  transform:translateY(40px);
-  opacity:0;
-  transition:transform 320ms var(--transition-spring), opacity 200ms var(--transition-smooth);
-}
-.tf-overlay.active .tf-overlay-card{transform:translateY(0);opacity:1}
-
-/* Center-modal variant (arrival, celebration) */
-.tf-overlay.center-modal{align-items:center;padding:24px}
-.tf-overlay.center-modal .tf-overlay-card{
-  border-radius:var(--r-modal);
-  transform:scale(.92) translateY(12px);
-  transition:transform 350ms var(--transition-spring), opacity 200ms var(--transition-smooth);
-}
-.tf-overlay.center-modal.active .tf-overlay-card{transform:scale(1) translateY(0)}
-
-/* Page scale-back when overlay opens */
-#scroll-container{
-  transition:transform 320ms var(--transition-smooth), filter 320ms var(--transition-smooth);
-}
-body.overlay-open #scroll-container{
-  transform:scale(.97);
-  filter:brightness(.85);
-  border-radius:12px;
-  overflow:hidden;
-}
-
-/* ── ANIMATIONS ── */
+.spinner{width:24px;height:24px;border:2.5px solid rgba(201,161,74,.2);border-top-color:#C9A14A;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes fadeIn{
-  from{opacity:0}
-  to{opacity:1}
-}
-@keyframes scaleIn{
-  from{opacity:0;transform:scale(.9)}
-  to{opacity:1;transform:scale(1)}
-}
-@keyframes checkPop{
-  0%{transform:scale(0)}
-  70%{transform:scale(1.15)}
-  100%{transform:scale(1)}
-}
-@keyframes cardIn{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
-}
-@keyframes screenIn{from{opacity:.6}to{opacity:1}}
-.screen{animation:screenIn .25s var(--transition-smooth)}
-.fade-in{animation:fadeUp .3s var(--transition-smooth) both}
-
-/* ── CHECKLIST TICK ── */
-.check-tick{animation:checkPop 300ms var(--transition-spring) both}
+.fade-in{animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .pulse{animation:pulse 1.6s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* ── SECTION CARD ENTRANCE ── */
-.section-card{animation:cardIn .3s var(--transition-smooth) backwards}
-
-/* ── PILL / BADGE ── */
-.pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:600;padding:4px 10px;border-radius:100px}
-
-/* ── PROGRESS PILL ── */
-#progress-pill{
-  position:fixed;bottom:20px;right:16px;z-index:400;
-  background:var(--navy);
-  border:1.5px solid rgba(201,161,74,.4);
-  border-radius:100px;padding:9px 16px;
-  color:#fff;font-family:inherit;font-size:13px;font-weight:700;
-  cursor:pointer;box-shadow:0 8px 24px rgba(7,18,38,.2);
-  display:none;align-items:center;gap:6px;
-  transition:transform 200ms var(--transition-spring);
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.checkmark{
+  width:18px;height:18px;border-radius:50%;
+  background:rgba(201,161,74,.15);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
 }
-#progress-pill:active{transform:scale(.93)}
+.row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.row:last-child{border-bottom:none}
+.row-label{font-size:13px;color:rgba(255,255,255,.4)}
+.row-value{font-size:14px;color:#fff;font-weight:500;text-align:right}
+.section-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:16px;animation:cardIn .35s ease backwards}
+@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.btn-go, .btn-secondary{transition:transform .12s ease, opacity .12s ease}
+.btn-go:active, .btn-secondary:active{transform:scale(.97)}
+.screen{animation:screenIn .3s ease}
+@keyframes screenIn{from{opacity:.6}to{opacity:1}}
+.section-title{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin-bottom:4px}
+.action-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:14px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:12px;color:#fff;text-decoration:none;font-size:11px;font-weight:500;
+}
 </style>
 </head>
 <body>
@@ -480,38 +315,35 @@ function renderApp(){
 var currentStopIdx = 0; // which stop the agent is actively on, drives the floating pill label
 
 function mountProgressUI(){
-  if(document.getElementById('progress-pill')) return;
+  if(document.getElementById('progress-pill')) return; // already mounted
 
-  // Pill — CSS handles all styling now
   var pill = document.createElement('button');
   pill.id = 'progress-pill';
   pill.onclick = openProgressModal;
+  pill.style.cssText = 'position:fixed;bottom:24px;right:20px;z-index:400;background:rgba(7,18,38,.92);backdrop-filter:blur(8px);border:1.5px solid rgba(201,161,74,.35);border-radius:100px;padding:10px 18px;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;align-items:center;gap:6px';
   pill.innerHTML = '<span id="progress-pill-label">1 / ' + GS.properties.length + '</span>';
   document.body.appendChild(pill);
 
-  // Progress overlay — uses new tf-overlay system
-  var overlay = document.createElement('div');
-  overlay.id = 'progress-overlay';
-  overlay.className = 'tf-overlay';
-  overlay.innerHTML =
-    '<div class="tf-overlay-bg" onclick="closeProgressModal()"></div>' +
-    '<div class="tf-overlay-card" style="max-height:75vh;overflow-y:auto">' +
+  var modal = document.createElement('div');
+  modal.id = 'progress-modal';
+  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(7,18,38,.97);z-index:600;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)';
+  modal.onclick = function(e){ if(e.target === modal) closeProgressModal(); };
+  modal.innerHTML = '<div style="width:100%;max-width:480px;background:var(--navy);border-radius:24px 24px 0 0;padding:28px 24px;padding-bottom:calc(28px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto" class="fade-in">' +
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
-    '<span class="eyebrow-dark" style="margin-bottom:0">Tour Progress</span>' +
-    '<button onclick="closeProgressModal()" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">&times;</button>' +
+    '<div class="eyebrow" style="margin-bottom:0">Tour Progress</div>' +
+    '<button onclick="closeProgressModal()" style="background:rgba(255,255,255,.08);border:none;width:28px;height:28px;border-radius:50%;color:#fff;cursor:pointer;font-size:16px">&times;</button>' +
     '</div>' +
     '<div id="progress-modal-list"></div>' +
-    '<div id="progress-bar-row" style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)">' +
-    '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;color:rgba(255,255,255,.35)"><span>Progress</span><span id="progress-fraction">0 of ' + GS.properties.length + ' completed</span></div>' +
-    '<div style="height:3px;background:rgba(255,255,255,.08);border-radius:100px"><div id="progress-bar-fill" style="height:100%;width:0%;background:var(--brass);border-radius:100px;transition:width .4s var(--transition-smooth)"></div></div>' +
-    '</div>' +
     '</div>';
-  document.body.appendChild(overlay);
+  document.body.appendChild(modal);
 
+  // Show the pill only once a tour is actually in progress (not on Today's Tour / Preparing)
   observeScreenForProgressPill();
 }
 
 function observeScreenForProgressPill(){
+  var container = document.getElementById('scroll-container');
+  if(!container) return;
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if(!entry.isIntersecting) return;
@@ -526,6 +358,7 @@ function observeScreenForProgressPill(){
       var m = id.match(/^screen-(?:nav|prop|drive)-(\d+)$/);
       if(m){
         var idx = parseInt(m[1], 10);
+        // drive-N screens point to stop N+2 visually (next destination)
         var displayIdx = id.indexOf('drive-') >= 0 ? idx + 1 : idx;
         currentStopIdx = displayIdx;
         var label = document.getElementById('progress-pill-label');
@@ -534,67 +367,53 @@ function observeScreenForProgressPill(){
     });
   }, { threshold: 0.6 });
   GS.properties.forEach(function(p, i){
-    ['nav','prop','drive'].forEach(function(type){
-      var el = document.getElementById('screen-' + type + '-' + i);
-      if(el) io.observe(el);
-    });
+    var navEl = document.getElementById('screen-nav-' + i);
+    var propEl = document.getElementById('screen-prop-' + i);
+    var driveEl = document.getElementById('screen-drive-' + i);
+    if(navEl) io.observe(navEl);
+    if(propEl) io.observe(propEl);
+    if(driveEl) io.observe(driveEl);
   });
-  ['today','preparing','complete'].forEach(function(id){
-    var el = document.getElementById('screen-' + id);
-    if(el) io.observe(el);
-  });
+  var todayEl = document.getElementById('screen-today');
+  var prepEl = document.getElementById('screen-preparing');
+  var completeEl = document.getElementById('screen-complete');
+  if(todayEl) io.observe(todayEl);
+  if(prepEl) io.observe(prepEl);
+  if(completeEl) io.observe(completeEl);
 }
 
 function openProgressModal(){
   var list = document.getElementById('progress-modal-list');
   if(!list) return;
-  var done = Object.keys(completedSet).length;
-  var fill = document.getElementById('progress-bar-fill');
-  var frac = document.getElementById('progress-fraction');
-  if(fill) fill.style.width = Math.round(done/GS.properties.length*100) + '%';
-  if(frac) frac.textContent = done + ' of ' + GS.properties.length + ' completed';
-
   list.innerHTML = GS.properties.map(function(p, i){
-    var isDone = !!completedSet[i];
-    var isCurrent = !isDone && i === currentStopIdx;
-    var iconBg = isDone ? '#22c55e' : isCurrent ? 'var(--brass)' : 'rgba(255,255,255,.08)';
-    var iconColor = isDone || isCurrent ? 'var(--navy)' : 'rgba(255,255,255,.4)';
-    var iconContent = isDone
-      ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>'
-      : isCurrent
-      ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--navy)"><path d="M8 5v14l11-7z"/></svg>'
-      : String(i+1);
-    var sub = (p.time ? p.time + ' · ' : '') + (isDone ? 'Completed' : isCurrent ? 'Current stop' : 'Upcoming');
-    return '<div onclick="jumpToStop(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer">' +
-      '<div style="width:28px;height:28px;border-radius:50%;background:' + iconBg + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:' + iconColor + '">' + iconContent + '</div>' +
+    var status = completedSet[i] ? 'done' : (i === currentStopIdx ? 'current' : 'upcoming');
+    var icon, col, bg;
+    if(status === 'done'){ icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>'; col = '#22c55e'; bg = '#22c55e'; }
+    else if(status === 'current'){ icon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#071226"><path d="M8 5v14l11-7z"/></svg>'; col = '#C9A14A'; bg = '#C9A14A'; }
+    else { icon = (i+1); col = 'rgba(255,255,255,.3)'; bg = 'rgba(255,255,255,.08)'; }
+    var statusLabel = status === 'done' ? 'Completed' : status === 'current' ? 'Current' : 'Upcoming';
+    var statusCol = status === 'done' ? '#4ade80' : status === 'current' ? '#C9A14A' : 'rgba(255,255,255,.3)';
+    return '<div onclick="jumpToStop(' + i + ')" style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer">' +
+      '<div style="width:30px;height:30px;border-radius:50%;background:' + bg + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:' + (status==='upcoming'?'rgba(255,255,255,.4)':'#071226') + '">' + icon + '</div>' +
       '<div style="flex:1;min-width:0">' +
-      '<div style="font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(p.title || p.area || 'Property ' + (i+1)) + '</div>' +
-      '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:1px">' + sub + '</div>' +
+      '<div style="font-size:14px;font-weight:500;color:#fff">' + esc(p.title || p.area || 'Property ' + (i+1)) + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.35)">' + (p.time ? esc(p.time) + ' \u00b7 ' : '') + statusLabel + '</div>' +
       '</div>' +
       '</div>';
   }).join('');
-
-  var overlay = document.getElementById('progress-overlay');
-  if(overlay){
-    overlay.style.display = 'flex';
-    requestAnimationFrame(function(){ overlay.classList.add('active'); });
-    document.body.classList.add('overlay-open');
-  }
+  document.getElementById('progress-modal').style.display = 'flex';
 }
 function closeProgressModal(){
-  var overlay = document.getElementById('progress-overlay');
-  if(overlay){
-    overlay.classList.remove('active');
-    document.body.classList.remove('overlay-open');
-    setTimeout(function(){ overlay.style.display = 'none'; }, 350);
-  }
+  var m = document.getElementById('progress-modal');
+  if(m) m.style.display = 'none';
 }
 function jumpToStop(idx){
   closeProgressModal();
-  setTimeout(function(){
-    if(completedSet[idx]) goToScreen('prop-' + idx);
-    else goToScreen(idx === 0 ? 'nav-0' : 'drive-' + (idx-1));
-  }, 200);
+  if(completedSet[idx]){
+    goToScreen('prop-' + idx);
+  } else {
+    goToScreen(idx === 0 ? 'nav-0' : 'drive-' + (idx-1));
+  }
 }
 
 function calcEstimatedFinish(props){
@@ -616,59 +435,40 @@ function renderTodaysTourScreen(){
   var props = GS.properties;
   var clientName = client ? client.name : 'Client';
 
+  var firstTime = props.length ? props[0].time : '';
+  var lastTime = props.length > 1 ? props[props.length-1].time : '';
+
   var timelineRows = props.map(function(p, i){
     return '<div class="row">' +
-      '<div style="display:flex;align-items:center;gap:10px">' +
-      '<div style="width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--brass);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (i+1) + '</div>' +
-      '<div style="font-size:13px;color:var(--slate)">' + esc(p.time||'—') + '</div>' +
-      '</div>' +
-      '<div style="font-size:13px;font-weight:500;color:var(--ink);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">' + esc(p.title || p.area || ('Property ' + (i+1))) + '</div>' +
+      '<div class="row-label">' + esc(p.time||'—') + '</div>' +
+      '<div class="row-value">' + esc(p.title || p.area || ('Property ' + (i+1))) + '</div>' +
       '</div>';
   }).join('');
 
-  return '<div class="screen center phase-light" id="screen-today" style="padding:40px 20px">' +
-    '<div class="fade-in" style="width:100%">' +
+  return '<div class="screen center" id="screen-today" style="padding:40px 24px">' +
+    '<div class="fade-in" style="width:100%;max-width:380px">' +
+    '<div class="eyebrow" style="text-align:center">Today\'s Tour</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;text-align:center;margin-bottom:6px">' + esc(clientName) + '</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:32px">' + fmtDate(day.date) + '</div>' +
 
-    // Logo/header
-    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:32px">' +
-    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:400;color:var(--ink)">Tour<span style="font-style:italic;color:var(--brass)">Flow</span></span>' +
-    '<span style="margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);background:#f5f2ec;border:1px solid var(--fog);border-radius:100px;padding:3px 10px">Guided Mode</span>' +
-    '</div>' +
-
-    // Client name + date
-    '<div style="margin-bottom:24px">' +
-    '<div class="eyebrow-light">Today\'s Tour</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:var(--ink);line-height:1.1;margin-bottom:4px">' + esc(clientName) + '</div>' +
-    '<div style="font-size:13px;color:var(--slate)">' + fmtDate(day.date) + '</div>' +
+    '<div style="display:flex;justify-content:center;gap:28px;margin-bottom:32px">' +
+    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + props.length + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Properties</div></div>' +
+    '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
+    '<div style="text-align:center"><div id="total-distance" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">—</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Total Km</div></div>' +
+    '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
+    '<div style="text-align:center"><div id="est-finish" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + calcEstimatedFinish(props) + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Est. Finish</div></div>' +
     '</div>' +
 
-    // Stats row
-    '<div style="display:flex;gap:0;margin-bottom:24px;background:var(--card);border:1px solid var(--fog);border-radius:14px;overflow:hidden">' +
-    '<div style="flex:1;text-align:center;padding:16px 8px;border-right:1px solid var(--fog)">' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:var(--brass)">' + props.length + '</div>' +
-    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Properties</div>' +
-    '</div>' +
-    '<div style="flex:1;text-align:center;padding:16px 8px;border-right:1px solid var(--fog)">' +
-    '<div id="total-distance" style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:var(--brass)">—</div>' +
-    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Total Km</div>' +
-    '</div>' +
-    '<div style="flex:1;text-align:center;padding:16px 8px">' +
-    '<div id="est-finish" style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:var(--brass)">' + calcEstimatedFinish(props) + '</div>' +
-    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Est. Finish</div>' +
-    '</div>' +
-    '</div>' +
-
-    // Timeline card
-    '<div class="card" style="margin-bottom:28px">' +
-    '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin-bottom:12px">Schedule</div>' +
+    '<div class="section-card">' +
+    '<div class="section-title" style="margin-bottom:10px">Timeline</div>' +
     timelineRows +
     '</div>' +
 
-    // CTA
-    '<button class="btn" onclick="goToScreen(\'preparing\')" style="margin-bottom:12px">&#9654;&nbsp; Start Tour</button>' +
-    '<div style="text-align:center">' +
-    '<a href="/index.html" style="color:var(--slate);font-size:12px;text-decoration:none">&larr; Exit guided mode</a>' +
+    '<div style="display:flex;justify-content:center;margin-top:32px">' +
+    '<button class="btn-go" onclick="goToScreen(\'preparing\')">&#9654; Start Tour</button>' +
+    '</div>' +
+    '<div style="text-align:center;margin-top:16px">' +
+    '<a href="/index.html" style="color:rgba(255,255,255,.3);font-size:12px;text-decoration:none">&larr; Exit guided mode</a>' +
     '</div>' +
 
     '</div></div>';
@@ -679,61 +479,162 @@ function renderPreparingScreen(){
   var client = GS.client;
   var clientName = client ? client.name : 'Client';
   var day = GS.day;
+  var props = GS.properties;
 
-  return '<div class="screen phase-light" id="screen-preparing" style="padding:20px 18px">' +
-    // Same top as Today's Tour
-    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:28px">' +
-    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:400;color:var(--ink)">Tour<span style="font-style:italic;color:var(--brass)">Flow</span></span>' +
+  // Route: first property area → last property area
+  var routeFrom = props.length ? (props[0].area || props[0].title || '') : '';
+  var routeTo   = props.length > 1 ? (props[props.length-1].area || props[props.length-1].title || '') : routeFrom;
+  var estFinish = calcEstimatedFinish(props);
+
+  return '<div class="screen phase-light" id="screen-preparing" style="padding:0;display:flex;flex-direction:column;background:var(--navy)">' +
+
+    // ── HEADER ──────────────────────────────────────────────────────────────
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0">' +
+    '<div style="display:flex;align-items:center;gap:7px">' +
+    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:19px;font-weight:400;color:#fff">Tour<span style="font-style:italic;color:var(--brass)">Flow</span></span>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:6px;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.25);border-radius:100px;padding:5px 12px">' +
+    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="var(--brass)" stroke="none"/></svg>' +
+    '<span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brass)">Tour Mode</span>' +
+    '</div>' +
     '</div>' +
 
-    '<div style="margin-bottom:20px">' +
-    '<div class="eyebrow-light">Today\'s Tour</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:var(--ink);line-height:1.1">' + esc(clientName) + '</div>' +
-    '<div style="font-size:13px;color:var(--slate);margin-top:4px">' + fmtDate(day.date) + '</div>' +
+    // ── TOUR SUMMARY ─────────────────────────────────────────────────────────
+    '<div style="padding:20px 20px 18px">' +
+    '<div style="font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(201,161,74,.6);margin-bottom:6px">Today\'s Tour</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:38px;font-weight:300;color:#fff;line-height:1.05;margin-bottom:18px">' + esc(clientName) + '</div>' +
+
+    // Info blocks: properties / route / est. finish
+    '<div style="display:flex;gap:20px">' +
+
+    '<div style="display:flex;align-items:center;gap:7px">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' +
+    '<div><div style="font-size:13px;font-weight:600;color:#fff">' + props.length + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em">Properties</div></div>' +
     '</div>' +
 
-    // Dark focus card
-    '<div style="background:var(--navy);border-radius:20px;padding:24px;color:#fff">' +
-    '<div style="font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(201,161,74,.6);margin-bottom:14px">Preparing your tour</div>' +
+    (routeFrom && routeTo && routeFrom !== routeTo
+      ? '<div style="display:flex;align-items:center;gap:7px">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+        '<div><div style="font-size:12px;font-weight:500;color:#fff;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(routeFrom) + ' → ' + esc(routeTo) + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em">Route</div></div>' +
+        '</div>'
+      : '') +
+
+    (estFinish !== '—'
+      ? '<div style="display:flex;align-items:center;gap:7px">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+        '<div><div style="font-size:13px;font-weight:600;color:#fff">' + estFinish + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em">Est. Finish</div></div>' +
+        '</div>'
+      : '') +
+
+    '</div>' +
+    '</div>' +
+
+    // ── PREPARING CARD ───────────────────────────────────────────────────────
+    '<div style="flex:1;background:#0d1a2e;border-radius:24px 24px 0 0;padding:24px 22px;overflow-y:auto">' +
+
+    '<div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,161,74,.65);margin-bottom:20px">Preparing your tour</div>' +
+
+    // Animated checklist — items injected by runPreparingSequence
     '<div id="prep-steps" style="margin-bottom:20px"></div>' +
-    '<div style="height:3px;background:rgba(255,255,255,.08);border-radius:100px;overflow:hidden;margin-bottom:20px">' +
-    '<div id="prep-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#C9A14A,#d4a84b);transition:width .4s ease;border-radius:100px"></div>' +
-    '</div>' +
+
+    // Tour Ready state (hidden until done)
     '<div id="prep-done" style="display:none">' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:16px">Everything is ready.</div>' +
-    '<button class="btn-go" onclick="goToScreen(\'nav-0\')" style="width:100%">&#9654;&nbsp; GO</button>' +
+    '<div style="display:flex;align-items:center;gap:12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:14px;padding:14px 16px;margin-bottom:20px">' +
+    '<div style="width:28px;height:28px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
     '</div>' +
+    '<div><div style="font-size:13px;font-weight:700;color:#4ade80;letter-spacing:.04em">TOUR READY</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:1px">Everything is prepared. You\'re ready to drive.</div>' +
+    '</div></div>' +
+
+    '<button class="btn-go" onclick="goToScreen(\'nav-0\')" style="width:100%;margin-bottom:16px">&#9654;&nbsp; GO</button>' +
     '</div>' +
 
-    '</div>';
+    // Share link (always visible)
+    '<div id="prep-share" style="display:none;align-items:center;justify-content:center;gap:7px;padding:14px 0;cursor:pointer" onclick="shareGuidedTour()">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' +
+    '<span style="font-size:12px;color:rgba(255,255,255,.3)">Share tour with a colleague</span>' +
+    '</div>' +
+
+    '</div>' + // end preparing card
+
+    '</div>'; // end screen
 }
 
 function runPreparingSequence(){
-  var steps = ['Loading properties', 'Preparing route', 'Loading contacts', 'Preparing agent notes', 'Optimising itinerary'];
+  var steps = [
+    { title:'Properties verified',    sub:'4 properties ready' },
+    { title:'Route optimised',        sub:'Best order & timings set' },
+    { title:'Traffic checked',        sub:'Live traffic looks good' },
+    { title:'Client details synced',  sub:'Contacts & preferences loaded' },
+    { title:'Agent notes ready',      sub:'Notes & highlights prepared' },
+    { title:'Navigation connected',   sub:'Maps & directions ready' }
+  ];
+  // Override subtitle of first step with real property count
+  steps[0].sub = GS.properties.length + ' propert' + (GS.properties.length===1?'y':'ies') + ' ready';
+
   var stepsEl = document.getElementById('prep-steps');
-  var barEl = document.getElementById('prep-bar');
-  var doneEl = document.getElementById('prep-done');
+  var doneEl  = document.getElementById('prep-done');
+  var shareEl = document.getElementById('prep-share');
   if(!stepsEl) return;
   stepsEl.innerHTML = '';
-  doneEl.style.display = 'none';
-  barEl.style.width = '0%';
+  if(doneEl)  doneEl.style.display  = 'none';
+  if(shareEl) shareEl.style.display = 'none';
+
+  // Render all items as empty circles first, then animate each one
+  steps.forEach(function(step, j){
+    var row = document.createElement('div');
+    row.id = 'prep-step-' + j;
+    row.style.cssText = 'display:flex;align-items:flex-start;gap:14px;padding:10px 0;' + (j < steps.length-1 ? 'border-bottom:1px solid rgba(255,255,255,.05)' : '');
+    row.innerHTML =
+      '<div id="prep-icon-' + j + '" style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s cubic-bezier(.34,1.4,.64,1)">' +
+        '<svg id="prep-check-' + j + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2.5" stroke-linecap="round" style="transition:stroke .3s ease"><path d="M20 6L9 17l-5-5"/></svg>' +
+      '</div>' +
+      '<div>' +
+        '<div id="prep-title-' + j + '" style="font-size:14px;font-weight:500;color:rgba(255,255,255,.3);transition:color .25s ease">' + esc(step.title) + '</div>' +
+        '<div id="prep-sub-' + j + '" style="font-size:11px;color:rgba(255,255,255,.2);margin-top:2px;transition:color .25s ease">' + esc(step.sub) + '</div>' +
+      '</div>';
+    stepsEl.appendChild(row);
+  });
 
   var i = 0;
-  function nextStep(){
+  function activateStep(){
     if(i >= steps.length){
-      setTimeout(function(){ doneEl.style.display = 'block'; }, 200);
+      // All done — show Tour Ready + GO
+      setTimeout(function(){
+        if(doneEl)  { doneEl.style.display  = 'block'; }
+        if(shareEl) { shareEl.style.display = 'flex'; }
+        if(navigator.vibrate) navigator.vibrate(40);
+      }, 300);
       return;
     }
-    var row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px;color:rgba(255,255,255,.75)';
-    row.innerHTML = '<span style="width:16px;height:16px;border-radius:50%;background:rgba(201,161,74,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></span><span>' + steps[i] + '</span>';
-    stepsEl.appendChild(row);
-    barEl.style.width = Math.round(((i+1)/steps.length)*100) + '%';
+    var icon  = document.getElementById('prep-icon-' + i);
+    var check = document.getElementById('prep-check-' + i);
+    var title = document.getElementById('prep-title-' + i);
+    var sub   = document.getElementById('prep-sub-' + i);
+    if(icon){
+      icon.style.background   = 'var(--brass)';
+      icon.style.borderColor  = 'var(--brass)';
+      icon.style.transform    = 'scale(1.08)';
+      setTimeout(function(){ if(icon) icon.style.transform = 'scale(1)'; }, 300);
+    }
+    if(check){ check.setAttribute('stroke','var(--navy)'); }
+    if(title){ title.style.color = '#fff'; }
+    if(sub)  { sub.style.color   = 'rgba(255,255,255,.45)'; }
     i++;
-    setTimeout(nextStep, 380);
+    setTimeout(activateStep, 280);
   }
-  nextStep();
+  setTimeout(activateStep, 200);
+}
+
+function shareGuidedTour(){
+  var url = window.location.href;
+  if(navigator.share){
+    navigator.share({ title:'TourFlow — Guided Tour', url: url });
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){ alert('Link copied!'); });
+  }
 }
 
 // ── NAVIGATION SCREEN ────────────────────────────────────────────────────
@@ -749,58 +650,46 @@ function renderNavigationScreen(idx){
   var mapsUrl = p.mapsUrl || (p.address ? 'https://maps.google.com/?q=' + encodeURIComponent(p.address) : '');
   var driveInfo = idx > 0 ? driveTimeCache[(GS.properties[idx-1].mapsUrl||GS.properties[idx-1].address||'') + '||' + (p.mapsUrl||p.address||'')] : null;
 
-  return '<div class="screen phase-light" id="screen-nav-' + idx + '" style="padding:20px 18px;position:relative">' +
+  return '<div class="screen center" id="screen-nav-' + idx + '" style="padding:40px 24px;position:relative">' +
 
-    // Light header context
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">' +
-    '<div>' +
-    '<div class="eyebrow-light">Next Destination</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:var(--ink);line-height:1.1">' + esc(p.title || p.area || 'Property') + '</div>' +
-    '<div style="font-size:13px;color:var(--slate);margin-top:2px">' + esc(p.address || p.area || '') + '</div>' +
-    '</div>' +
-    '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--slate);flex-shrink:0;margin-left:12px">Stop ' + (idx+1) + ' / ' + GS.properties.length + '</div>' +
-    '</div>' +
+    '<div style="text-align:center;width:100%;max-width:340px">' +
+    '<div class="eyebrow">Next Destination</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
 
-    // Dark nav card
-    '<div style="background:var(--navy);border-radius:20px;padding:24px;margin-bottom:14px">' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:6px;line-height:1.2">' + esc(p.title || p.area || 'Property') + '</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px">' + esc(p.address || p.area || '') + '</div>' +
 
-    // Drive stats inside dark card
-    '<div id="nav-drive-stats-' + idx + '" style="display:flex;gap:0;margin-bottom:22px">' +
+    '<div id="nav-drive-stats-' + idx + '" style="display:flex;justify-content:center;gap:32px;margin-bottom:28px">' +
     (driveInfo && driveInfo.ok
-      ? navStatBlock(driveInfo.durationMin, 'Est. Drive') + '<div style="width:1px;background:rgba(255,255,255,.08)"></div>' + navStatBlock(driveInfo.distanceKm, 'Distance')
-      : '<div style="font-size:12px;color:rgba(255,255,255,.3);padding:4px 0">Calculating route\u2026</div>') +
+      ? statBlock(driveInfo.durationMin, 'Min drive') + statBlock(driveInfo.distanceKm, 'Km away')
+      : '<div style="font-size:12px;color:rgba(255,255,255,.25)">Calculating route&hellip;</div>') +
     '</div>' +
 
     (mapsUrl
-      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:flex;width:100%;margin-bottom:10px" onclick="trackMapsOpen(' + idx + ')">' +
+      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex" onclick="trackMapsOpen(' + idx + ')">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
         'Open Google Maps</a>'
-      : '') +
+      : '<div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:16px">No address available</div>') +
 
-    '<button class="btn-secondary" style="width:100%" onclick="manualArrival(' + idx + ')">I\u2019ve already arrived</button>' +
+    '<button class="btn-secondary" style="margin-top:10px" onclick="manualArrival(' + idx + ')">I\u2019ve already arrived</button>' +
+
+    '<div style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">' +
+    '<div style="font-size:10px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.12em">After arrival</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px">Property details will open automatically</div>' +
+    '</div>' +
 
     '</div>' +
 
-    // After arrival hint
-    '<div style="display:flex;align-items:center;gap:8px;padding:12px 14px;background:var(--mist);border-radius:10px;border:1px solid var(--fog)">' +
-    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>' +
-    '<div style="font-size:12px;color:var(--slate)">Return to TourFlow after arrival — property details will open automatically.</div>' +
-    '</div>' +
+    // Arrival overlay — hidden by default, content driven by resetArrivalOverlayToWelcome()
+    '<div id="arrival-overlay-' + idx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
+    '<div style="text-align:center;width:100%;max-width:300px" id="arrival-body-' + idx + '"></div>' +
+    '<div id="arrival-gps-status-' + idx + '"></div>' +
 
-    ''+  // arrival handled by shared overlay
-
-    '</div>';
-}
-
-function navStatBlock(val, label){
-  return '<div style="flex:1;padding:4px 0">' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:#C9A14A;font-weight:300">' + val + '</div>' +
-    '<div style="font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">' + label + '</div>' +
     '</div>';
 }
 
 function statBlock(val, label){
-  return navStatBlock(val, label);
+  return '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + val + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">' + label + '</div></div>';
 }
 
 // Called when the user taps "Open Google Maps" — arms the visibility listener
@@ -818,106 +707,82 @@ function manualArrival(idx){
 function reopenMaps(idx, mapsUrl){
   if(mapsUrl) window.open(mapsUrl, '_blank');
   trackMapsOpen(idx);
-  // Update arrival overlay to "Welcome back" state if it's open
-  var bodyEl = document.getElementById('arrival-body');
-  if(bodyEl) resetArrivalBodyToWelcome(idx);
-}
-
-// ── SHARED ARRIVAL OVERLAY ─────────────────────────────────────────────────
-function ensureArrivalOverlay(){
-  if(document.getElementById('arrival-overlay')) return;
-  var overlay = document.createElement('div');
-  overlay.id = 'arrival-overlay';
-  overlay.className = 'tf-overlay center-modal';
-  overlay.innerHTML =
-    '<div class="tf-overlay-bg"></div>' +
-    '<div class="tf-overlay-card" id="arrival-card" style="padding:28px 22px">' +
-    '<div id="arrival-body"></div>' +
-    '</div>';
-  document.body.appendChild(overlay);
+  resetArrivalOverlayToWelcome(idx);
 }
 
 function showArrivalOverlay(idx){
-  ensureArrivalOverlay();
-  var overlay = document.getElementById('arrival-overlay');
-  overlay.style.display = 'flex';
-  requestAnimationFrame(function(){ overlay.classList.add('active'); });
-  document.body.classList.add('overlay-open');
-  resetArrivalBodyToWelcome(idx);
+  var el = document.getElementById('arrival-overlay-' + idx);
+  if(!el) return;
+  el.style.display = 'flex';
+  resetArrivalOverlayToWelcome(idx);
 }
-
 function hideArrivalOverlay(idx){
-  var overlay = document.getElementById('arrival-overlay');
-  if(overlay){
-    overlay.classList.remove('active');
-    document.body.classList.remove('overlay-open');
-    setTimeout(function(){ overlay.style.display = 'none'; }, 320);
-  }
+  var el = document.getElementById('arrival-overlay-' + idx);
+  if(el) el.style.display = 'none';
 }
 
 function confirmArrival(idx){
   hideArrivalOverlay(idx);
   navState.pendingStopIdx = null;
-  setTimeout(function(){ goToScreen('prop-' + idx); }, 200);
+  goToScreen('prop-' + idx);
 }
 
-// Visibility-based return detection
+// Visibility-based return detection: when the tab regains focus after the user
+// opened Maps, automatically surface the arrival check with a "Welcome back" beat.
 document.addEventListener('visibilitychange', function(){
   if(document.visibilityState !== 'visible') return;
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
+    if(navState.pendingStopIdx !== null){
+      showArrivalOverlay(navState.pendingStopIdx);
+    }
   }, 300);
 });
 window.addEventListener('focus', function(){
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
+    if(navState.pendingStopIdx !== null){
+      showArrivalOverlay(navState.pendingStopIdx);
+    }
   }, 300);
 });
 
-// ── ARRIVAL BODY STATES ────────────────────────────────────────────────────
-function resetArrivalBodyToWelcome(idx){
-  var bodyEl = document.getElementById('arrival-body');
-  if(!bodyEl) return;
+// ── ARRIVAL DETECTION FLOW ─────────────────────────────────────────────────
+// Sequence per spec: "Welcome back" (brief) -> GPS check if available ->
+// either auto-confirm ("Looks like you've arrived") or fall back to the
+// manual Yes / Open Maps again buttons. Always degrades gracefully.
+function resetArrivalOverlayToWelcome(idx){
+  var statusEl = document.getElementById('arrival-gps-status-' + idx);
+  var bodyEl = document.getElementById('arrival-body-' + idx);
+  if(!statusEl || !bodyEl) return;
+
+  statusEl.innerHTML = '';
   bodyEl.innerHTML =
-    '<div class="fade-in" style="text-align:center;padding:8px 0 16px">' +
-    '<div style="font-size:32px;margin-bottom:10px">👋</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:20px">Welcome back</div>' +
-    '<div class="spinner" style="margin:0 auto"></div>' +
-    '</div>';
-  setTimeout(function(){ attemptGpsArrivalCheck(idx); }, 700);
+    '<div style="font-size:36px;margin-bottom:12px">&#128075;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:24px">Welcome back</div>' +
+    '<div class="spinner" style="margin:0 auto"></div>';
+
+  // Brief beat, then attempt GPS — falls back to manual state either way
+  setTimeout(function(){ attemptGpsArrivalCheck(idx); }, 600);
 }
 
 function renderManualArrivalState(idx, propTitle, mapsUrl){
-  var p = GS.properties[idx];
-  var nextStr = 'Stop ' + (idx+1) + ' of ' + GS.properties.length;
-  var timeStr = p.time ? p.time : '';
-
   return '<div class="fade-in">' +
-    // Property preview — spec item 5
-    (p.ogImage
-      ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:130px;object-fit:cover;border-radius:14px;margin-bottom:14px"/>'
-      : '<div style="width:100%;height:80px;background:rgba(255,255,255,.04);border-radius:14px;margin-bottom:14px"></div>') +
-    '<div style="margin-bottom:18px">' +
-    '<div style="font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(201,161,74,.7);margin-bottom:4px">' + nextStr + (timeStr ? ' · ' + timeStr : '') + '</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff;line-height:1.2">' + esc(propTitle || 'This property') + '</div>' +
-    (p.address ? '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:3px">' + esc(p.address) + '</div>' : '') +
-    '</div>' +
-    '<button class="btn-go" style="margin-bottom:8px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
-    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'')) + '&quot;)">Open Google Maps again</button>' +
+    '<div style="font-size:36px;margin-bottom:12px">&#128205;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
+    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
+    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
     '</div>';
 }
 
 function renderAutoArrivedState(idx, propTitle){
-  var p = GS.properties[idx];
   return '<div class="fade-in" style="text-align:center">' +
-    (p.ogImage ? '<img src="' + esc(p.ogImage) + '" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin:0 auto 16px;display:block;border:3px solid rgba(34,197,94,.4)"/>' : '') +
-    '<div style="width:48px;height:48px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">' +
-    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    '<div style="width:64px;height:64px;border-radius:50%;background:rgba(34,197,94,.15);border:1.5px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">' +
+    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
     '</div>' +
-    '<div style="font-size:11px;color:#4ade80;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Arrived at Stop ' + (idx+1) + '</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff;margin-bottom:20px">' + esc(propTitle || 'This property') + '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:6px">Looks like you\u2019ve arrived</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
     '<button class="btn-go" onclick="confirmArrival(' + idx + ')">Open Property</button>' +
     '</div>';
 }
@@ -926,15 +791,13 @@ function renderAutoArrivedState(idx, propTitle){
 // Progressive enhancement only. If geolocation is unavailable, denied, or the
 // property has no coordinates, falls back to the manual arrival state.
 function attemptGpsArrivalCheck(idx){
-  var bodyEl = document.getElementById('arrival-body');
+  var bodyEl = document.getElementById('arrival-body-' + idx);
   if(!bodyEl) return;
   var p = GS.properties[idx];
   var mapsUrl = p.mapsUrl || '';
 
   function fallbackToManual(){
-    if(document.getElementById('arrival-body') === bodyEl){
-      bodyEl.innerHTML = renderManualArrivalState(idx, p.title || p.area, mapsUrl);
-    }
+    bodyEl.innerHTML = renderManualArrivalState(idx, p.title || p.area, mapsUrl);
   }
 
   if(!navigator.geolocation){ fallbackToManual(); return; }
@@ -943,13 +806,14 @@ function attemptGpsArrivalCheck(idx){
 
   navigator.geolocation.getCurrentPosition(function(pos){
     var dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, coords.lat, coords.lng);
-    if(document.getElementById('arrival-body') !== bodyEl) return;
     if(dist <= 100){
       bodyEl.innerHTML = renderAutoArrivedState(idx, p.title || p.area);
     } else {
       fallbackToManual();
     }
-  }, function(){ fallbackToManual(); }, { timeout: 4000, maximumAge: 30000 });
+  }, function(){
+    fallbackToManual(); // permission denied or unavailable
+  }, { timeout: 4000, maximumAge: 30000 });
 }
 
 // Extracts lat/lng from a Google Maps URL if present (covers common formats)
@@ -974,12 +838,12 @@ function haversineMeters(lat1, lon1, lat2, lon2){
 // ── PROPERTY SCREEN ──────────────────────────────────────────────────────
 function collapsibleSection(id, title, contentHtml, startOpen){
   startOpen = !!startOpen;
-  return '<div class="section-card">' +
-    '<button onclick="toggleSection(\'' + id + '\')" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;padding:14px 16px;cursor:pointer;font-family:inherit;text-align:left">' +
+  return '<div class="section-card" style="padding:0;overflow:hidden">' +
+    '<button onclick="toggleSection(\'' + id + '\')" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;padding:20px;cursor:pointer;font-family:inherit;text-align:left">' +
     '<span class="section-title" style="margin-bottom:0">' + title + '</span>' +
-    '<svg id="' + id + '-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s;transform:rotate(' + (startOpen ? '180' : '0') + 'deg);flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>' +
+    '<svg id="' + id + '-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s;transform:rotate(' + (startOpen ? '180' : '0') + 'deg);flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>' +
     '</button>' +
-    '<div id="' + id + '" style="display:' + (startOpen ? 'block' : 'none') + ';padding:0 16px 14px">' +
+    '<div id="' + id + '" style="display:' + (startOpen ? 'block' : 'none') + ';padding:0 20px 20px">' +
     contentHtml +
     '</div>' +
     '</div>';
@@ -1000,7 +864,7 @@ function renderPropertyScreen(p, idx){
 
   var heroImg = p.ogImage
     ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:220px;object-fit:cover"/>'
-    : '<div style="width:100%;height:120px;background:linear-gradient(135deg,#F6F2E9,var(--fog));display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:48px;color:rgba(201,161,74,.15)">' + (idx+1) + '</div>';
+    : '<div style="width:100%;height:140px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:40px;color:rgba(201,161,74,.1)">' + (idx+1) + '</div>';
 
   function statRow(label, val){
     return '<div class="row"><div class="row-label">' + label + '</div><div class="row-value">' + (val ? esc(val) : '\u2014') + '</div></div>';
@@ -1026,67 +890,64 @@ function renderPropertyScreen(p, idx){
     statRow('Distance to Supermarkets', p.distanceToSupermarkets);
 
   var listingAgentHtml =
-    '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
-    '<div style="font-size:12px;color:var(--slate);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
+    '<div style="font-size:14px;margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
     '<div style="display:flex;gap:8px">' +
-    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
+    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
     (waUrl ? '<a href="' + waUrl + '" target="_blank" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>' : '')+
     '</div>';
 
   var internalHtml = statRow('Commission', p.commission) + statRow('Key Collection', p.location);
 
-  return '<div class="screen phase-light" id="screen-prop-' + idx + '" style="display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;overflow:hidden">' +
+  return '<div class="screen" id="screen-prop-' + idx + '" style="display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden">' +
 
-    // Scrollable content
-    '<div style="flex:1;overflow-y:auto">' +
+    // Scrollable content area
+    '<div style="flex:1;overflow-y:auto;padding-bottom:16px">' +
 
     heroImg +
 
-    '<div style="padding:18px 18px 0">' +
-
-    // Stop badge + match
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
-    '<span style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brass)">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</span>' +
-    (ms != null ? '<span style="font-size:10px;font-weight:600;color:var(--brass);background:#f5f2ec;border:1px solid var(--fog);border-radius:100px;padding:3px 10px">' + mLabel + '</span>' : '') +
+    '<div style="padding:20px 20px 0">' +
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
+    '<div class="eyebrow" style="margin-bottom:0">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
+    (ms != null ? '<div style="font-size:10px;font-weight:700;color:#C9A14A;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:100px;padding:3px 10px">' + mLabel + '</div>' : '') +
     '</div>' +
+    (p.price ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#C9A14A;font-weight:600;margin-bottom:4px">' + fmtPrice(p.price) + '</div>' : '') +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:16px">' + esc(p.title || p.area || 'Property') + '</div>' +
 
-    // Price + title
-    (p.price ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;color:var(--brass);font-weight:600;line-height:1;margin-bottom:4px">' + fmtPrice(p.price) + '</div>' : '') +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;color:var(--ink);margin-bottom:14px;line-height:1.2">' + esc(p.title || p.area || 'Property') + '</div>' +
-
-    // Stat chips
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">' +
-    (p.rooms ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc(p.rooms) + ' bed</div>' : '') +
-    (p.bathrooms ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc(p.bathrooms) + ' bath</div>' : '') +
-    (p.sqm ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
-    (p.distanceToSea ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc(p.distanceToSea) + ' to sea</div>' : '') +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">' +
+    (p.rooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.rooms) + ' bed</div>' : '') +
+    (p.bathrooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.bathrooms) + ' bath</div>' : '') +
+    (p.sqm ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
+    (p.distanceToSea ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.distanceToSea) + ' to sea</div>' : '') +
     '</div>' +
 
     collapsibleSection('cq-' + idx, 'Customer Questions', customerQuestionsHtml, false) +
     collapsibleSection('la-' + idx, 'Listing Agent', listingAgentHtml, false) +
     ((p.commission || p.location) ? collapsibleSection('int-' + idx, 'Internal', internalHtml, false) : '') +
 
-    (p.note ? '<div class="section-card" style="background:#fef9ec;border-color:#fde68a">' +
-    '<div class="section-title" style="color:#92400e">Agent Notes</div>' +
-    '<div style="font-size:13px;color:var(--ink);line-height:1.6">' + esc(p.note) + '</div>' +
+    (p.note ? '<div class="section-card">' +
+    '<div class="section-title">Agent Notes</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">' + esc(p.note) + '</div>' +
     '</div>' : '') +
 
     renderViewingChecklist(idx) +
 
-    '<div style="height:16px"></div>' +
-    '</div>' + // end padding
-    '</div>' + // end scrollable
+    '</div>' +
 
-    // Fixed bottom bar — light
-    '<div id="complete-bar-' + idx + '" style="flex-shrink:0;background:var(--card);border-top:1px solid var(--fog);padding:14px 18px;padding-bottom:calc(14px + env(safe-area-inset-bottom))">' +
-    '<button class="btn" style="font-size:15px;font-weight:700;padding:15px" onclick="completeViewing(' + idx + ')">&#10003;&nbsp; Complete Viewing</button>' +
+    '</div>' + // end scrollable content
+
+    // Fixed bottom action bar — always visible, never scrolls away
+    '<div id="complete-bar-' + idx + '" style="flex-shrink:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:16px 20px;padding-bottom:calc(16px + env(safe-area-inset-bottom))">' +
+    '<button class="btn-go" style="max-width:none;transition:transform .15s" onmousedown="this.style.transform=\'scale(.97)\'" onmouseup="this.style.transform=\'scale(1)\'" ontouchstart="this.style.transform=\'scale(.97)\'" ontouchend="this.style.transform=\'scale(1)\'" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
     '</div>' +
 
     '</div>';
 }
 
-// ── VIEWING CHECKLIST (light phase) ───────────────────────────────────────
-var checklistState = {};
+// ── VIEWING CHECKLIST ──────────────────────────────────────────────────────
+// Soft reinforcement only — the Complete Viewing button stays enabled
+// regardless of checklist state, per spec.
+var checklistState = {}; // { idx: { viewed:bool, questions:bool, feedback:bool } }
 function getChecklist(idx){
   if(!checklistState[idx]) checklistState[idx] = { viewed:false, questions:false, feedback:false };
   return checklistState[idx];
@@ -1099,18 +960,18 @@ function renderViewingChecklist(idx){
     ['feedback','Customer feedback added']
   ];
   var doneCount = items.filter(function(it){ return cl[it[0]]; }).length;
-  return '<div class="section-card" id="checklist-' + idx + '" style="padding:14px 16px">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+  return '<div class="section-card" id="checklist-' + idx + '">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
     '<span class="section-title" style="margin-bottom:0">Viewing Checklist</span>' +
-    '<span style="font-size:11px;color:var(--slate)">' + doneCount + ' / ' + items.length + '</span>' +
+    '<span id="checklist-count-' + idx + '" style="font-size:11px;color:rgba(255,255,255,.35)">' + doneCount + ' / ' + items.length + '</span>' +
     '</div>' +
     items.map(function(it){
       var checked = cl[it[0]];
-      return '<button onclick="toggleChecklistItem(' + idx + ',\'' + it[0] + '\')" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:7px 0;cursor:pointer;font-family:inherit;text-align:left">' +
-        '<div style="width:18px;height:18px;border-radius:5px;border:1.5px solid ' + (checked?'var(--brass)':'var(--fog)') + ';background:' + (checked?'var(--brass)':'transparent') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
-        (checked ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
+      return '<button onclick="toggleChecklistItem(' + idx + ',\'' + it[0] + '\')" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:8px 0;cursor:pointer;font-family:inherit;text-align:left">' +
+        '<div style="width:18px;height:18px;border-radius:5px;border:1.5px solid ' + (checked?'#C9A14A':'rgba(255,255,255,.25)') + ';background:' + (checked?'#C9A14A':'transparent') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        (checked ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#071226" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
         '</div>' +
-        '<span style="font-size:13px;color:' + (checked?'var(--ink)':'var(--slate)') + ';font-weight:' + (checked?'500':'300') + '">' + it[1] + '</span>' +
+        '<span style="font-size:13px;color:' + (checked?'rgba(255,255,255,.9)':'rgba(255,255,255,.5)') + '">' + it[1] + '</span>' +
         '</button>';
     }).join('') +
     '</div>';
@@ -1119,7 +980,9 @@ function toggleChecklistItem(idx, key){
   var cl = getChecklist(idx);
   cl[key] = !cl[key];
   var container = document.getElementById('checklist-' + idx);
-  if(container) container.outerHTML = renderViewingChecklist(idx);
+  if(container){
+    container.outerHTML = renderViewingChecklist(idx);
+  }
 }
 
 // ── DRIVE SCREEN ──────────────────────────────────────────────────────────
@@ -1132,45 +995,44 @@ function renderDriveScreen(idx){
   var mLabel = matchLabel(ms);
   var mapsUrl = nextProp.mapsUrl || (nextProp.address ? 'https://maps.google.com/?q=' + encodeURIComponent(nextProp.address) : '');
 
-  return '<div class="screen phase-light" id="screen-drive-' + idx + '" style="padding:20px 18px;position:relative">' +
+  return '<div class="screen center" id="screen-drive-' + idx + '" style="padding:40px 24px;position:relative">' +
+    '<div style="text-align:center;width:100%;max-width:340px">' +
 
-    // Light header
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">' +
-    '<div>' +
-    '<div class="eyebrow-light">Next Destination</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:var(--ink);line-height:1.1">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
-    '<div style="font-size:13px;color:var(--slate);margin-top:2px">' + esc(nextProp.address || nextProp.area || '') + '</div>' +
-    '</div>' +
-    '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:100px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--slate);flex-shrink:0;margin-left:12px">Stop ' + (nextIdx+1) + ' / ' + GS.properties.length + '</div>' +
-    '</div>' +
+    '<div class="eyebrow">Next Destination</div>' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:20px">Stop ' + (nextIdx+1) + ' of ' + GS.properties.length + '</div>' +
 
-    // Dark nav card
-    '<div style="background:var(--navy);border-radius:20px;padding:24px;margin-bottom:14px">' +
-    '<div id="drive-stats-' + idx + '" style="display:flex;gap:0;margin-bottom:22px">' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.3)">Calculating route\u2026</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;font-weight:300;margin-bottom:6px;line-height:1.2">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
+    '<div style="font-size:13px;color:rgba(255,255,255,.45);margin-bottom:28px">' + esc(nextProp.address || nextProp.area || '') + '</div>' +
+
+    '<div id="drive-stats-' + idx + '" style="display:flex;justify-content:center;gap:32px;margin-bottom:28px">' +
+    '<div style="font-size:12px;color:rgba(255,255,255,.25)">Calculating route&hellip;</div>' +
     '</div>' +
 
     (mapsUrl
-      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:flex;width:100%;margin-bottom:10px" onclick="trackMapsOpen(' + nextIdx + ')">' +
+      ? '<a href="' + esc(mapsUrl) + '" target="_blank" class="btn-go" style="text-decoration:none;display:inline-flex" onclick="trackMapsOpen(' + nextIdx + ')">' +
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
         'Open Google Maps</a>'
-      : '') +
+      : '<div style="font-size:13px;color:rgba(255,255,255,.3);margin-bottom:16px">No address available</div>') +
 
-    '<button class="btn-secondary" style="width:100%" onclick="manualArrival(' + nextIdx + ')">I\u2019ve already arrived</button>' +
-    '</div>' +
+    '<button class="btn-secondary" style="margin-top:10px" onclick="manualArrival(' + nextIdx + ')">I\u2019ve already arrived</button>' +
 
-    // Next property preview — light card
-    '<div class="card" style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="goToScreen(\'prop-' + nextIdx + '\')">' +
-    (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:48px;height:48px;border-radius:8px;background:var(--mist);flex-shrink:0"></div>') +
+    '<div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">' +
+    '<div onclick="goToScreen(\'prop-' + nextIdx + '\')" style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px;cursor:pointer;text-align:left">' +
+    (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
     '<div style="flex:1;min-width:0">' +
-    '<div style="font-size:11px;font-weight:600;color:var(--brass);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">Next property</div>' +
-    '<div style="font-size:13px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
-    '<div style="font-size:12px;color:var(--slate)">' + fmtPrice(nextProp.price) + (mLabel ? ' \u00b7 ' + mLabel : '') + '</div>' +
+    '<div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
+    '<div style="font-size:11px;color:#C9A14A">' + fmtPrice(nextProp.price) + (mLabel ? ' \u00b7 ' + mLabel : '') + '</div>' +
     '</div>' +
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>' +
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>' +
+    '</div>' +
     '</div>' +
 
-    ''+  // arrival handled by shared overlay
+    '</div>' +
+
+    // Arrival overlay — same mechanism as Navigation Screen
+    '<div id="arrival-overlay-' + nextIdx + '" style="display:none;position:fixed;inset:0;background:rgba(7,18,38,.96);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(4px)">' +
+    '<div style="text-align:center;width:100%;max-width:300px" id="arrival-body-' + nextIdx + '"></div>' +
+    '<div id="arrival-gps-status-' + nextIdx + '"></div>' +
 
     '</div>';
 }
@@ -1192,7 +1054,9 @@ function fetchAllDriveTimes(){
       fetchDriveTime(locs[idx], locs[idx+1], function(result){
         var statsEl = document.getElementById('drive-stats-' + idx);
         if(statsEl && result && result.ok){
-          statsEl.innerHTML = navStatBlock(result.durationMin, 'Est. Drive') + '<div style="width:1px;background:rgba(255,255,255,.08)"></div>' + navStatBlock(result.distanceKm, 'Distance');
+          statsEl.innerHTML =
+            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Min drive</div></div>' +
+            '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Km away</div></div>';
           totalKm += parseFloat(result.distanceKm) || 0;
         } else if(statsEl){
           statsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.3)">Drive time unavailable</div>';
@@ -1215,7 +1079,9 @@ function fetchAllDriveTimes(){
     fetchDriveTime(startLoc, locs[0], function(result){
       var statsEl = document.getElementById('nav-drive-stats-0');
       if(statsEl && result && result.ok){
-        statsEl.innerHTML = navStatBlock(result.durationMin, 'Est. Drive') + '<div style="width:1px;background:rgba(255,255,255,.08)"></div>' + navStatBlock(result.distanceKm, 'Distance');
+        statsEl.innerHTML =
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.durationMin + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Min drive</div></div>' +
+          '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;color:#C9A14A">' + result.distanceKm + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Km away</div></div>';
       } else if(statsEl){
         statsEl.innerHTML = '<div style="font-size:12px;color:rgba(255,255,255,.25)">Set a meeting point to see drive time</div>';
       }
@@ -1228,38 +1094,34 @@ function fetchAllDriveTimes(){
 
 // ── COMPLETE SCREEN ───────────────────────────────────────────────────────
 function renderCompleteScreen(){
-  return '<div class="screen center phase-light" id="screen-complete" style="padding:40px 20px">' +
-    '<div style="text-align:center;width:100%" class="fade-in">' +
-    '<div style="font-size:52px;margin-bottom:16px">&#127881;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:var(--ink);margin-bottom:6px">Tour Completed</div>' +
-    '<div id="completed-count" style="font-size:13px;color:var(--slate);margin-bottom:28px">0 of ' + GS.properties.length + ' viewings completed</div>' +
+  return '<div class="screen center" id="screen-complete" style="padding:40px 24px">' +
+    '<div style="text-align:center;width:100%;max-width:340px" class="fade-in">' +
+    '<div style="font-size:48px;margin-bottom:16px">&#127881;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:8px">Tour Completed</div>' +
+    '<div id="completed-count" style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:28px">0 of ' + GS.properties.length + ' viewings completed</div>' +
 
-    '<div id="completion-stats" style="display:flex;gap:0;margin-bottom:32px;background:var(--card);border:1px solid var(--fog);border-radius:14px;overflow:hidden">' +
-    lightStatBlock('\u2014', 'Total km') +
-    '<div style="width:1px;background:var(--fog)"></div>' +
-    lightStatBlock('\u2014', 'Drive min') +
-    '<div style="width:1px;background:var(--fog)"></div>' +
-    lightStatBlock('\u2014', 'Tour min') +
+    '<div id="completion-stats" style="display:flex;justify-content:center;gap:24px;margin-bottom:32px">' +
+    statBlock('\u2026', 'Total km') +
+    statBlock('\u2026', 'Drive time') +
+    statBlock('\u2026', 'Viewing time') +
     '</div>' +
 
-    '<button class="btn-outline" style="margin-bottom:10px" onclick="exportNotes()">Export Notes</button>' +
-    '<button class="btn-outline" style="margin-bottom:24px" onclick="copyWhatsappSummary()">Copy WhatsApp Summary</button>' +
-    '<a href="/index.html" class="btn" style="text-decoration:none;display:flex">Finish Tour</a>' +
+    '<button class="btn-secondary" style="margin-bottom:10px" onclick="exportNotes()">Export Notes</button>' +
+    '<button class="btn-secondary" style="margin-bottom:24px" onclick="copyWhatsappSummary()">Copy WhatsApp Summary</button>' +
+
+    '<a href="/index.html" class="btn-go" style="text-decoration:none;display:inline-flex">Finish Tour</a>' +
 
     '</div></div>';
-}
-
-function lightStatBlock(val, label){
-  return '<div style="flex:1;text-align:center;padding:16px 8px">' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:var(--brass)" id="cstat-' + label.replace(/ /g,'-') + '">' + val + '</div>' +
-    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">' + label + '</div>' +
-    '</div>';
 }
 
 function updateCompletionStats(){
   var countEl = document.getElementById('completed-count');
   if(countEl) countEl.textContent = Object.keys(completedSet).length + ' of ' + GS.properties.length + ' viewings completed';
 
+  var statsEl = document.getElementById('completion-stats');
+  if(!statsEl) return;
+
+  // Total distance from cached drive times
   var totalKm = 0, totalDriveMin = 0;
   for(var i = 0; i < GS.properties.length - 1; i++){
     var a = GS.properties[i], b = GS.properties[i+1];
@@ -1270,14 +1132,13 @@ function updateCompletionStats(){
       totalDriveMin += parseInt(d.durationMin) || 0;
     }
   }
+
   var viewingMin = tourStartTime ? Math.round((Date.now() - tourStartTime) / 60000) : null;
 
-  var kmEl = document.getElementById('cstat-Total-km');
-  var drEl = document.getElementById('cstat-Drive-min');
-  var vrEl = document.getElementById('cstat-Tour-min');
-  if(kmEl) kmEl.textContent = totalKm > 0 ? Math.round(totalKm) : '—';
-  if(drEl) drEl.textContent = totalDriveMin > 0 ? totalDriveMin : '—';
-  if(vrEl) vrEl.textContent = viewingMin != null ? viewingMin : '—';
+  statsEl.innerHTML =
+    statBlock(totalKm > 0 ? Math.round(totalKm) : '\u2014', 'Total km') +
+    statBlock(totalDriveMin > 0 ? totalDriveMin : '\u2014', 'Drive min') +
+    statBlock(viewingMin != null ? viewingMin : '\u2014', 'Tour min');
 }
 
 var completedSet = {};
@@ -1298,108 +1159,64 @@ function showCompletionCelebration(idx){
   var nextProp = isLast ? null : GS.properties[idx+1];
   var driveInfo = nextProp ? driveTimeCache[(GS.properties[idx].mapsUrl||GS.properties[idx].address||'') + '||' + (nextProp.mapsUrl||nextProp.address||'')] : null;
 
-  // Remove any previous overlay
-  var old = document.getElementById('celebration-overlay');
-  if(old) old.remove();
-
   var overlay = document.createElement('div');
   overlay.id = 'celebration-overlay';
-  overlay.className = 'tf-overlay center-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(7,18,38,.97);z-index:700;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(8px)';
 
-  // Structure: success tick (small) → next destination hero → CTA
   overlay.innerHTML =
-    '<div class="tf-overlay-bg"></div>' +
-    '<div class="tf-overlay-card" style="padding:0;overflow:hidden;max-width:360px">' +
-
-    // Next property hero image
-    (nextProp && nextProp.ogImage
-      ? '<div style="position:relative">' +
-        '<img src="' + esc(nextProp.ogImage) + '" style="width:100%;height:160px;object-fit:cover;display:block"/>' +
-        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,18,38,.1),rgba(7,18,38,.6))"></div>' +
-        '<div style="position:absolute;top:14px;left:16px;display:flex;align-items:center;gap:8px">' +
-        '<div id="cel-check" style="width:28px;height:28px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .35s var(--transition-spring)">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
-        '</div>' +
-        '<span id="cel-title" style="font-size:12px;color:#fff;font-weight:600;opacity:0;transition:opacity .3s ease .15s">' +
-        (isLast ? 'All viewings done!' : 'Viewing completed!') +
-        '</span>' +
-        '</div>' +
-        '</div>'
-      : '<div style="padding:24px 22px 0;display:flex;align-items:center;gap:10px">' +
-        '<div id="cel-check" style="width:36px;height:36px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;transform:scale(0);transition:transform .35s var(--transition-spring)">' +
-        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
-        '</div>' +
-        '<div id="cel-title" style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#fff;font-weight:300;opacity:0;transition:opacity .3s ease .15s">' +
-        (isLast ? 'All viewings done!' : 'Viewing completed!') +
-        '</div>' +
-        '</div>') +
-
-    // Next destination hero section
-    '<div id="cel-body" style="padding:18px 22px 22px;opacity:0;transition:opacity .35s ease .25s">' +
+    '<div style="text-align:center;width:100%;max-width:320px">' +
+    '<div id="celebration-check" style="width:84px;height:84px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.5);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;transform:scale(0);transition:transform .4s cubic-bezier(.34,1.56,.64,1)">' +
+    '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:4px;opacity:0;transition:opacity .4s ease .2s" id="celebration-title">Viewing completed!</div>' +
+    '<div style="font-size:14px;color:rgba(255,255,255,.4);margin-bottom:32px;opacity:0;transition:opacity .4s ease .3s" id="celebration-sub">Great job.</div>' +
 
     (nextProp
-      ? '<div style="margin-bottom:18px">' +
-        '<div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(201,161,74,.7);margin-bottom:6px">Next destination · Stop ' + (idx+2) + '</div>' +
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;line-height:1.2;margin-bottom:4px">' + esc(nextProp.title || nextProp.area || 'Next property') + '</div>' +
-        (nextProp.time ? '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:4px">' + esc(nextProp.time) + '</div>' : '') +
-        (driveInfo && driveInfo.ok
-          ? '<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,161,74,.1);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--brass)">' +
-            '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' +
-            driveInfo.durationMin + ' min drive · ' + driveInfo.distanceKm + ' km</div>'
-          : '') +
+      ? '<div id="celebration-next" style="opacity:0;transition:opacity .4s ease .45s;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">' +
+        (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:10px;color:rgba(201,161,74,.7);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">Next destination</div>' +
+        '<div style="font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
+        (driveInfo && driveInfo.ok ? '<div style="font-size:12px;color:rgba(255,255,255,.4)">' + driveInfo.durationMin + ' min drive</div>' : '') +
         '</div>' +
-        '<button class="btn-go" onclick="proceedAfterCelebration(' + idx + ')">Continue to next stop &rarr;</button>'
-      : '<div style="text-align:center;padding:4px 0 4px">' +
-        '<div style="font-size:36px;margin-bottom:10px">&#127881;</div>' +
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:16px">Tour day complete.</div>' +
-        '<button class="btn-go" onclick="proceedAfterCelebration(' + idx + ')">View Summary</button>' +
-        '</div>') +
+        '</div>'
+      : '') +
 
-    '<button style="width:100%;margin-top:10px;padding:10px;background:none;border:none;color:rgba(255,255,255,.3);font-size:12px;font-family:inherit;cursor:pointer" onclick="closeCelebrationAndOpenProgress()">View tour progress</button>' +
-    '</div>' + // cel-body
+    '<button id="celebration-cta" class="btn-go" style="opacity:0;transition:opacity .4s ease .55s" onclick="proceedAfterCelebration(' + idx + ')">' +
+    (isLast ? 'View Summary' : 'Continue to next stop &rarr;') +
+    '</button>' +
+    '<button id="celebration-progress-btn" style="opacity:0;transition:opacity .4s ease .6s;margin-top:10px;background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;font-family:inherit;cursor:pointer" onclick="closeCelebrationAndOpenProgress()">View full tour progress</button>' +
 
-    '</div>'; // tf-overlay-card
+    '</div>';
 
   document.body.appendChild(overlay);
-  document.body.classList.add('overlay-open');
 
-  overlay.style.display = 'flex';
+  // Stagger the entrance animation
   requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      overlay.classList.add('active');
-      var ck = document.getElementById('cel-check');
-      var ct = document.getElementById('cel-title');
-      var cb = document.getElementById('cel-body');
-      if(ck) ck.style.transform = 'scale(1)';
-      if(ct) ct.style.opacity = '1';
-      if(cb) cb.style.opacity = '1';
-    });
+    document.getElementById('celebration-check').style.transform = 'scale(1)';
+    document.getElementById('celebration-title').style.opacity = '1';
+    document.getElementById('celebration-sub').style.opacity = '1';
+    var nextEl = document.getElementById('celebration-next');
+    if(nextEl) nextEl.style.opacity = '1';
+    document.getElementById('celebration-cta').style.opacity = '1';
+    document.getElementById('celebration-progress-btn').style.opacity = '1';
   });
 }
 
-function dismissCelebration(){
+function proceedAfterCelebration(idx){
   var overlay = document.getElementById('celebration-overlay');
-  if(overlay){
-    overlay.classList.remove('active');
-    document.body.classList.remove('overlay-open');
-    setTimeout(function(){ overlay.remove(); }, 350);
+  if(overlay) overlay.remove();
+  if(idx < GS.properties.length - 1){
+    goToScreen('drive-' + idx);
+  } else {
+    goToScreen('complete');
   }
 }
 
-function proceedAfterCelebration(idx){
-  dismissCelebration();
-  setTimeout(function(){
-    if(idx < GS.properties.length - 1){
-      goToScreen('drive-' + idx);
-    } else {
-      goToScreen('complete');
-    }
-  }, 200);
-}
-
 function closeCelebrationAndOpenProgress(){
-  dismissCelebration();
-  setTimeout(openProgressModal, 250);
+  var overlay = document.getElementById('celebration-overlay');
+  if(overlay) overlay.remove();
+  openProgressModal();
 }
 
 function exportNotes(){
