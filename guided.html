@@ -10,7 +10,6 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
-/* ── TOURFLOW TOKENS (matches production app exactly) ── */
 :root{
   --ink:#2D2B28;
   --paper:#FCFBF7;
@@ -20,6 +19,12 @@
   --mist:#f5f2ec;
   --navy:#071226;
   --card:#ffffff;
+  --r-card:20px;
+  --r-modal:28px;
+  --shadow-card:0 2px 12px rgba(0,0,0,.06);
+  --shadow-modal:0 24px 64px rgba(7,18,38,.18),0 4px 16px rgba(7,18,38,.1);
+  --transition-spring:cubic-bezier(.34,1.4,.64,1);
+  --transition-smooth:cubic-bezier(.4,0,.2,1);
 }
 
 body{
@@ -48,112 +53,108 @@ body{
   flex-shrink:0;
   display:flex;
   flex-direction:column;
+  background:var(--paper);
   scroll-snap-align:start;
 }
 
-/* ── PHASE BACKGROUNDS ── */
-/* Phase 1: Planning — light (TourFlow default) */
-.phase-light{background:var(--paper);color:var(--ink)}
-/* Phase 2–3: Preparing + Navigation — dark (focus/drive mode) */
-.phase-dark{background:var(--navy);color:#fff}
-/* Phase 4: Property — light (TourFlow default) */
-/* Phase 5: Complete — light */
-
-/* ── LAYOUT HELPERS ── */
+/* ── LAYOUT ── */
 .center{display:flex;flex-direction:column;align-items:center;justify-content:center}
-.wrap{padding:20px 18px 80px}
+.phase-light{background:var(--paper);color:var(--ink)}
 
 /* ── TYPOGRAPHY ── */
-.eyebrow-light{
-  font-size:10px;font-weight:600;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--brass);margin-bottom:8px;
-}
-.eyebrow-dark{
-  font-size:10px;font-weight:600;letter-spacing:.22em;
-  text-transform:uppercase;color:rgba(201,161,74,.6);margin-bottom:8px;
-}
-.sec{font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:300;letter-spacing:-.2px}
+.eyebrow-light{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);margin-bottom:6px;display:block}
+.eyebrow-dark{font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(201,161,74,.65);margin-bottom:6px;display:block}
 
-/* ── CARDS (light phase) ── */
+/* ── NAVY CARDS (focus moments) ── */
+.navy-card{
+  background:var(--navy);
+  border-radius:var(--r-card);
+  padding:22px;
+  box-shadow:var(--shadow-modal);
+}
+
+/* ── LIGHT CARDS ── */
 .card{
-  background:var(--card);border-radius:14px;
-  border:1px solid var(--fog);padding:16px;
-  margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);
-}
-.card-dark{
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
-  border-radius:16px;padding:20px;margin-bottom:16px;
+  background:var(--card);
+  border-radius:14px;
+  border:1px solid var(--fog);
+  padding:16px;
+  margin-bottom:12px;
+  box-shadow:var(--shadow-card);
 }
 
-/* ── SECTION CARDS ── */
+/* ── SECTION CARDS (collapsible in property screen) ── */
 .section-card{
-  background:var(--card);border:1px solid var(--fog);
-  border-radius:14px;margin-bottom:10px;
+  background:var(--card);
+  border:1px solid var(--fog);
+  border-radius:14px;
+  margin-bottom:8px;
   overflow:hidden;
-  animation:cardIn .35s ease backwards;
 }
-.section-title{
-  font-size:9px;font-weight:700;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--brass);margin-bottom:4px;
-}
+.section-title{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brass)}
 
-/* ── ROWS (light phase) ── */
-.row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--fog)}
+/* ── ROWS ── */
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--fog)}
 .row:last-child{border-bottom:none}
 .row-label{font-size:13px;color:var(--slate)}
-.row-value{font-size:14px;color:var(--ink);font-weight:500;text-align:right}
+.row-value{font-size:13px;color:var(--ink);font-weight:500;text-align:right;max-width:55%}
 
-/* ── ROWS (dark phase) ── */
-.row-dark{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-.row-dark:last-child{border-bottom:none}
-.row-dark-label{font-size:13px;color:rgba(255,255,255,.4)}
-.row-dark-value{font-size:14px;color:#fff;font-weight:500;text-align:right}
-
-/* ── BUTTONS (light phase) ── */
-.btn{
-  width:100%;padding:13px 18px;background:var(--navy);color:var(--brass);
-  border:none;border-radius:10px;font-size:14px;font-weight:500;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  gap:8px;font-family:inherit;
-}
-.btn-outline{
-  width:100%;padding:12px 18px;background:transparent;
-  color:var(--ink);border:1.5px solid var(--fog);
-  border-radius:10px;font-size:13px;font-weight:500;
-  cursor:pointer;font-family:inherit;
-}
-
-/* ── BUTTONS (dark phase) ── */
+/* ── PRIMARY BUTTON (gold, used everywhere) ── */
 .btn-go{
-  width:100%;
-  padding:18px;
-  background:linear-gradient(90deg,#C9A14A,#d4a84b);
-  color:var(--navy);
-  border:none;border-radius:14px;
-  font-size:16px;font-weight:700;letter-spacing:.03em;
+  width:100%;padding:17px;
+  background:linear-gradient(135deg,#C9A14A 0%,#d4a84b 100%);
+  color:var(--navy);border:none;border-radius:14px;
+  font-size:15px;font-weight:700;letter-spacing:.02em;
   cursor:pointer;font-family:inherit;
   display:flex;align-items:center;justify-content:center;gap:10px;
-  box-shadow:0 8px 24px rgba(201,161,74,.25);
-}
-.btn-secondary{
-  width:100%;
-  padding:14px;
-  background:rgba(255,255,255,.06);
-  color:#fff;
-  border:1.5px solid rgba(255,255,255,.15);
-  border-radius:14px;font-size:14px;font-weight:500;
-  cursor:pointer;font-family:inherit;
+  box-shadow:0 6px 20px rgba(201,161,74,.3);
+  -webkit-appearance:none;
 }
 
-/* ── ACTION BUTTONS (agent contact, dark) ── */
+/* ── SECONDARY BUTTON (transparent, on dark bg) ── */
+.btn-secondary{
+  width:100%;padding:14px;
+  background:rgba(255,255,255,.07);
+  color:rgba(255,255,255,.8);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;font-size:14px;font-weight:500;
+  cursor:pointer;font-family:inherit;
+  -webkit-appearance:none;
+}
+
+/* ── OUTLINE BUTTON (on light bg) ── */
+.btn-outline{
+  width:100%;padding:13px;background:transparent;
+  color:var(--ink);border:1.5px solid var(--fog);
+  border-radius:12px;font-size:13px;font-weight:500;
+  cursor:pointer;font-family:inherit;
+  -webkit-appearance:none;
+}
+
+/* ── DARK PRIMARY (navy bg) ── */
+.btn{
+  width:100%;padding:14px;background:var(--navy);color:var(--brass);
+  border:none;border-radius:12px;font-size:14px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  -webkit-appearance:none;
+}
+
+/* ── AGENT CONTACT BUTTONS ── */
 .action-btn{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
   padding:12px 8px;background:var(--mist);border:1px solid var(--fog);
   border-radius:12px;color:var(--ink);text-decoration:none;font-size:11px;font-weight:500;
 }
 
-/* ── PILL / BADGE ── */
-.pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;display:inline-block}
+/* ── ALL BUTTON PRESS STATES ── */
+.btn-go,.btn-secondary,.btn-outline,.btn,.action-btn{
+  transition:transform 120ms var(--transition-smooth),opacity 120ms;
+  -webkit-user-select:none;user-select:none;
+}
+.btn-go:active,.btn-secondary:active,.btn-outline:active,.btn:active,.action-btn:active{
+  transform:scale(.96);opacity:.9;
+}
 
 /* ── LOADING ── */
 #loading-screen{
@@ -161,26 +162,116 @@ body{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   z-index:9999;
 }
-.spinner{width:24px;height:24px;border:2.5px solid rgba(201,161,74,.2);border-top-color:#C9A14A;border-radius:50%;animation:spin .8s linear infinite}
+.spinner{width:22px;height:22px;border:2.5px solid rgba(201,161,74,.2);border-top-color:#C9A14A;border-radius:50%;animation:spin .8s linear infinite}
+
+/* ── OVERLAY SYSTEM ── */
+/* Full-screen overlay with frosted glass effect */
+.tf-overlay{
+  position:fixed;inset:0;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  z-index:600;
+  padding:0 0 env(safe-area-inset-bottom) 0;
+}
+.tf-overlay.active{display:flex}
+/* Blurred background */
+.tf-overlay-bg{
+  position:absolute;inset:0;
+  background:rgba(252,251,247,.75);
+  backdrop-filter:blur(16px) saturate(180%);
+  -webkit-backdrop-filter:blur(16px) saturate(180%);
+  transition:opacity 250ms var(--transition-smooth);
+  opacity:0;
+}
+.tf-overlay.active .tf-overlay-bg{opacity:1}
+/* The card that slides up */
+.tf-overlay-card{
+  position:relative;
+  width:100%;
+  max-width:480px;
+  background:var(--navy);
+  border-radius:var(--r-modal) var(--r-modal) 0 0;
+  padding:28px 22px;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-modal);
+  transform:translateY(40px);
+  opacity:0;
+  transition:transform 320ms var(--transition-spring), opacity 200ms var(--transition-smooth);
+}
+.tf-overlay.active .tf-overlay-card{transform:translateY(0);opacity:1}
+
+/* Center-modal variant (arrival, celebration) */
+.tf-overlay.center-modal{align-items:center;padding:24px}
+.tf-overlay.center-modal .tf-overlay-card{
+  border-radius:var(--r-modal);
+  transform:scale(.92) translateY(12px);
+  transition:transform 350ms var(--transition-spring), opacity 200ms var(--transition-smooth);
+}
+.tf-overlay.center-modal.active .tf-overlay-card{transform:scale(1) translateY(0)}
+
+/* Page scale-back when overlay opens */
+#scroll-container{
+  transition:transform 320ms var(--transition-smooth), filter 320ms var(--transition-smooth);
+}
+body.overlay-open #scroll-container{
+  transform:scale(.97);
+  filter:brightness(.85);
+  border-radius:12px;
+  overflow:hidden;
+}
 
 /* ── ANIMATIONS ── */
 @keyframes spin{to{transform:rotate(360deg)}}
-.fade-in{animation:fadeIn .35s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.pulse{animation:pulse 1.6s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes screenIn{from{opacity:.7}to{opacity:1}}
-.screen{animation:screenIn .3s ease}
-.btn,.btn-go,.btn-outline,.btn-secondary{transition:transform .12s ease}
-.btn:active,.btn-go:active,.btn-outline:active,.btn-secondary:active{transform:scale(.97)}
 
-/* ── CHECKLIST ── */
-.checkmark{
-  width:18px;height:18px;border-radius:50%;
-  background:rgba(201,161,74,.15);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
 }
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes scaleIn{
+  from{opacity:0;transform:scale(.9)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes checkPop{
+  0%{transform:scale(0)}
+  70%{transform:scale(1.15)}
+  100%{transform:scale(1)}
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes screenIn{from{opacity:.6}to{opacity:1}}
+.screen{animation:screenIn .25s var(--transition-smooth)}
+.fade-in{animation:fadeUp .3s var(--transition-smooth) both}
+
+/* ── CHECKLIST TICK ── */
+.check-tick{animation:checkPop 300ms var(--transition-spring) both}
+.pulse{animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── SECTION CARD ENTRANCE ── */
+.section-card{animation:cardIn .3s var(--transition-smooth) backwards}
+
+/* ── PILL / BADGE ── */
+.pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:600;padding:4px 10px;border-radius:100px}
+
+/* ── PROGRESS PILL ── */
+#progress-pill{
+  position:fixed;bottom:20px;right:16px;z-index:400;
+  background:var(--navy);
+  border:1.5px solid rgba(201,161,74,.4);
+  border-radius:100px;padding:9px 16px;
+  color:#fff;font-family:inherit;font-size:13px;font-weight:700;
+  cursor:pointer;box-shadow:0 8px 24px rgba(7,18,38,.2);
+  display:none;align-items:center;gap:6px;
+  transition:transform 200ms var(--transition-spring);
+}
+#progress-pill:active{transform:scale(.93)}
 </style>
 </head>
 <body>
@@ -389,35 +480,38 @@ function renderApp(){
 var currentStopIdx = 0; // which stop the agent is actively on, drives the floating pill label
 
 function mountProgressUI(){
-  if(document.getElementById('progress-pill')) return; // already mounted
+  if(document.getElementById('progress-pill')) return;
 
+  // Pill — CSS handles all styling now
   var pill = document.createElement('button');
   pill.id = 'progress-pill';
   pill.onclick = openProgressModal;
-  pill.style.cssText = 'position:fixed;bottom:24px;right:20px;z-index:400;background:rgba(7,18,38,.92);backdrop-filter:blur(8px);border:1.5px solid rgba(201,161,74,.35);border-radius:100px;padding:10px 18px;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.3);display:none;align-items:center;gap:6px';
   pill.innerHTML = '<span id="progress-pill-label">1 / ' + GS.properties.length + '</span>';
   document.body.appendChild(pill);
 
-  var modal = document.createElement('div');
-  modal.id = 'progress-modal';
-  modal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(7,18,38,.97);z-index:600;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px)';
-  modal.onclick = function(e){ if(e.target === modal) closeProgressModal(); };
-  modal.innerHTML = '<div style="width:100%;max-width:480px;background:var(--navy);border-radius:24px 24px 0 0;padding:28px 24px;padding-bottom:calc(28px + env(safe-area-inset-bottom));max-height:80vh;overflow-y:auto" class="fade-in">' +
+  // Progress overlay — uses new tf-overlay system
+  var overlay = document.createElement('div');
+  overlay.id = 'progress-overlay';
+  overlay.className = 'tf-overlay';
+  overlay.innerHTML =
+    '<div class="tf-overlay-bg" onclick="closeProgressModal()"></div>' +
+    '<div class="tf-overlay-card" style="max-height:75vh;overflow-y:auto">' +
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
-    '<div class="eyebrow" style="margin-bottom:0">Tour Progress</div>' +
-    '<button onclick="closeProgressModal()" style="background:rgba(255,255,255,.08);border:none;width:28px;height:28px;border-radius:50%;color:#fff;cursor:pointer;font-size:16px">&times;</button>' +
+    '<span class="eyebrow-dark" style="margin-bottom:0">Tour Progress</span>' +
+    '<button onclick="closeProgressModal()" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center">&times;</button>' +
     '</div>' +
     '<div id="progress-modal-list"></div>' +
+    '<div id="progress-bar-row" style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)">' +
+    '<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;color:rgba(255,255,255,.35)"><span>Progress</span><span id="progress-fraction">0 of ' + GS.properties.length + ' completed</span></div>' +
+    '<div style="height:3px;background:rgba(255,255,255,.08);border-radius:100px"><div id="progress-bar-fill" style="height:100%;width:0%;background:var(--brass);border-radius:100px;transition:width .4s var(--transition-smooth)"></div></div>' +
+    '</div>' +
     '</div>';
-  document.body.appendChild(modal);
+  document.body.appendChild(overlay);
 
-  // Show the pill only once a tour is actually in progress (not on Today's Tour / Preparing)
   observeScreenForProgressPill();
 }
 
 function observeScreenForProgressPill(){
-  var container = document.getElementById('scroll-container');
-  if(!container) return;
   var io = new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if(!entry.isIntersecting) return;
@@ -436,61 +530,71 @@ function observeScreenForProgressPill(){
         currentStopIdx = displayIdx;
         var label = document.getElementById('progress-pill-label');
         if(label) label.textContent = (displayIdx+1) + ' / ' + GS.properties.length;
-        // Adapt pill colour: light bg on property screens (phase-light), dark on nav/drive
-        var isLightPhase = id.indexOf('prop-') >= 0;
-        pill.style.background = isLightPhase ? 'rgba(7,18,38,.88)' : 'rgba(7,18,38,.92)';
-        pill.style.borderColor = isLightPhase ? 'rgba(201,161,74,.5)' : 'rgba(201,161,74,.35)';
       }
     });
   }, { threshold: 0.6 });
   GS.properties.forEach(function(p, i){
-    var navEl = document.getElementById('screen-nav-' + i);
-    var propEl = document.getElementById('screen-prop-' + i);
-    var driveEl = document.getElementById('screen-drive-' + i);
-    if(navEl) io.observe(navEl);
-    if(propEl) io.observe(propEl);
-    if(driveEl) io.observe(driveEl);
+    ['nav','prop','drive'].forEach(function(type){
+      var el = document.getElementById('screen-' + type + '-' + i);
+      if(el) io.observe(el);
+    });
   });
-  var todayEl = document.getElementById('screen-today');
-  var prepEl = document.getElementById('screen-preparing');
-  var completeEl = document.getElementById('screen-complete');
-  if(todayEl) io.observe(todayEl);
-  if(prepEl) io.observe(prepEl);
-  if(completeEl) io.observe(completeEl);
+  ['today','preparing','complete'].forEach(function(id){
+    var el = document.getElementById('screen-' + id);
+    if(el) io.observe(el);
+  });
 }
 
 function openProgressModal(){
   var list = document.getElementById('progress-modal-list');
   if(!list) return;
+  var done = Object.keys(completedSet).length;
+  var fill = document.getElementById('progress-bar-fill');
+  var frac = document.getElementById('progress-fraction');
+  if(fill) fill.style.width = Math.round(done/GS.properties.length*100) + '%';
+  if(frac) frac.textContent = done + ' of ' + GS.properties.length + ' completed';
+
   list.innerHTML = GS.properties.map(function(p, i){
-    var status = completedSet[i] ? 'done' : (i === currentStopIdx ? 'current' : 'upcoming');
-    var icon, col, bg;
-    if(status === 'done'){ icon = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>'; col = '#22c55e'; bg = '#22c55e'; }
-    else if(status === 'current'){ icon = '<svg width="12" height="12" viewBox="0 0 24 24" fill="#071226"><path d="M8 5v14l11-7z"/></svg>'; col = '#C9A14A'; bg = '#C9A14A'; }
-    else { icon = (i+1); col = 'rgba(255,255,255,.3)'; bg = 'rgba(255,255,255,.08)'; }
-    var statusLabel = status === 'done' ? 'Completed' : status === 'current' ? 'Current' : 'Upcoming';
-    var statusCol = status === 'done' ? '#4ade80' : status === 'current' ? '#C9A14A' : 'rgba(255,255,255,.3)';
-    return '<div onclick="jumpToStop(' + i + ')" style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer">' +
-      '<div style="width:30px;height:30px;border-radius:50%;background:' + bg + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:' + (status==='upcoming'?'rgba(255,255,255,.4)':'#071226') + '">' + icon + '</div>' +
+    var isDone = !!completedSet[i];
+    var isCurrent = !isDone && i === currentStopIdx;
+    var iconBg = isDone ? '#22c55e' : isCurrent ? 'var(--brass)' : 'rgba(255,255,255,.08)';
+    var iconColor = isDone || isCurrent ? 'var(--navy)' : 'rgba(255,255,255,.4)';
+    var iconContent = isDone
+      ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>'
+      : isCurrent
+      ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="var(--navy)"><path d="M8 5v14l11-7z"/></svg>'
+      : String(i+1);
+    var sub = (p.time ? p.time + ' · ' : '') + (isDone ? 'Completed' : isCurrent ? 'Current stop' : 'Upcoming');
+    return '<div onclick="jumpToStop(' + i + ')" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer">' +
+      '<div style="width:28px;height:28px;border-radius:50%;background:' + iconBg + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:' + iconColor + '">' + iconContent + '</div>' +
       '<div style="flex:1;min-width:0">' +
-      '<div style="font-size:14px;font-weight:500;color:#fff">' + esc(p.title || p.area || 'Property ' + (i+1)) + '</div>' +
-      '<div style="font-size:11px;color:rgba(255,255,255,.35)">' + (p.time ? esc(p.time) + ' \u00b7 ' : '') + statusLabel + '</div>' +
+      '<div style="font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(p.title || p.area || 'Property ' + (i+1)) + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:1px">' + sub + '</div>' +
       '</div>' +
       '</div>';
   }).join('');
-  document.getElementById('progress-modal').style.display = 'flex';
+
+  var overlay = document.getElementById('progress-overlay');
+  if(overlay){
+    overlay.style.display = 'flex';
+    requestAnimationFrame(function(){ overlay.classList.add('active'); });
+    document.body.classList.add('overlay-open');
+  }
 }
 function closeProgressModal(){
-  var m = document.getElementById('progress-modal');
-  if(m) m.style.display = 'none';
+  var overlay = document.getElementById('progress-overlay');
+  if(overlay){
+    overlay.classList.remove('active');
+    document.body.classList.remove('overlay-open');
+    setTimeout(function(){ overlay.style.display = 'none'; }, 350);
+  }
 }
 function jumpToStop(idx){
   closeProgressModal();
-  if(completedSet[idx]){
-    goToScreen('prop-' + idx);
-  } else {
-    goToScreen(idx === 0 ? 'nav-0' : 'drive-' + (idx-1));
-  }
+  setTimeout(function(){
+    if(completedSet[idx]) goToScreen('prop-' + idx);
+    else goToScreen(idx === 0 ? 'nav-0' : 'drive-' + (idx-1));
+  }, 200);
 }
 
 function calcEstimatedFinish(props){
@@ -683,11 +787,7 @@ function renderNavigationScreen(idx){
     '<div style="font-size:12px;color:var(--slate)">Return to TourFlow after arrival — property details will open automatically.</div>' +
     '</div>' +
 
-    // Arrival overlay — light overlay with dark card
-    '<div id="arrival-overlay-' + idx + '" style="display:none;position:fixed;inset:0;background:rgba(252,251,247,.92);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(6px)">' +
-    '<div style="width:100%;max-width:320px;background:var(--navy);border-radius:24px;padding:32px 24px;text-align:center;box-shadow:0 20px 60px rgba(7,18,38,.25)" id="arrival-body-' + idx + '"></div>' +
-    '<div id="arrival-gps-status-' + idx + '"></div>' +
-    '</div>' +
+    ''+  // arrival handled by shared overlay
 
     '</div>';
 }
@@ -718,82 +818,106 @@ function manualArrival(idx){
 function reopenMaps(idx, mapsUrl){
   if(mapsUrl) window.open(mapsUrl, '_blank');
   trackMapsOpen(idx);
-  resetArrivalOverlayToWelcome(idx);
+  // Update arrival overlay to "Welcome back" state if it's open
+  var bodyEl = document.getElementById('arrival-body');
+  if(bodyEl) resetArrivalBodyToWelcome(idx);
+}
+
+// ── SHARED ARRIVAL OVERLAY ─────────────────────────────────────────────────
+function ensureArrivalOverlay(){
+  if(document.getElementById('arrival-overlay')) return;
+  var overlay = document.createElement('div');
+  overlay.id = 'arrival-overlay';
+  overlay.className = 'tf-overlay center-modal';
+  overlay.innerHTML =
+    '<div class="tf-overlay-bg"></div>' +
+    '<div class="tf-overlay-card" id="arrival-card" style="padding:28px 22px">' +
+    '<div id="arrival-body"></div>' +
+    '</div>';
+  document.body.appendChild(overlay);
 }
 
 function showArrivalOverlay(idx){
-  var el = document.getElementById('arrival-overlay-' + idx);
-  if(!el) return;
-  el.style.display = 'flex';
-  resetArrivalOverlayToWelcome(idx);
+  ensureArrivalOverlay();
+  var overlay = document.getElementById('arrival-overlay');
+  overlay.style.display = 'flex';
+  requestAnimationFrame(function(){ overlay.classList.add('active'); });
+  document.body.classList.add('overlay-open');
+  resetArrivalBodyToWelcome(idx);
 }
+
 function hideArrivalOverlay(idx){
-  var el = document.getElementById('arrival-overlay-' + idx);
-  if(el) el.style.display = 'none';
+  var overlay = document.getElementById('arrival-overlay');
+  if(overlay){
+    overlay.classList.remove('active');
+    document.body.classList.remove('overlay-open');
+    setTimeout(function(){ overlay.style.display = 'none'; }, 320);
+  }
 }
 
 function confirmArrival(idx){
   hideArrivalOverlay(idx);
   navState.pendingStopIdx = null;
-  goToScreen('prop-' + idx);
+  setTimeout(function(){ goToScreen('prop-' + idx); }, 200);
 }
 
-// Visibility-based return detection: when the tab regains focus after the user
-// opened Maps, automatically surface the arrival check with a "Welcome back" beat.
+// Visibility-based return detection
 document.addEventListener('visibilitychange', function(){
   if(document.visibilityState !== 'visible') return;
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null){
-      showArrivalOverlay(navState.pendingStopIdx);
-    }
+    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
   }, 300);
 });
 window.addEventListener('focus', function(){
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null){
-      showArrivalOverlay(navState.pendingStopIdx);
-    }
+    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
   }, 300);
 });
 
-// ── ARRIVAL DETECTION FLOW ─────────────────────────────────────────────────
-// Sequence per spec: "Welcome back" (brief) -> GPS check if available ->
-// either auto-confirm ("Looks like you've arrived") or fall back to the
-// manual Yes / Open Maps again buttons. Always degrades gracefully.
-function resetArrivalOverlayToWelcome(idx){
-  var statusEl = document.getElementById('arrival-gps-status-' + idx);
-  var bodyEl = document.getElementById('arrival-body-' + idx);
-  if(!statusEl || !bodyEl) return;
-
-  statusEl.innerHTML = '';
+// ── ARRIVAL BODY STATES ────────────────────────────────────────────────────
+function resetArrivalBodyToWelcome(idx){
+  var bodyEl = document.getElementById('arrival-body');
+  if(!bodyEl) return;
   bodyEl.innerHTML =
-    '<div style="font-size:36px;margin-bottom:12px">&#128075;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:24px">Welcome back</div>' +
-    '<div class="spinner" style="margin:0 auto"></div>';
-
-  // Brief beat, then attempt GPS — falls back to manual state either way
-  setTimeout(function(){ attemptGpsArrivalCheck(idx); }, 600);
+    '<div class="fade-in" style="text-align:center;padding:8px 0 16px">' +
+    '<div style="font-size:32px;margin-bottom:10px">👋</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:20px">Welcome back</div>' +
+    '<div class="spinner" style="margin:0 auto"></div>' +
+    '</div>';
+  setTimeout(function(){ attemptGpsArrivalCheck(idx); }, 700);
 }
 
 function renderManualArrivalState(idx, propTitle, mapsUrl){
+  var p = GS.properties[idx];
+  var nextStr = 'Stop ' + (idx+1) + ' of ' + GS.properties.length;
+  var timeStr = p.time ? p.time : '';
+
   return '<div class="fade-in">' +
-    '<div style="font-size:36px;margin-bottom:12px">&#128205;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:8px">Have you arrived?</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
-    '<button class="btn-go" style="margin-bottom:10px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
-    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'&quot;')) + '&quot;)">Open Google Maps again</button>' +
+    // Property preview — spec item 5
+    (p.ogImage
+      ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:130px;object-fit:cover;border-radius:14px;margin-bottom:14px"/>'
+      : '<div style="width:100%;height:80px;background:rgba(255,255,255,.04);border-radius:14px;margin-bottom:14px"></div>') +
+    '<div style="margin-bottom:18px">' +
+    '<div style="font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(201,161,74,.7);margin-bottom:4px">' + nextStr + (timeStr ? ' · ' + timeStr : '') + '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff;line-height:1.2">' + esc(propTitle || 'This property') + '</div>' +
+    (p.address ? '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:3px">' + esc(p.address) + '</div>' : '') +
+    '</div>' +
+    '<button class="btn-go" style="margin-bottom:8px" onclick="confirmArrival(' + idx + ')">Yes, show property</button>' +
+    '<button class="btn-secondary" onclick="reopenMaps(' + idx + ',&quot;' + esc((mapsUrl||'').replace(/"/g,'')) + '&quot;)">Open Google Maps again</button>' +
     '</div>';
 }
 
 function renderAutoArrivedState(idx, propTitle){
+  var p = GS.properties[idx];
   return '<div class="fade-in" style="text-align:center">' +
-    '<div style="width:64px;height:64px;border-radius:50%;background:rgba(34,197,94,.15);border:1.5px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">' +
-    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    (p.ogImage ? '<img src="' + esc(p.ogImage) + '" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin:0 auto 16px;display:block;border:3px solid rgba(34,197,94,.4)"/>' : '') +
+    '<div style="width:48px;height:48px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">' +
+    '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
     '</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:6px">Looks like you\u2019ve arrived</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.4);margin-bottom:26px">' + esc(propTitle || 'This property') + '</div>' +
+    '<div style="font-size:11px;color:#4ade80;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Arrived at Stop ' + (idx+1) + '</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#fff;margin-bottom:20px">' + esc(propTitle || 'This property') + '</div>' +
     '<button class="btn-go" onclick="confirmArrival(' + idx + ')">Open Property</button>' +
     '</div>';
 }
@@ -802,13 +926,15 @@ function renderAutoArrivedState(idx, propTitle){
 // Progressive enhancement only. If geolocation is unavailable, denied, or the
 // property has no coordinates, falls back to the manual arrival state.
 function attemptGpsArrivalCheck(idx){
-  var bodyEl = document.getElementById('arrival-body-' + idx);
+  var bodyEl = document.getElementById('arrival-body');
   if(!bodyEl) return;
   var p = GS.properties[idx];
   var mapsUrl = p.mapsUrl || '';
 
   function fallbackToManual(){
-    bodyEl.innerHTML = renderManualArrivalState(idx, p.title || p.area, mapsUrl);
+    if(document.getElementById('arrival-body') === bodyEl){
+      bodyEl.innerHTML = renderManualArrivalState(idx, p.title || p.area, mapsUrl);
+    }
   }
 
   if(!navigator.geolocation){ fallbackToManual(); return; }
@@ -817,14 +943,13 @@ function attemptGpsArrivalCheck(idx){
 
   navigator.geolocation.getCurrentPosition(function(pos){
     var dist = haversineMeters(pos.coords.latitude, pos.coords.longitude, coords.lat, coords.lng);
+    if(document.getElementById('arrival-body') !== bodyEl) return;
     if(dist <= 100){
       bodyEl.innerHTML = renderAutoArrivedState(idx, p.title || p.area);
     } else {
       fallbackToManual();
     }
-  }, function(){
-    fallbackToManual(); // permission denied or unavailable
-  }, { timeout: 4000, maximumAge: 30000 });
+  }, function(){ fallbackToManual(); }, { timeout: 4000, maximumAge: 30000 });
 }
 
 // Extracts lat/lng from a Google Maps URL if present (covers common formats)
@@ -1045,11 +1170,7 @@ function renderDriveScreen(idx){
     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>' +
     '</div>' +
 
-    // Arrival overlay — light overlay + dark card (same as nav screen)
-    '<div id="arrival-overlay-' + nextIdx + '" style="display:none;position:fixed;inset:0;background:rgba(252,251,247,.92);z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(6px)">' +
-    '<div style="width:100%;max-width:320px;background:var(--navy);border-radius:24px;padding:32px 24px;text-align:center;box-shadow:0 20px 60px rgba(7,18,38,.25)" id="arrival-body-' + nextIdx + '"></div>' +
-    '<div id="arrival-gps-status-' + nextIdx + '"></div>' +
-    '</div>' +
+    ''+  // arrival handled by shared overlay
 
     '</div>';
 }
@@ -1177,64 +1298,108 @@ function showCompletionCelebration(idx){
   var nextProp = isLast ? null : GS.properties[idx+1];
   var driveInfo = nextProp ? driveTimeCache[(GS.properties[idx].mapsUrl||GS.properties[idx].address||'') + '||' + (nextProp.mapsUrl||nextProp.address||'')] : null;
 
+  // Remove any previous overlay
+  var old = document.getElementById('celebration-overlay');
+  if(old) old.remove();
+
   var overlay = document.createElement('div');
   overlay.id = 'celebration-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(252,251,247,.92);z-index:700;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;backdrop-filter:blur(8px)';
+  overlay.className = 'tf-overlay center-modal';
 
+  // Structure: success tick (small) → next destination hero → CTA
   overlay.innerHTML =
-    '<div style="text-align:center;width:100%;max-width:320px;background:var(--navy);border-radius:28px;padding:36px 28px;box-shadow:0 24px 64px rgba(7,18,38,.2)">' +
-    '<div id="celebration-check" style="width:84px;height:84px;border-radius:50%;background:rgba(34,197,94,.15);border:2px solid rgba(34,197,94,.5);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;transform:scale(0);transition:transform .4s cubic-bezier(.34,1.56,.64,1)">' +
-    '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
-    '</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#fff;margin-bottom:4px;opacity:0;transition:opacity .4s ease .2s" id="celebration-title">Viewing completed!</div>' +
-    '<div style="font-size:14px;color:rgba(255,255,255,.4);margin-bottom:28px;opacity:0;transition:opacity .4s ease .3s" id="celebration-sub">Great job.</div>' +
+    '<div class="tf-overlay-bg"></div>' +
+    '<div class="tf-overlay-card" style="padding:0;overflow:hidden;max-width:360px">' +
 
-    (nextProp
-      ? '<div id="celebration-next" style="opacity:0;transition:opacity .4s ease .45s;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px">' +
-        (nextProp.ogImage ? '<img src="' + esc(nextProp.ogImage) + '" style="width:48px;height:48px;border-radius:10px;object-fit:cover;flex-shrink:0"/>' : '<div style="width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,.06);flex-shrink:0"></div>') +
-        '<div style="flex:1;min-width:0">' +
-        '<div style="font-size:10px;color:rgba(201,161,74,.7);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px">Next destination</div>' +
-        '<div style="font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(nextProp.title || nextProp.area || 'Property') + '</div>' +
-        (driveInfo && driveInfo.ok ? '<div style="font-size:12px;color:rgba(255,255,255,.4)">' + driveInfo.durationMin + ' min drive</div>' : '') +
+    // Next property hero image
+    (nextProp && nextProp.ogImage
+      ? '<div style="position:relative">' +
+        '<img src="' + esc(nextProp.ogImage) + '" style="width:100%;height:160px;object-fit:cover;display:block"/>' +
+        '<div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,18,38,.1),rgba(7,18,38,.6))"></div>' +
+        '<div style="position:absolute;top:14px;left:16px;display:flex;align-items:center;gap:8px">' +
+        '<div id="cel-check" style="width:28px;height:28px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .35s var(--transition-spring)">' +
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+        '</div>' +
+        '<span id="cel-title" style="font-size:12px;color:#fff;font-weight:600;opacity:0;transition:opacity .3s ease .15s">' +
+        (isLast ? 'All viewings done!' : 'Viewing completed!') +
+        '</span>' +
         '</div>' +
         '</div>'
-      : '') +
+      : '<div style="padding:24px 22px 0;display:flex;align-items:center;gap:10px">' +
+        '<div id="cel-check" style="width:36px;height:36px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0;transform:scale(0);transition:transform .35s var(--transition-spring)">' +
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+        '</div>' +
+        '<div id="cel-title" style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#fff;font-weight:300;opacity:0;transition:opacity .3s ease .15s">' +
+        (isLast ? 'All viewings done!' : 'Viewing completed!') +
+        '</div>' +
+        '</div>') +
 
-    '<button id="celebration-cta" class="btn-go" style="opacity:0;transition:opacity .4s ease .55s" onclick="proceedAfterCelebration(' + idx + ')">' +
-    (isLast ? 'View Summary' : 'Continue to next stop &rarr;') +
-    '</button>' +
-    '<button id="celebration-progress-btn" style="opacity:0;transition:opacity .4s ease .6s;margin-top:10px;background:none;border:none;color:rgba(255,255,255,.35);font-size:12px;font-family:inherit;cursor:pointer" onclick="closeCelebrationAndOpenProgress()">View full tour progress</button>' +
+    // Next destination hero section
+    '<div id="cel-body" style="padding:18px 22px 22px;opacity:0;transition:opacity .35s ease .25s">' +
 
-    '</div>';
+    (nextProp
+      ? '<div style="margin-bottom:18px">' +
+        '<div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(201,161,74,.7);margin-bottom:6px">Next destination · Stop ' + (idx+2) + '</div>' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;line-height:1.2;margin-bottom:4px">' + esc(nextProp.title || nextProp.area || 'Next property') + '</div>' +
+        (nextProp.time ? '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:4px">' + esc(nextProp.time) + '</div>' : '') +
+        (driveInfo && driveInfo.ok
+          ? '<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,161,74,.1);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:600;color:var(--brass)">' +
+            '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' +
+            driveInfo.durationMin + ' min drive · ' + driveInfo.distanceKm + ' km</div>'
+          : '') +
+        '</div>' +
+        '<button class="btn-go" onclick="proceedAfterCelebration(' + idx + ')">Continue to next stop &rarr;</button>'
+      : '<div style="text-align:center;padding:4px 0 4px">' +
+        '<div style="font-size:36px;margin-bottom:10px">&#127881;</div>' +
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;color:#fff;margin-bottom:16px">Tour day complete.</div>' +
+        '<button class="btn-go" onclick="proceedAfterCelebration(' + idx + ')">View Summary</button>' +
+        '</div>') +
+
+    '<button style="width:100%;margin-top:10px;padding:10px;background:none;border:none;color:rgba(255,255,255,.3);font-size:12px;font-family:inherit;cursor:pointer" onclick="closeCelebrationAndOpenProgress()">View tour progress</button>' +
+    '</div>' + // cel-body
+
+    '</div>'; // tf-overlay-card
 
   document.body.appendChild(overlay);
+  document.body.classList.add('overlay-open');
 
-  // Stagger the entrance animation
+  overlay.style.display = 'flex';
   requestAnimationFrame(function(){
-    document.getElementById('celebration-check').style.transform = 'scale(1)';
-    document.getElementById('celebration-title').style.opacity = '1';
-    document.getElementById('celebration-sub').style.opacity = '1';
-    var nextEl = document.getElementById('celebration-next');
-    if(nextEl) nextEl.style.opacity = '1';
-    document.getElementById('celebration-cta').style.opacity = '1';
-    document.getElementById('celebration-progress-btn').style.opacity = '1';
+    requestAnimationFrame(function(){
+      overlay.classList.add('active');
+      var ck = document.getElementById('cel-check');
+      var ct = document.getElementById('cel-title');
+      var cb = document.getElementById('cel-body');
+      if(ck) ck.style.transform = 'scale(1)';
+      if(ct) ct.style.opacity = '1';
+      if(cb) cb.style.opacity = '1';
+    });
   });
 }
 
-function proceedAfterCelebration(idx){
+function dismissCelebration(){
   var overlay = document.getElementById('celebration-overlay');
-  if(overlay) overlay.remove();
-  if(idx < GS.properties.length - 1){
-    goToScreen('drive-' + idx);
-  } else {
-    goToScreen('complete');
+  if(overlay){
+    overlay.classList.remove('active');
+    document.body.classList.remove('overlay-open');
+    setTimeout(function(){ overlay.remove(); }, 350);
   }
 }
 
+function proceedAfterCelebration(idx){
+  dismissCelebration();
+  setTimeout(function(){
+    if(idx < GS.properties.length - 1){
+      goToScreen('drive-' + idx);
+    } else {
+      goToScreen('complete');
+    }
+  }, 200);
+}
+
 function closeCelebrationAndOpenProgress(){
-  var overlay = document.getElementById('celebration-overlay');
-  if(overlay) overlay.remove();
-  openProgressModal();
+  dismissCelebration();
+  setTimeout(openProgressModal, 250);
 }
 
 function exportNotes(){
