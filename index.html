@@ -27,6 +27,8 @@
 <meta name="twitter:title" content="TourFlow – Your Viewing Day"/>
 <meta name="twitter:description" content="Your personalised property viewing itinerary, carefully prepared for you."/>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <link rel="icon" href="/favicon.ico" sizes="any"/>
 <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -100,7 +102,6 @@ input,button,textarea,select{font-family:inherit}
 @keyframes authspin{to{transform:rotate(360deg)}}
 </style>
 </head>
-<script src="/analytics.js" defer></script>
 <body>
 <div id="auth-gate" style="display:none" onclick="if(event.target===this)hideAuthGate()">
   <div class="auth-card" style="position:relative">
@@ -327,7 +328,6 @@ function sendOtp(){
       return;
     }
     _otpEmail=email;
-    if(typeof tfTrack==='function') tfTrack('signup_clicked');
     document.getElementById('auth-otp-msg').textContent='We sent a 6-digit code to '+email+'. Enter it below.';
     document.getElementById('auth-step-email').style.display='none';
     document.getElementById('auth-step-otp').style.display='block';
@@ -423,13 +423,6 @@ function checkExistingSession(){
     if(event==='SIGNED_IN'&&session&&session.user){
       currentUser=session.user;
       localStorage.setItem('tf-has-account','1');
-      // Distinguish new vs returning user by checking account age (< 30s = new)
-      var isNewUser = currentUser.created_at &&
-        (Date.now() - new Date(currentUser.created_at).getTime()) < 30000;
-      if(typeof tfTrack==='function'){
-        if(isNewUser) tfTrack('user_registered');
-        else          tfTrack('login');
-      }
       hideAuthGate();
       refreshSubscriptionStatus();
       // Load cloud data first, then resume + render
@@ -587,7 +580,7 @@ function lucideIcon(name,size){
 function formatPrice(v){var n=v.replace(/[^0-9]/g,"");return n?"\u20AC"+parseInt(n,10).toLocaleString("en-US"):""}
 function onPriceInputAdd(el){el.value=formatPrice(el.value);}
 function setStatus(did,pid,st){var day=S.days.find(function(d){return d.id===did;});if(!day)return;var p=day.properties.find(function(x){return x.id===pid;});if(!p)return;p.status=p.status===st?null:st;persist();render();}
-function triggerPrint(){if(typeof tfTrack==='function') tfTrack('pdf_exported');go("pdf-preview");}
+function triggerPrint(){go("pdf-preview");}
 function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}");}catch(e){return{};}}
 function save(d){try{localStorage.setItem(STORE,JSON.stringify(d));}catch(e){}}
 function uid(){return Math.random().toString(36).slice(2,9);}
@@ -1408,7 +1401,7 @@ function render(){
 }
 
 // ── MUTATIONS ─────────────────────────────────────────────────────────────────
-function addClient(data){var c=Object.assign({id:uid()},data);S.clients=[c].concat(S.clients);persist();if(typeof tfTrack==='function') tfTrack('client_created');return c.id;}
+function addClient(data){var c=Object.assign({id:uid()},data);S.clients=[c].concat(S.clients);persist();return c.id;}
 function updateClient(cid){
   var c=S.clients.find(function(x){return x.id===cid;});
   if(!c)return;
@@ -1437,14 +1430,14 @@ function delClient(id){
     if(removedDays.length)_deleteRows('agent_days',removedDays);
   }
 }
-function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();if(typeof tfTrack==='function') tfTrack('tour_created');return d.id;}
+function addDay(cId){var d={id:uid(),clientId:cId,date:today(),properties:[],events:[]};S.days=[d].concat(S.days);persist();return d.id;}
 function updateDay(id,ch){S.days=S.days.map(function(d){return d.id===id?Object.assign({},d,ch):d;});persist();}
 function delDay(id){
   S.days=S.days.filter(function(d){return d.id!==id;});
   persist();
   if(currentUser)_deleteRows('agent_days',[id]);
 }
-function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();if(typeof tfTrack==='function') tfTrack('property_added');}
+function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();}
 function updProp(did,pid,ch){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.map(function(p){return p.id===pid?Object.assign({},p,ch):p;})}):d;});persist();}
 function delProp(did,pid){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.filter(function(p){return p.id!==pid;})}):d;});persist();}
 function addEv(did,ev){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.concat([Object.assign({id:uid()},ev)])}):d;});persist();}
@@ -2439,7 +2432,11 @@ function pgDayDetail(){
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
         '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
         (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
-        '</div>'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
+        '<button type="button" onclick="openPinMap(\'inline\',\''+day.id+'\',\''+p.id+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid '+(p.lat?'#86efac':'#edeae4')+';border-radius:8px;font-size:12px;font-weight:500;color:'+(p.lat?'#059669':'#2D2B28')+';cursor:pointer;font-family:inherit">'+
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="'+(p.lat?'#059669':'#C9A14A')+'"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+(p.lat?'Pin saved — move pin':'Set pin on map')+'</button>'+
+        (p.lat?'<span style="font-size:11px;color:#059669">'+parseFloat(p.lat).toFixed(4)+', '+parseFloat(p.lng).toFixed(4)+'</span>':'')+
+        '</div></div>'+
         hlPickerHtml(day.id,p.id,p.highlights)+
         '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9a94;font-weight:300;font-size:10px\">optional</span></label>'+
         '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
@@ -2621,7 +2618,6 @@ function copyWA(){
 
     if(clientPhone){
       // Open WhatsApp directly to the client's chat with message pre-filled
-      if(typeof tfTrack==='function') tfTrack('whatsapp_shared');
       var waUrl='https://wa.me/'+clientPhone+'?text='+encodeURIComponent(msg);
       window.open(waUrl,'_blank');
       if(btn){
@@ -2630,7 +2626,6 @@ function copyWA(){
       }
     } else {
       // No phone on file — copy to clipboard so user can paste anywhere
-      if(typeof tfTrack==='function') tfTrack('whatsapp_shared');
       function done(){
         if(btn){btn.innerHTML='&#10003; Link copied — paste in WhatsApp';btn.style.color='#25D366';}
         setTimeout(function(){
@@ -2697,7 +2692,11 @@ function pgAddProp(){
     bfHtml+
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
-    '<div id="maps-prev"></div></div>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
+    '<button id="ap-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'ap\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
+    '<svg width="12" height="12" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Set pin on map</button>'+
+    '<span id="ap-pin-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '</div></div>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
@@ -2825,7 +2824,8 @@ function saveProp(did){
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
-  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),area:gv("ap-area2"),bathrooms:gv("ap-bath"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note")});
+  addProp(did,{url:url,ogImage:imgUrl,time:gv("ap-time"),title:gv("ap-title"),address:gv("ap-addr"),area:gv("ap-area2"),bathrooms:gv("ap-bath"),price:gv("ap-price"),rooms:gv("ap-rooms"),sqm:gv("ap-sqm"),mapsUrl:gv("ap-maps"),agentRec:gv("ap-rec"),areaNote:gv("ap-area"),highlights:window._newHighlights||[],commission:gv("ap-comm"),contact:gv("ap-cont"),contactPhone:gv("ap-cph"),firm:gv("ap-firm"),location:gv("ap-loc"),note:gv("ap-note"),lat:window._pendingPinLat||null,lng:window._pendingPinLng||null});
+  window._pendingPinLat=null;window._pendingPinLng=null;
   window._newHighlights=[];
   _intOpen=false;go("day-detail");
 }
@@ -2949,7 +2949,11 @@ function pgEditProp(){
     bfHtml+
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="ep-maps" '+v(p.mapsUrl||'')+' placeholder="https://maps.google.com/..."/>'+
-    '</div>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
+    '<button id="ep-pin-btn" type="button" onclick="openPinMap(\'ep\',\''+sourceDayId+'\',\''+S.epid+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid '+(p.lat?'#86efac':'#edeae4')+';border-radius:8px;font-size:12px;font-weight:500;color:'+(p.lat?'#059669':'#2D2B28')+';cursor:pointer;font-family:inherit">'+
+    '<svg width="12" height="12" viewBox="0 0 24 24" fill="'+(p.lat?'#059669':'#C9A14A')+'"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+(p.lat?'Pin saved — move pin':'Set pin on map')+'</button>'+
+    (p.lat?'<span style="font-size:11px;color:#059669">'+parseFloat(p.lat).toFixed(4)+', '+parseFloat(p.lng).toFixed(4)+'</span>':'')+
+    '</div></div>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
@@ -3000,6 +3004,13 @@ function saveEditProp(dayId,pid){
     firm:gv('ep-firm'),location:gv('ep-loc'),note:gv('ep-note'),
     highlights:window._editHighlights||[]
   };
+  // savePinLocation() writes directly via updProp, so _pendingPinLat is only
+  // set if the user placed a pin for a *new* property that hasn't been saved yet.
+  if(window._pendingPinLat!=null){
+    updates.lat=window._pendingPinLat;
+    updates.lng=window._pendingPinLng;
+    window._pendingPinLat=null;window._pendingPinLng=null;
+  }
   if(window._editImage){updates.ogImage=window._editImage;window._editImage=null;}
 
   // Update in tour day if it belongs to one
@@ -3639,7 +3650,12 @@ function pgAddLibraryProp(){
     '<div id="alp-img-prev"></div></div>'+
     bfHtml+
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
-    '<input class="inp" id="alp-maps" placeholder="https://maps.google.com/..."/></div>'+
+    '<input class="inp" id="alp-maps" placeholder="https://maps.google.com/..."/>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
+    '<button id="alp-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'alp\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
+    '<svg width="12" height="12" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Set pin on map</button>'+
+    '<span id="alp-pin-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '</div></div>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
@@ -3678,9 +3694,12 @@ function saveLibraryProp(){
     sqm:document.getElementById('alp-sqm')?document.getElementById('alp-sqm').value.trim():'',
     mapsUrl:document.getElementById('alp-maps')?document.getElementById('alp-maps').value.trim():'',
     highlights:window._libNewHighlights||[],
+    lat:window._pendingPinLat||null,
+    lng:window._pendingPinLng||null,
     sold:false,
     fromLibrary:true
   };
+  window._pendingPinLat=null;window._pendingPinLng=null;
   S.library=S.library||[];
   S.library.push(prop);
   var wasOnboarding=S.days.length===0;
@@ -4265,6 +4284,201 @@ if('serviceWorker' in navigator){
       console.log('SW registration failed:',err);
     });
   });
+}
+</script>
+<!-- ── PIN MAP MODAL ──────────────────────────────────────────────────────── -->
+<div id="pin-map-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(7,18,38,.7);backdrop-filter:blur(4px);align-items:flex-end;justify-content:center">
+  <div style="background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;overflow:hidden;box-shadow:0 -8px 40px rgba(7,18,38,.25)">
+    <!-- Handle -->
+    <div style="display:flex;justify-content:center;padding:12px 0 0"><div style="width:36px;height:4px;background:#d0cdc8;border-radius:2px"></div></div>
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:#2D2B28">Set property pin</div>
+        <div style="font-size:12px;color:#9e9a94;margin-top:2px">Tap the map to place a pin</div>
+      </div>
+      <button onclick="closePinMap()" style="width:32px;height:32px;border-radius:50%;background:#f5f2ec;border:none;font-size:18px;color:#6b6560;cursor:pointer;display:flex;align-items:center;justify-content:center">&times;</button>
+    </div>
+    <!-- Map -->
+    <div id="pin-map-el" style="height:52vh;width:100%;background:#e8e4d8"></div>
+    <!-- Status -->
+    <div style="padding:14px 20px;background:#faf8f4;border-top:1px solid #edeae4;display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div id="pin-map-status" style="font-size:12px;color:#9e9a94;flex:1">Tap anywhere on the map to place a pin</div>
+      <button id="pin-map-save-btn" onclick="savePinLocation()" disabled style="padding:10px 20px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;opacity:.4">Save pin</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PIN MAP ───────────────────────────────────────────────────────────────────
+var _pinMap = null;
+var _pinMarker = null;
+var _pinTarget = null; // { prefix, dayId, propId } — where to save the pin
+var _pendingLat = null;
+var _pendingLng = null;
+
+function openPinMap(prefix, dayId, propId) {
+  _pinTarget = { prefix: prefix, dayId: dayId || null, propId: propId || null };
+  _pendingLat = null;
+  _pendingLng = null;
+
+  var modal = document.getElementById('pin-map-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  var saveBtn = document.getElementById('pin-map-save-btn');
+  saveBtn.disabled = true;
+  saveBtn.style.opacity = '.4';
+  document.getElementById('pin-map-status').textContent = 'Tap anywhere on the map to place a pin';
+
+  // Init map after a tick so the container has dimensions
+  setTimeout(function() {
+    var mapEl = document.getElementById('pin-map-el');
+    if (!mapEl) return;
+
+    // Destroy existing map instance if any
+    if (_pinMap) {
+      _pinMap.remove();
+      _pinMap = null;
+      _pinMarker = null;
+    }
+
+    // Default center: Costa Blanca
+    var defaultLat = 37.98, defaultLng = -0.68, defaultZoom = 11;
+
+    // If property already has a pin, centre on it
+    var existingLat = null, existingLng = null;
+    if (dayId && propId) {
+      var day = S.days.find(function(d) { return d.id === dayId; });
+      if (day) {
+        var prop = (day.properties || []).find(function(p) { return p.id === propId; });
+        if (prop && prop.lat && prop.lng) {
+          existingLat = parseFloat(prop.lat);
+          existingLng = parseFloat(prop.lng);
+        }
+      }
+    }
+    if (!existingLat) {
+      // Try library
+      var lp = (S.library || []).find(function(p) { return p.id === propId; });
+      if (lp && lp.lat && lp.lng) {
+        existingLat = parseFloat(lp.lat);
+        existingLng = parseFloat(lp.lng);
+      }
+    }
+    if (existingLat) {
+      defaultLat = existingLat;
+      defaultLng = existingLng;
+      defaultZoom = 16;
+    }
+
+    _pinMap = L.map(mapEl, {
+      center: [defaultLat, defaultLng],
+      zoom: defaultZoom,
+      zoomControl: true,
+      attributionControl: true
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(_pinMap);
+
+    // Place existing pin
+    if (existingLat) {
+      placePinOnMap(existingLat, existingLng);
+      _pendingLat = existingLat;
+      _pendingLng = existingLng;
+      updatePinStatus(existingLat, existingLng);
+      saveBtn.disabled = false;
+      saveBtn.style.opacity = '1';
+    }
+
+    // Tap to place pin
+    _pinMap.on('click', function(e) {
+      placePinOnMap(e.latlng.lat, e.latlng.lng);
+      _pendingLat = e.latlng.lat;
+      _pendingLng = e.latlng.lng;
+      updatePinStatus(e.latlng.lat, e.latlng.lng);
+      saveBtn.disabled = false;
+      saveBtn.style.opacity = '1';
+    });
+
+    // Fix grey tiles after modal opens
+    setTimeout(function() { if (_pinMap) _pinMap.invalidateSize(); }, 100);
+  }, 80);
+}
+
+function placePinOnMap(lat, lng) {
+  if (!_pinMap) return;
+  if (_pinMarker) {
+    _pinMarker.setLatLng([lat, lng]);
+  } else {
+    var icon = L.divIcon({
+      className: '',
+      html: '<div style="width:32px;height:32px;border-radius:50%;background:#C9A14A;border:3px solid #fff;box-shadow:0 3px 12px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="#071226"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg></div>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+    _pinMarker = L.marker([lat, lng], { icon: icon, draggable: true }).addTo(_pinMap);
+
+    // Draggable pin
+    _pinMarker.on('dragend', function(e) {
+      var pos = e.target.getLatLng();
+      _pendingLat = pos.lat;
+      _pendingLng = pos.lng;
+      updatePinStatus(pos.lat, pos.lng);
+    });
+  }
+}
+
+function updatePinStatus(lat, lng) {
+  var el = document.getElementById('pin-map-status');
+  if (!el) return;
+  el.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="#C9A14A" style="margin-right:4px;vertical-align:middle"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' +
+    '<span style="color:#2D2B28;font-weight:500">Pin set</span>' +
+    '<span style="color:#9e9a94"> &nbsp;&middot;&nbsp; ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</span>';
+}
+
+function savePinLocation() {
+  if (_pendingLat === null || !_pinTarget) return;
+  var lat = _pendingLat, lng = _pendingLng;
+  var t = _pinTarget;
+
+  if (t.dayId && t.propId) {
+    // Save to tour day property
+    updProp(t.dayId, t.propId, { lat: lat, lng: lng });
+  } else if (t.propId) {
+    // Save to library property
+    S.library = (S.library || []).map(function(p) {
+      return p.id === t.propId ? Object.assign({}, p, { lat: lat, lng: lng }) : p;
+    });
+    persist();
+  } else {
+    // New property being added — store in window vars for saveProp/saveLibraryProp to pick up
+    window._pendingPinLat = lat;
+    window._pendingPinLng = lng;
+    // Update the hidden status label if present
+    var statusEl = document.getElementById(t.prefix + '-pin-status');
+    if (statusEl) statusEl.textContent = 'Pin set (' + lat.toFixed(4) + ', ' + lng.toFixed(4) + ')';
+  }
+
+  closePinMap();
+
+  // Visual feedback on the button
+  var btn = document.getElementById(t.prefix + '-pin-btn');
+  if (btn) {
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Pin saved';
+    btn.style.borderColor = '#86efac';
+    btn.style.color = '#059669';
+  }
+}
+
+function closePinMap() {
+  var modal = document.getElementById('pin-map-modal');
+  if (modal) modal.style.display = 'none';
+  document.body.style.overflow = '';
 }
 </script>
 </body>
