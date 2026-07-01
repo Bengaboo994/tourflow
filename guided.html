@@ -9,6 +9,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+/* ── TOURFLOW TOKENS (matches production app exactly) ── */
 :root{
   --ink:#2D2B28;
   --paper:#FCFBF7;
@@ -17,8 +19,28 @@
   --fog:#edeae4;
   --mist:#f5f2ec;
   --navy:#071226;
+  --card:#ffffff;
 }
-body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;min-height:100vh;font-weight:300;overscroll-behavior-y:contain;max-width:480px;margin:0 auto}
+
+body{
+  font-family:'Jost',system-ui,sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  font-weight:300;
+  overscroll-behavior-y:contain;
+  max-width:480px;
+  margin:0 auto;
+}
+
+/* ── SCROLL CONTAINER ── */
+#scroll-container{
+  scroll-snap-type:y mandatory;
+  overflow-y:auto;
+  width:100%;
+  height:100vh;
+  height:100dvh;
+}
 .screen{
   min-height:100vh;
   min-height:100dvh;
@@ -28,86 +50,136 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   flex-direction:column;
   scroll-snap-align:start;
 }
-#scroll-container{
-  scroll-snap-type:y mandatory;
-  overflow-y:auto;
-  width:100%;
-  height:100vh;
-  height:100dvh;
-}
+
+/* ── PHASE BACKGROUNDS ── */
+/* Phase 1: Planning — light (TourFlow default) */
+.phase-light{background:var(--paper);color:var(--ink)}
+/* Phase 2–3: Preparing + Navigation — dark (focus/drive mode) */
+.phase-dark{background:var(--navy);color:#fff}
+/* Phase 4: Property — light (TourFlow default) */
+/* Phase 5: Complete — light */
+
+/* ── LAYOUT HELPERS ── */
 .center{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.wrap{padding:20px 18px 80px}
+
+/* ── TYPOGRAPHY ── */
+.eyebrow-light{
+  font-size:10px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--brass);margin-bottom:8px;
+}
+.eyebrow-dark{
+  font-size:10px;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:rgba(201,161,74,.6);margin-bottom:8px;
+}
+.sec{font-family:'Cormorant Garamond',Georgia,serif;font-size:28px;font-weight:300;letter-spacing:-.2px}
+
+/* ── CARDS (light phase) ── */
+.card{
+  background:var(--card);border-radius:14px;
+  border:1px solid var(--fog);padding:16px;
+  margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);
+}
+.card-dark{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:20px;margin-bottom:16px;
+}
+
+/* ── SECTION CARDS ── */
+.section-card{
+  background:var(--card);border:1px solid var(--fog);
+  border-radius:14px;margin-bottom:10px;
+  overflow:hidden;
+  animation:cardIn .35s ease backwards;
+}
+.section-title{
+  font-size:9px;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--brass);margin-bottom:4px;
+}
+
+/* ── ROWS (light phase) ── */
+.row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--fog)}
+.row:last-child{border-bottom:none}
+.row-label{font-size:13px;color:var(--slate)}
+.row-value{font-size:14px;color:var(--ink);font-weight:500;text-align:right}
+
+/* ── ROWS (dark phase) ── */
+.row-dark{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.row-dark:last-child{border-bottom:none}
+.row-dark-label{font-size:13px;color:rgba(255,255,255,.4)}
+.row-dark-value{font-size:14px;color:#fff;font-weight:500;text-align:right}
+
+/* ── BUTTONS (light phase) ── */
+.btn{
+  width:100%;padding:13px 18px;background:var(--navy);color:var(--brass);
+  border:none;border-radius:10px;font-size:14px;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:8px;font-family:inherit;
+}
+.btn-outline{
+  width:100%;padding:12px 18px;background:transparent;
+  color:var(--ink);border:1.5px solid var(--fog);
+  border-radius:10px;font-size:13px;font-weight:500;
+  cursor:pointer;font-family:inherit;
+}
+
+/* ── BUTTONS (dark phase) ── */
 .btn-go{
   width:100%;
-  max-width:340px;
   padding:18px;
   background:linear-gradient(90deg,#C9A14A,#d4a84b);
   color:var(--navy);
-  border:none;
-  border-radius:14px;
-  font-size:16px;
-  font-weight:700;
-  letter-spacing:.03em;
-  cursor:pointer;
-  font-family:inherit;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
+  border:none;border-radius:14px;
+  font-size:16px;font-weight:700;letter-spacing:.03em;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:10px;
   box-shadow:0 8px 24px rgba(201,161,74,.25);
 }
 .btn-secondary{
   width:100%;
-  max-width:340px;
-  padding:16px;
+  padding:14px;
   background:rgba(255,255,255,.06);
   color:#fff;
   border:1.5px solid rgba(255,255,255,.15);
-  border-radius:14px;
-  font-size:14px;
-  font-weight:500;
-  cursor:pointer;
-  font-family:inherit;
+  border-radius:14px;font-size:14px;font-weight:500;
+  cursor:pointer;font-family:inherit;
 }
-.eyebrow{
-  font-size:10px;
-  font-weight:600;
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  color:rgba(201,161,74,.6);
-  margin-bottom:10px;
+
+/* ── ACTION BUTTONS (agent contact, dark) ── */
+.action-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:12px 8px;background:var(--mist);border:1px solid var(--fog);
+  border-radius:12px;color:var(--ink);text-decoration:none;font-size:11px;font-weight:500;
 }
+
+/* ── PILL / BADGE ── */
+.pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;display:inline-block}
+
+/* ── LOADING ── */
 #loading-screen{
   position:fixed;inset:0;background:var(--navy);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   z-index:9999;
 }
 .spinner{width:24px;height:24px;border:2.5px solid rgba(201,161,74,.2);border-top-color:#C9A14A;border-radius:50%;animation:spin .8s linear infinite}
+
+/* ── ANIMATIONS ── */
 @keyframes spin{to{transform:rotate(360deg)}}
-.fade-in{animation:fadeIn .4s ease}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .pulse{animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes cardIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes screenIn{from{opacity:.7}to{opacity:1}}
+.screen{animation:screenIn .3s ease}
+.btn,.btn-go,.btn-outline,.btn-secondary{transition:transform .12s ease}
+.btn:active,.btn-go:active,.btn-outline:active,.btn-secondary:active{transform:scale(.97)}
+
+/* ── CHECKLIST ── */
 .checkmark{
   width:18px;height:18px;border-radius:50%;
   background:rgba(201,161,74,.15);
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-}
-.row{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-.row:last-child{border-bottom:none}
-.row-label{font-size:13px;color:rgba(255,255,255,.4)}
-.row-value{font-size:14px;color:#fff;font-weight:500;text-align:right}
-.section-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:20px;margin-bottom:16px;animation:cardIn .35s ease backwards}
-@keyframes cardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.btn-go, .btn-secondary{transition:transform .12s ease, opacity .12s ease}
-.btn-go:active, .btn-secondary:active{transform:scale(.97)}
-.screen{animation:screenIn .3s ease}
-@keyframes screenIn{from{opacity:.6}to{opacity:1}}
-.section-title{font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--brass);margin-bottom:4px}
-.action-btn{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;
-  padding:14px 8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
-  border-radius:12px;color:#fff;text-decoration:none;font-size:11px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 </style>
 </head>
@@ -360,11 +432,14 @@ function observeScreenForProgressPill(){
       var m = id.match(/^screen-(?:nav|prop|drive)-(\d+)$/);
       if(m){
         var idx = parseInt(m[1], 10);
-        // drive-N screens point to stop N+2 visually (next destination)
         var displayIdx = id.indexOf('drive-') >= 0 ? idx + 1 : idx;
         currentStopIdx = displayIdx;
         var label = document.getElementById('progress-pill-label');
         if(label) label.textContent = (displayIdx+1) + ' / ' + GS.properties.length;
+        // Adapt pill colour: light bg on property screens (phase-light), dark on nav/drive
+        var isLightPhase = id.indexOf('prop-') >= 0;
+        pill.style.background = isLightPhase ? 'rgba(7,18,38,.88)' : 'rgba(7,18,38,.92)';
+        pill.style.borderColor = isLightPhase ? 'rgba(201,161,74,.5)' : 'rgba(201,161,74,.35)';
       }
     });
   }, { threshold: 0.6 });
@@ -437,40 +512,59 @@ function renderTodaysTourScreen(){
   var props = GS.properties;
   var clientName = client ? client.name : 'Client';
 
-  var firstTime = props.length ? props[0].time : '';
-  var lastTime = props.length > 1 ? props[props.length-1].time : '';
-
   var timelineRows = props.map(function(p, i){
     return '<div class="row">' +
-      '<div class="row-label">' + esc(p.time||'—') + '</div>' +
-      '<div class="row-value">' + esc(p.title || p.area || ('Property ' + (i+1))) + '</div>' +
+      '<div style="display:flex;align-items:center;gap:10px">' +
+      '<div style="width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--brass);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (i+1) + '</div>' +
+      '<div style="font-size:13px;color:var(--slate)">' + esc(p.time||'—') + '</div>' +
+      '</div>' +
+      '<div style="font-size:13px;font-weight:500;color:var(--ink);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">' + esc(p.title || p.area || ('Property ' + (i+1))) + '</div>' +
       '</div>';
   }).join('');
 
-  return '<div class="screen center" id="screen-today" style="padding:40px 24px">' +
-    '<div class="fade-in" style="width:100%;max-width:380px">' +
-    '<div class="eyebrow" style="text-align:center">Today\'s Tour</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;text-align:center;margin-bottom:6px">' + esc(clientName) + '</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.4);text-align:center;margin-bottom:32px">' + fmtDate(day.date) + '</div>' +
+  return '<div class="screen center phase-light" id="screen-today" style="padding:40px 20px">' +
+    '<div class="fade-in" style="width:100%">' +
 
-    '<div style="display:flex;justify-content:center;gap:28px;margin-bottom:32px">' +
-    '<div style="text-align:center"><div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + props.length + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Properties</div></div>' +
-    '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
-    '<div style="text-align:center"><div id="total-distance" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">—</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Total Km</div></div>' +
-    '<div style="width:1px;background:rgba(255,255,255,.1)"></div>' +
-    '<div style="text-align:center"><div id="est-finish" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:#C9A14A">' + calcEstimatedFinish(props) + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Est. Finish</div></div>' +
+    // Logo/header
+    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:32px">' +
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:400;color:var(--ink)">Tour<span style="font-style:italic;color:var(--brass)">Flow</span></span>' +
+    '<span style="margin-left:auto;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);background:#f5f2ec;border:1px solid var(--fog);border-radius:100px;padding:3px 10px">Guided Mode</span>' +
     '</div>' +
 
-    '<div class="section-card">' +
-    '<div class="section-title" style="margin-bottom:10px">Timeline</div>' +
+    // Client name + date
+    '<div style="margin-bottom:24px">' +
+    '<div class="eyebrow-light">Today\'s Tour</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:40px;font-weight:300;color:var(--ink);line-height:1.1;margin-bottom:4px">' + esc(clientName) + '</div>' +
+    '<div style="font-size:13px;color:var(--slate)">' + fmtDate(day.date) + '</div>' +
+    '</div>' +
+
+    // Stats row
+    '<div style="display:flex;gap:0;margin-bottom:24px;background:var(--card);border:1px solid var(--fog);border-radius:14px;overflow:hidden">' +
+    '<div style="flex:1;text-align:center;padding:16px 8px;border-right:1px solid var(--fog)">' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:var(--brass)">' + props.length + '</div>' +
+    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Properties</div>' +
+    '</div>' +
+    '<div style="flex:1;text-align:center;padding:16px 8px;border-right:1px solid var(--fog)">' +
+    '<div id="total-distance" style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:var(--brass)">—</div>' +
+    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Total Km</div>' +
+    '</div>' +
+    '<div style="flex:1;text-align:center;padding:16px 8px">' +
+    '<div id="est-finish" style="font-family:\'Cormorant Garamond\',serif;font-size:28px;color:var(--brass)">' + calcEstimatedFinish(props) + '</div>' +
+    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">Est. Finish</div>' +
+    '</div>' +
+    '</div>' +
+
+    // Timeline card
+    '<div class="card" style="margin-bottom:28px">' +
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin-bottom:12px">Schedule</div>' +
     timelineRows +
     '</div>' +
 
-    '<div style="display:flex;justify-content:center;margin-top:32px">' +
-    '<button class="btn-go" onclick="goToScreen(\'preparing\')">&#9654; Start Tour</button>' +
-    '</div>' +
-    '<div style="text-align:center;margin-top:16px">' +
-    '<a href="/index.html" style="color:rgba(255,255,255,.3);font-size:12px;text-decoration:none">&larr; Exit guided mode</a>' +
+    // CTA
+    '<button class="btn" onclick="goToScreen(\'preparing\')" style="margin-bottom:12px">&#9654;&nbsp; Start Tour</button>' +
+    '<div style="text-align:center">' +
+    '<a href="/index.html" style="color:var(--slate);font-size:12px;text-decoration:none">&larr; Exit guided mode</a>' +
     '</div>' +
 
     '</div></div>';
@@ -720,12 +814,12 @@ function haversineMeters(lat1, lon1, lat2, lon2){
 // ── PROPERTY SCREEN ──────────────────────────────────────────────────────
 function collapsibleSection(id, title, contentHtml, startOpen){
   startOpen = !!startOpen;
-  return '<div class="section-card" style="padding:0;overflow:hidden">' +
-    '<button onclick="toggleSection(\'' + id + '\')" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;padding:20px;cursor:pointer;font-family:inherit;text-align:left">' +
+  return '<div class="section-card">' +
+    '<button onclick="toggleSection(\'' + id + '\')" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:none;border:none;padding:14px 16px;cursor:pointer;font-family:inherit;text-align:left">' +
     '<span class="section-title" style="margin-bottom:0">' + title + '</span>' +
-    '<svg id="' + id + '-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s;transform:rotate(' + (startOpen ? '180' : '0') + 'deg);flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>' +
+    '<svg id="' + id + '-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s;transform:rotate(' + (startOpen ? '180' : '0') + 'deg);flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>' +
     '</button>' +
-    '<div id="' + id + '" style="display:' + (startOpen ? 'block' : 'none') + ';padding:0 20px 20px">' +
+    '<div id="' + id + '" style="display:' + (startOpen ? 'block' : 'none') + ';padding:0 16px 14px">' +
     contentHtml +
     '</div>' +
     '</div>';
@@ -746,7 +840,7 @@ function renderPropertyScreen(p, idx){
 
   var heroImg = p.ogImage
     ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:220px;object-fit:cover"/>'
-    : '<div style="width:100%;height:140px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:40px;color:rgba(201,161,74,.1)">' + (idx+1) + '</div>';
+    : '<div style="width:100%;height:120px;background:linear-gradient(135deg,#F6F2E9,var(--fog));display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:48px;color:rgba(201,161,74,.15)">' + (idx+1) + '</div>';
 
   function statRow(label, val){
     return '<div class="row"><div class="row-label">' + label + '</div><div class="row-value">' + (val ? esc(val) : '\u2014') + '</div></div>';
@@ -772,64 +866,67 @@ function renderPropertyScreen(p, idx){
     statRow('Distance to Supermarkets', p.distanceToSupermarkets);
 
   var listingAgentHtml =
-    '<div style="font-size:14px;margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
+    '<div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
+    '<div style="font-size:12px;color:var(--slate);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
     '<div style="display:flex;gap:8px">' +
-    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
+    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
     (waUrl ? '<a href="' + waUrl + '" target="_blank" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>' : '')+
     '</div>';
 
   var internalHtml = statRow('Commission', p.commission) + statRow('Key Collection', p.location);
 
-  return '<div class="screen" id="screen-prop-' + idx + '" style="display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;overflow:hidden">' +
+  return '<div class="screen phase-light" id="screen-prop-' + idx + '" style="display:flex;flex-direction:column;width:100%;height:100vh;height:100dvh;overflow:hidden">' +
 
-    // Scrollable content area
-    '<div style="flex:1;overflow-y:auto;padding-bottom:16px">' +
+    // Scrollable content
+    '<div style="flex:1;overflow-y:auto">' +
 
     heroImg +
 
-    '<div style="padding:20px 20px 0">' +
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
-    '<div class="eyebrow" style="margin-bottom:0">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
-    (ms != null ? '<div style="font-size:10px;font-weight:700;color:#C9A14A;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:100px;padding:3px 10px">' + mLabel + '</div>' : '') +
-    '</div>' +
-    (p.price ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#C9A14A;font-weight:600;margin-bottom:4px">' + fmtPrice(p.price) + '</div>' : '') +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:16px">' + esc(p.title || p.area || 'Property') + '</div>' +
+    '<div style="padding:18px 18px 0">' +
 
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">' +
-    (p.rooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.rooms) + ' bed</div>' : '') +
-    (p.bathrooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.bathrooms) + ' bath</div>' : '') +
-    (p.sqm ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
-    (p.distanceToSea ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.distanceToSea) + ' to sea</div>' : '') +
+    // Stop badge + match
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
+    '<span style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brass)">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</span>' +
+    (ms != null ? '<span style="font-size:10px;font-weight:600;color:var(--brass);background:#f5f2ec;border:1px solid var(--fog);border-radius:100px;padding:3px 10px">' + mLabel + '</span>' : '') +
+    '</div>' +
+
+    // Price + title
+    (p.price ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:34px;color:var(--brass);font-weight:600;line-height:1;margin-bottom:4px">' + fmtPrice(p.price) + '</div>' : '') +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:300;color:var(--ink);margin-bottom:14px;line-height:1.2">' + esc(p.title || p.area || 'Property') + '</div>' +
+
+    // Stat chips
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">' +
+    (p.rooms ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc(p.rooms) + ' bed</div>' : '') +
+    (p.bathrooms ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc(p.bathrooms) + ' bath</div>' : '') +
+    (p.sqm ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
+    (p.distanceToSea ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:8px;padding:5px 11px;font-size:12px;color:var(--slate)">' + esc(p.distanceToSea) + ' to sea</div>' : '') +
     '</div>' +
 
     collapsibleSection('cq-' + idx, 'Customer Questions', customerQuestionsHtml, false) +
     collapsibleSection('la-' + idx, 'Listing Agent', listingAgentHtml, false) +
     ((p.commission || p.location) ? collapsibleSection('int-' + idx, 'Internal', internalHtml, false) : '') +
 
-    (p.note ? '<div class="section-card">' +
-    '<div class="section-title">Agent Notes</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">' + esc(p.note) + '</div>' +
+    (p.note ? '<div class="section-card" style="background:#fef9ec;border-color:#fde68a">' +
+    '<div class="section-title" style="color:#92400e">Agent Notes</div>' +
+    '<div style="font-size:13px;color:var(--ink);line-height:1.6">' + esc(p.note) + '</div>' +
     '</div>' : '') +
 
     renderViewingChecklist(idx) +
 
-    '</div>' +
+    '<div style="height:16px"></div>' +
+    '</div>' + // end padding
+    '</div>' + // end scrollable
 
-    '</div>' + // end scrollable content
-
-    // Fixed bottom action bar — always visible, never scrolls away
-    '<div id="complete-bar-' + idx + '" style="flex-shrink:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:16px 20px;padding-bottom:calc(16px + env(safe-area-inset-bottom))">' +
-    '<button class="btn-go" style="max-width:none;transition:transform .15s" onmousedown="this.style.transform=\'scale(.97)\'" onmouseup="this.style.transform=\'scale(1)\'" ontouchstart="this.style.transform=\'scale(.97)\'" ontouchend="this.style.transform=\'scale(1)\'" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
+    // Fixed bottom bar — light
+    '<div id="complete-bar-' + idx + '" style="flex-shrink:0;background:var(--card);border-top:1px solid var(--fog);padding:14px 18px;padding-bottom:calc(14px + env(safe-area-inset-bottom))">' +
+    '<button class="btn" style="font-size:15px;font-weight:700;padding:15px" onclick="completeViewing(' + idx + ')">&#10003;&nbsp; Complete Viewing</button>' +
     '</div>' +
 
     '</div>';
 }
 
-// ── VIEWING CHECKLIST ──────────────────────────────────────────────────────
-// Soft reinforcement only — the Complete Viewing button stays enabled
-// regardless of checklist state, per spec.
-var checklistState = {}; // { idx: { viewed:bool, questions:bool, feedback:bool } }
+// ── VIEWING CHECKLIST (light phase) ───────────────────────────────────────
+var checklistState = {};
 function getChecklist(idx){
   if(!checklistState[idx]) checklistState[idx] = { viewed:false, questions:false, feedback:false };
   return checklistState[idx];
@@ -842,18 +939,18 @@ function renderViewingChecklist(idx){
     ['feedback','Customer feedback added']
   ];
   var doneCount = items.filter(function(it){ return cl[it[0]]; }).length;
-  return '<div class="section-card" id="checklist-' + idx + '">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+  return '<div class="section-card" id="checklist-' + idx + '" style="padding:14px 16px">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">' +
     '<span class="section-title" style="margin-bottom:0">Viewing Checklist</span>' +
-    '<span id="checklist-count-' + idx + '" style="font-size:11px;color:rgba(255,255,255,.35)">' + doneCount + ' / ' + items.length + '</span>' +
+    '<span style="font-size:11px;color:var(--slate)">' + doneCount + ' / ' + items.length + '</span>' +
     '</div>' +
     items.map(function(it){
       var checked = cl[it[0]];
-      return '<button onclick="toggleChecklistItem(' + idx + ',\'' + it[0] + '\')" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:8px 0;cursor:pointer;font-family:inherit;text-align:left">' +
-        '<div style="width:18px;height:18px;border-radius:5px;border:1.5px solid ' + (checked?'#C9A14A':'rgba(255,255,255,.25)') + ';background:' + (checked?'#C9A14A':'transparent') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
-        (checked ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#071226" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
+      return '<button onclick="toggleChecklistItem(' + idx + ',\'' + it[0] + '\')" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:7px 0;cursor:pointer;font-family:inherit;text-align:left">' +
+        '<div style="width:18px;height:18px;border-radius:5px;border:1.5px solid ' + (checked?'var(--brass)':'var(--fog)') + ';background:' + (checked?'var(--brass)':'transparent') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        (checked ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
         '</div>' +
-        '<span style="font-size:13px;color:' + (checked?'rgba(255,255,255,.9)':'rgba(255,255,255,.5)') + '">' + it[1] + '</span>' +
+        '<span style="font-size:13px;color:' + (checked?'var(--ink)':'var(--slate)') + ';font-weight:' + (checked?'500':'300') + '">' + it[1] + '</span>' +
         '</button>';
     }).join('') +
     '</div>';
@@ -862,9 +959,7 @@ function toggleChecklistItem(idx, key){
   var cl = getChecklist(idx);
   cl[key] = !cl[key];
   var container = document.getElementById('checklist-' + idx);
-  if(container){
-    container.outerHTML = renderViewingChecklist(idx);
-  }
+  if(container) container.outerHTML = renderViewingChecklist(idx);
 }
 
 // ── DRIVE SCREEN ──────────────────────────────────────────────────────────
@@ -976,34 +1071,38 @@ function fetchAllDriveTimes(){
 
 // ── COMPLETE SCREEN ───────────────────────────────────────────────────────
 function renderCompleteScreen(){
-  return '<div class="screen center" id="screen-complete" style="padding:40px 24px">' +
-    '<div style="text-align:center;width:100%;max-width:340px" class="fade-in">' +
-    '<div style="font-size:48px;margin-bottom:16px">&#127881;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:8px">Tour Completed</div>' +
-    '<div id="completed-count" style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:28px">0 of ' + GS.properties.length + ' viewings completed</div>' +
+  return '<div class="screen center phase-light" id="screen-complete" style="padding:40px 20px">' +
+    '<div style="text-align:center;width:100%" class="fade-in">' +
+    '<div style="font-size:52px;margin-bottom:16px">&#127881;</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:var(--ink);margin-bottom:6px">Tour Completed</div>' +
+    '<div id="completed-count" style="font-size:13px;color:var(--slate);margin-bottom:28px">0 of ' + GS.properties.length + ' viewings completed</div>' +
 
-    '<div id="completion-stats" style="display:flex;justify-content:center;gap:24px;margin-bottom:32px">' +
-    statBlock('\u2026', 'Total km') +
-    statBlock('\u2026', 'Drive time') +
-    statBlock('\u2026', 'Viewing time') +
+    '<div id="completion-stats" style="display:flex;gap:0;margin-bottom:32px;background:var(--card);border:1px solid var(--fog);border-radius:14px;overflow:hidden">' +
+    lightStatBlock('\u2014', 'Total km') +
+    '<div style="width:1px;background:var(--fog)"></div>' +
+    lightStatBlock('\u2014', 'Drive min') +
+    '<div style="width:1px;background:var(--fog)"></div>' +
+    lightStatBlock('\u2014', 'Tour min') +
     '</div>' +
 
-    '<button class="btn-secondary" style="margin-bottom:10px" onclick="exportNotes()">Export Notes</button>' +
-    '<button class="btn-secondary" style="margin-bottom:24px" onclick="copyWhatsappSummary()">Copy WhatsApp Summary</button>' +
-
-    '<a href="/index.html" class="btn-go" style="text-decoration:none;display:inline-flex">Finish Tour</a>' +
+    '<button class="btn-outline" style="margin-bottom:10px" onclick="exportNotes()">Export Notes</button>' +
+    '<button class="btn-outline" style="margin-bottom:24px" onclick="copyWhatsappSummary()">Copy WhatsApp Summary</button>' +
+    '<a href="/index.html" class="btn" style="text-decoration:none;display:flex">Finish Tour</a>' +
 
     '</div></div>';
+}
+
+function lightStatBlock(val, label){
+  return '<div style="flex:1;text-align:center;padding:16px 8px">' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:26px;color:var(--brass)" id="cstat-' + label.replace(/ /g,'-') + '">' + val + '</div>' +
+    '<div style="font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">' + label + '</div>' +
+    '</div>';
 }
 
 function updateCompletionStats(){
   var countEl = document.getElementById('completed-count');
   if(countEl) countEl.textContent = Object.keys(completedSet).length + ' of ' + GS.properties.length + ' viewings completed';
 
-  var statsEl = document.getElementById('completion-stats');
-  if(!statsEl) return;
-
-  // Total distance from cached drive times
   var totalKm = 0, totalDriveMin = 0;
   for(var i = 0; i < GS.properties.length - 1; i++){
     var a = GS.properties[i], b = GS.properties[i+1];
@@ -1014,13 +1113,14 @@ function updateCompletionStats(){
       totalDriveMin += parseInt(d.durationMin) || 0;
     }
   }
-
   var viewingMin = tourStartTime ? Math.round((Date.now() - tourStartTime) / 60000) : null;
 
-  statsEl.innerHTML =
-    statBlock(totalKm > 0 ? Math.round(totalKm) : '\u2014', 'Total km') +
-    statBlock(totalDriveMin > 0 ? totalDriveMin : '\u2014', 'Drive min') +
-    statBlock(viewingMin != null ? viewingMin : '\u2014', 'Tour min');
+  var kmEl = document.getElementById('cstat-Total-km');
+  var drEl = document.getElementById('cstat-Drive-min');
+  var vrEl = document.getElementById('cstat-Tour-min');
+  if(kmEl) kmEl.textContent = totalKm > 0 ? Math.round(totalKm) : '—';
+  if(drEl) drEl.textContent = totalDriveMin > 0 ? totalDriveMin : '—';
+  if(vrEl) vrEl.textContent = viewingMin != null ? viewingMin : '—';
 }
 
 var completedSet = {};
