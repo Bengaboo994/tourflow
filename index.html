@@ -2418,8 +2418,8 @@ function matchDisplayPicker(day){
   }
   return '<div style="margin-bottom:16px">'+
     '<label class="lbl" style="margin-bottom:8px">Match score visibility</label>'+
-    '<div style="display:flex;gap:8px">'+
-    mb('client','Client','&#128065;')+mb('agent','Agent','&#128274;')+mb('none','Hide','&#215;')+
+    '<div style="display:flex;gap:8px;flex-wrap:wrap">'+
+    mb('client','Client','&#128065;')+mb('agent','Agent','&#128274;')+mb('tour','Tour','&#9654;')+mb('none','Hide','&#215;')+
     '</div></div>';
 }
 function pgDayDetail(){
@@ -3354,7 +3354,7 @@ function pgOutput(){
     var mCol=mScore>=90?"#059669":mScore>=75?"#C9A14A":mScore>=60?"#d97706":"#dc2626";
     var mLabel=mScore>=90?"Excellent Match":mScore>=75?"Good Match":mScore>=60?"Possible Match":"Low Match";
 
-    var _md=day.matchDisplay||'agent'; var matchBadge=mScore!=null&&(_md==='client'&&!isAg||_md==='agent'&&isAg)?
+    var _md=day.matchDisplay||'agent'; var matchBadge=mScore!=null&&(_md==='client'&&!isAg||_md==='agent'&&isAg||_md==='tour'&&isAg)?
       "<button onclick='S._lastDay=curD();showMatchModal(\"" +p.id+ "\")' style='position:absolute;top:12px;right:12px;background:rgba(255,255,255,.96);box-shadow:0 2px 8px rgba(0,0,0,.1);border:none;border-radius:10px;padding:6px 10px;cursor:pointer;text-align:center;z-index:10'>"+ 
       "<div style='font-size:8px;font-weight:700;color:"+mCol+";letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;line-height:1'>"+mLabel+"</div>"+
       (function(){var r=20;var circ=2*Math.PI*r;var pct=mScore/100;var dash=circ*pct;var gap=circ*(1-pct);var matched=ms&&ms.results?ms.results.filter(function(x){return x.pass;}).length:null;var total2=ms&&ms.results?ms.results.length:null;var lbl=matched!=null?(matched+"/"+total2):(mScore+"%");return"<svg width='32' height='32' viewBox='0 0 54 54'><circle cx='27' cy='27' r='"+r+"' fill='none' stroke='#f0ece4' stroke-width='3'/><circle cx='27' cy='27' r='"+r+"' fill='none' stroke='"+mCol+"' stroke-width='3' stroke-dasharray='"+dash+" "+gap+"' stroke-linecap='round' transform='rotate(-90 27 27)'/><text x='27' y='27' text-anchor='middle' dominant-baseline='middle' font-size='11' font-weight='700' fill='#071226' font-family='Jost,sans-serif'>"+lbl+"</text></svg>";})()+"</button>":"";
