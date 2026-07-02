@@ -359,20 +359,33 @@ exports.handler = async function(event) {
 
     // ── REVENY.ES SPECIFIC ────────────────────────────────────────────────
     if (url.includes('reveny.es') || url.includes('reveny.se')) {
-      const h1 = html.match(/<h1[^>]*>([^<]+)<\/h1>/i);
-      const rawTitle = h1 ? h1[1].trim() : null;
-      const revPrice = firstMatch([/(\d[\d\.]+)\s*EUR/i]);
-      price = cleanPrice(revPrice);
-      const revSqm = firstMatch([/(\d{2,4})\s*m[²2]/i]);
-      if (revSqm) { const n = parseInt(revSqm, 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
-      rooms = cleanNum(firstMatch([/(\d+)\s*sovrum/i, /(\d+)\s*bedroom/i]));
-      bathrooms = cleanNum(firstMatch([/(\d+)\s*[Bb]adrum/i, /(\d+)\s*bathroom/i]));
-      const ogT = og('title') || '';
-      const areaM = ogT.match(/,\s*([^,]+?)\s{2,}/);
+      const ogT   = og('title') || '';        // e.g. "Villa till salu, Nueva Andalucía   Nueva Andalucía, Alicante"
+      const ogD   = og('description') || '';  // often contains beds/baths/sqm
+
+      // Area: first location word after ", " in og:title e.g. ", Nueva Andalucía   "
+      const areaM = ogT.match(/,\s*([^,\n]+?)\s{2,}/);
       area = areaM ? areaM[1].trim() : null;
+
+      // Price: from og:description or html
+      const rawPrice = firstMatch([/(\d[\d\s\.]+)\s*(?:EUR|€)/i, /€\s*([\d\s\.]+)/]);
+      price = cleanPrice(rawPrice);
+
+      // Rooms/bath/sqm — try og:description first (e.g. "6 sovrum · 6 badrum · 315 m²")
+      // then fall back to html
+      const descAndHtml = ogD + ' ' + html;
+      rooms     = cleanNum(descAndHtml.match(/(\d+)\s*(?:sovrum|bedroom|bed\b)/i)?.[1]);
+      bathrooms = cleanNum(descAndHtml.match(/(\d+)\s*(?:badrum|bathroom|bath\b)/i)?.[1]);
+      const sqmM = descAndHtml.match(/(\d{2,4})\s*m[²2]/i);
+      if (sqmM) { const n = parseInt(sqmM[1], 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+
+      // Title from og:title — extract property type before "till salu"/"for sale"
+      const typeFromTitle = extractTypeFromPageTitle(html);
+      const titleBase = typeFromTitle || detectPropertyType(ogT) || 'Villa';
+      const adj = pickAdjective((ogD + ' ' + html.slice(0, 3000)).toLowerCase());
+      title = adj ? adj + ' ' + titleBase : titleBase;
+
       address = null;
-      title = generateTitle(rawTitle || ogT, area, rooms, sqm, html);
-      const highlights = detectHighlights(html);
+      const highlights = detectHighlights(ogD + ' ' + html);
       return { statusCode: 200, headers, body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights }) };
     }
 
