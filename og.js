@@ -235,35 +235,39 @@ exports.handler = async function(event) {
       const combined = (rawOgTitle || '') + ' ' + htmlText.slice(0, 3000);
 
       // Priority 1: use og:title if it looks like a real property title
-      // Skip it if it's a listing-style title ("Bungalow till salu", "Villa for sale in X")
-      // or too short/too long to be useful
-      const isBadTitle = !rawOgTitle
-        || rawOgTitle.length < 6
-        || rawOgTitle.length > 80
-        || /\b(till salu|for sale|en venta|zu verkaufen|à vendre|te koop|in vendita|na prodej)\b/i.test(rawOgTitle)
-        || rawOgTitle.trim().split(/\s+/).length <= 1; // single word like "Bungalow"
+      // For "Detached Villa till salu, Altea" — extract just "Detached Villa"
+      // For "Modern Apartment with Sea View" — use as-is
+      const listingSuffix = /\b(till salu|for sale|en venta|zu verkaufen|à vendre|te koop|in vendita|na prodej)\b/i;
+      let cleanedTitle = null;
 
-      if (!isBadTitle) {
-      // Strip location suffix: "in Altea", "en Marbella", "i Estepona" etc
-      // Also strip preposition phrases: "near golf", "close to beach"
-      const locationSuffix = /\s+(in|en|i|at|på|near|close to|à|à)\s+\w[\w\s]{1,30}$/i;
-      const cleaned = rawOgTitle
-          .replace(/\s*[-|»]\s*.{0,40}$/, '')   // remove "- Agency Name" suffix
-          .replace(/\s*\|\s*.{0,40}$/, '')
-          .replace(/\s*,\s*\d[\d\s]*€.*$/, '')   // remove price suffixes
-          .replace(locationSuffix, '')            // remove "in Altea", "en Marbella" etc
-          .replace(/\s+/g, ' ')
-          .trim();
-        // Only use if it contains a property type word — otherwise generate
-        if (detectPropertyType(cleaned) && cleaned.length > 4) {
-          // Optionally enrich with a leading adjective if missing
-          const hasAdj = /\b(luxury|modern|charming|stunning|spectacular|spacious|elegant|exclusive|new build|renovated|beachfront)\b/i.test(cleaned);
-          if (!hasAdj) {
-            const adj = pickAdjective(combined.toLowerCase());
-            if (adj) return adj + ' ' + cleaned;
+      if (rawOgTitle && rawOgTitle.length > 3) {
+        if (listingSuffix.test(rawOgTitle)) {
+          // Extract the part before "till salu" etc — may be a valid property type
+          const beforeSale = rawOgTitle.split(listingSuffix)[0].trim().replace(/,\s*$/, '');
+          if (beforeSale.length > 2 && detectPropertyType(beforeSale)) {
+            cleanedTitle = beforeSale; // e.g. "Detached Villa", "Top Floor Apartment"
           }
-          return cleaned;
+        } else if (rawOgTitle.length < 80 && rawOgTitle.trim().split(/\s+/).length > 1) {
+          // Full descriptive title — clean up suffixes
+          const locationSuffix = /\s+(in|en|i|at|på|near|close to)\s+\w[\w\s]{1,30}$/i;
+          cleanedTitle = rawOgTitle
+            .replace(/\s*[-|»]\s*.{0,40}$/, '')
+            .replace(/\s*\|\s*.{0,40}$/, '')
+            .replace(/\s*,\s*\d[\d\s]*€.*$/, '')
+            .replace(locationSuffix, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+          if (!detectPropertyType(cleanedTitle)) cleanedTitle = null;
         }
+      }
+
+      if (cleanedTitle) {
+        const hasAdj = /\b(luxury|modern|charming|stunning|spectacular|spacious|elegant|exclusive|new build|renovated|beachfront|detached|semi-detached|top floor|ground floor|middle floor)\b/i.test(cleanedTitle);
+        if (!hasAdj) {
+          const adj = pickAdjective(combined.toLowerCase());
+          if (adj) return adj + ' ' + cleanedTitle;
+        }
+        return cleanedTitle;
       }
 
       // Priority 2: build from parts — use description text only, NOT og:title
