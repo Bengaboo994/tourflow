@@ -1588,9 +1588,19 @@ function fetchAllDriveTimes(){
       var distEl = document.getElementById('stat-dist-' + propIdx);
       var minEl  = document.getElementById('stat-min-'  + propIdx);
       var etaEl  = document.getElementById('stat-eta-'  + propIdx);
+      // If API failed but we have coords, compute straight-line distance as fallback
+      if((!result || !result.ok) && props[propIdx-1] && props[propIdx] &&
+         props[propIdx-1].lat && props[propIdx].lat){
+        var km = haversineMeters(
+          parseFloat(props[propIdx-1].lat), parseFloat(props[propIdx-1].lng),
+          parseFloat(props[propIdx].lat),   parseFloat(props[propIdx].lng)
+        ) / 1000;
+        var estMin = Math.round(km / 0.5); // rough 30km/h urban estimate
+        result = { ok: true, distanceKm: km.toFixed(1), durationMin: estMin, fallback: true };
+      }
       if(result && result.ok){
-        if(distEl) distEl.textContent = result.distanceKm;
-        if(minEl)  minEl.textContent  = result.durationMin + ' min';
+        if(distEl) distEl.textContent = result.distanceKm + ' km' + (result.fallback ? '*' : '');
+        if(minEl)  minEl.textContent  = result.durationMin + ' min' + (result.fallback ? '*' : '');
         if(etaEl){
           var d = new Date(Date.now() + parseInt(result.durationMin,10)*60000);
           var hh = d.getHours(), mm = d.getMinutes();
