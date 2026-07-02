@@ -3059,6 +3059,18 @@ function saveEditProp(dayId,pid){
     updates.lat=window._pendingPinLat;
     updates.lng=window._pendingPinLng;
     window._pendingPinLat=null;window._pendingPinLng=null;
+  } else {
+    // Preserve existing lat/lng from the property object (set by autoExtractMapsCoords or updProp)
+    var existingProp = null;
+    S.days.forEach(function(d){
+      (d.properties||[]).forEach(function(p){
+        if(p.id===pid) existingProp = p;
+      });
+    });
+    if(existingProp && existingProp.lat) {
+      updates.lat = existingProp.lat;
+      updates.lng = existingProp.lng;
+    }
   }
   if(window._editImage){updates.ogImage=window._editImage;window._editImage=null;}
 
