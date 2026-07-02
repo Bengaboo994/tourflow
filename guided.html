@@ -1290,90 +1290,183 @@ function toggleSection(id){
   if(chevron) chevron.style.transform = 'rotate(' + (isOpen ? '0' : '180') + 'deg)';
 }
 
-function renderPropertyScreen(p, idx){
-  var ms = matchScore(GS.client, p);
-  var mLabel = matchLabel(ms);
+// ── CUSTOMER QUESTIONS STATE ───────────────────────────────────────────────
+var propQuestions = {}; // { idx: [{id, text, answered}] }
 
-  var heroImg = p.ogImage
-    ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:220px;object-fit:cover"/>'
-    : '<div style="width:100%;height:140px;background:linear-gradient(135deg,#1a2535,#071226);display:flex;align-items:center;justify-content:center;font-family:\'Cormorant Garamond\',serif;font-size:40px;color:rgba(201,161,74,.1)">' + (idx+1) + '</div>';
+function getQuestions(idx){
+  if(!propQuestions[idx]) propQuestions[idx] = [];
+  return propQuestions[idx];
+}
 
-  function statRow(label, val){
-    return '<div class="row"><div class="row-label">' + label + '</div><div class="row-value">' + (val ? esc(val) : '\u2014') + '</div></div>';
-  }
+function addQuestion(idx){
+  var input = document.getElementById('q-input-' + idx);
+  if(!input) return;
+  var text = input.value.trim();
+  if(!text) return;
+  var questions = getQuestions(idx);
+  questions.push({ id: 'q' + Date.now(), text: text, answered: false });
+  input.value = '';
+  rerenderQuestions(idx);
+}
 
-  var mapsUrl = p.mapsUrl || '';
-  var phone = (p.contactPhone || '').replace(/[^0-9+]/g,'');
-  var waUrl = phone ? 'https://wa.me/' + phone.replace('+','') : '';
+function toggleQuestion(idx, qid){
+  var questions = getQuestions(idx);
+  var q = questions.find(function(x){ return x.id === qid; });
+  if(q) q.answered = !q.answered;
+  if(navigator.vibrate) navigator.vibrate(20);
+  rerenderQuestions(idx);
+}
 
-  var customerQuestionsHtml =
-    statRow('Community Fee', p.communityFee) +
-    statRow('IBI', p.ibi) +
-    statRow('Basura', p.basura) +
-    statRow('Year Built', p.yearBuilt) +
-    statRow('Energy Certificate', p.energyCert) +
-    statRow('Orientation', p.orientation) +
-    statRow('Parking', p.parking) +
-    statRow('Storage', p.storage) +
-    statRow('Furniture Included', p.furnished) +
-    statRow('Distance to Sea', p.distanceToSea) +
-    statRow('Distance to Beach', p.distanceToBeach) +
-    statRow('Distance to Restaurants', p.distanceToRestaurants) +
-    statRow('Distance to Supermarkets', p.distanceToSupermarkets);
+function rerenderQuestions(idx){
+  var el = document.getElementById('questions-' + idx);
+  if(el) el.outerHTML = renderQuestionsBlock(idx);
+}
 
-  var listingAgentHtml =
-    '<div style="font-size:14px;margin-bottom:2px">' + esc(p.contact || '\u2014') + '</div>' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px">' + esc(p.firm || '') + '</div>' +
-    '<div style="display:flex;gap:8px">' +
-    (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>' : '')+
-    (waUrl ? '<a href="' + waUrl + '" target="_blank" class="action-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>' : '')+
+function renderQuestionsBlock(idx){
+  var questions = getQuestions(idx);
+  var open     = questions.filter(function(q){ return !q.answered; });
+  var answered = questions.filter(function(q){ return q.answered;  });
+
+  var openRows = open.map(function(q){
+    return '<button onclick="toggleQuestion(' + idx + ',\'' + q.id + '\')" style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 0;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;border-bottom:1px solid var(--fog)">' +
+      '<div style="width:22px;height:22px;border-radius:50%;border:2px solid var(--fog);flex-shrink:0"></div>' +
+      '<span style="font-size:15px;color:var(--ink);font-weight:400">' + esc(q.text) + '</span>' +
+      '</button>';
+  }).join('');
+
+  var answeredRows = answered.map(function(q){
+    return '<button onclick="toggleQuestion(' + idx + ',\'' + q.id + '\')" style="width:100%;display:flex;align-items:center;gap:12px;padding:10px 0;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;border-bottom:1px solid var(--fog)">' +
+      '<div style="width:22px;height:22px;border-radius:50%;background:var(--brass);border:2px solid var(--brass);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+      '<span style="font-size:14px;color:var(--slate);text-decoration:line-through;font-weight:400">' + esc(q.text) + '</span>' +
+      '</button>';
+  }).join('');
+
+  return '<div id="questions-' + idx + '">' +
+    openRows +
+    (answered.length
+      ? '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);padding:14px 0 4px">Answered</div>' +
+        answeredRows
+      : '') +
+    // Add question input
+    '<div style="display:flex;gap:8px;padding:14px 0 4px">' +
+    '<input id="q-input-' + idx + '" type="text" placeholder="Add question…" ' +
+      'style="flex:1;padding:10px 14px;border:1.5px solid var(--fog);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fff;color:var(--ink)" ' +
+      'onkeydown="if(event.key===\'Enter\')addQuestion(' + idx + ')" ' +
+      'onfocus="this.style.borderColor=\'var(--brass)\'" ' +
+      'onblur="this.style.borderColor=\'var(--fog)\'"/>' +
+    '<button onclick="addQuestion(' + idx + ')" style="padding:10px 16px;background:var(--navy);color:var(--brass);border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0">Add</button>' +
+    '</div>' +
     '</div>';
+}
 
-  var internalHtml = statRow('Commission', p.commission) + statRow('Key Collection', p.location);
+function renderPropertyScreen(p, idx){
+  var phone  = (p.contactPhone || '').replace(/[^0-9+]/g, '');
+  var waUrl  = phone ? 'https://wa.me/' + phone.replace('+', '') : '';
+  var isLast = idx >= GS.properties.length - 1;
 
-  return '<div class="screen" id="screen-prop-' + idx + '" style="display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden">' +
+  // Facts chips — only show what exists
+  var facts = [];
+  if(p.rooms)      facts.push({ icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>', label: p.rooms + ' bed' });
+  if(p.bathrooms)  facts.push({ icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><path d="M4 12h16M4 12a2 2 0 01-2-2V6a2 2 0 012-2h1m15 8a2 2 0 002-2V6a2 2 0 00-2-2h-1M4 20h16a2 2 0 002-2v-4H2v4a2 2 0 002 2z"/></svg>', label: p.bathrooms + ' bath' });
+  if(p.sqm)        facts.push({ icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><path d="M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5"/></svg>', label: (p.sqm+'').replace(/m2$/i,'') + ' m²' });
+  if(p.price)      facts.push({ icon:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>', label: fmtPrice(p.price) });
 
-    // Scrollable content area
-    '<div style="flex:1;overflow-y:auto;padding-bottom:16px">' +
+  var factsHtml = facts.map(function(f){
+    return '<div style="display:flex;align-items:center;gap:6px;background:var(--mist);border:1px solid var(--fog);border-radius:10px;padding:8px 13px">' +
+      f.icon + '<span style="font-size:13px;font-weight:600;color:var(--navy)">' + esc(f.label) + '</span></div>';
+  }).join('');
 
-    heroImg +
+  // Annual costs — only if any exist
+  var costs = [];
+  if(p.communityFee) costs.push({ label:'Community', val:p.communityFee });
+  if(p.ibi)          costs.push({ label:'IBI', val:p.ibi });
+  if(p.basura)       costs.push({ label:'Basura', val:p.basura });
+  var costsHtml = costs.length
+    ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:14px;padding:14px 16px;margin-bottom:20px">' +
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:10px">Annual Costs</div>' +
+      '<div style="display:flex;gap:16px">' +
+      costs.map(function(c){
+        return '<div><div style="font-size:11px;color:var(--slate);margin-bottom:2px">' + c.label + '</div>' +
+          '<div style="font-size:15px;font-weight:700;color:var(--navy)">' + esc(c.val) + '</div></div>';
+      }).join('<div style="width:1px;background:var(--fog)"></div>') +
+      '</div></div>'
+    : '';
 
-    '<div style="padding:20px 20px 0">' +
-    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">' +
-    '<div class="eyebrow" style="margin-bottom:0">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
-    (ms != null ? '<div style="font-size:10px;font-weight:700;color:#C9A14A;background:rgba(201,161,74,.1);border:1px solid rgba(201,161,74,.25);border-radius:100px;padding:3px 10px">' + mLabel + '</div>' : '') +
+  // Listing agent
+  var agentHtml = (p.contact || p.contactPhone)
+    ? '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 1px 6px rgba(7,18,38,.04)">' +
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:12px">Listing Agent</div>' +
+      '<div style="font-size:15px;font-weight:600;color:var(--navy);margin-bottom:2px">' + esc(p.contact || '—') + '</div>' +
+      (p.firm ? '<div style="font-size:13px;color:var(--slate);margin-bottom:12px">' + esc(p.firm) + '</div>' : '<div style="margin-bottom:12px"></div>') +
+      '<div style="display:flex;gap:8px">' +
+      (p.contactPhone ? '<a href="tel:' + esc(p.contactPhone) + '" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:var(--mist);border:1px solid var(--fog);border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;color:var(--navy)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6z"/></svg>Call</a>' : '') +
+      (waUrl ? '<a href="' + waUrl + '" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;background:var(--mist);border:1px solid var(--fog);border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;color:var(--navy)"><svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>' : '') +
+      '</div></div>'
+    : '';
+
+  // Agent note
+  var noteHtml = p.note
+    ? '<div style="background:#fef9ec;border-left:3px solid var(--brass);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:20px">' +
+      '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);margin-bottom:6px">Agent Notes</div>' +
+      '<div style="font-size:14px;color:var(--ink);line-height:1.6">' + esc(p.note) + '</div>' +
+      '</div>'
+    : '';
+
+  return '<div class="screen" id="screen-prop-' + idx + '" style="background:var(--paper);display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden">' +
+
+    // Scrollable body
+    '<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch">' +
+
+    // Hero image
+    (p.ogImage
+      ? '<img src="' + esc(p.ogImage) + '" style="width:100%;height:200px;object-fit:cover;display:block"/>'
+      : '<div style="width:100%;height:100px;background:linear-gradient(135deg,var(--navy),#1a2535);display:flex;align-items:center;justify-content:center"><span style="font-family:\'Cormorant Garamond\',serif;font-size:48px;color:rgba(201,161,74,.15)">' + (idx+1) + '</span></div>') +
+
+    '<div style="padding:18px 18px 8px">' +
+
+    // Stop badge
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);margin-bottom:10px">Stop ' + (idx+1) + ' of ' + GS.properties.length + '</div>' +
+
+    // Property identity
+    '<div style="font-family:\'Jost\',sans-serif;font-size:28px;font-weight:800;color:var(--navy);text-transform:uppercase;line-height:1;margin-bottom:4px">' + esc(p.area || p.title || 'Property') + '</div>' +
+    (p.title && p.area ? '<div style="font-size:18px;font-weight:400;color:var(--slate);margin-bottom:6px">' + esc(p.title) + '</div>' : '') +
+    (p.address ? '<div style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--slate);margin-bottom:16px"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' + esc(p.address) + '</div>' : '<div style="margin-bottom:16px"></div>') +
+
+    // Fact chips
+    (factsHtml ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">' + factsHtml + '</div>' : '') +
+
+    // Annual costs
+    costsHtml +
+
+    // ── CUSTOMER QUESTIONS ──────────────────────────────────────────────────
+    '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 1px 6px rgba(7,18,38,.04)">' +
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:4px">Customer Questions</div>' +
+    renderQuestionsBlock(idx) +
     '</div>' +
-    (p.price ? '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;color:#C9A14A;font-weight:600;margin-bottom:4px">' + fmtPrice(p.price) + '</div>' : '') +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300;margin-bottom:16px">' + esc(p.title || p.area || 'Property') + '</div>' +
 
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">' +
-    (p.rooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.rooms) + ' bed</div>' : '') +
-    (p.bathrooms ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.bathrooms) + ' bath</div>' : '') +
-    (p.sqm ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc((p.sqm+'').replace(/m2$/i,'')) + ' m\u00b2</div>' : '') +
-    (p.distanceToSea ? '<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:6px 12px;font-size:12px">' + esc(p.distanceToSea) + ' to sea</div>' : '') +
-    '</div>' +
+    // Agent note
+    noteHtml +
 
-    collapsibleSection('cq-' + idx, 'Customer Questions', customerQuestionsHtml, false) +
-    collapsibleSection('la-' + idx, 'Listing Agent', listingAgentHtml, false) +
-    ((p.commission || p.location) ? collapsibleSection('int-' + idx, 'Internal', internalHtml, false) : '') +
+    // Listing agent
+    agentHtml +
 
-    (p.note ? '<div class="section-card">' +
-    '<div class="section-title">Agent Notes</div>' +
-    '<div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6">' + esc(p.note) + '</div>' +
-    '</div>' : '') +
-
+    // Viewing checklist
     renderViewingChecklist(idx) +
 
+    '<div style="height:8px"></div>' +
+    '</div>' + // end padding
+    '</div>' + // end scrollable
+
+    // ── COMPLETE VIEWING — fixed footer ──────────────────────────────────────
+    '<div style="flex-shrink:0;padding:12px 18px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--fog)">' +
+    '<button class="btn-start-tour" onclick="completeViewing(' + idx + ')">' +
+    '<div class="btn-start-tour-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>' +
+    (isLast ? 'COMPLETE TOUR' : 'COMPLETE VIEWING') +
+    '</button>' +
     '</div>' +
 
-    '</div>' + // end scrollable content
-
-    // Fixed bottom action bar — always visible, never scrolls away
-    '<div id="complete-bar-' + idx + '" style="flex-shrink:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.08);padding:16px 20px;padding-bottom:calc(16px + env(safe-area-inset-bottom))">' +
-    '<button class="btn-go" style="max-width:none;transition:transform .15s" onmousedown="this.style.transform=\'scale(.97)\'" onmouseup="this.style.transform=\'scale(1)\'" ontouchstart="this.style.transform=\'scale(.97)\'" ontouchend="this.style.transform=\'scale(1)\'" onclick="completeViewing(' + idx + ')">&#10003; Complete Viewing</button>' +
-    '</div>' +
-
-    '</div>';
+    '</div>'; // end screen
 }
 
 // ── VIEWING CHECKLIST ──────────────────────────────────────────────────────
@@ -1387,23 +1480,23 @@ function getChecklist(idx){
 function renderViewingChecklist(idx){
   var cl = getChecklist(idx);
   var items = [
-    ['viewed','Property viewed'],
-    ['questions','Questions answered'],
-    ['feedback','Customer feedback added']
+    ['viewed',    'Viewing completed'],
+    ['questions', 'Questions answered'],
+    ['feedback',  'Client feedback added']
   ];
   var doneCount = items.filter(function(it){ return cl[it[0]]; }).length;
-  return '<div class="section-card" id="checklist-' + idx + '">' +
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
-    '<span class="section-title" style="margin-bottom:0">Viewing Checklist</span>' +
-    '<span id="checklist-count-' + idx + '" style="font-size:11px;color:rgba(255,255,255,.35)">' + doneCount + ' / ' + items.length + '</span>' +
+  return '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 1px 6px rgba(7,18,38,.04)" id="checklist-' + idx + '">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate)">Viewing Checklist</div>' +
+    '<div style="font-size:11px;color:var(--slate)">' + doneCount + ' / ' + items.length + '</div>' +
     '</div>' +
     items.map(function(it){
       var checked = cl[it[0]];
-      return '<button onclick="toggleChecklistItem(' + idx + ',\'' + it[0] + '\')" style="width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:8px 0;cursor:pointer;font-family:inherit;text-align:left">' +
-        '<div style="width:18px;height:18px;border-radius:5px;border:1.5px solid ' + (checked?'#C9A14A':'rgba(255,255,255,.25)') + ';background:' + (checked?'#C9A14A':'transparent') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
-        (checked ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#071226" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
+      return '<button onclick="toggleChecklistItem(' + idx + ',\'' + it[0] + '\')" style="width:100%;display:flex;align-items:center;gap:12px;padding:11px 0;border:none;background:none;cursor:pointer;font-family:inherit;text-align:left;border-bottom:1px solid var(--fog)">' +
+        '<div style="width:20px;height:20px;border-radius:6px;border:2px solid ' + (checked ? 'var(--brass)' : 'var(--fog)') + ';background:' + (checked ? 'var(--brass)' : 'transparent') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s">' +
+        (checked ? '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' : '') +
         '</div>' +
-        '<span style="font-size:13px;color:' + (checked?'rgba(255,255,255,.9)':'rgba(255,255,255,.5)') + '">' + it[1] + '</span>' +
+        '<span style="font-size:14px;color:' + (checked ? 'var(--slate)' : 'var(--ink)') + ';font-weight:' + (checked ? '400' : '500') + ';' + (checked ? 'text-decoration:line-through;' : '') + '">' + it[1] + '</span>' +
         '</button>';
     }).join('') +
     '</div>';
@@ -1775,7 +1868,14 @@ function completeViewing(idx){
     }
   });
 
-  showCompletionCelebration(idx);
+  // Auto-advance — go straight to next drive screen or complete
+  setTimeout(function(){
+    if(idx < GS.properties.length - 1){
+      goToScreen('drive-' + idx);
+    } else {
+      goToScreen('complete');
+    }
+  }, 350);
 }
 
 function showCompletionCelebration(idx){
