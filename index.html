@@ -2413,7 +2413,7 @@ function matchDisplayPicker(day){
     var bg=on?'#071226':'var(--card)';
     var col=on?'#C9A14A':'var(--slate)';
     var fw=on?'600':'400';
-    return '<button onclick="updateDay(\"'+did+'\",{matchDisplay:\"'+val+'\"});render()" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px">'+
+    return '<button onclick="updateDay(\''+did+'\',{matchDisplay:\''+val+'\'});render()" style="flex:1;padding:9px 6px;border-radius:8px;border:1.5px solid '+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:'+fw+';cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:4px">'+
       '<span>'+icon+'</span><span>'+label+'</span></button>';
   }
   return '<div style="margin-bottom:16px">'+
