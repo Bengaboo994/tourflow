@@ -4026,7 +4026,40 @@ function pgProperties(){
       '<button onclick="setLibPropStatus(\''+_p+'\',\'active\')'+ '" style="flex:1;padding:5px 8px;border-radius:100px;border:1.5px solid '+(_a?'#C9A14A':'#edeae4')+';background:'+(_a?'#071226':'transparent')+';color:'+(_a?'#C9A14A':'#9e9a94')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit">Active</button>'+
       '<button onclick="setLibPropStatus(\''+_p+'\',\'reserved\')'+ '" style="flex:1;padding:5px 8px;border-radius:100px;border:1.5px solid '+(_r?'#f97316':'#edeae4')+';background:'+(_r?'#fff7ed':'transparent')+';color:'+(_r?'#f97316':'#9e9a94')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit">Reserved</button>'+
       '<button onclick="setLibPropStatus(\''+_p+'\',\'sold\')'+ '" style="flex:1;padding:5px 8px;border-radius:100px;border:1.5px solid '+(_s?'#ef4444':'#edeae4')+';background:'+(_s?'#fef2f2':'transparent')+';color:'+(_s?'#ef4444':'#9e9a94')+';font-size:10px;font-weight:600;cursor:pointer;font-family:inherit">Sold</button>'+
-      '</div>';})()+'</div>';
+      '</div>';})() +
+      // Collapsible property details
+      (function(){
+        var details = [
+          ['Plot',p.plotSize?p.plotSize+' m²':null],
+          ['Year built',p.yearBuilt],
+          ['Orientation',p.orientation],
+          ['Pool',p.pool],
+          ['Garage',p.garage],
+          ['Furnished',p.furnished],
+          ['Community fee',p.communityFee],
+          ['IBI',p.ibi],
+          ['Basura',p.basura],
+          ['Energy cert',p.energyCert],
+          ['To beach',p.distanceToBeach],
+          ['To golf',p.distanceToGolf]
+        ].filter(function(r){return r[1];});
+        if(!details.length) return '</div>';
+        return '<div style="border-top:1px solid #f5f2ec">'+
+          '<button onclick="(function(b){var el=b.nextElementSibling;var open=el.style.display!==\'none\';el.style.display=open?\'none\':\'grid\';b.querySelector(\'svg\').style.transform=open?\'rotate(0)\':\'rotate(180deg)\'})(this)" '+
+          'style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:none;border:none;cursor:pointer;font-family:inherit">'+
+          '<span style="font-size:11px;font-weight:600;color:#5a5754">Property details</span>'+
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="2" stroke-linecap="round" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>'+
+          '</button>'+
+          '<div style="display:none;grid-template-columns:1fr 1fr;gap:0;padding:0 14px 14px">'+
+          details.map(function(r){
+            return '<div style="padding:6px 0;border-bottom:1px solid #f5f2ec">'+
+              '<div style="font-size:9px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px">'+r[0]+'</div>'+
+              '<div style="font-size:12px;font-weight:500;color:#1A1917">'+esc(r[1])+'</div>'+
+              '</div>';
+          }).join('')+
+          '</div>'+
+          '</div>';
+      })()
   }
 
   var sortLabel={'recent':'Recently updated','price-hi':'Price: High to low','price-lo':'Price: Low to high','used':'Most used'};
