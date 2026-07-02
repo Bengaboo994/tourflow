@@ -1436,15 +1436,16 @@ function renderPropertyScreen(p, idx){
         ['IBI',                     p.ibi],
         ['Basura',                  p.basura],
         ['Year Built',              p.yearBuilt],
+        ['Plot Size',               p.plotSize ? p.plotSize + ' m²' : null],
         ['Energy Certificate',      p.energyCert],
         ['Orientation',             p.orientation],
-        ['Parking',                 p.parking],
-        ['Storage',                 p.storage],
+        ['Pool',                    p.pool],
+        ['Garage',                  p.garage],
         ['Furniture Included',      p.furnished],
-        ['Distance to Sea',         p.distanceToSea],
         ['Distance to Beach',       p.distanceToBeach],
-        ['Distance to Restaurants', p.distanceToRestaurants],
-        ['Distance to Supermarkets',p.distanceToSupermarkets]
+        ['Distance to Golf',        p.distanceToGolf],
+        ['Distance to Sea',         p.distanceToSea],
+        ['Distance to Restaurants', p.distanceToRestaurants]
       ];
 
       var rowsHtml = rows.map(function(r){
