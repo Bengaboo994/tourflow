@@ -1782,51 +1782,188 @@ function fetchAllDriveTimes(){
 
 // ── COMPLETE SCREEN ───────────────────────────────────────────────────────
 function renderCompleteScreen(){
-  return '<div class="screen center" id="screen-complete" style="padding:40px 24px">' +
-    '<div style="text-align:center;width:100%;max-width:340px" class="fade-in">' +
-    '<div style="font-size:48px;margin-bottom:16px">&#127881;</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;margin-bottom:8px">Tour Completed</div>' +
-    '<div id="completed-count" style="font-size:14px;color:rgba(255,255,255,.5);margin-bottom:28px">0 of ' + GS.properties.length + ' viewings completed</div>' +
+  var clientName = GS.client ? GS.client.name : 'Client';
+  var dateStr = GS.day ? fmtDate(GS.day.date) : '';
+  var n = GS.properties.length;
 
-    '<div id="completion-stats" style="display:flex;justify-content:center;gap:24px;margin-bottom:32px">' +
-    statBlock('\u2026', 'Total km') +
-    statBlock('\u2026', 'Drive time') +
-    statBlock('\u2026', 'Viewing time') +
+  return '<div class="screen" id="screen-complete" style="background:var(--paper);display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden">' +
+
+    '<div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 8px">' +
+
+    '<div style="padding:20px 24px 0">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+    '<span id="comp-count" style="font-size:12px;font-weight:600;color:var(--slate)">0 of ' + n + ' viewings completed</span>' +
+    '<span id="comp-pct" style="font-size:12px;font-weight:700;color:var(--brass)">0%</span>' +
+    '</div>' +
+    '<div style="height:4px;background:var(--fog);border-radius:2px;overflow:hidden">' +
+    '<div id="comp-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#C9A14A,#d4a84b);border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)"></div>' +
+    '</div>' +
     '</div>' +
 
-    '<button class="btn-secondary" style="margin-bottom:10px" onclick="exportNotes()">Export Notes</button>' +
-    '<button class="btn-secondary" style="margin-bottom:24px" onclick="copyWhatsappSummary()">Copy WhatsApp Summary</button>' +
+    '<div style="text-align:center;padding:32px 24px 24px">' +
+    '<div style="position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:24px">' +
+    '<svg width="18" height="18" viewBox="0 0 24 24" style="position:absolute;top:-8px;left:-12px;opacity:0;transition:opacity .3s ease .5s" id="spark1"><path d="M12 2L13.09 8.26L19 6L14.74 10.74L21 12L14.74 13.26L19 18L13.09 15.74L12 22L10.91 15.74L5 18L9.26 13.26L3 12L9.26 10.74L5 6L10.91 8.26Z" fill="#C9A14A"/></svg>' +
+    '<svg width="12" height="12" viewBox="0 0 24 24" style="position:absolute;top:-4px;right:-14px;opacity:0;transition:opacity .3s ease .65s" id="spark2"><path d="M12 2L13.09 8.26L19 6L14.74 10.74L21 12L14.74 13.26L19 18L13.09 15.74L12 22L10.91 15.74L5 18L9.26 13.26L3 12L9.26 10.74L5 6L10.91 8.26Z" fill="#C9A14A"/></svg>' +
+    '<svg width="10" height="10" viewBox="0 0 24 24" style="position:absolute;bottom:-6px;left:-8px;opacity:0;transition:opacity .3s ease .8s" id="spark3"><path d="M12 2L13.09 8.26L19 6L14.74 10.74L21 12L14.74 13.26L19 18L13.09 15.74L12 22L10.91 15.74L5 18L9.26 13.26L3 12L9.26 10.74L5 6L10.91 8.26Z" fill="#C9A14A"/></svg>' +
+    '<div id="comp-check-ring" style="width:80px;height:80px;border-radius:50%;border:2.5px solid var(--brass);display:flex;align-items:center;justify-content:center;transform:scale(0);transition:transform .5s cubic-bezier(.34,1.4,.64,1)">' +
+    '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5" stroke-dasharray="30" stroke-dashoffset="30" style="transition:stroke-dashoffset .5s ease .3s" id="comp-check-path"/></svg>' +
+    '</div>' +
+    '</div>' +
+    '<div id="comp-title" style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:var(--navy);margin-bottom:6px;opacity:0;transform:translateY(8px);transition:opacity .4s ease .6s,transform .4s ease .6s">Tour completed</div>' +
+    '<div id="comp-client" style="font-size:15px;font-weight:500;color:var(--navy);margin-bottom:6px;opacity:0;transition:opacity .3s ease .75s">' + esc(clientName) + '</div>' +
+    '<div id="comp-date" style="display:flex;align-items:center;justify-content:center;gap:10px;opacity:0;transition:opacity .3s ease .85s">' +
+    '<div style="height:1px;width:24px;background:var(--brass)"></div>' +
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
+    '<span style="font-size:13px;color:var(--slate)">' + dateStr + '</span>' +
+    '<div style="height:1px;width:24px;background:var(--brass)"></div>' +
+    '</div>' +
+    '</div>' +
 
-    '<a href="/index.html" class="btn-go" style="text-decoration:none;display:inline-flex">Finish Tour</a>' +
+    '<div id="comp-summary" style="margin:0 18px 16px;opacity:0;transform:translateY(12px);transition:opacity .4s ease 1s,transform .4s ease 1s">' +
+    '<div style="background:#fff;border:1px solid var(--fog);border-radius:18px;padding:20px;box-shadow:0 2px 12px rgba(7,18,38,.05)">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">' +
+    '<span style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--navy)">Today\'s Summary</span>' +
+    '<span style="display:flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:100px;padding:4px 10px;font-size:11px;font-weight:600;color:#166534">' +
+    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Completed</span>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr">' +
+    _sc("comp-stat-viewings","0","Viewings\ncompleted","<svg width=\'22\' height=\'22\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--brass)\' stroke-width=\'1.5\' stroke-linecap=\'round\'><path d=\'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z\'/><polyline points=\'9 22 9 12 15 12 15 22\'/></svg>",true) +
+    _sc("comp-stat-km","—","Total distance\ndriven","<svg width=\'22\' height=\'22\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--brass)\' stroke-width=\'1.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><path d=\'M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v6a2 2 0 01-2 2h-2\'/><circle cx=\'7.5\' cy=\'17.5\' r=\'2.5\'/><circle cx=\'16.5\' cy=\'17.5\' r=\'2.5\'/></svg>",true) +
+    _sc("comp-stat-drivetime","—","Total\ndrive time","<svg width=\'22\' height=\'22\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--brass)\' stroke-width=\'1.5\' stroke-linecap=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><polyline points=\'12 6 12 12 16 14\'/></svg>",false) +
+    '</div>' +
+    '<div style="height:1px;background:var(--fog);margin:4px 0"></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr">' +
+    _sc("comp-stat-viewtime","—","Total viewing\ntime","<svg width=\'22\' height=\'22\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--brass)\' stroke-width=\'1.5\' stroke-linecap=\'round\'><circle cx=\'12\' cy=\'12\' r=\'10\'/><polyline points=\'12 6 12 12 16 14\'/></svg>",true) +
+    _sc("comp-stat-questions","0","Customer\nquestions","<svg width=\'22\' height=\'22\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--brass)\' stroke-width=\'1.5\' stroke-linecap=\'round\'><path d=\'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z\'/></svg>",true) +
+    _sc("comp-stat-notes","0","Notes\nadded","<svg width=\'22\' height=\'22\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--brass)\' stroke-width=\'1.5\' stroke-linecap=\'round\'><path d=\'M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7\'/><path d=\'M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z\'/></svg>",false) +
+    '</div>' +
+    '</div>' +
+    '</div>' +
 
-    '</div></div>';
+    '<div id="comp-followups" style="margin:0 18px 16px;display:none;opacity:0;transform:translateY(8px);transition:opacity .4s ease 1.2s,transform .4s ease 1.2s"></div>' +
+
+    '<div id="comp-actions" style="margin:0 18px 24px;opacity:0;transition:opacity .4s ease 1.3s">' +
+    '<div style="background:#fff;border:1px solid var(--fog);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(7,18,38,.05)">' +
+    _ar("exportNotes()","<svg width=\'18\' height=\'18\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--slate)\' stroke-width=\'1.8\' stroke-linecap=\'round\'><path d=\'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z\'/><polyline points=\'14 2 14 8 20 8\'/><line x1=\'16\' y1=\'13\' x2=\'8\' y2=\'13\'/><line x1=\'16\' y1=\'17\' x2=\'8\' y2=\'17\'/></svg>","Export Notes","PDF with all notes and details",true) +
+    _ar("copyWhatsappSummary()","<svg width=\'18\' height=\'18\' viewBox=\'0 0 24 24\' fill=\'#25D366\'><path d=\'M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347\'/></svg>","Copy WhatsApp Summary","Share a summary with your client",true) +
+    _ar("shareGuidedTour()","<svg width=\'18\' height=\'18\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'var(--slate)\' stroke-width=\'1.8\' stroke-linecap=\'round\'><path d=\'M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8\'/><polyline points=\'16 6 12 2 8 6\'/><line x1=\'12\' y1=\'2\' x2=\'12\' y2=\'15\'/></svg>","Share Tour","Send tour overview to client or colleague",false) +
+    '</div>' +
+    '</div>' +
+
+    '</div>' +
+
+    '<div style="flex-shrink:0;padding:12px 18px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--fog)">' +
+    '<a href="/index.html" style="display:flex;align-items:center;justify-content:center;gap:14px;background:var(--navy);border-radius:16px;padding:18px 20px;text-decoration:none;box-shadow:0 6px 24px rgba(7,18,38,.2)">' +
+    '<div style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(201,161,74,.5);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>' +
+    '</div>' +
+    '<div>' +
+    '<div style="font-size:16px;font-weight:800;letter-spacing:.06em;color:var(--brass)">FINISH TOUR</div>' +
+    '<div style="font-size:11px;color:rgba(201,161,74,.5);margin-top:1px">Save and return to dashboard</div>' +
+    '</div>' +
+    '</a>' +
+    '</div>' +
+
+    '</div>';
+}
+
+function _sc(id,val,label,icon,br){
+  return '<div style="text-align:center;padding:16px 6px;'+(br?'border-right:1px solid var(--fog)':'')+'">' +
+    '<div style="display:flex;justify-content:center;margin-bottom:8px">'+icon+'</div>' +
+    '<div id="'+id+'" style="font-size:22px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:4px">'+val+'</div>' +
+    '<div style="font-size:10px;color:var(--slate);line-height:1.35;white-space:pre-line">'+label+'</div>' +
+    '</div>';
+}
+
+function _ar(onclick,icon,title,sub,border){
+  return '<button onclick="'+onclick+'" style="width:100%;display:flex;align-items:center;gap:14px;padding:16px;background:none;border:none;'+(border?'border-bottom:1px solid var(--fog);':'')+' cursor:pointer;font-family:inherit;text-align:left">' +
+    '<div style="width:36px;height:36px;border-radius:10px;background:var(--mist);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+icon+'</div>' +
+    '<div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--navy);margin-bottom:2px">'+title+'</div>' +
+    '<div style="font-size:12px;color:var(--slate)">'+sub+'</div></div>' +
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fog)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>' +
+    '</button>';
 }
 
 function updateCompletionStats(){
-  var countEl = document.getElementById('completed-count');
-  if(countEl) countEl.textContent = Object.keys(completedSet).length + ' of ' + GS.properties.length + ' viewings completed';
+  var done = Object.keys(completedSet).length;
+  var n = GS.properties.length;
+  var pct = n > 0 ? Math.round(done/n*100) : 0;
 
-  var statsEl = document.getElementById('completion-stats');
-  if(!statsEl) return;
+  var bar = document.getElementById('comp-bar');
+  if(bar) setTimeout(function(){ bar.style.width = pct+'%'; }, 80);
+  var cEl = document.getElementById('comp-count'); if(cEl) cEl.textContent = done+' of '+n+' viewings completed';
+  var pEl = document.getElementById('comp-pct');   if(pEl) pEl.textContent = pct+'%';
 
-  // Total distance from cached drive times
-  var totalKm = 0, totalDriveMin = 0;
-  for(var i = 0; i < GS.properties.length - 1; i++){
-    var a = GS.properties[i], b = GS.properties[i+1];
-    var key = (a.mapsUrl||a.address||'') + '||' + (b.mapsUrl||b.address||'');
-    var d = driveTimeCache[key];
-    if(d && d.ok){
-      totalKm += parseFloat(d.distanceKm) || 0;
-      totalDriveMin += parseInt(d.durationMin) || 0;
-    }
+  // Animate hero
+  setTimeout(function(){
+    var ring = document.getElementById('comp-check-ring');
+    var path = document.getElementById('comp-check-path');
+    if(ring) ring.style.transform = 'scale(1)';
+    if(path) path.style.strokeDashoffset = '0';
+    ['spark1','spark2','spark3'].forEach(function(id){
+      var el = document.getElementById(id); if(el) el.style.opacity='1';
+    });
+    setTimeout(function(){
+      ['spark1','spark2','spark3'].forEach(function(id){
+        var el = document.getElementById(id); if(el) el.style.opacity='0';
+      });
+    }, 900);
+  }, 200);
+
+  ['comp-title','comp-client','comp-date'].forEach(function(id){
+    var el=document.getElementById(id); if(el){el.style.opacity='1';el.style.transform='translateY(0)';}
+  });
+  var sm=document.getElementById('comp-summary'); if(sm){sm.style.opacity='1';sm.style.transform='translateY(0)';}
+  var ac=document.getElementById('comp-actions'); if(ac) ac.style.opacity='1';
+
+  // Stats
+  var totalKm=0, totalDriveMin=0;
+  GS.properties.forEach(function(a,i){
+    if(i>=GS.properties.length-1) return;
+    var b=GS.properties[i+1];
+    var key=(a.lat&&a.lng?a.lat+','+a.lng:a.mapsUrl||a.address||'')+'||'+(b.lat&&b.lng?b.lat+','+b.lng:b.mapsUrl||b.address||'');
+    var d=driveTimeCache[key];
+    if(d&&d.ok){totalKm+=parseFloat(d.distanceKm)||0;totalDriveMin+=parseInt(d.durationMin)||0;}
+  });
+  var viewMin=tourStartTime?Math.round((Date.now()-tourStartTime)/60000):null;
+  var totalQ=0,totalNotes=0;
+  GS.properties.forEach(function(p,i){
+    totalQ+=(propQuestions[i]||[]).length;
+    if(p.note) totalNotes++;
+  });
+
+  function sc(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  sc('comp-stat-viewings',done);
+  sc('comp-stat-km',totalKm>0?Math.round(totalKm)+' km':'—');
+  sc('comp-stat-drivetime',totalDriveMin>0?totalDriveMin+' min':'—');
+  sc('comp-stat-viewtime',viewMin?viewMin+' min':'—');
+  sc('comp-stat-questions',totalQ);
+  sc('comp-stat-notes',totalNotes);
+
+  // Follow-ups
+  var followups=[];
+  GS.properties.forEach(function(p,i){
+    (propQuestions[i]||[]).filter(function(q){return!q.answered;}).forEach(function(q){
+      followups.push({propIdx:i,text:q.text,prop:p});
+    });
+  });
+  var fuEl=document.getElementById('comp-followups');
+  if(fuEl&&followups.length){
+    fuEl.style.display='block';
+    fuEl.innerHTML='<div style="background:#fff;border:1px solid var(--fog);border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(7,18,38,.05)">' +
+      '<div style="padding:14px 16px;border-bottom:1px solid var(--fog)">' +
+      '<span style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--navy)">' +
+      followups.length+' Follow-up'+(followups.length>1?'s':'')+' required</span></div>' +
+      followups.map(function(fu){
+        return '<button onclick="goToScreen(\'prop-'+fu.propIdx+'\')" style="width:100%;display:flex;align-items:center;gap:14px;padding:14px 16px;background:none;border:none;border-bottom:1px solid var(--fog);cursor:pointer;font-family:inherit;text-align:left">' +
+          '<div style="width:36px;height:36px;border-radius:10px;background:#fef9ec;border:1px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+          '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>' +
+          '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:2px">'+esc(fu.text)+'</div>' +
+          '<div style="font-size:11px;color:var(--slate)">'+esc(fu.prop.area||fu.prop.title||'Property '+(fu.propIdx+1))+'</div></div>' +
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--fog)" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>';
+      }).join('')+'</div>';
+    setTimeout(function(){fuEl.style.opacity='1';fuEl.style.transform='translateY(0)';},50);
   }
-
-  var viewingMin = tourStartTime ? Math.round((Date.now() - tourStartTime) / 60000) : null;
-
-  statsEl.innerHTML =
-    statBlock(totalKm > 0 ? Math.round(totalKm) : '\u2014', 'Total km') +
-    statBlock(totalDriveMin > 0 ? totalDriveMin : '\u2014', 'Drive min') +
-    statBlock(viewingMin != null ? viewingMin : '\u2014', 'Tour min');
 }
 
 var completedSet = {};
