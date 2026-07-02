@@ -551,10 +551,10 @@ function renderApp(){
   container.style.display = 'block';
 
   var html = '';
-  html += renderTodaysTourScreen();
+  // New flow: Preparing → Today's Tour (overview) → nav/prop/drive ... → complete
   html += renderPreparingScreen();
+  html += renderTodaysTourScreen();
 
-  // Interleave: nav -> property -> drive -> property -> drive ... -> complete
   GS.properties.forEach(function(p, i){
     html += renderNavigationScreen(i);
     html += renderPropertyScreen(p, i);
@@ -566,18 +566,23 @@ function renderApp(){
 
   container.innerHTML = html;
 
-  // Wire up drive time fetches
   fetchAllDriveTimes();
-
-  // Mount the persistent floating progress pill + modal, once
   mountProgressUI();
-
-  // Init Leaflet maps (deferred so DOM exists)
   setTimeout(initTourMaps, 200);
+
+  // If tour already started (returning from Maps), skip Preparing and go straight to nav
+  if(GS.tourStarted){
+    var target = GS.currentNavTarget || 'nav-0';
+    var el = document.getElementById('screen-' + target);
+    if(el) el.scrollIntoView({behavior:'instant', block:'start'});
+  } else {
+    // First open — show Preparing and kick off sequence after a short beat
+    setTimeout(runPreparingSequence, 400);
+  }
 }
 
 // ── TOUR PROGRESS (persistent floating button + overview) ─────────────────
-var currentStopIdx = 0; // which stop the agent is actively on, drives the floating pill label
+var currentStopIdx = 0;
 
 function mountProgressUI(){
   if(document.getElementById('progress-pill')) return; // already mounted
@@ -782,8 +787,8 @@ function renderTodaysTourScreen(){
     '</div>' +
     '</div>' +
 
-    // START TOUR
-    '<button class="btn-start-tour" onclick="goToScreen(\'preparing\')">' +
+    // START TOUR — from Today's Tour overview, tour already prepared
+    '<button class="btn-start-tour" onclick="startTour()">' +
     '<div class="btn-start-tour-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--navy)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' +
     'START TOUR' +
     '</button>' +
@@ -881,7 +886,7 @@ function renderPreparingScreen(){
     '<div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:1px">Everything is prepared. You\'re ready to drive.</div>' +
     '</div></div>' +
 
-    '<button class="btn-go" onclick="goToScreen(\'nav-0\')" style="width:100%;margin-bottom:16px">&#9654;&nbsp; GO</button>' +
+    '<button class="btn-go" onclick="startTour()" style="width:100%;margin-bottom:16px">&#9654;&nbsp; GO</button>' +
     '</div>' +
 
     // Share link (always visible)
@@ -1936,19 +1941,30 @@ function copyWhatsappSummary(){
 }
 
 // ── NAVIGATION BETWEEN SCREENS ────────────────────────────────────────────
+function startTour(){
+  if(navigator.vibrate) navigator.vibrate([30, 40, 60]);
+  GS.tourStarted = true;
+  GS.currentNavTarget = 'nav-0';
+  goToScreen('nav-0');
+}
+
 function goToScreen(target){
   var id;
   if(target === 'preparing'){
     id = 'screen-preparing';
     setTimeout(runPreparingSequence, 350);
+  } else if(target === 'today'){
+    id = 'screen-today';
   } else if(target === 'complete'){
     id = 'screen-complete';
     updateCompletionStats();
   } else {
     id = 'screen-' + target;
   }
-  // Once the user lands on a property screen, the pending Maps round-trip is resolved —
-  // clear it so a stray tab-focus event later doesn't pop the arrival overlay again.
+  // Track nav position so returning from Maps lands on the right screen
+  if(target.indexOf('nav-') === 0 || target.indexOf('drive-') === 0){
+    GS.currentNavTarget = target;
+  }
   if(target.indexOf('prop-') === 0){
     navState.pendingStopIdx = null;
   }
