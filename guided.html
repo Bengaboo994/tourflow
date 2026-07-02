@@ -780,7 +780,7 @@ function renderTodaysTourScreen(){
 
     // ── START TOUR ────────────────────────────────────────────────────────
     '<div style="flex-shrink:0;padding:12px 18px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--fog)">' +
-    '<button class="btn-start-tour" onclick="startTour()">' +
+    '<button class="btn-start-tour" onclick="launchNavigation()">' +
     '<div class="btn-start-tour-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--navy)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' +
     'START TOUR' +
     '</button>' +
@@ -1864,10 +1864,18 @@ function startTour(){
   if(navigator.vibrate) navigator.vibrate([30, 40, 60]);
   GS.tourStarted = true;
   GS.currentNavTarget = 'nav-0';
-  // Re-enable scroll-snap now that the user is actively navigating
   var container = document.getElementById('scroll-container');
   if(container) container.style.scrollSnapType = 'y mandatory';
-  goToScreen('today');
+  // Go to day overview first — START TOUR there goes to nav-0
+  setTimeout(function(){
+    var el = document.getElementById('screen-today');
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 50);
+}
+
+function launchNavigation(){
+  if(navigator.vibrate) navigator.vibrate([20, 30, 50]);
+  setTimeout(function(){ goToScreen('nav-0'); }, 50);
 }
 
 function goToScreen(target){
