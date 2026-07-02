@@ -2473,12 +2473,31 @@ function pgDayDetail(){
         '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#5a5754;font-weight:300;font-size:10px\">optional</span></label>'+
         '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
         '<div style="margin-bottom:9px">'+
-        '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Annual costs <span style="font-size:9px;color:#5a5754;font-weight:400;text-transform:none;letter-spacing:0">— optional</span></div>'+
+        '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Property Details <span style="font-size:9px;color:#5a5754;font-weight:400;text-transform:none;letter-spacing:0">— optional</span></div>'+
         '<div class="g2" style="margin-bottom:9px">'+
-        '<div><label class="lbl">Community fee / yr</label><input class="inp ins" value="'+esc(p.communityFee||'')+'" placeholder="e.g. €1,200" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{communityFee:this.value})"/></div>'+
-        '<div><label class="lbl">IBI / yr</label><input class="inp ins" value="'+esc(p.ibi||'')+'" placeholder="e.g. €450" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{ibi:this.value})"/></div>'+
+        '<div><label class="lbl">Plot size m²</label><input class="inp ins" value="'+esc(p.plotSize||'')+'" placeholder="e.g. 800" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{plotSize:this.value})"/></div>'+
+        '<div><label class="lbl">Year built</label><input class="inp ins" value="'+esc(p.yearBuilt||'')+'" placeholder="e.g. 2018" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{yearBuilt:this.value})"/></div>'+
         '</div>'+
-        '<div style="margin-bottom:9px"><label class="lbl">Basura / yr</label><input class="inp ins" style="max-width:48%" value="'+esc(p.basura||'')+'" placeholder="e.g. €150" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{basura:this.value})"/></div>'+
+        '<div class="g2" style="margin-bottom:9px">'+
+        '<div><label class="lbl">Orientation</label><input class="inp ins" value="'+esc(p.orientation||'')+'" placeholder="e.g. South" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{orientation:this.value})"/></div>'+
+        '<div><label class="lbl">Energy cert</label><input class="inp ins" value="'+esc(p.energyCert||'')+'" placeholder="e.g. C" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{energyCert:this.value})"/></div>'+
+        '</div>'+
+        '<div class="g2" style="margin-bottom:9px">'+
+        '<div><label class="lbl">Pool</label><input class="inp ins" value="'+esc(p.pool||'')+'" placeholder="e.g. Private" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{pool:this.value})"/></div>'+
+        '<div><label class="lbl">Garage</label><input class="inp ins" value="'+esc(p.garage||'')+'" placeholder="e.g. Yes" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{garage:this.value})"/></div>'+
+        '</div>'+
+        '<div class="g2" style="margin-bottom:9px">'+
+        '<div><label class="lbl">Furnished</label><input class="inp ins" value="'+esc(p.furnished||'')+'" placeholder="e.g. Yes" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{furnished:this.value})"/></div>'+
+        '<div><label class="lbl">Community fee</label><input class="inp ins" value="'+esc(p.communityFee||'')+'" placeholder="e.g. €1,200/yr" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{communityFee:this.value})"/></div>'+
+        '</div>'+
+        '<div class="g2" style="margin-bottom:9px">'+
+        '<div><label class="lbl">IBI / yr</label><input class="inp ins" value="'+esc(p.ibi||'')+'" placeholder="e.g. €450" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{ibi:this.value})"/></div>'+
+        '<div><label class="lbl">Basura / yr</label><input class="inp ins" value="'+esc(p.basura||'')+'" placeholder="e.g. €150" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{basura:this.value})"/></div>'+
+        '</div>'+
+        '<div class="g2" style="margin-bottom:0">'+
+        '<div><label class="lbl">To beach</label><input class="inp ins" value="'+esc(p.distanceToBeach||'')+'" placeholder="e.g. 500m" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{distanceToBeach:this.value})"/></div>'+
+        '<div><label class="lbl">To golf</label><input class="inp ins" value="'+esc(p.distanceToGolf||'')+'" placeholder="e.g. 2 km" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{distanceToGolf:this.value})"/></div>'+
+        '</div>'+
         '</div>'+
         '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
         '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
