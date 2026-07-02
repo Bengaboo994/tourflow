@@ -374,13 +374,13 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 <body>
 
 <div id="loading-screen">
-  <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#fff;margin-bottom:18px">Tour<em style="font-style:italic;color:#C9A14A">Flow</em></div>
+  <div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#fff;margin-bottom:18px">Tour<em style="font-style:italic;color:#C9A14A">Flow</em></div>
   <div class="spinner"></div>
 </div>
 
 <div id="access-denied" style="display:none;position:fixed;inset:0;background:var(--navy);align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px">
   <div style="font-size:40px;margin-bottom:16px">🔒</div>
-  <div style="font-family:'Cormorant Garamond',serif;font-size:22px;margin-bottom:8px">Guided Tour Mode</div>
+  <div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;margin-bottom:8px">Guided Tour Mode</div>
   <div style="font-size:13px;color:rgba(255,255,255,.4);max-width:280px;line-height:1.6">This experimental feature is currently in private testing.</div>
   <a href="/index.html" style="margin-top:24px;color:var(--brass);font-size:13px;text-decoration:none">&larr; Back to TourFlow</a>
 </div>
@@ -817,161 +817,105 @@ function renderPreparingScreen(){
   var client = GS.client;
   var clientName = client ? client.name : 'Client';
   var day = GS.day;
-  var props = GS.properties;
 
-  // Route: first property area → last property area
-  var routeFrom = props.length ? (props[0].area || props[0].title || '') : '';
-  var routeTo   = props.length > 1 ? (props[props.length-1].area || props[props.length-1].title || '') : routeFrom;
-  var estFinish = calcEstimatedFinish(props);
+  return '<div class="screen" id="screen-preparing" style="' +
+    'background:var(--paper);display:flex;flex-direction:column;' +
+    'height:100vh;height:100dvh;overflow:hidden;padding:0">' +
 
-  return '<div class="screen phase-light" id="screen-preparing" style="padding:0;display:flex;flex-direction:column;background:var(--navy)">' +
-
-    // ── HEADER ──────────────────────────────────────────────────────────────
-    '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0">' +
+    // HEADER
+    '<div style="padding:20px 20px 0;flex-shrink:0">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">' +
     '<div style="display:flex;align-items:center;gap:7px">' +
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:19px;font-weight:400;color:#fff">Tour<span style="font-style:italic;color:var(--brass)">Flow</span></span>' +
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:400;color:var(--ink)">Tour<span style="font-style:italic;color:var(--brass)">Flow</span></span>' +
     '</div>' +
-    '<div style="display:flex;align-items:center;gap:6px;background:rgba(201,161,74,.12);border:1px solid rgba(201,161,74,.25);border-radius:100px;padding:5px 12px">' +
-    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8" fill="var(--brass)" stroke="none"/></svg>' +
-    '<span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brass)">Tour Mode</span>' +
+    '<span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);background:rgba(201,161,74,.08);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:5px 12px">Tour Mode</span>' +
     '</div>' +
-    '</div>' +
-
-    // ── TOUR SUMMARY ─────────────────────────────────────────────────────────
-    '<div style="padding:20px 20px 18px">' +
-    '<div style="font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:rgba(201,161,74,.6);margin-bottom:6px">Today\'s Tour</div>' +
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:38px;font-weight:300;color:#fff;line-height:1.05;margin-bottom:18px">' + esc(clientName) + '</div>' +
-
-    // Info blocks: properties / route / est. finish
-    '<div style="display:flex;gap:20px">' +
-
-    '<div style="display:flex;align-items:center;gap:7px">' +
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>' +
-    '<div><div style="font-size:13px;font-weight:600;color:#fff">' + props.length + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em">Properties</div></div>' +
-    '</div>' +
-
-    (routeFrom && routeTo && routeFrom !== routeTo
-      ? '<div style="display:flex;align-items:center;gap:7px">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-        '<div><div style="font-size:12px;font-weight:500;color:#fff;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(routeFrom) + ' → ' + esc(routeTo) + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em">Route</div></div>' +
-        '</div>'
-      : '') +
-
-    (estFinish !== '—'
-      ? '<div style="display:flex;align-items:center;gap:7px">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
-        '<div><div style="font-size:13px;font-weight:600;color:#fff">' + estFinish + '</div><div style="font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em">Est. Finish</div></div>' +
-        '</div>'
-      : '') +
-
+    '<div style="margin-bottom:6px">' +
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--brass);margin-bottom:6px">Today\'s Tour</div>' +
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:300;color:var(--navy);line-height:1.05;margin-bottom:4px">' + esc(clientName) + '</div>' +
+    '<div style="font-size:13px;color:var(--slate)">' + fmtDate(day.date) + '</div>' +
     '</div>' +
     '</div>' +
 
-    // ── PREPARING CARD ───────────────────────────────────────────────────────
-    '<div style="flex:1;background:#0d1a2e;border-radius:24px 24px 0 0;padding:24px 22px;overflow-y:auto">' +
+    // CHECKLIST CARD
+    '<div style="flex:1;display:flex;flex-direction:column;padding:20px 20px 0;min-height:0">' +
+    '<div style="background:#fff;border:1px solid var(--fog);border-radius:20px;padding:22px 20px;box-shadow:0 2px 16px rgba(7,18,38,.06);flex:1;display:flex;flex-direction:column">' +
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--slate);margin-bottom:18px">Preparing today\'s tour…</div>' +
+    '<div id="prep-steps" style="flex:1"></div>' +
 
-    '<div style="font-size:9px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(201,161,74,.65);margin-bottom:20px">Preparing your tour</div>' +
-
-    // Animated checklist — items injected by runPreparingSequence
-    '<div id="prep-steps" style="margin-bottom:20px"></div>' +
-
-    // Tour Ready state (hidden until done)
-    '<div id="prep-done" style="display:none">' +
-    '<div style="display:flex;align-items:center;gap:12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:14px;padding:14px 16px;margin-bottom:20px">' +
+    // Tour Ready
+    '<div id="prep-done" style="display:none;margin-top:16px">' +
+    '<div style="display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:14px 16px;margin-bottom:18px">' +
     '<div style="width:28px;height:28px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>' +
     '</div>' +
-    '<div><div style="font-size:13px;font-weight:700;color:#4ade80;letter-spacing:.04em">TOUR READY</div>' +
-    '<div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:1px">Everything is prepared. You\'re ready to drive.</div>' +
+    '<div><div style="font-size:13px;font-weight:700;color:#166534">Tour Ready</div>' +
+    '<div style="font-size:12px;color:#4ade80;margin-top:1px">Everything is prepared.</div>' +
+    '</div></div>' +
+    '<button class="btn-start-tour" onclick="startTour()">' +
+    '<div class="btn-start-tour-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--navy)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' +
+    'START TOUR' +
+    '</button>' +
+    '</div>' +
+
     '</div></div>' +
 
-    '<button class="btn-go" onclick="startTour()" style="width:100%;margin-bottom:16px">&#9654;&nbsp; GO</button>' +
-    '</div>' +
-
-    // Share link (always visible)
-    '<div id="prep-share" style="display:none;align-items:center;justify-content:center;gap:7px;padding:14px 0;cursor:pointer" onclick="shareGuidedTour()">' +
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' +
-    '<span style="font-size:12px;color:rgba(255,255,255,.3)">Share tour with a colleague</span>' +
-    '</div>' +
-
-    '</div>' + // end preparing card
-
-    // Share link fixed at bottom of screen — always visible, never scrolled past
-    '<div id="prep-share-footer" style="display:none;flex-shrink:0;background:var(--navy);padding:4px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,.06)">' +
-    '<button onclick="shareGuidedTour()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:none;border:none;padding:12px;cursor:pointer;font-family:inherit">' +
-    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' +
-    '<span style="font-size:12px;color:rgba(255,255,255,.3)">Share tour with a colleague</span>' +
+    // Share footer
+    '<div id="prep-share-footer" style="display:none;flex-shrink:0;padding:12px 20px;padding-bottom:calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--fog)">' +
+    '<button onclick="shareGuidedTour()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;background:none;border:none;padding:10px;cursor:pointer;font-family:inherit">' +
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="1.8" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>' +
+    '<span style="font-size:12px;color:var(--slate)">Share tour with a colleague</span>' +
     '</button></div>' +
 
-    '</div>'; // end screen
+    '</div>';
 }
 
 function runPreparingSequence(){
-  var steps = [
-    { title:'Properties verified',    sub:'4 properties ready' },
-    { title:'Route optimised',        sub:'Best order & timings set' },
-    { title:'Traffic checked',        sub:'Live traffic looks good' },
-    { title:'Client details synced',  sub:'Contacts & preferences loaded' },
-    { title:'Agent notes ready',      sub:'Notes & highlights prepared' },
-    { title:'Navigation connected',   sub:'Maps & directions ready' }
-  ];
-  // Override subtitle of first step with real property count
-  steps[0].sub = GS.properties.length + ' propert' + (GS.properties.length===1?'y':'ies') + ' ready';
-
+  var steps = ['Properties loaded','Route optimised','Traffic checked','Ready to drive'];
   var stepsEl = document.getElementById('prep-steps');
   var doneEl  = document.getElementById('prep-done');
   var shareEl = document.getElementById('prep-share-footer');
   if(!stepsEl) return;
   stepsEl.innerHTML = '';
-  if(doneEl)  doneEl.style.display  = 'none';
+  if(doneEl)  doneEl.style.display = 'none';
   if(shareEl) shareEl.style.display = 'none';
 
-  // Render all items as empty circles first, then animate each one
-  steps.forEach(function(step, j){
+  steps.forEach(function(label, j){
     var row = document.createElement('div');
     row.id = 'prep-step-' + j;
-    row.style.cssText = 'display:flex;align-items:flex-start;gap:14px;padding:10px 0;' + (j < steps.length-1 ? 'border-bottom:1px solid rgba(255,255,255,.05)' : '');
+    row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:13px 0;' +
+      (j < steps.length-1 ? 'border-bottom:1px solid var(--fog)' : '');
     row.innerHTML =
-      '<div id="prep-icon-' + j + '" style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s cubic-bezier(.34,1.4,.64,1)">' +
-        '<svg id="prep-check-' + j + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2.5" stroke-linecap="round" style="transition:stroke .3s ease"><path d="M20 6L9 17l-5-5"/></svg>' +
+      '<div id="prep-icon-' + j + '" style="width:28px;height:28px;border-radius:50%;border:2px solid var(--fog);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s cubic-bezier(.34,1.4,.64,1)">' +
+        '<svg id="prep-check-' + j + '" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--fog)" stroke-width="3" stroke-linecap="round" style="transition:stroke .25s ease"><path d="M20 6L9 17l-5-5"/></svg>' +
       '</div>' +
-      '<div>' +
-        '<div id="prep-title-' + j + '" style="font-size:14px;font-weight:500;color:rgba(255,255,255,.3);transition:color .25s ease">' + esc(step.title) + '</div>' +
-        '<div id="prep-sub-' + j + '" style="font-size:11px;color:rgba(255,255,255,.2);margin-top:2px;transition:color .25s ease">' + esc(step.sub) + '</div>' +
-      '</div>';
+      '<div id="prep-label-' + j + '" style="font-size:15px;font-weight:500;color:var(--fog);transition:color .25s ease">' + esc(label) + '</div>';
     stepsEl.appendChild(row);
   });
 
   var i = 0;
   function activateStep(){
     if(i >= steps.length){
-      // All done — show Tour Ready + GO
       setTimeout(function(){
-        if(doneEl)  { doneEl.style.display  = 'block'; }
-        if(shareEl) { shareEl.style.display = 'flex'; }
-        if(navigator.vibrate) navigator.vibrate(40);
-      }, 300);
+        if(doneEl)  doneEl.style.display = 'block';
+        if(shareEl) shareEl.style.display = 'flex';
+        if(navigator.vibrate) navigator.vibrate([30,40,50]);
+      }, 280);
       return;
     }
     var icon  = document.getElementById('prep-icon-' + i);
     var check = document.getElementById('prep-check-' + i);
-    var title = document.getElementById('prep-title-' + i);
-    var sub   = document.getElementById('prep-sub-' + i);
-    if(icon){
-      icon.style.background   = 'var(--brass)';
-      icon.style.borderColor  = 'var(--brass)';
-      icon.style.transform    = 'scale(1.08)';
-      setTimeout(function(){ if(icon) icon.style.transform = 'scale(1)'; }, 300);
-    }
-    if(check){ check.setAttribute('stroke','var(--navy)'); }
-    if(title){ title.style.color = '#fff'; }
-    if(sub)  { sub.style.color   = 'rgba(255,255,255,.45)'; }
+    var label = document.getElementById('prep-label-' + i);
+    if(icon){ icon.style.background='var(--brass)';icon.style.borderColor='var(--brass)';icon.style.transform='scale(1.1)';setTimeout(function(){if(icon)icon.style.transform='scale(1)';},260); }
+    if(check) check.setAttribute('stroke','var(--navy)');
+    if(label){ label.style.color='var(--ink)';label.style.fontWeight='600'; }
     i++;
-    setTimeout(activateStep, 280);
+    setTimeout(activateStep, 300);
   }
-  setTimeout(activateStep, 200);
+  setTimeout(activateStep, 180);
 }
+
 
 function shareGuidedTour(){
   var url = window.location.href;
