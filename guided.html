@@ -1434,7 +1434,46 @@ function renderPropertyScreen(p, idx){
     (p.address ? '<div style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--slate);margin-bottom:16px"><svg width="11" height="11" viewBox="0 0 24 24" fill="var(--brass)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' + esc(p.address) + '</div>' : '<div style="margin-bottom:16px"></div>') +
 
     // Fact chips
-    (factsHtml ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">' + factsHtml + '</div>' : '') +
+    (factsHtml ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">' + factsHtml + '</div>' : '') +
+
+    // ── COLLAPSIBLE PROPERTY DETAILS ─────────────────────────────────────────
+    (function(){
+      var rows = [
+        ['Community Fee',          p.communityFee],
+        ['IBI',                    p.ibi],
+        ['Basura',                 p.basura],
+        ['Year Built',             p.yearBuilt],
+        ['Energy Certificate',     p.energyCert],
+        ['Orientation',            p.orientation],
+        ['Parking',                p.parking],
+        ['Storage',                p.storage],
+        ['Furniture Included',     p.furnished],
+        ['Distance to Sea',        p.distanceToSea],
+        ['Distance to Beach',      p.distanceToBeach],
+        ['Distance to Restaurants',p.distanceToRestaurants],
+        ['Distance to Supermarkets',p.distanceToSupermarkets]
+      ].filter(function(r){ return r[1]; });
+
+      if(!rows.length) return '';
+
+      var rowsHtml = rows.map(function(r){
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--fog)">' +
+          '<span style="font-size:13px;color:var(--slate)">' + r[0] + '</span>' +
+          '<span style="font-size:13px;font-weight:600;color:var(--navy);text-align:right;max-width:55%">' + esc(r[1]) + '</span>' +
+          '</div>';
+      }).join('');
+
+      return '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;margin-bottom:20px;overflow:hidden;box-shadow:0 1px 6px rgba(7,18,38,.04)">' +
+        '<button onclick="(function(b){var el=document.getElementById(\'prop-details-' + idx + '\');var open=el.style.display!==\'none\';el.style.display=open?\'none\':\'block\';b.querySelector(\'svg\').style.transform=open?\'rotate(0)\':\'rotate(180deg)\';})(this)" ' +
+        'style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:none;border:none;cursor:pointer;font-family:inherit">' +
+        '<span style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate)">Property Details</span>' +
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s;flex-shrink:0"><path d="M6 9l6 6 6-6"/></svg>' +
+        '</button>' +
+        '<div id="prop-details-' + idx + '" style="display:none;padding:0 16px 4px">' +
+        rowsHtml +
+        '</div>' +
+        '</div>';
+    })() +
 
     // Annual costs
     costsHtml +
