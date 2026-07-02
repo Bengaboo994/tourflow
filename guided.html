@@ -1103,7 +1103,15 @@ function startNavigation(idx){
 
   trackMapsOpen(idx);
   setTimeout(function(){
-    if(url) window.location.href = url;
+    if(url){
+      // On desktop open Maps in a popup; on mobile use location.href (no popup support)
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      if(isMobile){
+        window.location.href = url;
+      } else {
+        window.open(url, 'tourflow_maps', 'width=900,height=700,left=200,top=100,resizable=yes,scrollbars=yes');
+      }
+    }
   }, 150);
 }
 
