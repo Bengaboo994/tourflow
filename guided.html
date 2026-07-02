@@ -119,8 +119,8 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 .tour-map{
   position:absolute;
   top:0;left:0;right:0;
-  height:52vh;
-  height:52dvh;
+  height:50vh;
+  height:50dvh;
   z-index:1;
 }
 .tour-map .leaflet-container{
@@ -128,105 +128,109 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   height:100%!important;
   background:#e8e4d8;
 }
-/* Leaflet attribution */
-.leaflet-control-attribution{font-size:8px!important;background:rgba(255,255,255,.6)!important}
-/* Map fallback */
+.leaflet-control-attribution{font-size:8px!important;background:rgba(255,255,255,.5)!important}
 .tour-map-fallback{
   width:100%;height:100%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:#f0ede6;
-  gap:10px;
+  background:#f0ede6;gap:10px;
 }
-/* Bottom sheet must sit at fixed position below map */
+
+/* Bottom sheet — tighter to map */
 .tour-sheet{
   position:absolute;
   left:0;right:0;bottom:0;
-  top:48vh;
-  top:48dvh;
+  top:47vh;
+  top:47dvh;
   z-index:20;
   background:#fff;
-  border-radius:22px 22px 0 0;
+  border-radius:20px 20px 0 0;
   display:flex;
   flex-direction:column;
   overflow:hidden;
-  box-shadow:0 -4px 24px rgba(7,18,38,.18);
+  box-shadow:0 -2px 16px rgba(7,18,38,.12);
 }
 
-/* Tour pill overlay on map */
+/* Tour pill — lighter, smaller */
 .tour-pill{
   position:absolute;
-  top:16px;left:16px;right:16px;
+  top:12px;left:12px;right:12px;
   z-index:10;
-  background:rgba(7,18,38,.88);
-  backdrop-filter:blur(8px);
+  background:rgba(7,18,38,.82);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
   border-radius:100px;
-  padding:10px 18px;
+  padding:8px 16px;
   display:flex;
   align-items:center;
   gap:6px;
   color:#fff;
-  font-size:12px;
+  font-size:11px;
   font-weight:600;
 }
 .tour-pill svg{flex-shrink:0}
 
-/* Bottom sheet */
+/* Sheet handle */
 .tour-sheet-handle{
   flex-shrink:0;
   display:flex;justify-content:center;
-  padding:10px 0 6px;
+  padding:8px 0 4px;
 }
 .tour-sheet-handle::before{
   content:'';
-  width:36px;height:4px;
-  background:#d0cdc8;
+  width:32px;height:4px;
+  background:#e0dcd8;
   border-radius:2px;
 }
 .tour-sheet-scroll{
   flex:1;
   overflow-y:auto;
-  padding:0 18px 8px;
+  padding:0 16px 8px;
   -webkit-overflow-scrolling:touch;
 }
 
-/* Property hero row */
+/* Property hero row — image slightly smaller, more text breathing room */
 .tour-prop-row{
   display:flex;
   align-items:flex-start;
   gap:14px;
-  margin-bottom:16px;
+  margin-bottom:14px;
 }
 .tour-prop-img{
-  width:100px;height:80px;
-  border-radius:12px;
+  width:88px;height:72px;
+  border-radius:10px;
   object-fit:cover;
   flex-shrink:0;
+  margin-top:3px;
 }
 .tour-prop-img-empty{
-  width:100px;height:80px;
-  border-radius:12px;
+  width:88px;height:72px;
+  border-radius:10px;
   background:var(--mist);
   flex-shrink:0;
 }
+
+/* Typography — bigger, bolder, car-holder readable */
 .tour-prop-area{
   font-family:'Cormorant Garamond',serif;
-  font-size:34px;
+  font-size:38px;
   font-weight:600;
   color:var(--navy);
-  line-height:1;
+  line-height:.95;
   text-transform:uppercase;
   letter-spacing:-.5px;
 }
 .tour-prop-title{
-  font-size:15px;
+  font-size:16px;
   color:var(--slate);
-  margin-top:3px;
+  margin-top:5px;
   font-weight:400;
+  line-height:1.2;
 }
 .tour-prop-address{
   display:flex;align-items:center;gap:5px;
-  font-size:12px;color:var(--slate);
-  margin-top:5px;
+  font-size:13px;color:var(--slate);
+  margin-top:6px;
+  font-weight:400;
 }
 
 /* Stat blocks */
@@ -236,18 +240,18 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   background:var(--mist);
   border-radius:14px;
   overflow:hidden;
-  margin-bottom:16px;
+  margin-bottom:14px;
 }
 .tour-stat{
   flex:1;
   text-align:center;
-  padding:14px 8px 12px;
+  padding:13px 8px 11px;
   border-right:1px solid var(--fog);
 }
 .tour-stat:last-child{border-right:none}
-.tour-stat-icon{margin-bottom:6px;display:flex;justify-content:center}
+.tour-stat-icon{margin-bottom:5px;display:flex;justify-content:center}
 .tour-stat-val{
-  font-size:22px;
+  font-size:24px;
   font-weight:700;
   color:var(--navy);
   line-height:1;
@@ -261,13 +265,13 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   margin-top:3px;
 }
 .tour-stat-eta{
-  font-size:11px;
+  font-size:12px;
   font-weight:600;
   color:var(--brass);
   margin-top:3px;
 }
 
-/* START TOUR button */
+/* START TOUR — Spotify Play energy */
 .btn-start-tour{
   width:100%;
   background:var(--navy);
@@ -275,7 +279,7 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   border:none;
   border-radius:16px;
   padding:20px;
-  font-size:20px;
+  font-size:21px;
   font-weight:800;
   letter-spacing:.06em;
   font-family:inherit;
@@ -285,20 +289,32 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   gap:12px;
   cursor:pointer;
   margin-bottom:10px;
-  transition:transform 150ms var(--transition-spring),box-shadow 150ms;
-  box-shadow:0 6px 24px rgba(7,18,38,.25);
+  transition:transform 180ms cubic-bezier(.34,1.4,.64,1), box-shadow 180ms ease, opacity 100ms ease;
+  box-shadow:0 6px 28px rgba(7,18,38,.28);
   -webkit-appearance:none;
+  position:relative;
+  overflow:hidden;
+}
+.btn-start-tour::after{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(circle at center, rgba(201,161,74,.15) 0%, transparent 70%);
+  opacity:0;
+  transition:opacity .3s ease;
 }
 .btn-start-tour:active{
-  transform:scale(.97);
+  transform:scale(.96);
   box-shadow:0 2px 10px rgba(7,18,38,.2);
+  opacity:.92;
 }
+.btn-start-tour:active::after{opacity:1}
 .btn-start-tour-icon{
-  width:32px;height:32px;
+  width:34px;height:34px;
   background:var(--brass);
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
+  box-shadow:0 2px 8px rgba(201,161,74,.4);
 }
 
 /* Mark completed */
@@ -308,50 +324,50 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   color:var(--navy);
   border:1.5px solid var(--fog);
   border-radius:14px;
-  padding:14px;
-  font-size:14px;
+  padding:15px;
+  font-size:15px;
   font-weight:600;
   font-family:inherit;
   display:flex;align-items:center;justify-content:center;gap:8px;
   cursor:pointer;
   margin-bottom:12px;
-  transition:background .15s,transform .1s;
+  transition:background .15s, transform .12s cubic-bezier(.34,1.4,.64,1), border-color .15s;
   -webkit-appearance:none;
 }
-.btn-mark-done:active{background:var(--mist);transform:scale(.98)}
+.btn-mark-done:active{background:var(--mist);transform:scale(.97);border-color:#C9A14A}
 
 /* Remaining stops */
 .remaining-stops-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 0;
+  padding:13px 0;
   border-top:1px solid var(--fog);
   cursor:pointer;
+}
+.remaining-stops-header span{
+  font-size:14px;
+  font-weight:600;
+  color:var(--navy);
 }
 .remaining-stops-list{
   display:none;
   padding-bottom:8px;
 }
 .remaining-stop-row{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 0;
+  display:flex;align-items:center;gap:12px;
+  padding:11px 0;
   border-bottom:1px solid var(--fog);
 }
 .remaining-stop-row:last-child{border-bottom:none}
-
-/* Leaflet custom markers */
-.tour-marker-active{
-  width:36px;height:36px;
-  background:var(--brass);
-  border-radius:50% 50% 50% 0;
-  transform:rotate(-45deg);
-  border:3px solid #fff;
-  box-shadow:0 4px 12px rgba(0,0,0,.3);
+.remaining-stop-row .rs-area{
+  font-size:14px;font-weight:600;color:var(--navy);
 }
-.tour-marker-num{
-  transform:rotate(45deg);
-  color:#fff;font-weight:800;font-size:13px;
-  display:flex;align-items:center;justify-content:center;
-  width:100%;height:100%;
+.remaining-stop-row .rs-time{
+  font-size:12px;color:var(--slate);margin-top:1px;
+}
+
+/* Mark-done animation states */
+.tour-marker-completing{
+  transition:all .4s cubic-bezier(.34,1.4,.64,1);
 }
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -749,7 +765,7 @@ function renderTodaysTourScreen(){
       : '<div class="tour-prop-img-empty"></div>') +
     '</div>' +
 
-    // Stat blocks
+    // Stat blocks — Appointment · Distance · Drive Time (Est. Finish is in the pill)
     '<div class="tour-stats">' +
     '<div class="tour-stat">' +
     '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
@@ -759,12 +775,12 @@ function renderTodaysTourScreen(){
     '<div class="tour-stat">' +
     '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>' +
     '<div class="tour-stat-val" id="total-distance">—</div>' +
-    '<div class="tour-stat-lbl">Total km</div>' +
+    '<div class="tour-stat-lbl">Distance</div>' +
     '</div>' +
     '<div class="tour-stat">' +
-    '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
-    '<div class="tour-stat-val" id="today-finish">' + (estFinish !== '—' ? estFinish : '—') + '</div>' +
-    '<div class="tour-stat-lbl">Est. Finish</div>' +
+    '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>' +
+    '<div class="tour-stat-val" id="total-drive-min">—</div>' +
+    '<div class="tour-stat-lbl">Drive Time</div>' +
     '</div>' +
     '</div>' +
 
@@ -779,7 +795,7 @@ function renderTodaysTourScreen(){
       ? '<div class="remaining-stops-header" onclick="toggleRemaining(\'screen-today\')">' +
         '<div style="display:flex;align-items:center;gap:8px">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>' +
-        '<span style="font-size:13px;font-weight:600;color:var(--navy)">Remaining stops (' + (props.length - 1) + ')</span>' +
+        '<span style="font-size:15px;font-weight:600;color:var(--navy)">Remaining stops (' + (props.length - 1) + ')</span>' +
         '</div>' +
         '<svg id="remaining-chevron-screen-today" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>' +
         '</div>' +
@@ -1090,7 +1106,7 @@ function renderTourModeScreen(propIdx, screenId){
       ? '<div class="remaining-stops-header" onclick="toggleRemaining(\'' + screenId + '\')">' +
         '<div style="display:flex;align-items:center;gap:8px">' +
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>' +
-        '<span style="font-size:13px;font-weight:600;color:var(--navy)">Remaining stops (' + (props.length - propIdx - 1) + ')</span>' +
+        '<span style="font-size:15px;font-weight:600;color:var(--navy)">Remaining stops (' + (props.length - propIdx - 1) + ')</span>' +
         '</div>' +
         '<svg id="remaining-chevron-' + screenId + '" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>' +
         '</div>' +
@@ -1146,9 +1162,25 @@ function trackMapsOpen(idx){
 function startNavigation(idx){
   var p = GS.properties[idx];
   var url = buildMapsUrl(p);
-  if(navigator.vibrate) navigator.vibrate(40);
+
+  // Double haptic — "launching" feel
+  if(navigator.vibrate){ navigator.vibrate([30, 50, 80]); }
+
+  // Brief visual press then open maps
+  var btns = document.querySelectorAll('.btn-start-tour');
+  btns.forEach(function(btn){
+    btn.style.transform = 'scale(.95)';
+    btn.style.opacity = '.8';
+    setTimeout(function(){
+      btn.style.transform = '';
+      btn.style.opacity = '';
+    }, 200);
+  });
+
   trackMapsOpen(idx);
-  if(url) window.open(url, '_blank');
+  setTimeout(function(){
+    if(url) window.open(url, '_blank');
+  }, 150);
 }
 
 function manualArrival(idx){ showArrivalOverlay(idx); }
@@ -1545,14 +1577,20 @@ function initTourMaps(){
         bounds.push([lat,lng]);
       });
 
-      // Route polyline
+      // Route polyline — soft, rounded, premium feel
       if(bounds.length > 1){
-        L.polyline(bounds, {color:'#071226',weight:3,opacity:.65}).addTo(map);
+        L.polyline(bounds, {
+          color:'#071226',
+          weight:2.5,
+          opacity:.5,
+          lineJoin:'round',
+          lineCap:'round'
+        }).addTo(map);
       }
 
-      // Set view
+      // Fit map tighter — route fills more of the frame
       if(bounds.length > 1){
-        map.fitBounds(bounds, {padding:[44,44]});
+        map.fitBounds(bounds, {padding:[30, 30]});
       } else if(bounds.length === 1){
         map.setView(bounds[0], 15);
       } else {
@@ -1579,6 +1617,7 @@ function fetchAllDriveTimes(){
   var props = GS.properties;
   var locs = props.map(function(p){ return p.lat && p.lng ? p.lat+','+p.lng : (p.mapsUrl || p.address || ''); });
   var totalKm = 0;
+  var totalDriveMin = 0;
   var pending = Math.max(0, locs.length - 1);
 
   function updateStatBlocks(propIdx, result){
@@ -1607,6 +1646,7 @@ function fetchAllDriveTimes(){
           etaEl.textContent = 'ETA ' + (hh<10?'0':'')+hh + ':' + (mm<10?'0':'')+mm;
         }
         totalKm += parseFloat(result.distanceKm)||0;
+        totalDriveMin += parseInt(result.durationMin,10)||0;
         driveTimeCache[locs[propIdx-1]+'||'+locs[propIdx]] = result;
       }
     }
@@ -1615,6 +1655,8 @@ function fetchAllDriveTimes(){
     if(pending <= 0){
       var totalEl = document.getElementById('total-distance');
       if(totalEl) totalEl.textContent = totalKm > 0 ? Math.round(totalKm) + ' km' : '—';
+      var totalMinEl = document.getElementById('total-drive-min');
+      if(totalMinEl) totalMinEl.textContent = totalDriveMin > 0 ? totalDriveMin + ' min' : '—';
       var pillText = document.getElementById('today-pill-text');
       if(pillText && totalKm > 0){
         pillText.textContent = GS.properties.length + ' stops • ' + Math.round(totalKm) + ' km';
@@ -1711,8 +1753,35 @@ function completeViewing(idx){
   completedSet[idx] = true;
   if(!tourStartTime) tourStartTime = Date.now();
 
-  // Haptic feedback if supported
-  if(navigator.vibrate){ navigator.vibrate(40); }
+  // Haptic feedback
+  if(navigator.vibrate){ navigator.vibrate([40, 30, 60]); }
+
+  // Animate current map markers — grey out completed, gold up next
+  Object.keys(tourMaps).forEach(function(screenId){
+    var map = tourMaps[screenId];
+    if(!map) return;
+    map.eachLayer(function(layer){
+      if(!layer._icon) return;
+      var el = layer._icon.querySelector('div');
+      if(!el) return;
+      var txt = el.textContent ? parseInt(el.textContent,10) : null;
+      if(txt === null) return;
+      var layerIdx = txt - 1;
+      if(layerIdx === idx){
+        // Just completed — fade to grey
+        el.style.transition = 'background .5s ease, color .3s ease';
+        el.style.background = '#9ca3af';
+        el.style.color = '#fff';
+      } else if(layerIdx === idx + 1){
+        // Next stop — animate to gold
+        el.style.transition = 'background .5s ease .2s, transform .5s cubic-bezier(.34,1.56,.64,1) .2s';
+        el.style.background = '#C9A14A';
+        el.style.color = '#071226';
+        el.style.transform = 'scale(1.2)';
+        setTimeout(function(){ el.style.transform = 'scale(1)'; }, 700);
+      }
+    });
+  });
 
   showCompletionCelebration(idx);
 }
