@@ -196,40 +196,40 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
   margin-bottom:14px;
 }
 .tour-prop-img{
-  width:88px;height:72px;
-  border-radius:10px;
+  width:110px;height:90px;
+  border-radius:12px;
   object-fit:cover;
   flex-shrink:0;
-  margin-top:3px;
+  margin-top:2px;
 }
 .tour-prop-img-empty{
-  width:88px;height:72px;
-  border-radius:10px;
+  width:110px;height:90px;
+  border-radius:12px;
   background:var(--mist);
   flex-shrink:0;
 }
 
-/* Typography — bigger, bolder, car-holder readable */
+/* Typography — matching mockup: huge area, bold title, clear address */
 .tour-prop-area{
-  font-family:'Cormorant Garamond',serif;
-  font-size:38px;
-  font-weight:600;
+  font-family:'Jost',system-ui,sans-serif;
+  font-size:42px;
+  font-weight:800;
   color:var(--navy);
-  line-height:.95;
+  line-height:.9;
   text-transform:uppercase;
   letter-spacing:-.5px;
 }
 .tour-prop-title{
-  font-size:16px;
+  font-size:17px;
   color:var(--slate);
-  margin-top:5px;
+  margin-top:6px;
   font-weight:400;
   line-height:1.2;
 }
 .tour-prop-address{
   display:flex;align-items:center;gap:5px;
-  font-size:13px;color:var(--slate);
-  margin-top:6px;
+  font-size:14px;color:var(--slate);
+  margin-top:7px;
   font-weight:400;
 }
 
@@ -251,8 +251,8 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 .tour-stat:last-child{border-right:none}
 .tour-stat-icon{margin-bottom:5px;display:flex;justify-content:center}
 .tour-stat-val{
-  font-size:24px;
-  font-weight:700;
+  font-size:26px;
+  font-weight:800;
   color:var(--navy);
   line-height:1;
 }
@@ -266,7 +266,7 @@ body{font-family:'Jost',system-ui,sans-serif;background:var(--navy);color:#fff;m
 }
 .tour-stat-eta{
   font-size:12px;
-  font-weight:600;
+  font-weight:700;
   color:var(--brass);
   margin-top:3px;
 }
@@ -1525,11 +1525,6 @@ function initTourMaps(){
     if(!mapEl) return;
     if(mapEl._leaflet_id) return; // already inited
 
-  // Debug: log first property to see actual field names
-  if(GS.properties.length){
-    console.log('TourFlow map debug — first property:', JSON.stringify(GS.properties[0]));
-  }
-
   // Check if any property has coords
     var hasCoords = GS.properties.some(function(p){ return p.lat && p.lng; });
     if(!hasCoords){
@@ -1577,14 +1572,16 @@ function initTourMaps(){
         bounds.push([lat,lng]);
       });
 
-      // Route polyline — soft, rounded, premium feel
+      // Route — draw straight lines immediately as placeholder, then fetch real road route
+      var straightLine = null;
       if(bounds.length > 1){
-        L.polyline(bounds, {
+        straightLine = L.polyline(bounds, {
           color:'#071226',
-          weight:2.5,
-          opacity:.5,
+          weight:2,
+          opacity:.25,
           lineJoin:'round',
-          lineCap:'round'
+          lineCap:'round',
+          dashArray:'6 6'
         }).addTo(map);
       }
 
@@ -1594,8 +1591,39 @@ function initTourMaps(){
       } else if(bounds.length === 1){
         map.setView(bounds[0], 15);
       } else {
-        // Fallback to Costa Blanca area
         map.setView([37.98,-0.68], 11);
+      }
+
+      // Fetch real road route from OSRM (free, no API key)
+      if(bounds.length > 1){
+        var coordStr = bounds.map(function(b){ return b[1]+','+b[0]; }).join(';');
+        var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' + coordStr +
+          '?overview=full&geometries=geojson&steps=false';
+        fetch(osrmUrl)
+          .then(function(r){ return r.json(); })
+          .then(function(data){
+            if(!data.routes || !data.routes[0]) return;
+            var coords = data.routes[0].geometry.coordinates.map(function(c){
+              return [c[1], c[0]]; // OSRM returns [lng,lat], Leaflet wants [lat,lng]
+            });
+            // Remove dashed placeholder and draw real road route
+            if(straightLine) map.removeLayer(straightLine);
+            L.polyline(coords, {
+              color:'#071226',
+              weight:3,
+              opacity:.65,
+              lineJoin:'round',
+              lineCap:'round'
+            }).addTo(map);
+            // Refit to road route bounds
+            map.fitBounds(coords, {padding:[30, 30]});
+          })
+          .catch(function(){
+            // OSRM unavailable — upgrade dashed line to solid fallback
+            if(straightLine){
+              straightLine.setStyle({opacity:.45, dashArray:null, weight:2.5});
+            }
+          });
       }
 
       tourMaps[screenId] = map;
