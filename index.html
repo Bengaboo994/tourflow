@@ -2741,6 +2741,15 @@ function uploadExistingPropImg(input,dayId,propId){
 }
 function prevMaps(v){var el=document.getElementById("maps-prev");if(!el)return;el.innerHTML=v?'<a href="'+esc(v)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':"";}
 
+function _extractCoordsFromUrl(url){
+  if(!url) return null;
+  var m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+           url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+           url.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if(m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  return null;
+}
+
 function autoExtractMapsCoords(url, prefix, dayId, propId){
   if(!url) return;
   var isMaps = /maps\.app\.goo\.gl|maps\.google\.com|goo\.gl\/maps|google\.com\/maps/.test(url);
@@ -3035,7 +3044,6 @@ function uploadEditPropImg(input){
 }
 
 function saveEditProp(dayId,pid){
-  // If dayId not explicitly set, try to find which day this property belongs to
   if(!dayId){
     S.days.forEach(function(d){
       (d.properties||[]).forEach(function(p){
@@ -3044,67 +3052,80 @@ function saveEditProp(dayId,pid){
     });
   }
 
-  var updates={
-    url:gv('ep-url'),time:gv('ep-time'),
-    title:gv('ep-title'),address:gv('ep-addr'),area:gv('ep-area2'),
-    price:gv('ep-price'),rooms:gv('ep-rooms'),bathrooms:gv('ep-bath'),sqm:gv('ep-sqm'),
-    mapsUrl:gv('ep-maps'),agentRec:gv('ep-rec'),
-    commission:gv('ep-comm'),contact:gv('ep-cont'),contactPhone:gv('ep-cph'),
-    firm:gv('ep-firm'),location:gv('ep-loc'),note:gv('ep-note'),
-    highlights:window._editHighlights||[]
-  };
-  // savePinLocation() writes directly via updProp, so _pendingPinLat is only
-  // set if the user placed a pin for a *new* property that hasn't been saved yet.
-  if(window._pendingPinLat!=null){
-    updates.lat=window._pendingPinLat;
-    updates.lng=window._pendingPinLng;
-    window._pendingPinLat=null;window._pendingPinLng=null;
-  } else {
-    // Preserve existing lat/lng from the property object (set by autoExtractMapsCoords or updProp)
+  // Extract coords from Maps URL synchronously if possible, then save
+  var mapsUrl = gv('ep-maps') || '';
+  var coordsFromUrl = _extractCoordsFromUrl(mapsUrl);
+
+  function doSave(lat, lng){
     var existingProp = null;
     S.days.forEach(function(d){
-      (d.properties||[]).forEach(function(p){
-        if(p.id===pid) existingProp = p;
-      });
+      (d.properties||[]).forEach(function(p){ if(p.id===pid) existingProp=p; });
     });
-    if(existingProp && existingProp.lat) {
-      updates.lat = existingProp.lat;
-      updates.lng = existingProp.lng;
-    }
-  }
-  if(window._editImage){updates.ogImage=window._editImage;window._editImage=null;}
 
-  // Update in tour day if it belongs to one
-  if(dayId){
-    updProp(dayId,pid,updates);
-    // Sync to library — match by id, libId, or url
-    S.library=(S.library||[]).map(function(p){
-      if(p.id===pid||p.id===updates.libId||(updates.url&&p.url&&p.url===updates.url)){
-        return Object.assign({},p,updates);
-      }
-      return p;
-    });
-    persist();
-  } else {
-    // Editing from library — update library
-    S.library=(S.library||[]).map(function(p){
-      return p.id===pid?Object.assign({},p,updates):p;
-    });
-    // Sync to all tour days — match by id, libId, or url
-    S.days=S.days.map(function(d){
-      return Object.assign({},d,{
-        properties:(d.properties||[]).map(function(p){
-          if(p.id===pid||p.libId===pid||(updates.url&&p.url&&p.url===updates.url)){
-            return Object.assign({},p,updates);
-          }
-          return p;
-        })
+    var updates={
+      url:gv('ep-url'),time:gv('ep-time'),
+      title:gv('ep-title'),address:gv('ep-addr'),area:gv('ep-area2'),
+      price:gv('ep-price'),rooms:gv('ep-rooms'),bathrooms:gv('ep-bath'),sqm:gv('ep-sqm'),
+      mapsUrl:mapsUrl,agentRec:gv('ep-rec'),
+      commission:gv('ep-comm'),contact:gv('ep-cont'),contactPhone:gv('ep-cph'),
+      firm:gv('ep-firm'),location:gv('ep-loc'),note:gv('ep-note'),
+      highlights:window._editHighlights||[]
+    };
+
+    // Priority: 1) pending pin, 2) coords from URL, 3) existing on property
+    if(window._pendingPinLat!=null){
+      updates.lat=window._pendingPinLat; updates.lng=window._pendingPinLng;
+      window._pendingPinLat=null; window._pendingPinLng=null;
+    } else if(lat!=null){
+      updates.lat=lat; updates.lng=lng;
+    } else if(existingProp && existingProp.lat){
+      updates.lat=existingProp.lat; updates.lng=existingProp.lng;
+    }
+
+    if(window._editImage){updates.ogImage=window._editImage;window._editImage=null;}
+
+    // Update in tour day if it belongs to one
+    if(dayId){
+      updProp(dayId,pid,updates);
+      S.library=(S.library||[]).map(function(p){
+        if(p.id===pid||p.id===updates.libId||(updates.url&&p.url&&p.url===updates.url)){
+          return Object.assign({},p,updates);
+        }
+        return p;
       });
-    });
-    persist();
+      persist();
+    } else {
+      S.library=(S.library||[]).map(function(p){
+        return p.id===pid?Object.assign({},p,updates):p;
+      });
+      S.days=S.days.map(function(d){
+        return Object.assign({},d,{
+          properties:(d.properties||[]).map(function(p){
+            if(p.id===pid||p.libId===pid||(updates.url&&p.url&&p.url===updates.url)){
+              return Object.assign({},p,updates);
+            }
+            return p;
+          })
+        });
+      });
+      persist();
+    }
+    clearDraft();
+    go(dayId?'day-detail':'properties');
+  } // end doSave
+
+  // If long URL — extract coords immediately
+  if(coordsFromUrl){
+    doSave(coordsFromUrl.lat, coordsFromUrl.lng);
+  } else if(/maps\.app\.goo\.gl|goo\.gl\/maps/.test(mapsUrl)){
+    // Short URL — fetch server-side, then save
+    fetch('/.netlify/functions/og?url='+encodeURIComponent(mapsUrl))
+      .then(function(r){return r.json();})
+      .then(function(data){ doSave(data.lat||null, data.lng||null); })
+      .catch(function(){ doSave(null, null); });
+  } else {
+    doSave(null, null);
   }
-  clearDraft();
-  go(dayId?'day-detail':'properties');
 }
 
 // ── OUTPUT ────────────────────────────────────────────────────────────────────
