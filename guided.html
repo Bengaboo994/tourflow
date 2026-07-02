@@ -916,6 +916,7 @@ function renderTourModeScreen(propIdx, screenId){
   var props   = GS.properties;
   var ms      = matchScore(GS.client, p);
   var mLabel  = matchLabel(ms);
+  var showMatch = GS.day && GS.day.matchDisplay === 'tour';
   var mapsUrl = buildMapsUrl(p);
 
   // Tour summary pill text
