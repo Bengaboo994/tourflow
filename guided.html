@@ -1493,7 +1493,12 @@ function initTourMaps(){
     if(!mapEl) return;
     if(mapEl._leaflet_id) return; // already inited
 
-    // Check if any property has coords
+  // Debug: log first property to see actual field names
+  if(GS.properties.length){
+    console.log('TourFlow map debug — first property:', JSON.stringify(GS.properties[0]));
+  }
+
+  // Check if any property has coords
     var hasCoords = GS.properties.some(function(p){ return p.lat && p.lng; });
     if(!hasCoords){
       showMapFallback(mapEl);
