@@ -566,17 +566,20 @@ function renderApp(){
 
   container.innerHTML = html;
 
+  // Disable scroll-snap until tour starts — prevents auto-snapping past Preparing
+  container.style.scrollSnapType = 'none';
+  container.scrollTop = 0;
+
   fetchAllDriveTimes();
   mountProgressUI();
   setTimeout(initTourMaps, 200);
 
-  // If tour already started (returning from Maps), skip Preparing and go straight to nav
   if(GS.tourStarted){
+    container.style.scrollSnapType = 'y mandatory';
     var target = GS.currentNavTarget || 'nav-0';
     var el = document.getElementById('screen-' + target);
     if(el) el.scrollIntoView({behavior:'instant', block:'start'});
   } else {
-    // First open — show Preparing and kick off sequence after a short beat
     setTimeout(runPreparingSequence, 400);
   }
 }
@@ -1861,7 +1864,10 @@ function startTour(){
   if(navigator.vibrate) navigator.vibrate([30, 40, 60]);
   GS.tourStarted = true;
   GS.currentNavTarget = 'nav-0';
-  goToScreen('nav-0');
+  // Re-enable scroll-snap now that the user is actively navigating
+  var container = document.getElementById('scroll-container');
+  if(container) container.style.scrollSnapType = 'y mandatory';
+  goToScreen('today');
 }
 
 function goToScreen(target){
