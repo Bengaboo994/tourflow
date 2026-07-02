@@ -1158,13 +1158,21 @@ document.addEventListener('visibilitychange', function(){
   if(document.visibilityState !== 'visible') return;
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
+    var idx = navState.pendingStopIdx;
+    if(idx !== null){
+      navState.pendingStopIdx = null;
+      goToScreen('prop-' + idx);
+    }
   }, 300);
 });
 window.addEventListener('focus', function(){
   if(navState.pendingStopIdx === null) return;
   setTimeout(function(){
-    if(navState.pendingStopIdx !== null) showArrivalOverlay(navState.pendingStopIdx);
+    var idx = navState.pendingStopIdx;
+    if(idx !== null){
+      navState.pendingStopIdx = null;
+      goToScreen('prop-' + idx);
+    }
   }, 300);
 });
 
