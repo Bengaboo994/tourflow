@@ -50,7 +50,7 @@ input,button,textarea,select{font-family:inherit}
 .wrap{padding:20px 18px 80px;min-height:calc(100vh - 60px)}
 .card{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .lbl{font-size:10px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
-.inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
+.inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;font-weight:400;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
 .inp:focus{border-color:#C9A14A}
 .ins{padding:9px 11px;font-size:14px}
 .btn{width:100%;padding:13px 18px;background:var(--hdr);color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px}
@@ -2881,6 +2881,29 @@ function _applyMapsCoords(lat, lng, prefix, dayId, propId){
       fill(p + 'bath', data.bathrooms || '');
       fill(p + 'sqm', data.sqm || '');
 
+      // New fields from Resales XML
+      fill(p + 'plotsize', data.plotSize || '');
+      fill(p + 'yearbuilt', data.yearBuilt || '');
+      fill(p + 'orientation', data.orientation || '');
+      fill(p + 'pool', data.pool || '');
+      fill(p + 'garage', data.garage || '');
+      fill(p + 'furnished', data.furnished || '');
+      fill(p + 'community', data.communityFee || '');
+      fill(p + 'ibi', data.ibi || '');
+      fill(p + 'basura', data.basura || '');
+      fill(p + 'energy', data.energyCert || '');
+
+      // Auto-save lat/lng if returned from XML
+      if(data.lat && data.lng){
+        window._pendingPinLat = data.lat;
+        window._pendingPinLng = data.lng;
+        var pinBtn = document.getElementById(p + 'pin-btn');
+        var pinStatus = document.getElementById(p + 'pin-status');
+        if(pinBtn){ pinBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Pin set from listing'; pinBtn.style.borderColor='#86efac';pinBtn.style.color='#059669'; }
+        if(pinStatus) pinStatus.textContent = data.lat.toFixed(4)+', '+data.lng.toFixed(4);
+        filled.push('pin');
+      }
+
       // Highlights
       if (data.highlights && data.highlights.length) {
         if (formPrefix === 'ep') {
@@ -3070,6 +3093,34 @@ function pgEditProp(){
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">Property Details</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Plot size m²</label><input class="inp" id="ep-plotsize" '+v(p.plotSize||'')+' placeholder="e.g. 800"/></div>'+
+    '<div><label class="lbl">Year built</label><input class="inp" id="ep-yearbuilt" '+v(p.yearBuilt||'')+' placeholder="e.g. 2018"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Orientation</label><input class="inp" id="ep-orientation" '+v(p.orientation||'')+' placeholder="e.g. South"/></div>'+
+    '<div><label class="lbl">Energy cert</label><input class="inp" id="ep-energy" '+v(p.energyCert||'')+' placeholder="e.g. C"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Pool</label><input class="inp" id="ep-pool" '+v(p.pool||'')+' placeholder="e.g. Private"/></div>'+
+    '<div><label class="lbl">Garage</label><input class="inp" id="ep-garage" '+v(p.garage||'')+' placeholder="e.g. Yes"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Furnished</label><input class="inp" id="ep-furnished" '+v(p.furnished||'')+' placeholder="e.g. Yes"/></div>'+
+    '<div><label class="lbl">Community fee</label><input class="inp" id="ep-community" '+v(p.communityFee||'')+' placeholder="e.g. €1,200/yr"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">IBI / yr</label><input class="inp" id="ep-ibi" '+v(p.ibi||'')+' placeholder="e.g. €450"/></div>'+
+    '<div><label class="lbl">Basura / yr</label><input class="inp" id="ep-basura" '+v(p.basura||'')+' placeholder="e.g. €150"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:0">'+
+    '<div><label class="lbl">To beach</label><input class="inp" id="ep-dbeach" '+v(p.distanceToBeach||'')+' placeholder="e.g. 500m"/></div>'+
+    '<div><label class="lbl">To golf</label><input class="inp" id="ep-dgolf" '+v(p.distanceToGolf||'')+' placeholder="e.g. 2 km"/></div>'+
+    '</div>'+
+    '</div>'+
+
+    '<div class="card" style="margin-bottom:14px">'+
     '<div style="border-left:2px solid #C9A14A;padding-left:12px;margin-bottom:14px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em">Agent Info</div></div>'+
     iffHtml+
@@ -3116,6 +3167,11 @@ function saveEditProp(dayId,pid){
       mapsUrl:mapsUrl,agentRec:gv('ep-rec'),
       commission:gv('ep-comm'),contact:gv('ep-cont'),contactPhone:gv('ep-cph'),
       firm:gv('ep-firm'),location:gv('ep-loc'),note:gv('ep-note'),
+      plotSize:gv('ep-plotsize'),yearBuilt:gv('ep-yearbuilt'),
+      orientation:gv('ep-orientation'),energyCert:gv('ep-energy'),
+      pool:gv('ep-pool'),garage:gv('ep-garage'),furnished:gv('ep-furnished'),
+      communityFee:gv('ep-community'),ibi:gv('ep-ibi'),basura:gv('ep-basura'),
+      distanceToBeach:gv('ep-dbeach'),distanceToGolf:gv('ep-dgolf'),
       highlights:window._editHighlights||[]
     };
 
