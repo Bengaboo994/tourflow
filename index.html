@@ -2911,6 +2911,8 @@ function _applyMapsCoords(lat, lng, prefix, dayId, propId){
       fill(p + 'ibi', data.ibi || '');
       fill(p + 'basura', data.basura || '');
       fill(p + 'energy', data.energyCert || '');
+      fill(p + 'dbeach', data.distanceToBeach || '');
+      fill(p + 'dgolf', data.distanceToGolf || '');
 
       // Auto-save lat/lng if returned from XML
       if(data.lat && data.lng){
@@ -3867,6 +3869,34 @@ function pgAddLibraryProp(){
     '<div id="alp-hl-wrap">'+hlPickerHtml('__lib__','__lib__',window._libNewHighlights||[])+'</div>'+
     '</div>'+
 
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px">Property Details</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Plot size m²</label><input class="inp" id="alp-plotsize" placeholder="e.g. 800"/></div>'+
+    '<div><label class="lbl">Year built</label><input class="inp" id="alp-yearbuilt" placeholder="e.g. 2018"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Orientation</label><input class="inp" id="alp-orientation" placeholder="e.g. South"/></div>'+
+    '<div><label class="lbl">Energy cert</label><input class="inp" id="alp-energy" placeholder="e.g. C"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Pool</label><input class="inp" id="alp-pool" placeholder="e.g. Private"/></div>'+
+    '<div><label class="lbl">Garage</label><input class="inp" id="alp-garage" placeholder="e.g. Yes"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">Furnished</label><input class="inp" id="alp-furnished" placeholder="e.g. Yes"/></div>'+
+    '<div><label class="lbl">Community fee</label><input class="inp" id="alp-community" placeholder="e.g. €1,200/yr"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:11px">'+
+    '<div><label class="lbl">IBI / yr</label><input class="inp" id="alp-ibi" placeholder="e.g. €450"/></div>'+
+    '<div><label class="lbl">Basura / yr</label><input class="inp" id="alp-basura" placeholder="e.g. €150"/></div>'+
+    '</div>'+
+    '<div class="g2" style="margin-bottom:0">'+
+    '<div><label class="lbl">To beach</label><input class="inp" id="alp-dbeach" placeholder="e.g. 500m"/></div>'+
+    '<div><label class="lbl">To golf</label><input class="inp" id="alp-dgolf" placeholder="e.g. 2 km"/></div>'+
+    '</div>'+
+    '</div>'+
+
     '<button class="btn" onclick="saveLibraryProp()">Save to library</button>'+
     '</div>';
 }
@@ -3898,6 +3928,18 @@ function saveLibraryProp(){
     sqm:document.getElementById('alp-sqm')?document.getElementById('alp-sqm').value.trim():'',
     mapsUrl:document.getElementById('alp-maps')?document.getElementById('alp-maps').value.trim():'',
     highlights:window._libNewHighlights||[],
+    plotSize:document.getElementById('alp-plotsize')?document.getElementById('alp-plotsize').value.trim():'',
+    yearBuilt:document.getElementById('alp-yearbuilt')?document.getElementById('alp-yearbuilt').value.trim():'',
+    orientation:document.getElementById('alp-orientation')?document.getElementById('alp-orientation').value.trim():'',
+    energyCert:document.getElementById('alp-energy')?document.getElementById('alp-energy').value.trim():'',
+    pool:document.getElementById('alp-pool')?document.getElementById('alp-pool').value.trim():'',
+    garage:document.getElementById('alp-garage')?document.getElementById('alp-garage').value.trim():'',
+    furnished:document.getElementById('alp-furnished')?document.getElementById('alp-furnished').value.trim():'',
+    communityFee:document.getElementById('alp-community')?document.getElementById('alp-community').value.trim():'',
+    ibi:document.getElementById('alp-ibi')?document.getElementById('alp-ibi').value.trim():'',
+    basura:document.getElementById('alp-basura')?document.getElementById('alp-basura').value.trim():'',
+    distanceToBeach:document.getElementById('alp-dbeach')?document.getElementById('alp-dbeach').value.trim():'',
+    distanceToGolf:document.getElementById('alp-dgolf')?document.getElementById('alp-dgolf').value.trim():'',
     lat:window._pendingPinLat||null,
     lng:window._pendingPinLng||null,
     sold:false,
