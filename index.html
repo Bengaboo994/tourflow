@@ -2519,6 +2519,7 @@ function pgDayDetail(){
       '</div></div>'+
       '<div style="display:flex;gap:6px">'+
       '<button class="btn btn-sm" style="background:#071226;color:#C9A14A" onclick="S.epid=\''+p.id+'\';go(\'edit-prop\')">Edit</button>'+
+      '<button class="btn btn-sm" style="background:var(--mist);color:var(--ink);border:1px solid var(--fog);padding:7px 10px" onclick="S.epid=S.epid===\''+p.id+'\'?null:\''+p.id+'\';render()" title="'+(io?'Collapse':'Expand')+'">'+(io?'&#9650;':'&#9660;')+'</button>'+
       '<button class="bico" onclick="doDeletePropById(\''+p.id+'\')" >&#215;</button>'+
       '</div></div>'+ep+'</div>';
   }).join("");
