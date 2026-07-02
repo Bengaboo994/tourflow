@@ -2696,7 +2696,12 @@ function pgAddProp(){
     '<button id="ap-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'ap\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
     '<svg width="12" height="12" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Set pin on map</button>'+
     '<span id="ap-pin-status" style="font-size:11px;color:#9e9a94"></span>'+
-    '</div></div>'+
+    '</div>'+
+    '<div style="display:flex;align-items:flex-start;gap:6px;margin-top:8px;padding:9px 11px;background:#fef9ec;border:1px solid rgba(201,161,74,.25);border-radius:8px">'+
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'+
+    '<span style="font-size:11px;color:#92731a;line-height:1.5">A pin is required for the map in Tour Mode. Tap Set pin on map to place it manually.</span>'+
+    '</div>'+
+    '</div>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
@@ -2774,11 +2779,11 @@ function autoExtractMapsCoords(url, prefix, dayId, propId){
       if(data.lat && data.lng){
         _applyMapsCoords(data.lat, data.lng, prefix, dayId, propId);
       } else {
-        if(statusEl) statusEl.textContent = 'Could not extract — use Set pin instead';
+        if(statusEl) statusEl.innerHTML = '<span style="color:#dc2626">Could not extract coordinates — <a href="'+url+'" target="_blank" style="color:#1a73e8">open in Maps</a> och share the full link instead</span>';
       }
     })
     .catch(function(){
-      if(statusEl) statusEl.textContent = 'Could not extract — use Set pin instead';
+      if(statusEl) statusEl.innerHTML = '<span style="color:#dc2626">Network error — use Set pin on map instead</span>';
     });
 }
 
@@ -3011,7 +3016,15 @@ function pgEditProp(){
     '<button id="ep-pin-btn" type="button" onclick="openPinMap(\'ep\',\''+sourceDayId+'\',\''+S.epid+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid '+(p.lat?'#86efac':'#edeae4')+';border-radius:8px;font-size:12px;font-weight:500;color:'+(p.lat?'#059669':'#2D2B28')+';cursor:pointer;font-family:inherit">'+
     '<svg width="12" height="12" viewBox="0 0 24 24" fill="'+(p.lat?'#059669':'#C9A14A')+'"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+(p.lat?'Pin saved — move pin':'Set pin on map')+'</button>'+
     (p.lat?'<span style="font-size:11px;color:#059669">'+parseFloat(p.lat).toFixed(4)+', '+parseFloat(p.lng).toFixed(4)+'</span>':'')+
-    '</div></div>'+
+    '</div>'+
+    (p.lat
+      ? ''
+      : '<div style="display:flex;align-items:flex-start;gap:6px;margin-top:8px;padding:9px 11px;background:#fef9ec;border:1px solid rgba(201,161,74,.25);border-radius:8px">'+
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'+
+        '<span style="font-size:11px;color:#92731a;line-height:1.5">No pin set — Tour Mode map requires a pin. Paste a Google Maps link with coordinates, or tap Set pin on map.</span>'+
+        '</div>')+
+    '<span id="ep-pin-status" style="font-size:11px;color:#9e9a94;display:block;margin-top:4px"></span>'+
+    '</div>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
