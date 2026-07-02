@@ -222,9 +222,16 @@ exports.handler = async function(event) {
       const propType = detectPropertyType(combined);
       const t = combined.toLowerCase();
 
-      // Priority 1: try to extract a clean title directly from og:title
-      // If the og:title is a full description, clean it up
-      if (rawOgTitle && rawOgTitle.length > 6 && rawOgTitle.length < 80) {
+      // Priority 1: use og:title if it looks like a real property title
+      // Skip it if it's a listing-style title ("Bungalow till salu", "Villa for sale in X")
+      // or too short/too long to be useful
+      const isBadTitle = !rawOgTitle
+        || rawOgTitle.length < 6
+        || rawOgTitle.length > 80
+        || /\b(till salu|for sale|en venta|zu verkaufen|à vendre|te koop|in vendita|na prodej)\b/i.test(rawOgTitle)
+        || rawOgTitle.trim().split(/\s+/).length <= 1; // single word like "Bungalow"
+
+      if (!isBadTitle) {
       // Strip location suffix: "in Altea", "en Marbella", "i Estepona" etc
       // Also strip preposition phrases: "near golf", "close to beach"
       const locationSuffix = /\s+(in|en|i|at|på|near|close to|à|à)\s+\w[\w\s]{1,30}$/i;
