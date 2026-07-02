@@ -1377,22 +1377,6 @@ function renderPropertyScreen(p, idx){
       f.icon + '<span style="font-size:13px;font-weight:600;color:var(--navy)">' + esc(f.label) + '</span></div>';
   }).join('');
 
-  // Annual costs — only if any exist
-  var costs = [];
-  if(p.communityFee) costs.push({ label:'Community', val:p.communityFee });
-  if(p.ibi)          costs.push({ label:'IBI', val:p.ibi });
-  if(p.basura)       costs.push({ label:'Basura', val:p.basura });
-  var costsHtml = costs.length
-    ? '<div style="background:var(--mist);border:1px solid var(--fog);border-radius:14px;padding:14px 16px;margin-bottom:20px">' +
-      '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:10px">Annual Costs</div>' +
-      '<div style="display:flex;gap:16px">' +
-      costs.map(function(c){
-        return '<div><div style="font-size:11px;color:var(--slate);margin-bottom:2px">' + c.label + '</div>' +
-          '<div style="font-size:15px;font-weight:700;color:var(--navy)">' + esc(c.val) + '</div></div>';
-      }).join('<div style="width:1px;background:var(--fog)"></div>') +
-      '</div></div>'
-    : '';
-
   // Listing agent
   var agentHtml = (p.contact || p.contactPhone)
     ? '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 1px 6px rgba(7,18,38,.04)">' +
@@ -1436,30 +1420,30 @@ function renderPropertyScreen(p, idx){
     // Fact chips
     (factsHtml ? '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">' + factsHtml + '</div>' : '') +
 
-    // ── COLLAPSIBLE PROPERTY DETAILS ─────────────────────────────────────────
+    // ── PROPERTY DETAILS — always show all fields, collapsed by default ───────
     (function(){
       var rows = [
-        ['Community Fee',          p.communityFee],
-        ['IBI',                    p.ibi],
-        ['Basura',                 p.basura],
-        ['Year Built',             p.yearBuilt],
-        ['Energy Certificate',     p.energyCert],
-        ['Orientation',            p.orientation],
-        ['Parking',                p.parking],
-        ['Storage',                p.storage],
-        ['Furniture Included',     p.furnished],
-        ['Distance to Sea',        p.distanceToSea],
-        ['Distance to Beach',      p.distanceToBeach],
-        ['Distance to Restaurants',p.distanceToRestaurants],
+        ['Community Fee',           p.communityFee],
+        ['IBI',                     p.ibi],
+        ['Basura',                  p.basura],
+        ['Year Built',              p.yearBuilt],
+        ['Energy Certificate',      p.energyCert],
+        ['Orientation',             p.orientation],
+        ['Parking',                 p.parking],
+        ['Storage',                 p.storage],
+        ['Furniture Included',      p.furnished],
+        ['Distance to Sea',         p.distanceToSea],
+        ['Distance to Beach',       p.distanceToBeach],
+        ['Distance to Restaurants', p.distanceToRestaurants],
         ['Distance to Supermarkets',p.distanceToSupermarkets]
-      ].filter(function(r){ return r[1]; });
-
-      if(!rows.length) return '';
+      ];
 
       var rowsHtml = rows.map(function(r){
+        var hasVal = !!r[1];
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--fog)">' +
           '<span style="font-size:13px;color:var(--slate)">' + r[0] + '</span>' +
-          '<span style="font-size:13px;font-weight:600;color:var(--navy);text-align:right;max-width:55%">' + esc(r[1]) + '</span>' +
+          '<span style="font-size:13px;font-weight:' + (hasVal ? '600' : '400') + ';color:' + (hasVal ? 'var(--navy)' : 'var(--fog)') + '">' +
+          (hasVal ? esc(r[1]) : '—') + '</span>' +
           '</div>';
       }).join('');
 
@@ -1474,9 +1458,6 @@ function renderPropertyScreen(p, idx){
         '</div>' +
         '</div>';
     })() +
-
-    // Annual costs
-    costsHtml +
 
     // ── CUSTOMER QUESTIONS ──────────────────────────────────────────────────
     '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 1px 6px rgba(7,18,38,.04)">' +
