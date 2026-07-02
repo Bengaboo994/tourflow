@@ -219,8 +219,6 @@ exports.handler = async function(event) {
     // ── SMART TITLE GENERATION ────────────────────────────────────────────
     function generateTitle(rawOgTitle, area, detectedRooms, detectedSqm, htmlText) {
       const combined = (rawOgTitle || '') + ' ' + htmlText.slice(0, 3000);
-      const propType = detectPropertyType(combined);
-      const t = combined.toLowerCase();
 
       // Priority 1: use og:title if it looks like a real property title
       // Skip it if it's a listing-style title ("Bungalow till salu", "Villa for sale in X")
@@ -247,14 +245,18 @@ exports.handler = async function(event) {
           // Optionally enrich with a leading adjective if missing
           const hasAdj = /\b(luxury|modern|charming|stunning|spectacular|spacious|elegant|exclusive|new build|renovated|beachfront)\b/i.test(cleaned);
           if (!hasAdj) {
-            const adj = pickAdjective(t);
+            const adj = pickAdjective(combined.toLowerCase());
             if (adj) return adj + ' ' + cleaned;
           }
           return cleaned;
         }
       }
 
-      // Priority 2: build from parts
+      // Priority 2: build from parts — use description text only, NOT og:title
+      // (og:title may say "Bungalow" when the property is actually a Villa)
+      const descriptionText = htmlText.slice(0, 5000);
+      const propType = detectPropertyType(descriptionText);
+      const t = descriptionText.toLowerCase();
       const adj = pickAdjective(t);
       const feature = pickFeature(t);
       const parts = [];
