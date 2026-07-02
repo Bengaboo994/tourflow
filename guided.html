@@ -1103,14 +1103,14 @@ function startNavigation(idx){
 
   trackMapsOpen(idx);
   setTimeout(function(){
-    if(url) window.open(url, '_blank');
+    if(url) window.location.href = url;
   }, 150);
 }
 
 function manualArrival(idx){ showArrivalOverlay(idx); }
 
 function reopenMaps(idx, mapsUrl){
-  if(mapsUrl) window.open(mapsUrl, '_blank');
+  if(mapsUrl) window.location.href = mapsUrl;
   trackMapsOpen(idx);
   var bodyEl = document.getElementById('arrival-body');
   if(bodyEl) resetArrivalBodyToWelcome(idx);
