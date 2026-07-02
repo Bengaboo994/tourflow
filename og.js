@@ -89,8 +89,40 @@ exports.handler = async function(event) {
     }
   }
 
+  // ── MAPS URL — extract coordinates ───────────────────────────────────────
+  const isMapsUrl = /maps\.app\.goo\.gl|maps\.google\.com|goo\.gl\/maps|google\.com\/maps/.test(url);
+  if (isMapsUrl) {
+    try {
+      const mapsRes = await fetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+        redirect: 'follow'
+      });
+      const finalUrl = mapsRes.url || url;
+
+      // Try to extract lat/lng from the final URL
+      // Pattern 1: @lat,lng in URL path
+      let m = finalUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (!m) m = finalUrl.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (!m) m = finalUrl.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+      // Pattern 2: also check the HTML body for coordinates
+      if (!m) {
+        const body = await mapsRes.text().catch(() => '');
+        m = body.match(/"(-?\d{1,3}\.\d{4,}),(-?\d{1,3}\.\d{4,})"/);
+      }
+      if (m) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ lat: parseFloat(m[1]), lng: parseFloat(m[2]), _source: 'maps' })
+        };
+      }
+      return { statusCode: 200, headers, body: JSON.stringify({ error: 'Could not extract coordinates from Maps URL', _source: 'maps' }) };
+    } catch(e) {
+      return { statusCode: 200, headers, body: JSON.stringify({ error: 'Maps fetch failed', _source: 'maps' }) };
+    }
+  }
+
   try {
-    const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
         'Accept': 'text/html,application/xhtml+xml',
