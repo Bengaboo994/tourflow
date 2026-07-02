@@ -37,8 +37,8 @@
 .ms-modal{position:fixed;inset:0;z-index:900;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
 .ms-modal-inner{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 24px 36px;max-height:80vh;overflow-y:auto}
 .ms-modal-hide{display:none}
-:root{--ink:#2D2B28;--paper:#FCFBF7;--brass:#C9A14A;--slate:#6b6560;--fog:#edeae4;--mist:#f5f2ec;--card:#ffffff;--hdr:#071226}
-body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:300;scrollbar-gutter:stable}
+:root{--ink:#1A1917;--paper:#FCFBF7;--brass:#C9A14A;--slate:#4a4744;--fog:#edeae4;--mist:#f5f2ec;--card:#ffffff;--hdr:#071226}
+body{font-family:'Jost',system-ui,sans-serif;background:#FCFBF7;color:var(--ink);max-width:480px;margin:0 auto;min-height:100vh;font-weight:400;scrollbar-gutter:stable}
 html{overflow-y:scroll}
 input,button,textarea,select{font-family:inherit}
 .hdr{display:none!important}.hdr.show{display:flex}
@@ -49,7 +49,7 @@ input,button,textarea,select{font-family:inherit}
 .nb.on{color:#C9A14A}.nd{width:20px;height:2px;background:#C9A14A;border-radius:1px;margin-top:2px}
 .wrap{padding:20px 18px 80px;min-height:calc(100vh - 60px)}
 .card{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-.lbl{font-size:10px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
+.lbl{font-size:10px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
 .inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
 .inp:focus{border-color:#C9A14A}
 .ins{padding:9px 11px;font-size:14px}
@@ -58,23 +58,23 @@ input,button,textarea,select{font-family:inherit}
 .btn-b{background:linear-gradient(135deg,#c9993a,#8a6020);color:#fff}
 .btn-sm{padding:7px 14px;font-size:12px;width:auto;border-radius:8px;margin-bottom:0}
 .btn-add{background:transparent;border:1.5px dashed var(--brass);color:var(--brass);border-radius:9px;padding:11px;width:100%;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px}
-.bico{background:none;border:none;color:#c8bfb0;font-size:18px;cursor:pointer;padding:4px;line-height:1}
-.bback{background:none;border:none;color:#9e9a94;font-size:13px;cursor:pointer;padding:0 0 16px 0;display:block}
-.sec{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:300;color:var(--ink);margin-bottom:16px}
-.sec-sm{font-size:11px;font-weight:500;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-.pill{background:var(--mist);color:var(--slate);font-size:10px;font-weight:500;padding:3px 9px;border-radius:100px;display:inline-block}
-.pill-br{background:#f5ede0;color:#8a6020}
-.pill-gr{background:#f0fdf4;color:#166534}
-.pill-bl{background:#eff6ff;color:#1d4ed8}
-.pill-am{background:#fef9ec;color:#92400e}
-.pill-gy{background:#f1f0ee;color:#6b5f4e}
+.bico{background:none;border:none;color:#5a5754;font-size:18px;cursor:pointer;padding:4px;line-height:1}
+.bback{background:none;border:none;color:#5a5754;font-size:13px;font-weight:500;cursor:pointer;padding:0 0 16px 0;display:block}
+.sec{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:16px}
+.sec-sm{font-size:11px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.pill{background:var(--mist);color:#4a4744;font-size:10px;font-weight:600;padding:3px 9px;border-radius:100px;display:inline-block}
+.pill-br{background:#f5ede0;color:#7a5418}
+.pill-gr{background:#f0fdf4;color:#145d30}
+.pill-bl{background:#eff6ff;color:#1a46c0}
+.pill-am{background:#fef9ec;color:#7a3608}
+.pill-gy{background:#f1f0ee;color:#4a4438}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
 .tog{display:flex;background:var(--mist);border-radius:10px;padding:3px;margin-bottom:14px}
-.tb{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#9e9a94;transition:all .15s}
+.tb{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:#4a4744;transition:all .15s}
 .tb.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.ban{border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:12px;display:flex;align-items:center;gap:7px}
-.ban-gr{background:#f0fdf4;color:#166534}
-.ban-am{background:#fef9ec;color:#92400e}
+.ban{border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:7px}
+.ban-gr{background:#f0fdf4;color:#145d30}
+.ban-am{background:#fef9ec;color:#7a3608}
 .emp{background:var(--mist);border-radius:16px;padding:40px 24px;text-align:center}
 .cc{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:15px 16px;margin-bottom:10px;cursor:pointer;display:flex;gap:12px;align-items:center}
 .av{width:44px;height:44px;border-radius:50%;background:var(--mist);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--brass);flex-shrink:0;border:1px solid var(--fog)}
@@ -89,9 +89,9 @@ input,button,textarea,select{font-family:inherit}
 #auth-gate .auth-card{background:#FCFBF7;border-radius:20px;padding:36px 28px;width:100%}
 .auth-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:40px}
 .auth-card{width:100%;max-width:340px}
-.auth-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:300;color:#2D2B28;text-align:center;margin-bottom:8px}
-.auth-sub{font-size:13px;color:#6b6560;text-align:center;margin-bottom:28px;line-height:1.5}
-.auth-input{width:100%;padding:14px 16px;border:1.5px solid #edeae4;border-radius:10px;font-size:15px;outline:none;background:#fff;color:#2D2B28;margin-bottom:12px;-webkit-appearance:none;font-family:inherit}
+.auth-title{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:300;color:#1A1917;text-align:center;margin-bottom:8px}
+.auth-sub{font-size:13px;color:#4a4744;text-align:center;margin-bottom:28px;line-height:1.5}
+.auth-input{width:100%;padding:14px 16px;border:1.5px solid #edeae4;border-radius:10px;font-size:15px;outline:none;background:#fff;color:#1A1917;margin-bottom:12px;-webkit-appearance:none;font-family:inherit}
 .auth-input:focus{border-color:#C9A14A}
 .auth-btn{width:100%;padding:14px 18px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
 .auth-btn:disabled{opacity:.6;cursor:default}
@@ -105,10 +105,10 @@ input,button,textarea,select{font-family:inherit}
 <body>
 <div id="auth-gate" style="display:none" onclick="if(event.target===this)hideAuthGate()">
   <div class="auth-card" style="position:relative">
-    <button onclick="hideAuthGate()" style="position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;color:#9e9a94;font-size:20px;line-height:1;padding:4px">&#215;</button>
+    <button onclick="hideAuthGate()" style="position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;color:#5a5754;font-size:20px;line-height:1;padding:4px">&#215;</button>
     <div class="auth-logo">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:14px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
+      <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:32px;font-weight:300;color:#1A1917;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
     </div>
     <div id="auth-step-email">
       <div class="auth-title" id="auth-title">Your viewing day is ready</div>
@@ -123,15 +123,15 @@ input,button,textarea,select{font-family:inherit}
       <input class="auth-input" id="auth-otp" type="number" placeholder="123456" inputmode="numeric" pattern="[0-9]*" style="letter-spacing:.3em;font-size:22px;text-align:center"/>
       <button class="auth-btn" id="auth-verify-btn" onclick="verifyOtp()">Sign in</button>
       <div id="auth-otp-feedback"></div>
-      <button style="width:100%;margin-top:10px;padding:10px;background:transparent;border:none;color:#9e9a94;font-size:12px;cursor:pointer;font-family:inherit" onclick="resendOtp()">Resend code</button>
-      <button style="width:100%;padding:10px;background:transparent;border:none;color:#9e9a94;font-size:12px;cursor:pointer;font-family:inherit" onclick="resetAuthForm()">Use a different email</button>
+      <button style="width:100%;margin-top:10px;padding:10px;background:transparent;border:none;color:#5a5754;font-size:12px;cursor:pointer;font-family:inherit" onclick="resendOtp()">Resend code</button>
+      <button style="width:100%;padding:10px;background:transparent;border:none;color:#5a5754;font-size:12px;cursor:pointer;font-family:inherit" onclick="resetAuthForm()">Use a different email</button>
     </div>
   </div>
 </div>
 <div id="splash" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#FCFBF7;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s ease;opacity:1;padding-bottom:30vh">
   <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:18px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
-  <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:40px;font-weight:300;color:#2D2B28;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
-  <span style="font-family:'Jost',sans-serif;font-size:13px;font-weight:400;color:#6b6560;letter-spacing:.14em;text-transform:uppercase;margin-top:16px">Organize viewings like a pro</span>
+  <span style="font-family:'Cormorant Garamond',Georgia,serif;font-size:40px;font-weight:300;color:#1A1917;letter-spacing:.02em;line-height:1">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>
+  <span style="font-family:'Jost',sans-serif;font-size:13px;font-weight:400;color:#4a4744;letter-spacing:.14em;text-transform:uppercase;margin-top:16px">Organize viewings like a pro</span>
 </div>
 <div id="ms-modal" class="ms-modal ms-modal-hide" onclick="closeMatchModal()">
   <div id="ms-modal-inner" class="ms-modal-inner" onclick="event.stopPropagation()"></div>
@@ -198,17 +198,17 @@ function showUpgradeModal(){
   modal.onclick=function(e){if(e.target===modal)hideUpgradeModal();};
   modal.innerHTML='<div style="background:#FCFBF7;border-radius:20px;width:100%;max-width:400px;padding:32px 28px 36px;text-align:center" onclick="event.stopPropagation()">'+
     '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:26px;font-weight:300;color:#2D2B28;margin-bottom:8px">Your trial has ended</div>'+
-    '<div style="font-size:13px;color:#6b6560;line-height:1.6;margin-bottom:24px">Upgrade to keep adding clients, viewing days and properties — your existing data stays exactly as it is.</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:26px;font-weight:300;color:#1A1917;margin-bottom:8px">Your trial has ended</div>'+
+    '<div style="font-size:13px;color:#4a4744;line-height:1.6;margin-bottom:24px">Upgrade to keep adding clients, viewing days and properties — your existing data stays exactly as it is.</div>'+
     '<div style="display:flex;background:#f5f2ec;border-radius:10px;padding:3px;margin-bottom:20px">'+
     '<button id="up-tog-monthly" onclick="selectUpgradePlan(\'monthly\')" style="flex:1;padding:9px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:#071226;color:#C9A14A">Monthly</button>'+
-    '<button id="up-tog-yearly" onclick="selectUpgradePlan(\'yearly\')" style="flex:1;padding:9px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#9e9a94">Yearly</button>'+
+    '<button id="up-tog-yearly" onclick="selectUpgradePlan(\'yearly\')" style="flex:1;padding:9px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#5a5754">Yearly</button>'+
     '</div>'+
     '<div id="up-price-block" style="margin-bottom:20px">'+
-    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€29<span style="font-size:18px;color:#9e9a94">/month</span></div>'+
+    '<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€29<span style="font-size:18px;color:#5a5754">/month</span></div>'+
     '</div>'+
     '<button onclick="startCheckout()" style="width:100%;padding:14px 18px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:10px">Upgrade now</button>'+
-    '<button onclick="hideUpgradeModal()" style="width:100%;padding:14px 18px;background:transparent;color:#6b6560;border:1.5px solid #edeae4;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit">Not now</button>'+
+    '<button onclick="hideUpgradeModal()" style="width:100%;padding:14px 18px;background:transparent;color:#4a4744;border:1.5px solid #edeae4;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit">Not now</button>'+
     '</div>';
   document.body.appendChild(modal);
   window._upgradePlan='monthly';
@@ -225,12 +225,12 @@ function selectUpgradePlan(plan){
   if(plan==='yearly'){
     if(mBtn){mBtn.style.background='transparent';mBtn.style.color='#9e9a94';}
     if(yBtn){yBtn.style.background='#071226';yBtn.style.color='#C9A14A';}
-    if(block)block.innerHTML='<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€228<span style="font-size:18px;color:#9e9a94">/year</span></div>'+
+    if(block)block.innerHTML='<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€228<span style="font-size:18px;color:#5a5754">/year</span></div>'+
       '<div style="font-size:12px;color:#059669;font-weight:600;margin-top:4px">Save €120 — equivalent to €19/month</div>';
   }else{
     if(mBtn){mBtn.style.background='#071226';mBtn.style.color='#C9A14A';}
     if(yBtn){yBtn.style.background='transparent';yBtn.style.color='#9e9a94';}
-    if(block)block.innerHTML='<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€29<span style="font-size:18px;color:#9e9a94">/month</span></div>';
+    if(block)block.innerHTML='<div style="font-family:\'Cormorant Garamond\',Georgia,serif;font-size:42px;font-weight:300;color:#071226;line-height:1">€29<span style="font-size:18px;color:#5a5754">/month</span></div>';
   }
 }
 function startCheckout(){
@@ -526,20 +526,20 @@ function topNav(){
   var initials=agent?agent.split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2):'TF';
   var acct=accountStatusInfo();
   var menuBody=currentUser
-    ?('<div style="font-size:11px;color:#9e9a94;margin-bottom:10px;word-break:break-all">'+esc(currentUser.email||'')+'</div>'+
+    ?('<div style="font-size:11px;color:#5a5754;margin-bottom:10px;word-break:break-all">'+esc(currentUser.email||'')+'</div>'+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">'+
       '<span style="width:7px;height:7px;border-radius:50%;background:'+acct.ring+';display:inline-block"></span>'+
-      '<span style="font-size:13px;font-weight:600;color:#2D2B28">'+acct.label+'</span></div>'+
-      '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>'+
+      '<span style="font-size:13px;font-weight:600;color:#1A1917">'+acct.label+'</span></div>'+
+      '<div style="font-size:11px;color:#5a5754;margin-bottom:12px">'+acct.detail+'</div>'+
       (acct.label==='Trial ended'?'<button onclick="closeAccountMenu();showUpgradeModal()" style="width:100%;padding:9px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px">Upgrade \u2014 from \u20ac29/month</button>':'')+
-      '<button onclick="closeAccountMenu();signOut()" style="width:100%;padding:9px;background:transparent;color:#6b6560;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Sign out</button>')
-    :('<div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:4px">Guest</div>'+
-      '<div style="font-size:11px;color:#9e9a94;margin-bottom:12px">'+acct.detail+'</div>'+
+      '<button onclick="closeAccountMenu();signOut()" style="width:100%;padding:9px;background:transparent;color:#4a4744;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Sign out</button>')
+    :('<div style="font-size:13px;font-weight:600;color:#1A1917;margin-bottom:4px">Guest</div>'+
+      '<div style="font-size:11px;color:#5a5754;margin-bottom:12px">'+acct.detail+'</div>'+
       '<button onclick="closeAccountMenu();showAuthGate()" style="width:100%;padding:9px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Sign in</button>');
   return '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0 14px;position:relative">'+
     '<div style="display:flex;align-items:center;gap:7px">'+
     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
-    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#2D2B28;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
+    '<span style="font-family:\'Cormorant Garamond\',serif;font-size:21px;font-weight:400;color:#1A1917;letter-spacing:.01em">Tour<span style="font-style:italic;color:#C9A14A">Flow</span></span>'+
     '</div>'+
     '<div style="display:flex;align-items:center;gap:12px">'+
     '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>'+
@@ -831,7 +831,7 @@ function scoreBadge(ms){
   return'<div style="display:inline-flex;align-items:center;gap:6px;background:'+bg+';border:1px solid '+col+'33;border-radius:8px;padding:5px 11px">'+
     '<div style="font-size:16px;font-weight:700;color:'+col+'">'+s+'</div>'+
     '<div><div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.08em">'+label+'</div>'+
-    '<div style="font-size:9px;color:#9e9a94">Match Score</div></div>'+
+    '<div style="font-size:9px;color:#5a5754">Match Score</div></div>'+
     '</div>';
 }
 function scoreBreakdown(ms){
@@ -840,8 +840,8 @@ function scoreBreakdown(ms){
   var failed=ms.results.filter(function(r){return!r.pass;});
   var lvlIcon={must:'✓',important:'◎',nice:'◇'};
   var rows='';
-  if(passed.length)rows+=passed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#059669;font-size:14px">&#10003;</span><span style="font-size:12px;color:#2D2B28">'+r.label+'</span><span style="font-size:10px;color:#9e9a94">('+r.level+')</span></div>';}).join('');
-  if(failed.length)rows+=failed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#dc2626;font-size:14px">&#10005;</span><span style="font-size:12px;color:#9e9a94">'+r.label+'</span><span style="font-size:10px;color:#9e9a94">('+r.level+')</span></div>';}).join('');
+  if(passed.length)rows+=passed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#059669;font-size:14px">&#10003;</span><span style="font-size:12px;color:#1A1917">'+r.label+'</span><span style="font-size:10px;color:#5a5754">('+r.level+')</span></div>';}).join('');
+  if(failed.length)rows+=failed.map(function(r){return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:#dc2626;font-size:14px">&#10005;</span><span style="font-size:12px;color:#5a5754">'+r.label+'</span><span style="font-size:10px;color:#5a5754">('+r.level+')</span></div>';}).join('');
   return'<div style="margin-top:10px;padding:12px;background:#f9f7f4;border-radius:8px">'+
     '<div style="font-size:9px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Requirements breakdown</div>'+
     rows+'</div>';
@@ -896,13 +896,13 @@ function getDriveTime(from,to){
 function driveTimeHtml(from,to){
   var dt=getDriveTime(from,to);
   if(!dt)return'';
-  if(!dt.ok)return'<div style="display:flex;align-items:center;gap:10px;padding:10px 28px;background:#f5f2ec;border-bottom:1px solid #edeae4"><span style="font-size:11px;color:#9e9a94">Drive time unavailable</span></div>';
+  if(!dt.ok)return'<div style="display:flex;align-items:center;gap:10px;padding:10px 28px;background:#f5f2ec;border-bottom:1px solid #edeae4"><span style="font-size:11px;color:#5a5754">Drive time unavailable</span></div>';
   return'<div style="display:flex;align-items:center;gap:14px;padding:12px 28px;background:#f5f2ec;border-bottom:1px solid #edeae4">'+
     '<div style="width:32px;height:32px;border-radius:50%;background:#fff;border:1px solid #edeae4;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">&#128664;</div>'+
     '<div style="display:flex;gap:16px;align-items:center">'+
-    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">'+dt.durationMin+' min</div><div style="font-size:10px;color:#9e9a94">drive</div></div>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#1A1917">'+dt.durationMin+' min</div><div style="font-size:10px;color:#5a5754">drive</div></div>'+
     '<div style="width:1px;height:24px;background:#edeae4"></div>'+
-    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">'+dt.distanceKm+' km</div><div style="font-size:10px;color:#9e9a94">distance</div></div>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#1A1917">'+dt.distanceKm+' km</div><div style="font-size:10px;color:#5a5754">distance</div></div>'+
     '</div></div>';
 }
 // ─────────────────────────────────────────────────────────────────
@@ -987,16 +987,16 @@ function showMatchModal(propId){
   var label=ms&&ms.score>=90?'Excellent Match':ms&&ms.score>=75?'Good Match':ms&&ms.score>=60?'Fair Match':'Low Match';
 
   var passed=ms?ms.results.filter(function(r){return r.pass;}).map(function(r){
-    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#059669;font-size:16px">&#10003;</span><span style="font-size:13px;color:#2D2B28">'+r.label+'</span></div>';
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#059669;font-size:16px">&#10003;</span><span style="font-size:13px;color:#1A1917">'+r.label+'</span></div>';
   }).join(''):'';
   var failed=ms?ms.results.filter(function(r){return!r.pass;}).map(function(r){
-    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#dc2626;font-size:16px">&#10005;</span><span style="font-size:13px;color:#9e9a94">'+r.label+'</span></div>';
+    return'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="color:#dc2626;font-size:16px">&#10005;</span><span style="font-size:13px;color:#5a5754">'+r.label+'</span></div>';
   }).join(''):'';
   var hlHtml=hl.length?'<div style="margin-top:16px"><div style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Property Highlights</div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:6px">'+
     hl.map(function(hlLabel){
       var h=HIGHLIGHTS.find(function(x){return x[2]===hlLabel;})||['','&#9679;',hlLabel];
-      return'<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:#f5f2ec;border:1px solid #edeae4;font-size:11px;font-weight:500;color:#6b6560">'+h[1]+' '+esc(hlLabel)+'</span>';
+      return'<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;background:#f5f2ec;border:1px solid #edeae4;font-size:11px;font-weight:500;color:#4a4744">'+h[1]+' '+esc(hlLabel)+'</span>';
     }).join('')+'</div></div>':'';
 
   var inner=document.getElementById('ms-modal-inner');
@@ -1006,11 +1006,11 @@ function showMatchModal(propId){
     '<div>'+
     '<div style="font-size:9px;font-weight:700;color:'+col+';text-transform:uppercase;letter-spacing:.14em;margin-bottom:4px">Client Match</div>'+
     (ms&&ms.score!=null?
-      '<div style="font-size:32px;font-weight:700;color:'+col+';line-height:1">'+ms.score+'<span style="font-size:14px;font-weight:400;color:#9e9a94">/100</span></div>'
+      '<div style="font-size:32px;font-weight:700;color:'+col+';line-height:1">'+ms.score+'<span style="font-size:14px;font-weight:400;color:#5a5754">/100</span></div>'
     :
       '<div style="margin-top:4px;padding:14px;background:#faf8f4;border-radius:10px;border:1px solid #edeae4">'+
-      '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:6px">No requirements profile yet</div>'+
-      '<div style="font-size:12px;color:#9e9a94;margin-bottom:12px;line-height:1.5">Add client requirements to see an accurate match score for this property.</div>'+
+      '<div style="font-size:13px;font-weight:500;color:#1A1917;margin-bottom:6px">No requirements profile yet</div>'+
+      '<div style="font-size:12px;color:#5a5754;margin-bottom:12px;line-height:1.5">Add client requirements to see an accurate match score for this property.</div>'+
       (c?'<button onclick="closeMatchModal();go(\'edit-client\',{cid:\''+c.id+'\'})" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#071226;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit">Add requirements &#8250;</button>':'')+
       '</div>'
     )+
@@ -1567,8 +1567,8 @@ function pgHome(){
         var progressPct=Math.round(stepsComplete/4*100);
         var progressBar='<div style="margin-bottom:20px">'+
           '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">'+
-          '<div style="font-size:10px;font-weight:600;color:#6b6560;text-transform:uppercase;letter-spacing:.1em">Getting started</div>'+
-          '<div style="font-size:10px;color:#9e9a94">'+stepsComplete+' of 4 completed</div>'+
+          '<div style="font-size:10px;font-weight:600;color:#4a4744;text-transform:uppercase;letter-spacing:.1em">Getting started</div>'+
+          '<div style="font-size:10px;color:#5a5754">'+stepsComplete+' of 4 completed</div>'+
           '</div>'+
           '<div style="height:3px;background:#edeae4;border-radius:100px">'+
           '<div style="height:100%;width:'+progressPct+'%;background:#C9A14A;border-radius:100px;transition:width .4s"></div>'+
@@ -1584,13 +1584,13 @@ function pgHome(){
             ?'<div style="width:22px;height:22px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.4);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>'
             :active
             ?'<span style="background:#071226;color:#C9A14A;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700">Step '+num+'</span>'
-            :'<span style="background:#f5f2ec;color:#9e9a94;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700">Step '+num+'</span>';
+            :'<span style="background:#f5f2ec;color:#5a5754;border-radius:100px;padding:2px 8px;font-size:9px;font-weight:700">Step '+num+'</span>';
           return '<div '+clickAttr+'background:'+bg+';border:'+border+';border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;opacity:'+opacity+'">'+
             '<div style="width:34px;height:34px;background:'+iconBg+';border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
             (done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>':icon)+
             '</div>'+
-            '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#2D2B28;margin-bottom:2px">'+title+'</div>'+
-            '<div style="font-size:11px;color:#9e9a94">'+sub+'</div></div>'+
+            '<div style="flex:1"><div style="font-size:13px;font-weight:600;color:#1A1917;margin-bottom:2px">'+title+'</div>'+
+            '<div style="font-size:11px;color:#5a5754">'+sub+'</div></div>'+
             badge+'</div>';
         }
 
@@ -1608,7 +1608,7 @@ function pgHome(){
           'quickDay()',hasProps&&!hasTours,hasTours);
 
         var previewCard='<div style="margin-top:24px;margin-bottom:4px">'+
-          '<div style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
+          '<div style="font-size:9px;font-weight:700;color:#5a5754;text-transform:uppercase;letter-spacing:.16em;text-align:center;margin-bottom:12px">This is what your clients will see</div>'+
           '<div onclick="showDemoClientView()" style="border-radius:18px;overflow:hidden;box-shadow:0 8px 32px rgba(7,18,38,.25);border:1px solid rgba(201,161,74,.15);cursor:pointer;position:relative">'+
           '<img src="onboarding-preview.jpg" style="width:100%;display:block"/>'+
           '<div style="position:absolute;bottom:10px;right:10px;background:rgba(7,18,38,.85);border-radius:100px;padding:6px 12px;display:flex;align-items:center;gap:5px">'+
@@ -1620,10 +1620,10 @@ function pgHome(){
           '<div style="background:#F6F2E9;border-radius:18px;padding:22px 20px;border:1px solid #e8e0d0;margin-bottom:20px;text-align:center">'+
           '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round" style="margin-bottom:12px"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>'+
           '<div style="position:relative;margin-bottom:4px">'+
-          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;text-align:center">Welcome to TourFlow</div>'+
-          '<button onclick="hideOnboarding()" style="position:absolute;top:0;right:0;background:none;border:none;font-size:22px;color:#c8bfb0;cursor:pointer;line-height:1;padding:0">&#215;</button>'+
+          '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#1A1917;text-align:center">Welcome to TourFlow</div>'+
+          '<button onclick="hideOnboarding()" style="position:absolute;top:0;right:0;background:none;border:none;font-size:22px;color:#8a8480;cursor:pointer;line-height:1;padding:0">&#215;</button>'+
           '</div>'+
-          '<div style="font-size:12px;color:#9e9a94;margin-bottom:16px">Let\'s get you set up in 4 simple steps</div>'+
+          '<div style="font-size:12px;color:#5a5754;margin-bottom:16px">Let\'s get you set up in 4 simple steps</div>'+
           progressBar+
           '</div>'+
           s0+s1+s2+s3+
@@ -1644,8 +1644,8 @@ function pgHome(){
         '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
         '<line x1="5" y1="62" x2="115" y2="62"/>'+
         '</svg>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
-        '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#1A1917;margin-bottom:6px">No tour scheduled today</div>'+
+        '<div style="font-size:13px;color:#5a5754;margin-bottom:20px">You\'re all clear for today.</div>'+
         '<button onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
         '</div></div>';
     } else {
@@ -1662,8 +1662,8 @@ function pgHome(){
         '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
         '<line x1="5" y1="62" x2="115" y2="62"/>'+
         '</svg>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#2D2B28;margin-bottom:6px">No tour scheduled today</div>'+
-        '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">You\'re all clear for today.</div>'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#1A1917;margin-bottom:6px">No tour scheduled today</div>'+
+        '<div style="font-size:13px;color:#5a5754;margin-bottom:20px">You\'re all clear for today.</div>'+
         '<button onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
         '</div></div>';
     }
@@ -1673,8 +1673,8 @@ function pgHome(){
   function qaBtn(onclick,iconSvg,title,sub){
     return '<button onclick="'+onclick+'" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:14px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
       '<div style="width:34px;height:34px;background:#071226;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:9px">'+iconSvg+'</div>'+
-      '<div style="font-size:12px;font-weight:600;color:#2D2B28;margin-bottom:2px">'+title+'</div>'+
-      '<div style="font-size:10px;color:#9e9a94">'+sub+'</div>'+
+      '<div style="font-size:12px;font-weight:600;color:#1A1917;margin-bottom:2px">'+title+'</div>'+
+      '<div style="font-size:10px;color:#5a5754">'+sub+'</div>'+
     '</button>';
   }
   var quickActions='<div style="margin-bottom:32px">'+
@@ -1706,8 +1706,8 @@ function pgHome(){
         var bg=avatarBg(rc.name);
         return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="flex:0 0 auto;width:110px;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;font-family:inherit">'+
           '<div style="width:40px;height:40px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">'+initials(rc.name)+'</div>'+
-          '<div style="font-size:12px;font-weight:600;color:#2D2B28;line-height:1.2;margin-bottom:3px">'+esc(rc.name.split(' ')[0])+'</div>'+
-          '<div style="font-size:10px;color:#9e9a94">'+daysAgo+'d ago</div>'+
+          '<div style="font-size:12px;font-weight:600;color:#1A1917;line-height:1.2;margin-bottom:3px">'+esc(rc.name.split(' ')[0])+'</div>'+
+          '<div style="font-size:10px;color:#5a5754">'+daysAgo+'d ago</div>'+
         '</button>';
       }).join('')+
       '</div></div>';
@@ -1729,13 +1729,13 @@ function pgHome(){
         var dateStr=fmtDate(d.date);
         return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="width:100%;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left">'+
           '<div style="text-align:center;min-width:32px">'+
-          '<div style="font-size:8px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
-          '<div style="font-size:20px;font-weight:600;color:#2D2B28;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
+          '<div style="font-size:8px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
+          '<div style="font-size:20px;font-weight:600;color:#1A1917;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
           '</div>'+
           '<div style="width:36px;height:36px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+initials(uc.name)+'</div>'+
           '<div style="flex:1;min-width:0">'+
-          '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:1px">'+esc(uc.name)+'</div>'+
-          '<div style="font-size:11px;color:#9e9a94">'+[uTime,uArea].filter(Boolean).join(' \u00b7 ')+'</div>'+
+          '<div style="font-size:13px;font-weight:500;color:#1A1917;margin-bottom:1px">'+esc(uc.name)+'</div>'+
+          '<div style="font-size:11px;color:#5a5754">'+[uTime,uArea].filter(Boolean).join(' \u00b7 ')+'</div>'+
           '</div>'+
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
         '</button>';
@@ -1748,8 +1748,8 @@ function pgHome(){
   var header=topNav();
 
   var greeting_block='<div style="padding-bottom:14px">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1.1;margin-bottom:3px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
-    '<div style="font-size:12px;color:#9e9a94;font-weight:400">'+todayLabel+'</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#1A1917;letter-spacing:-.2px;line-height:1.1;margin-bottom:3px">'+greeting+(agentName?', '+agentName:'')+'</div>'+
+    '<div style="font-size:12px;color:#5a5754;font-weight:400">'+todayLabel+'</div>'+
     '</div>';
 
   return '<div class="mobile-view"><div class="wrap" style="background:#FCFBF7;min-height:100vh">'+
@@ -1835,8 +1835,8 @@ function pgClients(){
     // Header
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">'+
     '<div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1">Clients</div>'+
-    '<div style="font-size:12px;color:#9e9a94;margin-top:4px">Manage your client relationships</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#1A1917;letter-spacing:-.2px;line-height:1">Clients</div>'+
+    '<div style="font-size:12px;color:#5a5754;margin-top:4px">Manage your client relationships</div>'+
     '</div>'+
     '<button onclick="go(\'add-client\')" style="background:#071226;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;flex-shrink:0;margin-top:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New client</button>'+
     '</div>'+
@@ -1849,7 +1849,7 @@ function pgClients(){
 
     // Filter chips
     '<div style="margin-bottom:8px">'+
-    '<div style="font-size:10px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Status</div>'+
+    '<div style="font-size:10px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Status</div>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
     chip('All',filterF==='all',"S._clientFilter='all';render()")+
     chip('Upcoming',filterF==='active',"S._clientFilter='active';render()")+
@@ -1858,9 +1858,9 @@ function pgClients(){
 
     // Count + sort
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:16px;margin-bottom:14px">'+
-    '<div style="font-size:13px;color:#6b6560">'+filtered.length+' client'+(filtered.length===1?'':'s')+'</div>'+
+    '<div style="font-size:13px;color:#4a4744">'+filtered.length+' client'+(filtered.length===1?'':'s')+'</div>'+
     '<div style="position:relative">'+
-    '<select onchange="S._clientSort=this.value;render()" style="appearance:none;-webkit-appearance:none;background:#fff;border:1.5px solid #edeae4;border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
+    '<select onchange="S._clientSort=this.value;render()" style="appearance:none;-webkit-appearance:none;background:#fff;border:1.5px solid #edeae4;border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;font-weight:500;color:#1A1917;cursor:pointer;font-family:inherit">'+
     ['recent','budget-hi','readiness','tours','name'].map(function(v){return'<option value="'+v+'"'+(sortF===v?' selected':'')+'>'+sortLabel[v]+'</option>';}).join('')+
     '</select>'+
     '<svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>'+
@@ -1869,15 +1869,15 @@ function pgClients(){
   if(S.clients.length===0){
     h+='<div style="text-align:center;padding:48px 24px">'+
       '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" style="margin-bottom:16px;opacity:.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No clients yet</div>'+
-      '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Add your first client to get started</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#1A1917;margin-bottom:8px">No clients yet</div>'+
+      '<div style="font-size:13px;color:#5a5754;margin-bottom:24px">Add your first client to get started</div>'+
       '<button class="btn" style="width:auto;padding:12px 28px" onclick="go(\'add-client\')">Add client</button></div>';
   } else if(filtered.length===0){
     h+='<div style="text-align:center;padding:40px 24px">'+
       '<div style="font-size:32px;margin-bottom:12px">&#128269;</div>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#2D2B28;margin-bottom:6px">No results</div>'+
-      '<div style="font-size:13px;color:#9e9a94;margin-bottom:16px">Try adjusting your search or filters</div>'+
-      '<button onclick="S._clientSearch=\'\';S._clientFilter=\'all\';render()" style="padding:9px 18px;background:#f5f2ec;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#2D2B28">Clear filters</button>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#1A1917;margin-bottom:6px">No results</div>'+
+      '<div style="font-size:13px;color:#5a5754;margin-bottom:16px">Try adjusting your search or filters</div>'+
+      '<button onclick="S._clientSearch=\'\';S._clientFilter=\'all\';render()" style="padding:9px 18px;background:#f5f2ec;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#1A1917">Clear filters</button>'+
       '</div>';
   } else {
     h+=filtered.map(function(c){
@@ -1893,21 +1893,21 @@ function pgClients(){
         '<div style="flex:1;min-width:0">'+
         '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
         (c.req&&c.req.buyerReadiness?brDot(c.req.buyerReadiness,8):'<span style="width:8px;height:8px;border-radius:50%;background:#edeae4;display:inline-block;flex-shrink:0"></span>')+
-        '<span style="font-size:15px;font-weight:500;color:#2D2B28">'+esc(c.name)+'</span>'+
+        '<span style="font-size:15px;font-weight:500;color:#1A1917">'+esc(c.name)+'</span>'+
         (c.req&&c.req.buyerReadiness?(function(){var b=getBR(c.req.buyerReadiness);return b?('<span style="margin-left:auto;font-size:11px;font-weight:700;color:'+b.col+'">'+b.v+'</span>'):'';})():'')+
         '</div>'+
-        '<div style="font-size:12px;color:#9e9a94;margin-bottom:6px">'+
+        '<div style="font-size:12px;color:#5a5754;margin-bottom:6px">'+
           (c.phone?esc(c.phone):'')+(c.nationality?' &middot; '+esc(c.nationality):'')+
         '</div>'+
         '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
         (upc.length?'<span style="background:#eff6ff;color:#2F6BFF;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:600">'+upc.length+' upcoming</span>':'')+
-        (cd.length?'<span style="background:#f5f2ec;color:#6b6560;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500">'+cd.length+' day'+(cd.length===1?"":"s")+'</span>':"")+
+        (cd.length?'<span style="background:#f5f2ec;color:#4a4744;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500">'+cd.length+' day'+(cd.length===1?"":"s")+'</span>':"")+
         (budgetStr?'<span style="background:#fef9ec;color:#92670a;border-radius:100px;padding:2px 9px;font-size:10px;font-weight:500">'+esc(budgetStr)+'</span>':"")+
         '</div></div>'+
         '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8bfb0" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
       '</div>';
     }).join("");
-    h+='<div style="text-align:center;padding:20px 0 8px;font-size:12px;color:#c8bfb0">Can\'t find a client? <button onclick="go(\'add-client\')" style="background:none;border:none;color:#C9A14A;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Add a new one.</button></div>';
+    h+='<div style="text-align:center;padding:20px 0 8px;font-size:12px;color:#8a8480">Can\'t find a client? <button onclick="go(\'add-client\')" style="background:none;border:none;color:#C9A14A;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Add a new one.</button></div>';
   }
   return h+'</div>';
 }
@@ -1929,7 +1929,7 @@ function pgClientDetail(){
           return '<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--slate);white-space:nowrap">'+
             (p.time?'<span style="font-weight:600;color:var(--ink);margin-right:3px">'+esc(p.time)+'</span>':'')+
             esc(p.title?p.title.slice(0,20)+(p.title.length>20?"...":""):getDomain(p.url))+'</div>';
-        }).join("")+(d.properties.length>3?'<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:#9e9a94">+'+(d.properties.length-3)+' more</div>':'')
+        }).join("")+(d.properties.length>3?'<div style="flex-shrink:0;background:var(--mist);border-radius:6px;padding:3px 9px;font-size:11px;color:#5a5754">+'+(d.properties.length-3)+' more</div>':'')
       +'</div>':'')+'</div>';
   }
   return '<div class="wrap" style="background:#FCFBF7">'+
@@ -2116,7 +2116,7 @@ function brPickerHtml(currentVal,idPrefix){
   var icons=['&#9729;','&#128301;','&#127919;','&#128197;','&#128273;'];
   var html='<div style="margin-bottom:16px">'+
     '<label class="lbl">Buyer Readiness</label>'+
-    '<div style="font-size:11px;color:#9e9a94;margin-bottom:10px">How ready is this client to purchase a property?</div>'+
+    '<div style="font-size:11px;color:#5a5754;margin-bottom:10px">How ready is this client to purchase a property?</div>'+
     '<div style="display:flex;flex-direction:column;gap:8px">';
   BR.forEach(function(b,i){
     var on=currentVal===b.v;
@@ -2127,9 +2127,9 @@ function brPickerHtml(currentVal,idPrefix){
       '<div style="flex:1">'+
       '<div style="display:flex;align-items:center;gap:7px;margin-bottom:2px">'+
       '<span style="width:8px;height:8px;border-radius:50%;background:'+b.col+';display:inline-block;flex-shrink:0"></span>'+
-      '<span style="font-size:13px;font-weight:600;color:#2D2B28">'+b.label+'</span>'+
+      '<span style="font-size:13px;font-weight:600;color:#1A1917">'+b.label+'</span>'+
       '</div>'+
-      '<span style="font-size:11px;color:#9e9a94">'+b.desc+'</span>'+
+      '<span style="font-size:11px;color:#5a5754">'+b.desc+'</span>'+
       '</div>'+
       '<div class="br-check" style="display:'+(on?'block':'none')+'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="'+b.col+'" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg></div>'+
       '<div class="br-circle" style="display:'+(on?'none':'block')+'"><div style="width:17px;height:17px;border-radius:50%;border:1.5px solid #edeae4;background:#fff"></div></div>'+
@@ -2178,10 +2178,10 @@ function pgAddClient(){
 
   var mustHtml=mustHave.length?
     '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
-    mustHave.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#1A1917;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var plusHtml=plus.length?
-    '<div><span style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
-    plus.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    '<div><span style="font-size:9px;font-weight:700;color:#5a5754;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#1A1917;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var summary=(mustHtml||plusHtml)?
     '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
 
@@ -2201,7 +2201,7 @@ function pgAddClient(){
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Full name"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Phone</label><input class="inp" id="ac-phone" placeholder="Phone number"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
+      '<div><label class="lbl">Phone</label><input class="inp" id="ac-phone" placeholder="Phone number"/><div style="font-size:10px;color:#5a5754;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
       '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="Email address"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
@@ -2288,10 +2288,10 @@ function pgEditClient(){
 
   var mustHtml=mustHave.length?
     '<div style="margin-bottom:6px"><span style="font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em">★ Must Have &nbsp;</span>'+
-    mustHave.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    mustHave.map(function(f){return'<span style="font-size:11px;color:#1A1917;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var plusHtml=plus.length?
-    '<div style="margin-bottom:10px"><span style="font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
-    plus.map(function(f){return'<span style="font-size:11px;color:#2D2B28;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
+    '<div style="margin-bottom:10px"><span style="font-size:9px;font-weight:700;color:#5a5754;text-transform:uppercase;letter-spacing:.1em">+ Plus &nbsp;</span>'+
+    plus.map(function(f){return'<span style="font-size:11px;color:#1A1917;margin-right:8px">'+f+'</span>';}).join('')+'</div>':'';
   var summary=(mustHtml||plusHtml)?
     '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
 
@@ -2312,7 +2312,7 @@ function pgEditClient(){
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ec-name" value="'+esc(c.name||'')+'"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Phone</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/><div style="font-size:10px;color:#9e9a94;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
+      '<div><label class="lbl">Phone</label><input class="inp" id="ec-phone" value="'+esc(c.phone||'')+'"/><div style="font-size:10px;color:#5a5754;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
       '<div><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
@@ -2354,7 +2354,7 @@ function pgDays(){
 
   function pageHeader(title, actionLabel, actionFn){
     return '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px">'+title+'</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#1A1917;letter-spacing:-.2px">'+title+'</div>'+
       '<button onclick="'+actionFn+'" style="background:#071226;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit">'+actionLabel+'</button>'+
       '</div>';
   }
@@ -2363,7 +2363,7 @@ function pgDays(){
     var c=S.clients.find(function(c){return c.id===d.clientId;})||{name:"Unknown"};
     var done=dayStatus(d.date)==="done";
     var badge=done
-      ?'<span style="background:#f3f4f6;color:#6b6560;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">Completed</span>'
+      ?'<span style="background:#f3f4f6;color:#4a4744;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">Completed</span>'
       :'<span style="background:#eff6ff;color:#2F6BFF;border-radius:8px;padding:3px 10px;font-size:10px;font-weight:600">Upcoming</span>';
 
     var ini=initials(c.name);
@@ -2372,14 +2372,14 @@ function pgDays(){
 
     return '<div onclick="openDay(\''+d.id+'\',\''+d.clientId+'\')" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:8px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">'+
-      '<div style="font-size:15px;font-weight:500;color:#2D2B28">'+fmtDate(d.date)+'</div>'+
+      '<div style="font-size:15px;font-weight:500;color:#1A1917">'+fmtDate(d.date)+'</div>'+
       '<div style="display:flex;align-items:center;gap:8px">'+badge+
-      '<button onclick="event.stopPropagation();confirmDeleteDay(\''+d.id+'\')" style="width:22px;height:22px;border-radius:50%;border:1px solid #edeae4;background:#fff;color:#9e9a94;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</button>'+
+      '<button onclick="event.stopPropagation();confirmDeleteDay(\''+d.id+'\')" style="width:22px;height:22px;border-radius:50%;border:1px solid #edeae4;background:#fff;color:#5a5754;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">&times;</button>'+
       '</div>'+
       '</div>'+
       '<div style="display:flex;align-items:center;gap:10px">'+
       '<div style="width:28px;height:28px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+esc(ini)+'</div>'+
-      '<div style="font-size:13px;color:#6b6560">'+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div>'+
+      '<div style="font-size:13px;color:#4a4744">'+esc(c.name)+' &middot; '+d.properties.length+' propert'+(d.properties.length===1?"y":"ies")+'</div>'+
       '</div>'+
       '</div>';
   }
@@ -2394,8 +2394,8 @@ function pgDays(){
 
   if(S.days.length===0){
     h+='<div style="text-align:center;padding:48px 24px">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No viewing days yet</div>'+
-      '<div style="font-size:13px;color:#9e9a94;margin-bottom:24px">Create your first viewing day to get started</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#1A1917;margin-bottom:8px">No viewing days yet</div>'+
+      '<div style="font-size:13px;color:#5a5754;margin-bottom:24px">Create your first viewing day to get started</div>'+
       '<button class="btn" style="width:auto;padding:12px 28px" onclick="quickDay()">New viewing day</button></div>';
   } else {
     if(up.length) h+=sectionLabel('Upcoming')+up.map(drow).join("");
@@ -2470,10 +2470,10 @@ function pgDayDetail(){
         (p.lat?'<span style="font-size:11px;color:#059669">'+parseFloat(p.lat).toFixed(4)+', '+parseFloat(p.lng).toFixed(4)+'</span>':'')+
         '</div></div>'+
         hlPickerHtml(day.id,p.id,p.highlights)+
-        '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#9e9a94;font-weight:300;font-size:10px\">optional</span></label>'+
+        '<div style="margin-bottom:9px"><label class="lbl">Personal comment <span style=\"color:#5a5754;font-weight:300;font-size:10px\">optional</span></label>'+
         '<textarea class="inp ins" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{agentRec:this.value})">'+esc(p.agentRec||'')+'</textarea></div>'+
         '<div style="margin-bottom:9px">'+
-        '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Annual costs <span style="font-size:9px;color:#9e9a94;font-weight:400;text-transform:none;letter-spacing:0">— optional</span></div>'+
+        '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Annual costs <span style="font-size:9px;color:#5a5754;font-weight:400;text-transform:none;letter-spacing:0">— optional</span></div>'+
         '<div class="g2" style="margin-bottom:9px">'+
         '<div><label class="lbl">Community fee / yr</label><input class="inp ins" value="'+esc(p.communityFee||'')+'" placeholder="e.g. €1,200" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{communityFee:this.value})"/></div>'+
         '<div><label class="lbl">IBI / yr</label><input class="inp ins" value="'+esc(p.ibi||'')+'" placeholder="e.g. €450" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{ibi:this.value})"/></div>'+
@@ -2482,7 +2482,7 @@ function pgDayDetail(){
         '</div>'+
         '<div style="margin-bottom:9px;display:flex;align-items:center;justify-content:space-between;background:var(--mist);border-radius:8px;padding:10px 13px">'+
         '<div><div style="font-size:13px;font-weight:600;color:var(--ink)">&#11088; Top Pick</div>'+
-        '<div style="font-size:11px;color:#9e9a94">Highlight this property for the client</div></div>'+
+        '<div style="font-size:11px;color:#5a5754">Highlight this property for the client</div></div>'+
         '<button onclick="var d=curD();var pp=d.properties.find(function(x){return x.id==\''+p.id+'\';});if(pp){var was=pp.topPick;d.properties.forEach(function(x){x.topPick=false;});pp.topPick=!was;}persist();render();" style="padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;background:'+(p.topPick?'#C9A14A':'#edeae4')+';color:'+(p.topPick?'#fff':'#6b5f4e')+';">'+(p.topPick?'&#10003; Selected':'Select')+'</button>'+
         '</div>'+
         
@@ -2490,7 +2490,7 @@ function pgDayDetail(){
         '<div style="display:flex;align-items:center;gap:8px"><span>&#128274;</span>'+
         '<span style="font-size:12px;font-weight:500;color:var(--slate)">Internal notes</span>'+
         '<span style="background:#fef9ec;color:#92400e;font-size:9px;padding:2px 7px;border-radius:100px;font-weight:600">Not shown to client</span></div>'+
-        '<span style="color:#c8bfb0">'+(ii?"&#9650;":"&#9660;")+'</span></button>'+
+        '<span style="color:#8a8480">'+(ii?"&#9650;":"&#9660;")+'</span></button>'+
         (ii?'<div style="background:#fffbf0;border-radius:0 0 8px 8px;padding:10px 12px">'+
           iff.map(function(f){return'<div style="margin-bottom:9px"><label class="lbl">'+f[0]+'</label>'+
             '<input class="inp ins" style="background:#fffbf0" value="'+esc(p[f[1]]||'')+'" placeholder="'+f[2]+'" oninput="updProp(\''+day.id+'\',\''+p.id+'\',{'+f[1]+':this.value})"/></div>';}).join("")+
@@ -2554,7 +2554,7 @@ function pgDayDetail(){
     topNav()+
     '<button class="bback" onclick="'+back+'">'+backLbl+'</button>'+
     '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">'+
-    '<div>'+(c?'<div style="font-size:11px;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
+    '<div>'+(c?'<div style="font-size:11px;color:#5a5754;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">'+esc(c.name)+'</div>':'')+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;font-weight:300">'+fmtDate(day.date)+'</div></div>'+
     statusBadge(dayStatus(day.date))+'</div>'+
     '<div class="card" style="margin-bottom:14px">'+
@@ -2579,11 +2579,11 @@ function pgDayDetail(){
       '<label class="lbl" style="margin-bottom:0">Welcome message</label>'+
       '<div style="display:flex;gap:6px">'+
       '<button onclick="generateWelcomeMsg()" style="font-size:10px;font-weight:600;color:var(--brass);background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#10024; Generate</button>'+
-      '<button onclick="generateWelcomeMsg(Math.floor(Math.random()*3))" style="font-size:10px;color:#9e9a94;background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#8635; New version</button>'+
+      '<button onclick="generateWelcomeMsg(Math.floor(Math.random()*3))" style="font-size:10px;color:#5a5754;background:var(--mist);border:1px solid var(--fog);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">&#8635; New version</button>'+
       '</div></div>'+
       '<textarea id="welcome-ta" class="inp" rows="5" placeholder="Click Generate for an instant personalised welcome..." style="resize:none;line-height:1.6;margin-top:6px" oninput="curD().welcomeMsg=this.value;persist()">'+(curD().welcomeMsg||'')+'</textarea>'+
 
-      '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#9e9a94;font-weight:300;font-size:10px">— one per line</span></label>'+
+      '<div style="margin-bottom:11px"><label class="lbl">Next steps for client <span style="color:#5a5754;font-weight:300;font-size:10px">— one per line</span></label>'+
       '<textarea class="inp" rows="4" placeholder="Review your favourite properties&#10;Discuss financing options&#10;Reserve a property if desired&#10;Lawyer and NIE assistance available" style="resize:none;line-height:1.6" oninput="curD().nextSteps=this.value;persist()">'+(curD().nextSteps||'')+'</textarea></div>'+
 
       '<button class="btn" onclick="handleGenerateTour()">&#128203; Generate Viewing List</button>':'')+
@@ -2703,9 +2703,9 @@ function pgAddProp(){
     '<input class="inp" id="ap-url" placeholder="https://idealista.com/..." oninput="this.value=this.value.trim()"/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
     '<button id="ap-fetch-btn" onclick="fetchOg(document.getElementById(&quot;ap-url&quot;).value,&quot;ap&quot;)" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
-    '<span id="ap-fetch-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '<span id="ap-fetch-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div>'+
-    '<div style="font-size:11px;color:#9e9a94;margin-top:6px">Paste listing URL and tap Auto fetch</div></div>'+
+    '<div style="font-size:11px;color:#5a5754;margin-top:6px">Paste listing URL and tap Auto fetch</div></div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div class="g2" style="margin-bottom:0">'+
@@ -2725,9 +2725,9 @@ function pgAddProp(){
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value);autoExtractMapsCoords(this.value,\'ap\',null,null)"/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
-    '<button id="ap-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'ap\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
+    '<button id="ap-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'ap\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#1A1917;cursor:pointer;font-family:inherit">'+
     '<svg width="12" height="12" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Set pin on map</button>'+
-    '<span id="ap-pin-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '<span id="ap-pin-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div>'+
     '<div style="display:flex;align-items:flex-start;gap:6px;margin-top:8px;padding:9px 11px;background:#fef9ec;border:1px solid rgba(201,161,74,.25);border-radius:8px">'+
     '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'+
@@ -2739,7 +2739,7 @@ function pgAddProp(){
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
     '<div id="ap-hl-wrap">'+hlPickerHtml('__new__','__new__',window._newHighlights||[])+'</div>'+
-    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#5a5754;font-weight:300;font-size:10px">optional</span></label>'+
     '<textarea class="inp" id="ap-rec" rows="2" placeholder="Add a personal note to the client..." style="resize:none;line-height:1.5"></textarea></div>'+
     
     '</div>'+
@@ -2904,7 +2904,7 @@ function _applyMapsCoords(lat, lng, prefix, dayId, propId){
         if (filled.length > 0) {
           statusEl.innerHTML = '<span style="color:#059669;font-size:11px;font-weight:500">✓ Fetched ' + filled.length + ' fields</span>';
         } else {
-          statusEl.innerHTML = '<span style="color:#9e9a94;font-size:11px">No data found — fill in manually</span>';
+          statusEl.innerHTML = '<span style="color:#5a5754;font-size:11px">No data found — fill in manually</span>';
         }
       }
     })
@@ -3023,7 +3023,7 @@ function pgEditProp(){
     '<input class="inp" id="ep-url" '+v(p.url||'')+' placeholder="https://idealista.com/..."/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
     '<button id="ep-fetch-btn" onclick="fetchOg(document.getElementById(\'ep-url\').value,\'ep\')" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
-    '<span id="ep-fetch-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '<span id="ep-fetch-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div>'+
     '</div>'+
 
@@ -3056,14 +3056,14 @@ function pgEditProp(){
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'+
         '<span style="font-size:11px;color:#92731a;line-height:1.5">No pin set — Tour Mode map requires a pin. Paste a Google Maps link with coordinates, or tap Set pin on map.</span>'+
         '</div>')+
-    '<span id="ep-pin-status" style="font-size:11px;color:#9e9a94;display:block;margin-top:4px"></span>'+
+    '<span id="ep-pin-status" style="font-size:11px;color:#5a5754;display:block;margin-top:4px"></span>'+
     '</div>'+
     '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Client Presentation</div>'+
     '<div id="ep-hl-wrap">'+hlPickerHtml(hlDayId,S.epid,window._editHighlights)+'</div>'+
-    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#9e9a94;font-weight:300;font-size:10px">optional</span></label>'+
+    '<div style="margin-bottom:11px"><label class="lbl">Personal comment <span style="color:#5a5754;font-weight:300;font-size:10px">optional</span></label>'+
     '<textarea class="inp" id="ep-rec" rows="2" style="resize:none;line-height:1.5">'+esc(p.agentRec||'')+'</textarea></div>'+
     
     '</div>'+
@@ -3265,7 +3265,7 @@ function pgOutput(){
         "<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:12px'>Your Requirements</div>"+
         "<div style='display:flex;flex-wrap:wrap;gap:6px'>"+
         lines.map(function(r){
-          return "<span style='display:inline-flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px;font-size:11px;font-weight:500;color:#2D2B28'>"+
+          return "<span style='display:inline-flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px;font-size:11px;font-weight:500;color:#1A1917'>"+
             "<svg width='9' height='9' viewBox='0 0 24 24' fill='none' stroke='#C9A14A' stroke-width='3' stroke-linecap='round'><path d='M20 6L9 17l-5-5'/></svg>"+
             esc(r)+"</span>";
         }).join("")+
@@ -3311,7 +3311,7 @@ function pgOutput(){
           "<div style='flex-shrink:0;width:44px;height:44px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.25);display:flex;align-items:center;justify-content:center'>"+propIconSvg+"</div>"+
           "<div style='flex:1;min-width:0;padding-top:0'>"+
           "<div style='font-family:Cormorant Garamond,serif;font-size:18px;font-weight:400;color:#1a1a1a;line-height:1.15;margin-bottom:3px;letter-spacing:-.1px'>"+esc(pp.title||propArea2||("Property "+item.num))+"</div>"+
-          "<div style='font-size:11px;color:#9e9a94;letter-spacing:.01em'>"+
+          "<div style='font-size:11px;color:#5a5754;letter-spacing:.01em'>"+
           (propArea2?esc(propArea2)+(fmtPr2?" · ":""):"")+
           (fmtPr2?"<span style='color:#C9A14A;font-weight:600'>"+fmtPr2+"</span>":"")+
           "</div></div>"+
@@ -3325,13 +3325,13 @@ function pgOutput(){
           lineEl+
           "<div style='flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;width:22px'>"+
           "<div style='width:14px;height:14px;border-radius:50%;background:rgba(201,161,74,.15);border:1.5px solid rgba(201,161,74,.3);flex-shrink:0'></div>"+
-          (ev.time?"<div style='font-size:11px;color:#9e9a94;white-space:nowrap;font-weight:500'>"+esc(ev.time)+"</div>":"")+
+          (ev.time?"<div style='font-size:11px;color:#5a5754;white-space:nowrap;font-weight:500'>"+esc(ev.time)+"</div>":"")+
           "</div>"+
           "<div style='flex-shrink:0;width:44px;height:44px;border-radius:50%;background:#071226;border:1.5px solid rgba(201,161,74,.2);display:flex;align-items:center;justify-content:center'>"+evIcon2+"</div>"+
           "<div style='flex:1;min-width:0;padding-top:0'>"+
           "<div style='font-size:8px;font-weight:700;color:#b8b0a5;text-transform:uppercase;letter-spacing:.16em;margin-bottom:3px'>"+typeLabel2+"</div>"+
           "<div style='font-family:Cormorant Garamond,serif;font-size:18px;font-weight:400;color:#1a1a1a;line-height:1.15;margin-bottom:2px;letter-spacing:-.1px'>"+esc(ev.title||typeLabel2)+"</div>"+
-          (ev.note?"<div style='font-size:11px;color:#9e9a94;margin-top:1px'>"+esc(ev.note)+"</div>":"")+
+          (ev.note?"<div style='font-size:11px;color:#5a5754;margin-top:1px'>"+esc(ev.note)+"</div>":"")+
           "</div><svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='#d4cdc5' stroke-width='1.5' stroke-linecap='round' style='flex-shrink:0;margin-right:-2px'><path d='M9 18l6-6-6-6'/></svg>"+
           "</div>";
       }
@@ -3381,18 +3381,18 @@ function pgOutput(){
     var visHl=hl.slice(0,8); var hidHl=hl.slice(8);
     var hlChips=!isAg&&visHl.length?
       "<div style='display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px'>"+
-      visHl.map(function(h){return "<span style='display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 11px;font-size:10px;font-weight:500;color:#6b6560'>"+(ICON[h]?"<span>"+ICON[h]+"</span>":"")+esc(h)+"</span>";}).join("")+
+      visHl.map(function(h){return "<span style='display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 11px;font-size:10px;font-weight:500;color:#4a4744'>"+(ICON[h]?"<span>"+ICON[h]+"</span>":"")+esc(h)+"</span>";}).join("")+
       (hidHl.length?"<button onclick='var hx=document.getElementById(\"hx-"+p.id+"\");hx.style.display=\"flex\";this.style.display=\"none\"' style='font-size:11px;color:#a07830;background:none;border:none;cursor:pointer;font-family:Cormorant Garamond,serif;font-style:italic;padding:5px 0'>+"+hidHl.length+" more</button>":"")+ 
-      (hidHl.length?"<div id='hx-"+p.id+"' style='display:none;flex-wrap:wrap;gap:5px;width:100%'>"+hidHl.map(function(h){return"<span style='display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 11px;font-size:10px;font-weight:500;color:#6b6560'>"+(ICON[h]?"<span>"+ICON[h]+"</span>":"")+esc(h)+"</span>";}).join("")+"</div>":"")+
+      (hidHl.length?"<div id='hx-"+p.id+"' style='display:none;flex-wrap:wrap;gap:5px;width:100%'>"+hidHl.map(function(h){return"<span style='display:inline-flex;align-items:center;gap:3px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 11px;font-size:10px;font-weight:500;color:#4a4744'>"+(ICON[h]?"<span>"+ICON[h]+"</span>":"")+esc(h)+"</span>";}).join("")+"</div>":"")+
       "</div>":"";
 
     var costsBlock=p.communityFee||p.ibi||p.basura?
       "<div style='margin-bottom:12px;padding:11px 13px;background:#fafaf8;border:1px solid #f0ece8;border-radius:10px'>"+
-      "<div style='font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px'>Annual costs</div>"+
+      "<div style='font-size:9px;font-weight:700;color:#5a5754;text-transform:uppercase;letter-spacing:.1em;margin-bottom:7px'>Annual costs</div>"+
       "<div style='display:flex;gap:14px;flex-wrap:wrap'>"+
-      (p.communityFee?"<div><div style='font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.06em'>Community</div><div style='font-size:13px;font-weight:600;color:#2D2B28'>"+esc(p.communityFee)+"</div></div>":"")+
-      (p.ibi?"<div style='padding-left:14px;border-left:1px solid #edeae4'><div style='font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.06em'>IBI</div><div style='font-size:13px;font-weight:600;color:#2D2B28'>"+esc(p.ibi)+"</div></div>":"")+
-      (p.basura?"<div style='padding-left:14px;border-left:1px solid #edeae4'><div style='font-size:9px;color:#9e9a94;text-transform:uppercase;letter-spacing:.06em'>Basura</div><div style='font-size:13px;font-weight:600;color:#2D2B28'>"+esc(p.basura)+"</div></div>":"")+
+      (p.communityFee?"<div><div style='font-size:9px;color:#5a5754;text-transform:uppercase;letter-spacing:.06em'>Community</div><div style='font-size:13px;font-weight:600;color:#1A1917'>"+esc(p.communityFee)+"</div></div>":"")+
+      (p.ibi?"<div style='padding-left:14px;border-left:1px solid #edeae4'><div style='font-size:9px;color:#5a5754;text-transform:uppercase;letter-spacing:.06em'>IBI</div><div style='font-size:13px;font-weight:600;color:#1A1917'>"+esc(p.ibi)+"</div></div>":"")+
+      (p.basura?"<div style='padding-left:14px;border-left:1px solid #edeae4'><div style='font-size:9px;color:#5a5754;text-transform:uppercase;letter-spacing:.06em'>Basura</div><div style='font-size:13px;font-weight:600;color:#1A1917'>"+esc(p.basura)+"</div></div>":"")+
       "</div></div>":"";
 
     var ibox=isAg&&(p.commission||p.contact||p.location||p.note)?
@@ -3413,27 +3413,27 @@ function pgOutput(){
       "<div style='display:flex;align-items:center;justify-content:space-between;margin-bottom:6px'>"+
       "<div style='display:flex;align-items:center;gap:8px'>"+
       "<div style='width:24px;height:24px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;color:#C9A14A;font-size:10px;font-weight:700;flex-shrink:0'>"+(idx+1)+"</div>"+
-      (p.time?"<span style='font-size:14px;font-weight:600;color:#2D2B28'>"+esc(p.time)+"</span>":"")+
+      (p.time?"<span style='font-size:14px;font-weight:600;color:#1A1917'>"+esc(p.time)+"</span>":"")+
       "</div>"+
       (fmtPr?"<div style='font-family:Cormorant Garamond,serif;font-size:28px;color:#C9A14A;font-weight:600;letter-spacing:-.3px'>"+fmtPr+"</div>":"")+
       "</div>"+
       "<div style='font-size:9px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:6px;margin-top:2px'>"+(['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth'][idx]||('No '+(idx+1)))+" viewing</div>"+
       (p.title?"<div style='font-family:Cormorant Garamond,serif;font-size:24px;color:#071226;font-weight:400;margin-bottom:5px;line-height:1.2;letter-spacing:-.2px'>"+esc(p.title)+"</div>":"")+
       "<div style='margin-bottom:10px'>"+
-      (displayArea?"<span style='font-size:14px;font-weight:600;color:#2D2B28'>"+esc(displayArea)+"</span>":"")+
-      (displayArea&&street?"<span style='font-size:13px;color:#9e9a94'> &middot; </span>":"")+
-      (street?"<span style='font-size:13px;color:#9e9a94'>"+esc(street)+"</span>":"")+
+      (displayArea?"<span style='font-size:14px;font-weight:600;color:#1A1917'>"+esc(displayArea)+"</span>":"")+
+      (displayArea&&street?"<span style='font-size:13px;color:#5a5754'> &middot; </span>":"")+
+      (street?"<span style='font-size:13px;color:#5a5754'>"+esc(street)+"</span>":"")+
       "</div>"+
       (p.rooms||p.bathrooms||p.sqm?
         "<div style='display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px'>"+
-        (p.rooms?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'>&#x1F6CF;&#xFE0F;<span style='font-size:12px;font-weight:700;color:#2D2B28'>"+esc(p.rooms)+"</span></div>":"")+
-        (p.bathrooms?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'>&#x1F6C1;<span style='font-size:12px;font-weight:700;color:#2D2B28'>"+esc(p.bathrooms)+"</span></div>":"")+
-        (p.sqm?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#C9A14A' stroke-width='2.2' stroke-linecap='round'><path d='M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5'/></svg><span style='font-size:12px;font-weight:700;color:#2D2B28'>"+esc((p.sqm||"").replace(/m2$/i,""))+"m²</span></div>":"")+
+        (p.rooms?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'>&#x1F6CF;&#xFE0F;<span style='font-size:12px;font-weight:700;color:#1A1917'>"+esc(p.rooms)+"</span></div>":"")+
+        (p.bathrooms?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'>&#x1F6C1;<span style='font-size:12px;font-weight:700;color:#1A1917'>"+esc(p.bathrooms)+"</span></div>":"")+
+        (p.sqm?"<div style='display:flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:5px 11px'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='#C9A14A' stroke-width='2.2' stroke-linecap='round'><path d='M3 3l5 0M3 3l0 5M21 21l-5 0M21 21l0-5M3 21l0-5M3 21l5 0M21 3l-5 0M21 3l0 5'/></svg><span style='font-size:12px;font-weight:700;color:#1A1917'>"+esc((p.sqm||"").replace(/m2$/i,""))+"m²</span></div>":"")+
         "</div>":"")+
       hlChips+costsBlock+
-      (p.mapsUrl?"<a href='"+esc(p.mapsUrl)+"' target='_blank' style='display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#6b6560;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:8px 13px;background:#faf8f4;margin-bottom:10px;margin-right:8px'><svg width='10' height='12' viewBox='0 0 24 24' fill='#C9A14A'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/></svg>Directions</a>":"")+
+      (p.mapsUrl?"<a href='"+esc(p.mapsUrl)+"' target='_blank' style='display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#4a4744;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:8px 13px;background:#faf8f4;margin-bottom:10px;margin-right:8px'><svg width='10' height='12' viewBox='0 0 24 24' fill='#C9A14A'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/></svg>Directions</a>":"")+
       (p.url?"<a href='"+esc(p.url)+"' target='_blank' style='display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#C9A14A;text-decoration:none;background:#071226;border-radius:8px;padding:10px 13px;margin-bottom:10px;gap:6px;box-shadow:0 2px 8px rgba(7,18,38,.25);letter-spacing:.03em;-webkit-tap-highlight-color:rgba(201,161,74,.1);transition:opacity .15s' ontouchstart='this.style.opacity=.75' ontouchend='this.style.opacity=1'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><path d='M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6'/><path d='M15 3h6v6'/><path d='M10 14L21 3'/></svg>View full listing</a>":"")+
-      (!isAg&&p.agentRec?"<div style='border-top:1px solid #f0ece8;padding-top:10px;font-size:12px;color:#6b6560;line-height:1.6;font-style:italic'>“"+esc(p.agentRec)+"”</div>":"")+
+      (!isAg&&p.agentRec?"<div style='border-top:1px solid #f0ece8;padding-top:10px;font-size:12px;color:#4a4744;line-height:1.6;font-style:italic'>“"+esc(p.agentRec)+"”</div>":"")+
       ibox+
       "</div></div>";
   }).join("");
@@ -3522,9 +3522,9 @@ function pgOutput(){
     "<div style='padding-top:4px'>"+
     (!isAg?"<button id='wa-btn' onclick='copyWA()' style='width:100%;padding:13px;background:#071226;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px'><svg width='16' height='16' viewBox='0 0 24 24' fill='#25D366'><path d='M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347'/></svg>Share via WhatsApp</button>":"")+ 
     "<button id='create-link-btn' onclick='handleCreateClientLink()' style='width:100%;padding:13px;background:#071226;color:#C9A14A;border:1.5px solid rgba(201,161,74,.3);border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;margin-bottom:10px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px'><svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><path d='M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71'/><path d='M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71'/></svg> Create Client Link</button>"+
-    "<button onclick='go(\"day-detail\")' style='width:100%;padding:13px;background:#fff;color:#2D2B28;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px'>&#9998; Edit Tour</button>"+
+    "<button onclick='go(\"day-detail\")' style='width:100%;padding:13px;background:#fff;color:#1A1917;border:1.5px solid #edeae4;border-radius:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px'>&#9998; Edit Tour</button>"+
     "<div style='text-align:center;padding:28px 0 10px'>"+
-    "<div style='font-family:Cormorant Garamond,serif;font-size:13px;font-weight:400;color:#2D2B28;opacity:.18;letter-spacing:.04em'>Tour<span style='font-style:italic'>Flow</span></div>"+
+    "<div style='font-family:Cormorant Garamond,serif;font-size:13px;font-weight:400;color:#1A1917;opacity:.18;letter-spacing:.04em'>Tour<span style='font-style:italic'>Flow</span></div>"+
     "</div>"+
     "</div>"+
     "</div></div>";
@@ -3608,8 +3608,8 @@ function pgPickPropSource(){
   return '<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
     '<button class="bback" onclick="go(\'day-detail\')">&#8592; Back</button>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin:16px 0 6px">Add Property</div>'+
-    '<div style="font-size:13px;color:#9e9a94;margin-bottom:28px">How would you like to add a property?</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#1A1917;margin:16px 0 6px">Add Property</div>'+
+    '<div style="font-size:13px;color:#5a5754;margin-bottom:28px">How would you like to add a property?</div>'+
     '<div style="display:flex;flex-direction:column;gap:12px">'+
 
     // From library
@@ -3618,15 +3618,15 @@ function pgPickPropSource(){
       '<div style="width:44px;height:44px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg></div>'+
       '<div>'+
-      '<div style="font-size:15px;font-weight:600;color:#2D2B28;margin-bottom:3px">From your library</div>'+
-      '<div style="font-size:12px;color:#9e9a94">'+libProps.length+' saved propert'+(libProps.length===1?'y':'ies')+' available</div>'+
+      '<div style="font-size:15px;font-weight:600;color:#1A1917;margin-bottom:3px">From your library</div>'+
+      '<div style="font-size:12px;color:#5a5754">'+libProps.length+' saved propert'+(libProps.length===1?'y':'ies')+' available</div>'+
       '</div></button>'
     :'<div style="background:#f5f2ec;border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;opacity:.5">'+
       '<div style="width:44px;height:44px;background:#edeae4;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg></div>'+
       '<div>'+
-      '<div style="font-size:15px;font-weight:600;color:#9e9a94;margin-bottom:3px">From your library</div>'+
-      '<div style="font-size:12px;color:#c8bfb0">No saved properties yet</div>'+
+      '<div style="font-size:15px;font-weight:600;color:#5a5754;margin-bottom:3px">From your library</div>'+
+      '<div style="font-size:12px;color:#8a8480">No saved properties yet</div>'+
       '</div></div>')+
 
     // Add new
@@ -3634,8 +3634,8 @@ function pgPickPropSource(){
       '<div style="width:44px;height:44px;background:#071226;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+
       '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div>'+
       '<div>'+
-      '<div style="font-size:15px;font-weight:600;color:#2D2B28;margin-bottom:3px">Add new property</div>'+
-      '<div style="font-size:12px;color:#9e9a94">Fill in details manually</div>'+
+      '<div style="font-size:15px;font-weight:600;color:#1A1917;margin-bottom:3px">Add new property</div>'+
+      '<div style="font-size:12px;color:#5a5754">Fill in details manually</div>'+
       '</div></button>'+
 
     '</div></div>';
@@ -3685,8 +3685,8 @@ function pgFromLibrary(){
   return '<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
     '<button class="bback" onclick="go(\'pick-prop-source\')">&#8592; Back</button>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#2D2B28;margin:16px 0 6px">Your Library</div>'+
-    '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">Tap a property to add it to this tour</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:28px;font-weight:300;color:#1A1917;margin:16px 0 6px">Your Library</div>'+
+    '<div style="font-size:13px;color:#5a5754;margin-bottom:20px">Tap a property to add it to this tour</div>'+
     libProps.map(function(item, idx){
       var p=item.prop;
       var img=p.ogImage||p.img||'';
@@ -3695,9 +3695,9 @@ function pgFromLibrary(){
       return '<button onclick="addFromLibrary('+idx+')" style="width:100%;background:#fff;border:1px solid #edeae4;border-radius:14px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);cursor:pointer;text-align:left;font-family:inherit;display:block">'+
         (img?'<div style="height:80px;overflow:hidden"><img src="'+img+'" style="width:100%;height:100%;object-fit:cover"/></div>':'<div style="height:80px;background:#f5f2ec"></div>')+
         '<div style="padding:11px 14px">'+
-        '<div style="font-size:13px;font-weight:500;color:#2D2B28;margin-bottom:3px">'+esc(p.title||'Untitled')+'</div>'+
+        '<div style="font-size:13px;font-weight:500;color:#1A1917;margin-bottom:3px">'+esc(p.title||'Untitled')+'</div>'+
         '<div style="display:flex;justify-content:space-between;align-items:center">'+
-        '<div style="font-size:11px;color:#9e9a94">'+[p.area,p.rooms?p.rooms+' bed':''].filter(Boolean).join(' · ')+'</div>'+
+        '<div style="font-size:11px;color:#5a5754">'+[p.area,p.rooms?p.rooms+' bed':''].filter(Boolean).join(' · ')+'</div>'+
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:15px;color:#a07830">'+priceStr+'</div>'+
         '</div></div></button>';
     }).join('')+
@@ -3758,14 +3758,14 @@ function pgAddLibraryProp(){
   return '<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
     '<button class="bback" onclick="showTab(\'properties\')">&#8592; Properties</button>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;margin-bottom:20px">Add Property</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#1A1917;margin-bottom:20px">Add Property</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL</label>'+
     '<input class="inp" id="alp-url" placeholder="https://idealista.com/..."/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
     '<button id="alp-fetch-btn" onclick="fetchOg(document.getElementById(\'alp-url\').value,\'alp\')" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
-    '<span id="alp-fetch-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '<span id="alp-fetch-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div>'+
     '</div>'+
 
@@ -3780,9 +3780,9 @@ function pgAddLibraryProp(){
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
     '<input class="inp" id="alp-maps" placeholder="https://maps.google.com/..."/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
-    '<button id="alp-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'alp\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
+    '<button id="alp-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'alp\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#1A1917;cursor:pointer;font-family:inherit">'+
     '<svg width="12" height="12" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Set pin on map</button>'+
-    '<span id="alp-pin-status" style="font-size:11px;color:#9e9a94"></span>'+
+    '<span id="alp-pin-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div></div>'+
     '</div>'+
 
@@ -3925,14 +3925,14 @@ function pgProperties(){
     var pid=p.id||'';
 
     var statusBadge=item.sold
-      ?'<span style="background:#f5f2ec;color:#9e9a94;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:600">Archived</span>'
+      ?'<span style="background:#f5f2ec;color:#5a5754;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:600">Archived</span>'
       :item.timesShown===0
       ?'<span style="background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:600">Draft</span>'
       :'<span style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:600">Active</span>';
 
     var usageBadge=item.timesShown>0
-      ?'<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f2ec;color:#6b6560;border-radius:100px;padding:3px 10px;font-size:10px;font-weight:500"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Used in '+item.timesShown+' tour'+(item.timesShown===1?'':'s')+'</span>'
-      :'<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f2ec;color:#9e9a94;border-radius:100px;padding:3px 10px;font-size:10px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Never used</span>';
+      ?'<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f2ec;color:#4a4744;border-radius:100px;padding:3px 10px;font-size:10px;font-weight:500"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Used in '+item.timesShown+' tour'+(item.timesShown===1?'':'s')+'</span>'
+      :'<span style="display:inline-flex;align-items:center;gap:4px;background:#f5f2ec;color:#5a5754;border-radius:100px;padding:3px 10px;font-size:10px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Never used</span>';
 
     var imgEl=img
       ?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover"/>'
@@ -3945,23 +3945,23 @@ function pgProperties(){
       // Content
       '<div style="flex:1;padding:12px 14px 10px;min-width:0">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">'+
-      '<div style="font-size:15px;font-weight:600;color:#2D2B28;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px">'+esc(p.title||'Untitled')+'</div>'+
+      '<div style="font-size:15px;font-weight:600;color:#1A1917;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px">'+esc(p.title||'Untitled')+'</div>'+
       statusBadge+
       '</div>'+
-      (p.area||p.address?'<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#9e9a94;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+[p.area,p.address].filter(Boolean).map(esc).join(' · ')+'</div>':'')+
+      (p.area||p.address?'<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:#5a5754;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><svg width="9" height="9" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+[p.area,p.address].filter(Boolean).map(esc).join(' · ')+'</div>':'')+
       (priceStr?'<div style="font-family:\'Cormorant Garamond\',serif;font-size:18px;color:#C9A14A;font-weight:600;margin-bottom:6px">'+priceStr+'</div>':'')+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
-      (p.rooms?'<span style="font-size:11px;color:#6b6560;display:flex;align-items:center;gap:3px">🛏 '+esc(p.rooms)+'</span>':'')+
-      (p.bathrooms?'<span style="font-size:11px;color:#6b6560;display:flex;align-items:center;gap:3px">🛁 '+esc(p.bathrooms)+'</span>':'')+
-      (p.sqm?'<span style="font-size:11px;color:#6b6560;display:flex;align-items:center;gap:3px">📐 '+esc(p.sqm)+'m²</span>':'')+
+      (p.rooms?'<span style="font-size:11px;color:#4a4744;display:flex;align-items:center;gap:3px">🛏 '+esc(p.rooms)+'</span>':'')+
+      (p.bathrooms?'<span style="font-size:11px;color:#4a4744;display:flex;align-items:center;gap:3px">🛁 '+esc(p.bathrooms)+'</span>':'')+
+      (p.sqm?'<span style="font-size:11px;color:#4a4744;display:flex;align-items:center;gap:3px">📐 '+esc(p.sqm)+'m²</span>':'')+
       '</div>'+
       usageBadge+
       '</div></div>'+
       // Action buttons
       '<div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid #f5f2ec">'+
-      '<button onclick="openEditProp(\''+pid+'\',\''+dayId+'\')" style="flex:1;padding:8px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>'+
+      '<button onclick="openEditProp(\''+pid+'\',\''+dayId+'\')" style="flex:1;padding:8px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#1A1917;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>'+
       '<button onclick="addPropToTourPicker(\''+pid+'\')" style="flex:1;padding:8px;background:#071226;border:none;border-radius:8px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4"/></svg>Add to tour</button>'+
-      '<button onclick="deleteLibProp(\''+pid+'\')" style="padding:8px 10px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:14px;color:#9e9a94;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Delete property">'+
+      '<button onclick="deleteLibProp(\''+pid+'\')" style="padding:8px 10px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:14px;color:#5a5754;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Delete property">'+
       '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>'+
       '</button>'+
       '</div>'+
@@ -3980,8 +3980,8 @@ function pgProperties(){
     // Header
     '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">'+
     '<div>'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;line-height:1">Properties</div>'+
-    '<div style="font-size:12px;color:#9e9a94;margin-top:4px">Manage your property collection</div>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#1A1917;letter-spacing:-.2px;line-height:1">Properties</div>'+
+    '<div style="font-size:12px;color:#5a5754;margin-top:4px">Manage your property collection</div>'+
     '</div>'+
     '<button onclick="goAddLibProp()" style="background:#071226;border:none;border-radius:10px;padding:9px 14px;font-size:12px;font-weight:600;color:#C9A14A;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;flex-shrink:0;margin-top:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add property</button>'+
     '</div>'+
@@ -3994,7 +3994,7 @@ function pgProperties(){
 
     // Status filters
     '<div style="margin-bottom:8px">'+
-    '<div style="font-size:10px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Status</div>'+
+    '<div style="font-size:10px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Status</div>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
     chip('All',statusF==='all',"S._propStatusFilter='all';render()")+
     chip('Active',statusF==='active',"S._propStatusFilter='active';render()")+
@@ -4004,7 +4004,7 @@ function pgProperties(){
 
     // Usage filters
     '<div style="margin-bottom:20px">'+
-    '<div style="font-size:10px;font-weight:600;color:#9e9a94;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Usage</div>'+
+    '<div style="font-size:10px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Usage</div>'+
     '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
     chip('All',usageF==='all',"S._propUsageFilter='all';render()")+
     chip('Used in tours',usageF==='used',"S._propUsageFilter='used';render()")+
@@ -4013,9 +4013,9 @@ function pgProperties(){
 
     // Count + sort
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
-    '<div style="font-size:13px;color:#6b6560">'+filtered.length+' propert'+(filtered.length===1?'y':'ies')+'</div>'+
+    '<div style="font-size:13px;color:#4a4744">'+filtered.length+' propert'+(filtered.length===1?'y':'ies')+'</div>'+
     '<div style="position:relative">'+
-    '<select onchange="S._propSort=this.value;render()" style="appearance:none;-webkit-appearance:none;background:#fff;border:1.5px solid #edeae4;border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
+    '<select onchange="S._propSort=this.value;render()" style="appearance:none;-webkit-appearance:none;background:#fff;border:1.5px solid #edeae4;border-radius:8px;padding:6px 28px 6px 10px;font-size:12px;font-weight:500;color:#1A1917;cursor:pointer;font-family:inherit">'+
     ['recent','price-hi','price-lo','used'].map(function(v){return'<option value="'+v+'"'+(sortF===v?' selected':'')+'>'+sortLabel[v]+'</option>';}).join('')+
     '</select>'+
     '<svg style="position:absolute;right:8px;top:50%;transform:translateY(-50%);pointer-events:none" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9e9a94" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>'+
@@ -4024,20 +4024,20 @@ function pgProperties(){
   if(allProps.length===0){
     h+='<div style="text-align:center;padding:48px 24px">'+
       '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" style="margin-bottom:16px;opacity:.6"><rect x="2" y="3" width="9" height="18"/><rect x="13" y="8" width="9" height="13"/></svg>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#2D2B28;margin-bottom:8px">No properties yet</div>'+
-      '<div style="font-size:13px;color:#9e9a94;margin-bottom:20px">Add your first property to get started</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:22px;color:#1A1917;margin-bottom:8px">No properties yet</div>'+
+      '<div style="font-size:13px;color:#5a5754;margin-bottom:20px">Add your first property to get started</div>'+
       '<button onclick="goAddLibProp()" class="btn" style="width:auto;padding:11px 24px">+ Add property</button>'+
       '</div>';
   } else if(filtered.length===0){
     h+='<div style="text-align:center;padding:40px 24px">'+
       '<div style="font-size:32px;margin-bottom:12px">🔍</div>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#2D2B28;margin-bottom:6px">No results</div>'+
-      '<div style="font-size:13px;color:#9e9a94;margin-bottom:16px">Try adjusting your search or filters</div>'+
-      '<button onclick="S._propSearch=\'\';S._propStatusFilter=\'all\';S._propUsageFilter=\'all\';render()" style="padding:9px 18px;background:#f5f2ec;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#2D2B28">Clear filters</button>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;color:#1A1917;margin-bottom:6px">No results</div>'+
+      '<div style="font-size:13px;color:#5a5754;margin-bottom:16px">Try adjusting your search or filters</div>'+
+      '<button onclick="S._propSearch=\'\';S._propStatusFilter=\'all\';S._propUsageFilter=\'all\';render()" style="padding:9px 18px;background:#f5f2ec;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;color:#1A1917">Clear filters</button>'+
       '</div>';
   } else {
     h+=filtered.map(propCard).join('');
-    h+='<div style="text-align:center;padding:20px 0 8px;font-size:12px;color:#c8bfb0">Can\'t find a property? <button onclick="goAddLibProp()" style="background:none;border:none;color:#C9A14A;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Add a new one.</button></div>';
+    h+='<div style="text-align:center;padding:20px 0 8px;font-size:12px;color:#8a8480">Can\'t find a property? <button onclick="goAddLibProp()" style="background:none;border:none;color:#C9A14A;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Add a new one.</button></div>';
   }
 
   return h+'</div>';
@@ -4061,16 +4061,16 @@ function addPropToTourPicker(pid){
   var rows=futureDays.slice(0,8).map(function(d){
     var c=S.clients.find(function(x){return x.id===d.clientId;})||{name:'Unknown'};
     return'<button onclick="addPropFromLibToDayDirect(\''+pid+'\',\''+d.id+'\');document.body.removeChild(document.getElementById(\'atp-modal\'))" style="width:100%;padding:12px 16px;background:#fff;border:none;border-bottom:1px solid #f5f2ec;font-family:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;justify-content:space-between">'+
-      '<div><div style="font-size:13px;font-weight:500;color:#2D2B28">'+esc(c.name)+'</div>'+
-      '<div style="font-size:11px;color:#9e9a94;margin-top:1px">'+fmtDate(d.date)+'</div></div>'+
+      '<div><div style="font-size:13px;font-weight:500;color:#1A1917">'+esc(c.name)+'</div>'+
+      '<div style="font-size:11px;color:#5a5754;margin-top:1px">'+fmtDate(d.date)+'</div></div>'+
       '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
       '</button>';
   }).join('');
   modal.id='atp-modal';
   modal.innerHTML='<div style="background:#FCFBF7;border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:70vh;overflow-y:auto" onclick="event.stopPropagation()">'+
     '<div style="padding:18px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edeae4">'+
-    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#2D2B28">Add to viewing day</div>'+
-    '<button onclick="document.body.removeChild(document.getElementById(\'atp-modal\'))" style="background:none;border:none;font-size:20px;color:#9e9a94;cursor:pointer">×</button>'+
+    '<div style="font-family:\'Cormorant Garamond\',serif;font-size:20px;font-weight:300;color:#1A1917">Add to viewing day</div>'+
+    '<button onclick="document.body.removeChild(document.getElementById(\'atp-modal\'))" style="background:none;border:none;font-size:20px;color:#5a5754;cursor:pointer">×</button>'+
     '</div>'+rows+
     '</div>';
   document.body.appendChild(modal);
@@ -4114,31 +4114,31 @@ function pgSettings(){
       if(el)el.oninput=function(){S.cfg[k]=this.value;};
     });
   },30);
-  return '<div class="wrap" style="background:#FCFBF7">'+topNav()+'<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#2D2B28;letter-spacing:-.2px;margin-bottom:20px">Settings</div><div class="card">'+
+  return '<div class="wrap" style="background:#FCFBF7">'+topNav()+'<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#1A1917;letter-spacing:-.2px;margin-bottom:20px">Settings</div><div class="card">'+
     '<div style="margin-bottom:20px">'+
     '<div style="max-width:160px"><label class="lbl">Profile photo</label>'+
     '<div style="width:64px;height:64px;border-radius:10px;border:1.5px dashed #d4c9b8;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--mist);margin-bottom:8px">'+pb+'</div>'+
     '<label style="display:inline-block;padding:7px 12px;background:var(--mist);color:var(--ink);border-radius:8px;font-size:12px;font-weight:500;cursor:pointer">Upload<input type="file" accept="image/*" style="display:none" onchange="upPhoto(this)"/></label>'+
     rmPhoto+
-    '<div style="font-size:10px;color:#9e9a94;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
+    '<div style="font-size:10px;color:#5a5754;margin-top:5px">Optional &middot; Shows on PDF</div></div>'+
     '</div>'+
     fRows+
-    '<div style="font-size:12px;color:#9e9a94;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
+    '<div style="font-size:12px;color:#5a5754;margin-top:4px">These appear on your viewing lists and PDF exports.</div>'+
     '</div>'+
     '<button onclick="saveSettings()" class="btn" style="margin-top:8px">Save profile</button>'+
     '<div class="card" style="margin-top:16px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px">Help</div>'+
     '<button onclick="showOnboarding()" style="width:100%;padding:12px;background:#f5f2ec;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:10px">'+
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'+
-    '<div><div style="font-size:13px;font-weight:600;color:#2D2B28">Tutorial — new user view</div>'+
-    '<div style="font-size:11px;color:#9e9a94;margin-top:1px">Preview the onboarding experience</div></div>'+
+    '<div><div style="font-size:13px;font-weight:600;color:#1A1917">Tutorial — new user view</div>'+
+    '<div style="font-size:11px;color:#5a5754;margin-top:1px">Preview the onboarding experience</div></div>'+
     '</button>'+
     '</div>'+
     '<div class="card" style="margin-top:16px">'+
     (currentUser?'<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Account</div>'+
-    '<div style="font-size:13px;color:#6b6560;margin-bottom:14px">'+esc(currentUser.email||'')+'</div>':'')+
+    '<div style="font-size:13px;color:#4a4744;margin-bottom:14px">'+esc(currentUser.email||'')+'</div>':'')+
     (currentUser&&S.isPremium?'<div class="ban ban-gr" style="margin-bottom:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>Premium plan active</div>':currentUser&&trialDaysLeft().total>0?'<div class="ban ban-am" style="margin-bottom:14px">'+trialLabel()+'</div>':currentUser?'<div class="ban" style="margin-bottom:14px;background:#fef2f2;color:#991b1b">Your trial has ended &middot; <a href="#" onclick="showUpgradeModal();return false" style="color:#991b1b;font-weight:600;text-decoration:underline">Upgrade</a></div>':'')+
-    (currentUser?'<button onclick="signOut()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--fog);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:#6b6560">Sign out</button>':'<button onclick="showAuthGate()" style="width:100%;padding:12px;background:#071226;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:#C9A14A">Sign in</button>')+
+    (currentUser?'<button onclick="signOut()" style="width:100%;padding:12px;background:transparent;border:1.5px solid var(--fog);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;color:#4a4744">Sign out</button>':'<button onclick="showAuthGate()" style="width:100%;padding:12px;background:#071226;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:#C9A14A">Sign in</button>')+
     '</div>'+
     (currentUser&&currentUser.email&&currentUser.email.toLowerCase()==='niklasbengtsson@hotmail.com'?
     '<div class="card" style="margin-top:16px;background:#071226;border:1px solid rgba(201,161,74,.2)">'+
@@ -4151,11 +4151,11 @@ function pgSettings(){
      
     '<div class="card" style="margin-top:16px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Install app</div>'+
-    '<div style="font-size:12px;color:#6b6560;line-height:1.6;margin-bottom:10px">Add TourFlow to your home screen for the best experience — works like a native app, no App Store needed.</div>'+
-    '<div style="font-size:12px;color:#2D2B28;font-weight:600;margin-bottom:4px">&#63743; iPhone / iPad (Safari)</div>'+
-    '<div style="font-size:12px;color:#6b6560;line-height:1.6;margin-bottom:10px">Tap the share button &#x2B06; at the bottom of Safari &rarr; scroll down and tap <em>"Add to Home Screen"</em> &rarr; tap <em>"Add"</em>.</div>'+
-    '<div style="font-size:12px;color:#2D2B28;font-weight:600;margin-bottom:4px">&#x1F4BB; Desktop (Chrome)</div>'+
-    '<div style="font-size:12px;color:#6b6560;line-height:1.6">Click the install icon in the address bar (far right) &rarr; click <em>"Install TourFlow"</em>.</div>'+
+    '<div style="font-size:12px;color:#4a4744;line-height:1.6;margin-bottom:10px">Add TourFlow to your home screen for the best experience — works like a native app, no App Store needed.</div>'+
+    '<div style="font-size:12px;color:#1A1917;font-weight:600;margin-bottom:4px">&#63743; iPhone / iPad (Safari)</div>'+
+    '<div style="font-size:12px;color:#4a4744;line-height:1.6;margin-bottom:10px">Tap the share button &#x2B06; at the bottom of Safari &rarr; scroll down and tap <em>"Add to Home Screen"</em> &rarr; tap <em>"Add"</em>.</div>'+
+    '<div style="font-size:12px;color:#1A1917;font-weight:600;margin-bottom:4px">&#x1F4BB; Desktop (Chrome)</div>'+
+    '<div style="font-size:12px;color:#4a4744;line-height:1.6">Click the install icon in the address bar (far right) &rarr; click <em>"Install TourFlow"</em>.</div>'+
     '</div>'+
     '</div>';
 }
@@ -4291,9 +4291,9 @@ function copyPublicLink(publicId){
     modal.id='link-modal';
     modal.style.cssText='position:fixed;inset:0;background:rgba(7,18,38,.6);z-index:8000;display:flex;align-items:center;justify-content:center;padding:24px';
     modal.innerHTML='<div style="background:#FCFBF7;border-radius:16px;padding:24px;width:100%;max-width:380px;text-align:center">'+
-      '<div style="font-size:14px;font-weight:600;color:#2D2B28;margin-bottom:8px">Client Link Ready</div>'+
-      '<div style="font-size:11px;color:#9e9a94;margin-bottom:14px">Tap the link to copy it</div>'+
-      '<div id="link-copy-box" onclick="copyLinkText(\''+url.replace(/'/g,"\\'")+'\')" style="background:#f5f2ec;border:1.5px solid #edeae4;border-radius:8px;padding:12px;font-size:11px;color:#2D2B28;word-break:break-all;text-align:left;cursor:pointer">'+url+'</div>'+
+      '<div style="font-size:14px;font-weight:600;color:#1A1917;margin-bottom:8px">Client Link Ready</div>'+
+      '<div style="font-size:11px;color:#5a5754;margin-bottom:14px">Tap the link to copy it</div>'+
+      '<div id="link-copy-box" onclick="copyLinkText(\''+url.replace(/'/g,"\\'")+'\')" style="background:#f5f2ec;border:1.5px solid #edeae4;border-radius:8px;padding:12px;font-size:11px;color:#1A1917;word-break:break-all;text-align:left;cursor:pointer">'+url+'</div>'+
       '<div id="link-copy-msg" style="font-size:12px;color:#059669;font-weight:600;margin-top:10px;min-height:18px"></div>'+
       '<button onclick="document.getElementById(\'link-modal\').remove()" style="width:100%;margin-top:14px;padding:12px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Done</button>'+
       '</div>';
@@ -4425,16 +4425,16 @@ if('serviceWorker' in navigator){
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px">
       <div>
-        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:#2D2B28">Set property pin</div>
-        <div style="font-size:12px;color:#9e9a94;margin-top:2px">Tap the map to place a pin</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;color:#1A1917">Set property pin</div>
+        <div style="font-size:12px;color:#5a5754;margin-top:2px">Tap the map to place a pin</div>
       </div>
-      <button onclick="closePinMap()" style="width:32px;height:32px;border-radius:50%;background:#f5f2ec;border:none;font-size:18px;color:#6b6560;cursor:pointer;display:flex;align-items:center;justify-content:center">&times;</button>
+      <button onclick="closePinMap()" style="width:32px;height:32px;border-radius:50%;background:#f5f2ec;border:none;font-size:18px;color:#4a4744;cursor:pointer;display:flex;align-items:center;justify-content:center">&times;</button>
     </div>
     <!-- Map -->
     <div id="pin-map-el" style="height:52vh;width:100%;background:#e8e4d8"></div>
     <!-- Status -->
     <div style="padding:14px 20px;background:#faf8f4;border-top:1px solid #edeae4;display:flex;align-items:center;justify-content:space-between;gap:12px">
-      <div id="pin-map-status" style="font-size:12px;color:#9e9a94;flex:1">Tap anywhere on the map to place a pin</div>
+      <div id="pin-map-status" style="font-size:12px;color:#5a5754;flex:1">Tap anywhere on the map to place a pin</div>
       <button id="pin-map-save-btn" onclick="savePinLocation()" disabled style="padding:10px 20px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;opacity:.4">Save pin</button>
     </div>
   </div>
@@ -4568,8 +4568,8 @@ function updatePinStatus(lat, lng) {
   var el = document.getElementById('pin-map-status');
   if (!el) return;
   el.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="#C9A14A" style="margin-right:4px;vertical-align:middle"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>' +
-    '<span style="color:#2D2B28;font-weight:500">Pin set</span>' +
-    '<span style="color:#9e9a94"> &nbsp;&middot;&nbsp; ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</span>';
+    '<span style="color:#1A1917;font-weight:500">Pin set</span>' +
+    '<span style="color:#5a5754"> &nbsp;&middot;&nbsp; ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</span>';
 }
 
 function savePinLocation() {
