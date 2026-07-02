@@ -359,8 +359,19 @@ exports.handler = async function(event) {
 
     // ── REVENY.ES SPECIFIC ────────────────────────────────────────────────
     if (url.includes('reveny.es') || url.includes('reveny.se')) {
-      const ogT   = og('title') || '';        // e.g. "Villa till salu, Nueva Andalucía   Nueva Andalucía, Alicante"
-      const ogD   = og('description') || '';  // often contains beds/baths/sqm
+      const ogT   = og('title') || '';
+      const ogD   = og('description') || '';
+
+      // DEBUG — return raw meta so we can see what Reveny actually sends
+      if (url.includes('debug=1')) {
+        return { statusCode: 200, headers, body: JSON.stringify({
+          _debug: true,
+          ogTitle: ogT,
+          ogDescription: ogD,
+          ogImage: og('image'),
+          htmlSnippet: html.slice(0, 2000)
+        })};
+      }
 
       // Area: first location word after ", " in og:title e.g. ", Nueva Andalucía   "
       const areaM = ogT.match(/,\s*([^,\n]+?)\s{2,}/);
