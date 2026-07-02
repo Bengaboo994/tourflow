@@ -123,6 +123,7 @@ exports.handler = async function(event) {
   }
 
   try {
+    const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
         'Accept': 'text/html,application/xhtml+xml',
@@ -220,22 +221,66 @@ exports.handler = async function(event) {
       const combined = (rawOgTitle || '') + ' ' + htmlText.slice(0, 3000);
       const propType = detectPropertyType(combined);
       const t = combined.toLowerCase();
-      const adjectives = [];
-      if (/\b(luxury|luxurious|exclusive|exclusiv|lyx)\b/.test(t)) adjectives.push('Luxury');
-      else if (/\b(modern|contemporary|contempor)\b/.test(t)) adjectives.push('Modern');
-      else if (/\b(traditional|rustic|charming|charmig)\b/.test(t)) adjectives.push('Charming');
-      else if (/\b(new build|nueva construcción|nybyggd|newly built)\b/.test(t)) adjectives.push('New Build');
-      const features = [];
-      if (/\b(sea view|vistas al mar|havsutsikt|ocean view)\b/.test(t)) features.push('Sea View');
-      else if (/\b(golf|golf course)\b/.test(t)) features.push('Golf');
-      else if (/\b(beachfront|beach front|first line|primera línea)\b/.test(t)) features.push('Beachfront');
-      else if (/\b(private pool|piscina privada|pool)\b/.test(t)) features.push('Pool');
-      let parts = [];
-      if (adjectives.length) parts.push(adjectives[0]);
+
+      // Priority 1: try to extract a clean title directly from og:title
+      // If the og:title is a full description, clean it up
+      if (rawOgTitle && rawOgTitle.length > 6 && rawOgTitle.length < 80) {
+      // Strip location suffix: "in Altea", "en Marbella", "i Estepona" etc
+      // Also strip preposition phrases: "near golf", "close to beach"
+      const locationSuffix = /\s+(in|en|i|at|på|near|close to|à|à)\s+\w[\w\s]{1,30}$/i;
+      const cleaned = rawOgTitle
+          .replace(/\s*[-|»]\s*.{0,40}$/, '')   // remove "- Agency Name" suffix
+          .replace(/\s*\|\s*.{0,40}$/, '')
+          .replace(/\s*,\s*\d[\d\s]*€.*$/, '')   // remove price suffixes
+          .replace(locationSuffix, '')            // remove "in Altea", "en Marbella" etc
+          .replace(/\s+/g, ' ')
+          .trim();
+        // Only use if it contains a property type word — otherwise generate
+        if (detectPropertyType(cleaned) && cleaned.length > 4) {
+          // Optionally enrich with a leading adjective if missing
+          const hasAdj = /\b(luxury|modern|charming|stunning|spectacular|spacious|elegant|exclusive|new build|renovated|beachfront)\b/i.test(cleaned);
+          if (!hasAdj) {
+            const adj = pickAdjective(t);
+            if (adj) return adj + ' ' + cleaned;
+          }
+          return cleaned;
+        }
+      }
+
+      // Priority 2: build from parts
+      const adj = pickAdjective(t);
+      const feature = pickFeature(t);
+      const parts = [];
+      if (adj) parts.push(adj);
       if (propType) parts.push(propType);
-      if (!propType) parts.push('Property');
-      if (features.length) parts.push('with ' + features[0]);
+      else parts.push('Property');
+      if (feature) parts.push('with ' + feature);
       return parts.join(' ');
+    }
+
+    function pickAdjective(t) {
+      if (/\b(spectacular|espectacular)\b/.test(t))      return 'Spectacular';
+      if (/\b(stunning|impresionant)\b/.test(t))         return 'Stunning';
+      if (/\b(luxury|luxurious|exclusiv|lyx)\b/.test(t)) return 'Luxury';
+      if (/\b(elegant)\b/.test(t))                       return 'Elegant';
+      if (/\b(spacious|ampli|rymlig)\b/.test(t))         return 'Spacious';
+      if (/\b(charming|charmig|encantad)\b/.test(t))     return 'Charming';
+      if (/\b(modern|contemporary|contempor)\b/.test(t)) return 'Modern';
+      if (/\b(new build|nueva construcci|nybyggd|newly built)\b/.test(t)) return 'New Build';
+      if (/\b(renovated|reformada|renoverad)\b/.test(t)) return 'Renovated';
+      if (/\b(traditional|rustic)\b/.test(t))            return 'Traditional';
+      if (/\b(cozy|cosy|acogedor)\b/.test(t))            return 'Cosy';
+      return null;
+    }
+
+    function pickFeature(t) {
+      if (/\b(beachfront|beach front|primera l.nea)\b/.test(t)) return 'Beachfront';
+      if (/\b(sea view|vistas al mar|havsutsikt|ocean view)\b/.test(t)) return 'Sea View';
+      if (/\b(private pool|piscina privada|infinity pool)\b/.test(t)) return 'Private Pool';
+      if (/\b(golf course|golf)\b/.test(t)) return 'Golf';
+      if (/\b(private garden|jard.n privado)\b/.test(t)) return 'Private Garden';
+      if (/\b(mountain view|vistas monta.a)\b/.test(t)) return 'Mountain View';
+      return null;
     }
 
     // ── HIGHLIGHT DETECTION ───────────────────────────────────────────────
