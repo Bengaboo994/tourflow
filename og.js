@@ -204,15 +204,29 @@ exports.handler = async function(event) {
       const t = text.toLowerCase();
       if (/ground.floor.bungalow/.test(t)) return 'Ground Floor Bungalow';
       if (/ground.floor.apartment/.test(t)) return 'Ground Floor Apartment';
+      if (/middle.floor.apartment/.test(t)) return 'Apartment';
       if (/top.floor/.test(t)) return 'Top Floor Apartment';
+      if (/semi.detached/.test(t)) return 'Semi-Detached House';
       if (/\b(villa)\b/.test(t)) return 'Villa';
-      if (/\b(penthouse|atico|ático)\b/.test(t)) return 'Penthouse';
+      if (/\b(penthouse|atico|ático|takvåning)\b/.test(t)) return 'Penthouse';
       if (/\b(townhouse|town house|adosado|radhus)\b/.test(t)) return 'Townhouse';
       if (/\b(apartment|apartamento|lägenhet|piso|flat)\b/.test(t)) return 'Apartment';
       if (/\b(finca|cortijo|country house)\b/.test(t)) return 'Finca';
       if (/\b(bungalow)\b/.test(t)) return 'Bungalow';
       if (/\b(duplex|dúplex)\b/.test(t)) return 'Duplex';
       if (/\b(chalet)\b/.test(t)) return 'Chalet';
+      return null;
+    }
+
+    // For Reveny and similar sites: extract property type from page <title>
+    // e.g. "Villa till salu, finestrat" → "Villa"
+    function extractTypeFromPageTitle(html) {
+      const m = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      if (!m) return null;
+      const titleText = m[1];
+      // Reveny format: "PropertyType till salu, ..." or "PropertyType for sale, ..."
+      const typeMatch = titleText.match(/^(Villa|Apartment|Townhouse|Penthouse|Bungalow|Finca|Duplex|Chalet|Semi-Detached House|Town House|Top Floor Apartment|Ground Floor Apartment|Ground Floor Bungalow|Middle Floor Apartment)\s+(till salu|for sale|en venta)/i);
+      if (typeMatch) return typeMatch[1];
       return null;
     }
 
@@ -255,7 +269,9 @@ exports.handler = async function(event) {
       // Priority 2: build from parts — use description text only, NOT og:title
       // (og:title may say "Bungalow" when the property is actually a Villa)
       const descriptionText = htmlText.slice(0, 5000);
-      const propType = detectPropertyType(descriptionText);
+      // First try to get property type from page <title> (e.g. "Villa till salu")
+      const propTypeFromTitle = extractTypeFromPageTitle(htmlText);
+      const propType = propTypeFromTitle || detectPropertyType(descriptionText);
       const t = descriptionText.toLowerCase();
       const adj = pickAdjective(t);
       const feature = pickFeature(t);
@@ -268,17 +284,18 @@ exports.handler = async function(event) {
     }
 
     function pickAdjective(t) {
-      if (/\b(spectacular|espectacular)\b/.test(t))      return 'Spectacular';
-      if (/\b(stunning|impresionant)\b/.test(t))         return 'Stunning';
-      if (/\b(luxury|luxurious|exclusiv|lyx)\b/.test(t)) return 'Luxury';
-      if (/\b(elegant)\b/.test(t))                       return 'Elegant';
-      if (/\b(spacious|ampli|rymlig)\b/.test(t))         return 'Spacious';
-      if (/\b(charming|charmig|encantad)\b/.test(t))     return 'Charming';
-      if (/\b(modern|contemporary|contempor)\b/.test(t)) return 'Modern';
-      if (/\b(new build|nueva construcci|nybyggd|newly built)\b/.test(t)) return 'New Build';
-      if (/\b(renovated|reformada|renoverad)\b/.test(t)) return 'Renovated';
-      if (/\b(traditional|rustic)\b/.test(t))            return 'Traditional';
-      if (/\b(cozy|cosy|acogedor)\b/.test(t))            return 'Cosy';
+      if (/\b(spectacular|espectacular|spektakulär)\b/.test(t))       return 'Spectacular';
+      if (/\b(stunning|impresionant|fantastisk)\b/.test(t))            return 'Stunning';
+      if (/\b(luxury|luxurious|exclusiv|lyx|exklusiv|exclusiva)\b/.test(t)) return 'Luxury';
+      if (/\b(elegant|elegante)\b/.test(t))                            return 'Elegant';
+      if (/\b(spacious|ampli|rymlig|amplia)\b/.test(t))               return 'Spacious';
+      if (/\b(charming|charmig|encantad)\b/.test(t))                  return 'Charming';
+      if (/\b(modern|contemporary|contempor|moderna)\b/.test(t))      return 'Modern';
+      if (/\b(new build|nueva construcci|nybyggd|newly built|nyproducerad)\b/.test(t)) return 'New Build';
+      if (/\b(renovated|reformada|renoverad|renoverade)\b/.test(t))   return 'Renovated';
+      if (/\b(traditional|rustic|traditionell)\b/.test(t))            return 'Traditional';
+      if (/\b(cozy|cosy|acogedor|mysig)\b/.test(t))                   return 'Cosy';
+      if (/\b(unik|unique|única)\b/.test(t))                          return 'Unique';
       return null;
     }
 
