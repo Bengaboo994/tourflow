@@ -359,45 +359,30 @@ exports.handler = async function(event) {
 
     // ── REVENY.ES SPECIFIC ────────────────────────────────────────────────
     if (url.includes('reveny.es') || url.includes('reveny.se')) {
-      const ogT   = og('title') || '';
-      const ogD   = og('description') || '';
+      const ogT = og('title') || '';
+      // og:description is always empty on Reveny — all data is JS-rendered
+      // og:title format: "Detached Villa till salu,    Nueva Andalucía, Málaga"
 
-      // DEBUG — return raw meta so we can see what Reveny actually sends
-      if (url.includes('debug=1')) {
-        return { statusCode: 200, headers, body: JSON.stringify({
-          _debug: true,
-          ogTitle: ogT,
-          ogDescription: ogD,
-          ogImage: og('image'),
-          htmlSnippet: html.slice(0, 2000)
-        })};
-      }
+      // Extract property type — everything before "till salu" or "for sale"
+      const saleMatch = ogT.match(/^(.+?)\s+(?:till salu|for sale|en venta)/i);
+      const typeStr = saleMatch ? saleMatch[1].trim() : null;
 
-      // Area: first location word after ", " in og:title e.g. ", Nueva Andalucía   "
-      const areaM = ogT.match(/,\s*([^,\n]+?)\s{2,}/);
-      area = areaM ? areaM[1].trim() : null;
+      // Extract area — between double spaces and comma e.g. "   Nueva Andalucía, Málaga"
+      const areaMatch = ogT.match(/\s{2,}([^,]+)/);
+      area = areaMatch ? areaMatch[1].trim() : null;
 
-      // Price: from og:description or html
-      const rawPrice = firstMatch([/(\d[\d\s\.]+)\s*(?:EUR|€)/i, /€\s*([\d\s\.]+)/]);
-      price = cleanPrice(rawPrice);
+      // Title = extracted type (e.g. "Detached Villa") — clean and direct
+      title = typeStr || detectPropertyType(ogT) || 'Villa';
 
-      // Rooms/bath/sqm — try og:description first (e.g. "6 sovrum · 6 badrum · 315 m²")
-      // then fall back to html
-      const descAndHtml = ogD + ' ' + html;
-      rooms     = cleanNum(descAndHtml.match(/(\d+)\s*(?:sovrum|bedroom|bed\b)/i)?.[1]);
-      bathrooms = cleanNum(descAndHtml.match(/(\d+)\s*(?:badrum|bathroom|bath\b)/i)?.[1]);
-      const sqmM = descAndHtml.match(/(\d{2,4})\s*m[²2]/i);
-      if (sqmM) { const n = parseInt(sqmM[1], 10); sqm = (n >= 30 && n <= 2000) ? String(n) : null; }
+      // Rooms/bath/sqm unavailable from server-side HTML — leave null
+      rooms = null; bathrooms = null; sqm = null;
+      price = null; address = null;
 
-      // Title from og:title — extract property type before "till salu"/"for sale"
-      const typeFromTitle = extractTypeFromPageTitle(html);
-      const titleBase = typeFromTitle || detectPropertyType(ogT) || 'Villa';
-      const adj = pickAdjective((ogD + ' ' + html.slice(0, 3000)).toLowerCase());
-      title = adj ? adj + ' ' + titleBase : titleBase;
-
-      address = null;
-      const highlights = detectHighlights(ogD + ' ' + html);
-      return { statusCode: 200, headers, body: JSON.stringify({ image, title, price, rooms, bathrooms, sqm, area, address, highlights }) };
+      const highlights = detectHighlights(html);
+      return { statusCode: 200, headers, body: JSON.stringify({
+        image, title, price, rooms, bathrooms, sqm, area, address, highlights,
+        _note: 'Reveny: rooms/bath/sqm not available server-side'
+      })};
     }
 
     // ── KYERO SPECIFIC ────────────────────────────────────────────────────
