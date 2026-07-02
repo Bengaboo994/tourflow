@@ -2430,7 +2430,7 @@ function pgDayDetail(){
           return inp;
         }).join("")+
         '<div style="margin-bottom:9px"><label class="lbl">Google Maps link</label>'+
-        '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value})"/>'+
+        '<input class="inp ins" value="'+esc(p.mapsUrl||'')+'" placeholder="https://maps.google.com/..." oninput="updProp(\''+day.id+'\',\''+p.id+'\',{mapsUrl:this.value});autoExtractMapsCoords(this.value,\'inline\',\''+day.id+'\',\''+p.id+'\')"/>'+
         (p.mapsUrl?'<a href="'+esc(p.mapsUrl)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':'')+
         '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
         '<button type="button" onclick="openPinMap(\'inline\',\''+day.id+'\',\''+p.id+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid '+(p.lat?'#86efac':'#edeae4')+';border-radius:8px;font-size:12px;font-weight:500;color:'+(p.lat?'#059669':'#2D2B28')+';cursor:pointer;font-family:inherit">'+
@@ -2691,7 +2691,7 @@ function pgAddProp(){
     '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details</div>'+
     bfHtml+
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
-    '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value)"/>'+
+    '<input class="inp" id="ap-maps" placeholder="https://maps.google.com/..." oninput="prevMaps(this.value);autoExtractMapsCoords(this.value,\'ap\',null,null)"/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
     '<button id="ap-pin-btn" type="button" onclick="window._pendingPinLat=null;window._pendingPinLng=null;openPinMap(\'ap\',null,null)" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:500;color:#2D2B28;cursor:pointer;font-family:inherit">'+
     '<svg width="12" height="12" viewBox="0 0 24 24" fill="#C9A14A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>Set pin on map</button>'+
@@ -2740,7 +2740,56 @@ function uploadExistingPropImg(input,dayId,propId){
   reader.readAsDataURL(file);
 }
 function prevMaps(v){var el=document.getElementById("maps-prev");if(!el)return;el.innerHTML=v?'<a href="'+esc(v)+'" target="_blank" style="font-size:11px;color:#1a73e8;font-weight:500;display:inline-block;margin-top:5px;text-decoration:none">&#128205; Test link</a>':"";}
-function fetchOg(url, formPrefix) {
+
+function autoExtractMapsCoords(url, prefix, dayId, propId){
+  if(!url) return;
+  var isMaps = /maps\.app\.goo\.gl|maps\.google\.com|goo\.gl\/maps|google\.com\/maps/.test(url);
+  if(!isMaps) return;
+
+  // Try client-side first (works for long URLs with @lat,lng)
+  var m = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+           url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/) ||
+           url.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if(m){
+    _applyMapsCoords(parseFloat(m[1]), parseFloat(m[2]), prefix, dayId, propId);
+    return;
+  }
+
+  // Short URL (goo.gl) — need server-side redirect follow
+  var statusEl = document.getElementById(prefix + '-pin-status');
+  if(statusEl) statusEl.textContent = 'Extracting location…';
+
+  fetch('/.netlify/functions/og?url=' + encodeURIComponent(url))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data.lat && data.lng){
+        _applyMapsCoords(data.lat, data.lng, prefix, dayId, propId);
+      } else {
+        if(statusEl) statusEl.textContent = 'Could not extract — use Set pin instead';
+      }
+    })
+    .catch(function(){
+      if(statusEl) statusEl.textContent = 'Could not extract — use Set pin instead';
+    });
+}
+
+function _applyMapsCoords(lat, lng, prefix, dayId, propId){
+  if(dayId && propId){
+    updProp(dayId, propId, { lat: lat, lng: lng });
+  } else {
+    window._pendingPinLat = lat;
+    window._pendingPinLng = lng;
+  }
+  // Update pin button to green
+  var btn = document.getElementById(prefix + '-pin-btn');
+  if(btn){
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> Pin set from Maps';
+    btn.style.borderColor = '#86efac';
+    btn.style.color = '#059669';
+  }
+  var statusEl = document.getElementById(prefix + '-pin-status');
+  if(statusEl) statusEl.textContent = lat.toFixed(4) + ', ' + lng.toFixed(4);
+}function fetchOg(url, formPrefix) {
   if (!url) return;
   formPrefix = formPrefix || 'ap';
   var btnId = formPrefix + '-fetch-btn';
@@ -2948,7 +2997,7 @@ function pgEditProp(){
     '<div style="font-size:12px;font-weight:500;color:var(--slate);margin-bottom:12px">Property details</div>'+
     bfHtml+
     '<div style="margin-bottom:11px"><label class="lbl">Google Maps link</label>'+
-    '<input class="inp" id="ep-maps" '+v(p.mapsUrl||'')+' placeholder="https://maps.google.com/..."/>'+
+    '<input class="inp" id="ep-maps" '+v(p.mapsUrl||'')+' placeholder="https://maps.google.com/..." oninput="autoExtractMapsCoords(this.value,\'ep\',\''+sourceDayId+'\',\''+S.epid+'\')"/>'+
     '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
     '<button id="ep-pin-btn" type="button" onclick="openPinMap(\'ep\',\''+sourceDayId+'\',\''+S.epid+'\')" style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;background:#fff;border:1.5px solid '+(p.lat?'#86efac':'#edeae4')+';border-radius:8px;font-size:12px;font-weight:500;color:'+(p.lat?'#059669':'#2D2B28')+';cursor:pointer;font-family:inherit">'+
     '<svg width="12" height="12" viewBox="0 0 24 24" fill="'+(p.lat?'#059669':'#C9A14A')+'"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>'+(p.lat?'Pin saved — move pin':'Set pin on map')+'</button>'+
