@@ -383,38 +383,30 @@ exports.handler = async function(event) {
             return m ? m[1].trim() : null;
           }
 
-          // DEBUG — return raw XML snippet
-          if (url.includes('xmldebug')) {
-            return { statusCode: 200, headers, body: JSON.stringify({
-              _debug: true,
-              refNum,
-              xmlUrl,
-              xmlLength: xmlText.length,
-              xmlSnippet: xmlText.slice(0, 4000)
-            })};
-          }
+          // Always include raw XML snippet in response for debugging
+          const _xmlSnippet = xmlText.slice(0, 500);
 
-          // Core fields
-          const xmlPrice     = xmlVal('Price');
-          const xmlRooms     = xmlVal('Beds');
-          const xmlBath      = xmlVal('Baths');
-          const xmlBuilt     = xmlVal('Build');
-          const xmlPlot      = xmlVal('Plot');
-          const xmlArea      = xmlVal('Town') || xmlVal('Province');
-          const xmlAddress   = xmlVal('Location');
-          const xmlYear      = xmlVal('Year_Built') || xmlVal('YearBuilt');
-          const xmlPool      = xmlVal('Pool');
-          const xmlGarage    = xmlVal('Garage');
-          const xmlOrientation = xmlVal('Orientation');
-          const xmlFurnished = xmlVal('Furnished');
-          const xmlCommunity = xmlVal('Community_Fee') || xmlVal('CommunityFee');
-          const xmlIbi       = xmlVal('IBI');
-          const xmlGarbage   = xmlVal('Garbage');
-          const xmlEnergy    = xmlVal('Energy_Rating') || xmlVal('EnergyRating');
-          const xmlLat       = xmlVal('Latitude') || xmlAttr('Location', 'Lat');
-          const xmlLng       = xmlVal('Longitude') || xmlAttr('Location', 'Lng');
-          const xmlDesc      = xmlVal('Description') || xmlVal('Desc');
-          const xmlType      = xmlVal('Type') || xmlVal('SubType');
+          // Core fields - Resales Online XML V3 tag names
+          const xmlPrice     = xmlVal('Price') || xmlVal('price');
+          const xmlRooms     = xmlVal('Beds') || xmlVal('Bedrooms') || xmlVal('beds') || xmlVal('bedrooms');
+          const xmlBath      = xmlVal('Baths') || xmlVal('Bathrooms') || xmlVal('baths') || xmlVal('bathrooms');
+          const xmlBuilt     = xmlVal('Build') || xmlVal('build') || xmlVal('BuiltSize') || xmlVal('builtSize');
+          const xmlPlot      = xmlVal('Plot') || xmlVal('plot') || xmlVal('PlotSize') || xmlVal('plotSize');
+          const xmlArea      = xmlVal('Town') || xmlVal('town') || xmlVal('Location') || xmlVal('location') || xmlVal('Area') || xmlVal('area') || xmlVal('Province') || xmlVal('province');
+          const xmlAddress   = xmlVal('Address') || xmlVal('address') || xmlVal('Location2') || null;
+          const xmlYear      = xmlVal('Year_Built') || xmlVal('YearBuilt') || xmlVal('yearBuilt') || xmlVal('year_built') || xmlVal('Year');
+          const xmlPool      = xmlVal('Pool') || xmlVal('pool');
+          const xmlGarage    = xmlVal('Garage') || xmlVal('garage');
+          const xmlOrientation = xmlVal('Orientation') || xmlVal('orientation');
+          const xmlFurnished = xmlVal('Furnished') || xmlVal('furnished');
+          const xmlCommunity = xmlVal('Community_Fee') || xmlVal('CommunityFee') || xmlVal('community_fee');
+          const xmlIbi       = xmlVal('IBI') || xmlVal('ibi') || xmlVal('Ibi');
+          const xmlGarbage   = xmlVal('Garbage') || xmlVal('garbage') || xmlVal('Basura') || xmlVal('basura');
+          const xmlEnergy    = xmlVal('Energy_Rating') || xmlVal('EnergyRating') || xmlVal('energy_rating');
+          const xmlLat       = xmlVal('Latitude') || xmlVal('latitude') || xmlVal('Lat') || xmlVal('lat');
+          const xmlLng       = xmlVal('Longitude') || xmlVal('longitude') || xmlVal('Lng') || xmlVal('lng') || xmlVal('Long') || xmlVal('long');
+          const xmlDesc      = xmlVal('Description') || xmlVal('description') || xmlVal('Desc') || xmlVal('desc');
+          const xmlType      = xmlVal('Type') || xmlVal('type') || xmlVal('SubType') || xmlVal('subType') || xmlVal('PropertyType') || xmlVal('propertyType');
 
           // First image
           const imgMatch = xmlText.match(/<Photo[^>]*>([^<]+)<\/Photo>/i) ||
@@ -452,7 +444,8 @@ exports.handler = async function(event) {
             lat:           xmlLat ? parseFloat(xmlLat) : null,
             lng:           xmlLng ? parseFloat(xmlLng) : null,
             highlights,
-            _source: 'resales-xml'
+            _source: 'resales-xml',
+            _xmlSnippet
           })};
         } catch(e) {
           // XML fetch failed — fall through to og:title extraction
