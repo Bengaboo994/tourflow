@@ -2034,11 +2034,19 @@ function confirmDeleteDay(did){
   }
 }
 function doDeletePropById(pid){
-  var m=(window._propMap||{})[pid]||{};
-  var title=m.title||'this property';
-  if(confirm('Remove '+title+'?\nThis cannot be undone.')){
-    delProp(m.did,pid);
-    S.epid=null;
+  // Find which day this property belongs to
+  var did = null, title = 'this property';
+  S.days.forEach(function(d){
+    (d.properties||[]).forEach(function(p){
+      if(p.id === pid){ did = d.id; title = p.title || p.area || title; }
+    });
+  });
+  // Also check _propMap as fallback
+  if(!did){ var m=(window._propMap||{})[pid]||{}; did=m.did; title=m.title||title; }
+  if(!did){ alert('Could not find property.'); return; }
+  if(confirm('Remove ' + title + '?\nThis cannot be undone.')){
+    delProp(did, pid);
+    S.epid = null;
     render();
   }
 }
@@ -2831,11 +2839,12 @@ function _applyMapsCoords(lat, lng, prefix, dayId, propId){
         filled.push('image');
       }
 
-      // Helper: fill field if it exists and is empty (or force)
+      // Helper: fill field — always overwrite in ep mode (editing existing), only fill empty for new
       function fill(id, val, force) {
         if (!val) return;
         var el = document.getElementById(id);
-        if (el && (force || !el.value)) { el.value = val; filled.push(id); }
+        var shouldFill = force || !el.value || formPrefix === 'ep';
+        if (el && shouldFill) { el.value = val; filled.push(id); }
       }
 
       var p = formPrefix + '-';
