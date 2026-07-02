@@ -383,6 +383,17 @@ exports.handler = async function(event) {
             return m ? m[1].trim() : null;
           }
 
+          // DEBUG — return raw XML snippet
+          if (url.includes('xmldebug')) {
+            return { statusCode: 200, headers, body: JSON.stringify({
+              _debug: true,
+              refNum,
+              xmlUrl,
+              xmlLength: xmlText.length,
+              xmlSnippet: xmlText.slice(0, 4000)
+            })};
+          }
+
           // Core fields
           const xmlPrice     = xmlVal('Price');
           const xmlRooms     = xmlVal('Beds');
