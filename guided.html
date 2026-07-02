@@ -701,113 +701,87 @@ function calcEstimatedFinish(props){
   return (h<10?'0':'')+h + ':' + (m<10?'0':'')+m;
 }
 
-// ── SCREEN 1: TODAY'S TOUR ─────────────────────────────────────────────────
+// ── SCREEN: TODAY'S TOUR OVERVIEW ─────────────────────────────────────────
 function renderTodaysTourScreen(){
-  var day    = GS.day;
-  var client = GS.client;
-  var props  = GS.properties;
+  var day        = GS.day;
+  var client     = GS.client;
+  var props      = GS.properties;
   var clientName = client ? client.name : 'Client';
-  var firstProp  = props[0] || {};
   var estFinish  = calcEstimatedFinish(props);
 
-  // Remaining stops list (all stops after the first)
-  var remainingList = props.slice(1).map(function(p, ri){
-    return '<div class="remaining-stop-row">' +
-      '<div style="width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--brass);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (ri+2) + '</div>' +
-      '<div style="flex:1;min-width:0">' +
-      '<div style="font-size:13px;font-weight:500;color:var(--navy)">' + esc(p.area || p.title || 'Property') + '</div>' +
-      (p.time ? '<div style="font-size:11px;color:var(--slate)">' + esc(p.time) + '</div>' : '') +
+  // Stop rows — all properties
+  var stopRows = props.map(function(p, i){
+    return '<div style="display:flex;align-items:center;gap:14px;padding:14px 0;' +
+      (i < props.length-1 ? 'border-bottom:1px solid var(--fog)' : '') + '">' +
+      '<div style="width:32px;height:32px;border-radius:50%;background:var(--navy);color:var(--brass);' +
+        'font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">' +
+        (i+1) +
       '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:16px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:-.2px">' +
+          esc(p.area || p.title || 'Property ' + (i+1)) +
+        '</div>' +
+        (p.title && p.area
+          ? '<div style="font-size:13px;color:var(--slate);margin-top:1px">' + esc(p.title) + '</div>'
+          : '') +
+      '</div>' +
+      (p.time
+        ? '<div style="font-size:14px;font-weight:700;color:var(--brass);flex-shrink:0">' + esc(p.time) + '</div>'
+        : '') +
       '</div>';
   }).join('');
 
-  return '<div class="screen tour-screen" id="screen-today">' +
+  return '<div class="screen" id="screen-today" style="background:var(--paper);display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden">' +
 
     // ── HEADER ────────────────────────────────────────────────────────────
-    '<div style="position:absolute;top:0;left:0;right:0;z-index:30;' +
-    'background:linear-gradient(to bottom,rgba(7,18,38,.85) 0%,rgba(7,18,38,0) 100%);' +
-    'padding:10px 16px 28px;pointer-events:none">' +
-    '<div style="display:flex;align-items:center;pointer-events:all">' +
-    '<a href="/index.html" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0">' +
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>' +
+    '<div style="flex-shrink:0;padding:16px 18px 0">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">' +
+    '<a href="/index.html" style="width:36px;height:36px;border-radius:50%;background:var(--mist);display:flex;align-items:center;justify-content:center;text-decoration:none;flex-shrink:0;border:1px solid var(--fog)">' +
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>' +
     '</a>' +
-    '<div style="flex:1;text-align:center">' +
-    '<div style="font-size:16px;font-weight:700;color:#fff;line-height:1.2">' + esc(clientName) + '</div>' +
-    '<div style="font-size:12px;font-weight:600;color:var(--brass)">' + fmtDate(day.date) + '</div>' +
+    '<div style="text-align:center">' +
+    '<div style="font-size:17px;font-weight:700;color:var(--navy)">' + esc(clientName) + '</div>' +
+    '<div style="font-size:12px;color:var(--brass);font-weight:600;margin-top:1px">' + fmtDate(day.date) + '</div>' +
     '</div>' +
-    '<button onclick="openProgressModal()" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer">' +
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>' +
-    '</button>' +
+    '<div style="width:36px"></div>' +
+    '</div>' +
+
+    // Summary pills
+    '<div style="display:flex;gap:8px;margin-bottom:16px">' +
+    '<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,161,74,.08);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:5px 12px">' +
+    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>' +
+    '<span style="font-size:11px;font-weight:600;color:var(--brass)">' + props.length + ' stops</span>' +
+    '</div>' +
+    (estFinish !== '—'
+      ? '<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,161,74,.08);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:5px 12px">' +
+        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
+        '<span style="font-size:11px;font-weight:600;color:var(--brass)">Finish ' + estFinish + '</span>' +
+        '</div>'
+      : '') +
+    '<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(201,161,74,.08);border:1px solid rgba(201,161,74,.2);border-radius:100px;padding:5px 12px">' +
+    '<span style="font-size:11px;font-weight:600;color:var(--brass)" id="today-pill-text"><span id="total-distance">—</span> km</span>' +
+    '</div>' +
     '</div>' +
     '</div>' +
 
     // ── MAP ──────────────────────────────────────────────────────────────
-    '<div class="tour-map" id="map-screen-today"></div>' +
+    '<div class="tour-map" id="map-screen-today" style="position:relative;flex-shrink:0;height:28vh;height:28dvh"></div>' +
 
-    // Tour pill
-    '<div class="tour-pill" style="top:70px" id="today-pill">' +
-    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>' +
-    '<span id="today-pill-text">' + props.length + ' stops</span>' +
-    (estFinish !== '—' ? '<span style="color:rgba(255,255,255,.3)">•</span>Finish ' + estFinish : '') +
+    // ── STOP LIST ─────────────────────────────────────────────────────────
+    '<div style="flex:1;overflow-y:auto;padding:0 18px 8px;-webkit-overflow-scrolling:touch">' +
+    '<div style="background:#fff;border:1px solid var(--fog);border-radius:18px;padding:0 16px;margin-top:16px;box-shadow:0 2px 12px rgba(7,18,38,.05)">' +
+    stopRows +
     '</div>' +
-
-    // ── BOTTOM SHEET ─────────────────────────────────────────────────────
-    '<div class="tour-sheet">' +
-    '<div class="tour-sheet-handle"></div>' +
-    '<div class="tour-sheet-scroll">' +
-
-    // First property hero
-    '<div class="tour-prop-row">' +
-    '<div style="flex:1;min-width:0">' +
-    '<div class="tour-prop-area">' + esc(firstProp.area || firstProp.title || 'Stop 1') + '</div>' +
-    (firstProp.title && firstProp.area ? '<div class="tour-prop-title">' + esc(firstProp.title) + '</div>' : '') +
-    (firstProp.address ? '<div class="tour-prop-address"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' + esc(firstProp.address) + '</div>' : '') +
-    '</div>' +
-    (firstProp.ogImage
-      ? '<img src="' + esc(firstProp.ogImage) + '" class="tour-prop-img" alt=""/>'
-      : '<div class="tour-prop-img-empty"></div>') +
+    '<div style="height:12px"></div>' +
     '</div>' +
 
-    // Stat blocks — Appointment · Distance · Drive Time (Est. Finish is in the pill)
-    '<div class="tour-stats">' +
-    '<div class="tour-stat">' +
-    '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>' +
-    '<div class="tour-stat-val">' + (firstProp.time || '—') + '</div>' +
-    '<div class="tour-stat-lbl">Appointment</div>' +
-    '</div>' +
-    '<div class="tour-stat">' +
-    '<div class="tour-stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>' +
-    '<div class="tour-stat-val" id="total-distance">—</div>' +
-    '<div class="tour-stat-lbl">Distance</div>' +
-    '</div>' +
-    '<div class="tour-stat">' +
-    '<div class="tour-stat-icon"><svg width="18" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brass)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v6a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>' +
-    '<div class="tour-stat-val" id="total-drive-min">—</div>' +
-    '<div class="tour-stat-lbl">Drive Time</div>' +
-    '</div>' +
-    '</div>' +
-
-    // START TOUR — from Today's Tour overview, tour already prepared
+    // ── START TOUR ────────────────────────────────────────────────────────
+    '<div style="flex-shrink:0;padding:12px 18px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--fog)">' +
     '<button class="btn-start-tour" onclick="startTour()">' +
     '<div class="btn-start-tour-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="var(--navy)"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>' +
     'START TOUR' +
     '</button>' +
-
-    // Remaining stops
-    (remainingList
-      ? '<div class="remaining-stops-header" onclick="toggleRemaining(\'screen-today\')">' +
-        '<div style="display:flex;align-items:center;gap:8px">' +
-        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--navy)" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>' +
-        '<span style="font-size:15px;font-weight:600;color:var(--navy)">Remaining stops (' + (props.length - 1) + ')</span>' +
-        '</div>' +
-        '<svg id="remaining-chevron-screen-today" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--slate)" stroke-width="2" stroke-linecap="round" style="transition:transform .2s"><path d="M6 9l6 6 6-6"/></svg>' +
-        '</div>' +
-        '<div id="remaining-list-screen-today" class="remaining-stops-list">' + remainingList + '</div>'
-      : '') +
-
-    '<div style="height:env(safe-area-inset-bottom,16px)"></div>' +
-    '</div>' + // sheet-scroll
-    '</div>' + // tour-sheet
+    '</div>' +
 
     '</div>'; // screen
 }
@@ -1641,12 +1615,10 @@ function fetchAllDriveTimes(){
     pending--;
     if(pending <= 0){
       var totalEl = document.getElementById('total-distance');
-      if(totalEl) totalEl.textContent = totalKm > 0 ? Math.round(totalKm) + ' km' : '—';
-      var totalMinEl = document.getElementById('total-drive-min');
-      if(totalMinEl) totalMinEl.textContent = totalDriveMin > 0 ? totalDriveMin + ' min' : '—';
+      if(totalEl) totalEl.textContent = totalKm > 0 ? Math.round(totalKm) : '—';
       var pillText = document.getElementById('today-pill-text');
       if(pillText && totalKm > 0){
-        pillText.textContent = GS.properties.length + ' stops • ' + Math.round(totalKm) + ' km';
+        pillText.innerHTML = '<span id="total-distance">' + Math.round(totalKm) + '</span> km';
       }
     }
   }
