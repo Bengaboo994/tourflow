@@ -427,6 +427,12 @@ function getQueryParam(name){
 }
 
 function loadGuidedTour(){
+  var shareId = getQueryParam('share');
+  if(shareId){
+    loadSharedTour(shareId);
+    return;
+  }
+
   var did = getQueryParam('did');
   if(!did){
     showAccessDenied('No tour specified.');
@@ -454,6 +460,46 @@ function loadGuidedTour(){
     fetchTourData(session.access_token);
   }).catch(function(){
     showAccessDenied('Could not verify session.');
+  });
+}
+
+// Colleague share link (?share=publicId) — no Supabase Auth session required.
+// Loads the full, unsanitized tour (unlike the client-facing t.html link) so a
+// colleague covering the viewing sees everything the owner would: agent notes,
+// contact details, commission, etc. Interaction (mark complete, add notes) works
+// exactly as it does for the owner — that state was already session-only/in-memory
+// and never persisted back to Supabase, so nothing changes there.
+function loadSharedTour(shareId){
+  fetch(SUPA_URL + '/rest/v1/agent_shared_tours?public_id=eq.' + encodeURIComponent(shareId) + '&select=tour_data', {
+    headers: {'apikey': SUPA_KEY}
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(rows){
+    var data = (rows && rows[0] && rows[0].tour_data) || null;
+    if(!data){
+      // Same-device fallback, in case the original write never reached Supabase
+      try{
+        var store = JSON.parse(localStorage.getItem('tf-agent-shared') || '{}');
+        data = store[shareId] || null;
+      }catch(e){}
+    }
+    if(!data){
+      showAccessDenied('This share link is invalid or has expired.');
+      return;
+    }
+    GS.did = shareId;
+    GS.day = data;
+    GS.properties = (data.properties || []).slice().sort(function(a,b){
+      return (a.time||'zz').localeCompare(b.time||'zz');
+    });
+    GS.cfg = data.cfg || {};
+    GS.client = data.client || null;
+    GS.currentUser = null;
+    renderApp();
+  })
+  .catch(function(e){
+    console.error(e);
+    showAccessDenied('Could not load this tour.');
   });
 }
 
@@ -552,8 +598,7 @@ function matchScore(client, prop){
   var hl = prop.highlights || [];
   var results = [];
   if(req.budget){
-    var budgetMap = {'b150':150000,'b250':250000,'b400':400000,'b600':600000,'b1000':1000000,'b2000':2000000,'nolimit':99999999};
-    var bMax = budgetMap[req.budget] || 9999999;
+    var bMax = req.budget==='nolimit' ? 99999999 : (parseInt(req.budget,10)||9999999);
     var rawPrice = parseFloat((prop.price||'').replace(/[^0-9.]/g,''))||0;
     if(rawPrice > 0) results.push(rawPrice <= bMax);
   }
