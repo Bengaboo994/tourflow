@@ -1085,13 +1085,13 @@ function toggleHighlight(dayId,propId,label){
   else p.highlights.push(label);
   persist();render();
 }
-function hlPickerHtml(dayId,propId,selected){
+function hlPickerHtml(dayId,propId,selected,hideLabel){
   selected=selected||[];
   var cats={};
   HIGHLIGHTS.forEach(function(h){cats[h[0]]=cats[h[0]]||[];cats[h[0]].push(h);});
-  var html='<div style="margin-bottom:9px"><label class="lbl">Property Highlights</label>';
+  var html=hideLabel?'<div style="margin-bottom:9px">':'<div style="margin-bottom:9px"><label class="lbl">Property Highlights</label>';
   Object.keys(cats).forEach(function(cat){
-    html+='<div style="font-size:10px;font-weight:700;color:var(--brass);text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px">'+cat+'</div>';
+    html+='<div style="font-size:10px;font-weight:700;color:var(--ink);text-transform:uppercase;letter-spacing:.1em;margin:10px 0 6px">'+cat+'</div>';
     html+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
     cats[cat].forEach(function(h){
       var on=selected.indexOf(h[2])>=0;
@@ -3300,7 +3300,7 @@ function pgEditProp(){
         '</div>';
 
       var highlightsBody=
-        '<div id="ep-hl-wrap">'+hlPickerHtml(hlDayId,S.epid,window._editHighlights)+'</div>'+
+        '<div id="ep-hl-wrap">'+hlPickerHtml(hlDayId,S.epid,window._editHighlights,true)+'</div>'+
         '<div style="margin-bottom:0;margin-top:11px"><label class="lbl">Personal comment <span style="color:#5a5754;font-weight:300;font-size:10px">optional</span></label>'+
         '<textarea class="inp" id="ep-rec" rows="2" style="resize:none;line-height:1.5">'+esc(p.agentRec||'')+'</textarea></div>';
 
