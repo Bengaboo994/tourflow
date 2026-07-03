@@ -357,112 +357,20 @@ exports.handler = async function(event) {
 
     let title = null, price = null, rooms = null, bathrooms = null, sqm = null, area = null, address = null;
 
-    // ── REVENY.ES / RESALES ONLINE XML FETCH ─────────────────────────────
+    // ── REVENY.ES — fallback until Resales API V6 key is available ───────
     if (url.includes('reveny.es') || url.includes('reveny.se')) {
       const ogT = og('title') || '';
-
-      // Extract Resales Online reference number from URL e.g. r5048803
-      const refMatch = url.match(/[\/\-]([rR]\d{5,8})(?:[\/\?#]|$)/);
-      const refNum = refMatch ? refMatch[1].toUpperCase() : null;
-
-      if (refNum) {
-        try {
-          // Fetch the full XML feed filtered to this property
-          const xmlUrl = `https://xmlout.resales-online.com/live/Resales/Export/CreateXMLFeedV3.asp?U=RESALES@REPROP3&P=URJXRKU2PP&FV=2&Ref=${refNum}`;
-          const xmlRes = await fetch(xmlUrl, {
-            headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'text/xml,application/xml' }
-          });
-          const xmlText = await xmlRes.text();
-
-          function xmlVal(tag) {
-            const m = xmlText.match(new RegExp(`<${tag}[^>]*>([^<]*)<\/${tag}>`, 'i'));
-            return m ? m[1].trim() : null;
-          }
-          function xmlAttr(tag, attr) {
-            const m = xmlText.match(new RegExp(`<${tag}[^>]*${attr}="([^"]*)"`, 'i'));
-            return m ? m[1].trim() : null;
-          }
-
-          // Always include raw XML snippet in response for debugging
-          const _xmlSnippet = xmlText.slice(0, 500);
-
-          // Core fields - Resales Online XML V3 tag names
-          const xmlPrice     = xmlVal('Price') || xmlVal('price');
-          const xmlRooms     = xmlVal('Beds') || xmlVal('Bedrooms') || xmlVal('beds') || xmlVal('bedrooms');
-          const xmlBath      = xmlVal('Baths') || xmlVal('Bathrooms') || xmlVal('baths') || xmlVal('bathrooms');
-          const xmlBuilt     = xmlVal('Build') || xmlVal('build') || xmlVal('BuiltSize') || xmlVal('builtSize');
-          const xmlPlot      = xmlVal('Plot') || xmlVal('plot') || xmlVal('PlotSize') || xmlVal('plotSize');
-          const xmlArea      = xmlVal('Town') || xmlVal('town') || xmlVal('Location') || xmlVal('location') || xmlVal('Area') || xmlVal('area') || xmlVal('Province') || xmlVal('province');
-          const xmlAddress   = xmlVal('Address') || xmlVal('address') || xmlVal('Location2') || null;
-          const xmlYear      = xmlVal('Year_Built') || xmlVal('YearBuilt') || xmlVal('yearBuilt') || xmlVal('year_built') || xmlVal('Year');
-          const xmlPool      = xmlVal('Pool') || xmlVal('pool');
-          const xmlGarage    = xmlVal('Garage') || xmlVal('garage');
-          const xmlOrientation = xmlVal('Orientation') || xmlVal('orientation');
-          const xmlFurnished = xmlVal('Furnished') || xmlVal('furnished');
-          const xmlCommunity = xmlVal('Community_Fee') || xmlVal('CommunityFee') || xmlVal('community_fee');
-          const xmlIbi       = xmlVal('IBI') || xmlVal('ibi') || xmlVal('Ibi');
-          const xmlGarbage   = xmlVal('Garbage') || xmlVal('garbage') || xmlVal('Basura') || xmlVal('basura');
-          const xmlEnergy    = xmlVal('Energy_Rating') || xmlVal('EnergyRating') || xmlVal('energy_rating');
-          const xmlLat       = xmlVal('Latitude') || xmlVal('latitude') || xmlVal('Lat') || xmlVal('lat');
-          const xmlLng       = xmlVal('Longitude') || xmlVal('longitude') || xmlVal('Lng') || xmlVal('lng') || xmlVal('Long') || xmlVal('long');
-          const xmlDesc      = xmlVal('Description') || xmlVal('description') || xmlVal('Desc') || xmlVal('desc');
-          const xmlType      = xmlVal('Type') || xmlVal('type') || xmlVal('SubType') || xmlVal('subType') || xmlVal('PropertyType') || xmlVal('propertyType');
-
-          // First image
-          const imgMatch = xmlText.match(/<Photo[^>]*>([^<]+)<\/Photo>/i) ||
-                           xmlText.match(/<Image[^>]*>([^<]+)<\/Image>/i);
-          const xmlImage = imgMatch ? imgMatch[1].trim() : og('image');
-
-          // Title — use XML type + adjective from description
-          const descText = (xmlDesc || '') + ' ' + (xmlArea || '');
-          const adj = pickAdjective(descText.toLowerCase());
-          const propType = xmlType || detectPropertyType(descText) || 'Property';
-          const xmlTitle = adj ? `${adj} ${propType}` : propType;
-
-          // Highlights from description
-          const highlights = detectHighlights(descText + ' ' + html);
-
-          return { statusCode: 200, headers, body: JSON.stringify({
-            image:         xmlImage || og('image'),
-            title:         xmlTitle,
-            price:         xmlPrice ? cleanPrice(xmlPrice) : null,
-            rooms:         xmlRooms ? cleanNum(xmlRooms) : null,
-            bathrooms:     xmlBath  ? cleanNum(xmlBath)  : null,
-            sqm:           xmlBuilt ? String(parseInt(xmlBuilt)||0)||null : null,
-            plotSize:      xmlPlot  ? String(parseInt(xmlPlot)||0)||null  : null,
-            area:          xmlArea,
-            address:       xmlAddress,
-            yearBuilt:     xmlYear,
-            pool:          xmlPool,
-            garage:        xmlGarage,
-            orientation:   xmlOrientation,
-            furnished:     xmlFurnished,
-            communityFee:  xmlCommunity ? `€${xmlCommunity}/yr` : null,
-            ibi:           xmlIbi       ? `€${xmlIbi}/yr`       : null,
-            basura:        xmlGarbage   ? `€${xmlGarbage}/yr`   : null,
-            energyCert:    xmlEnergy,
-            lat:           xmlLat ? parseFloat(xmlLat) : null,
-            lng:           xmlLng ? parseFloat(xmlLng) : null,
-            highlights,
-            _source: 'resales-xml',
-            _xmlSnippet
-          })};
-        } catch(e) {
-          // XML fetch failed — fall through to og:title extraction
-        }
-      }
-
-      // Fallback: extract what we can from og:title
+      // og:title format: "Detached Villa till salu,    Nueva Andalucía, Málaga"
       const saleMatch = ogT.match(/^(.+?)\s+(?:till salu|for sale|en venta)/i);
       const typeStr = saleMatch ? saleMatch[1].trim() : null;
       const areaMatch = ogT.match(/\s{2,}([^,]+)/);
       area = areaMatch ? areaMatch[1].trim() : null;
-      title = typeStr || detectPropertyType(ogT) || 'Villa';
+      title = typeStr || detectPropertyType(ogT) || null;
       rooms = null; bathrooms = null; sqm = null; price = null; address = null;
       const highlights = detectHighlights(html);
       return { statusCode: 200, headers, body: JSON.stringify({
         image, title, price, rooms, bathrooms, sqm, area, address, highlights,
-        _source: 'reveny-fallback'
+        _source: 'reveny-ogonly'
       })};
     }
 
