@@ -1157,11 +1157,27 @@ function _doCloudSync(){
   });
 }
 
+// Tombstones: ids explicitly deleted locally, so a stale/undeleted server
+// row never gets silently merged back in as if it were "new".
+function recordDeleted(ids){
+  try{
+    var t=JSON.parse(localStorage.getItem('tf-deleted')||'{}');
+    var now=Date.now();
+    (ids||[]).forEach(function(id){ if(id) t[id]=now; });
+    localStorage.setItem('tf-deleted',JSON.stringify(t));
+  }catch(e){}
+}
+function getDeletedIds(){
+  try{ return JSON.parse(localStorage.getItem('tf-deleted')||'{}'); }catch(e){ return {}; }
+}
+
 // Merge remote rows into a local array: per-id, keep whichever side was
 // touched more recently. Prevents a stale/incomplete server row (e.g. from
 // a write that never finished syncing) from silently overwriting a newer
-// local edit on reload.
+// local edit on reload. Ids that were intentionally deleted locally are
+// never resurrected, even if the server still has (or briefly still has) them.
 function mergeById(localArr,remoteArr){
+  var deleted=getDeletedIds();
   var remoteById={};
   (remoteArr||[]).forEach(function(r){if(r&&r.id)remoteById[r.id]=r;});
   var merged=[];var seen={};
@@ -1171,7 +1187,9 @@ function mergeById(localArr,remoteArr){
     seen[l.id]=true;
   });
   Object.keys(remoteById).forEach(function(id){
-    if(!seen[id])merged.push(remoteById[id]);
+    if(seen[id])return;
+    if(deleted[id])return;
+    merged.push(remoteById[id]);
   });
   return merged;
 }
@@ -1449,6 +1467,7 @@ function delClient(id){
   var removedDays=S.days.filter(function(d){return d.clientId===id;}).map(function(d){return d.id;});
   S.days=S.days.filter(function(d){return d.clientId!==id;});
   persist();
+  recordDeleted([id].concat(removedDays));
   if(currentUser){
     _deleteRows('agent_clients',[id]);
     if(removedDays.length)_deleteRows('agent_days',removedDays);
@@ -1459,6 +1478,7 @@ function updateDay(id,ch){S.days=S.days.map(function(d){return d.id===id?Object.
 function delDay(id){
   S.days=S.days.filter(function(d){return d.id!==id;});
   persist();
+  recordDeleted([id]);
   if(currentUser)_deleteRows('agent_days',[id]);
 }
 function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();}
@@ -2092,6 +2112,8 @@ function deleteLibProp(pid){
   });
 
   persist();
+  recordDeleted([pid]);
+  if(currentUser)_deleteRows('agent_library',[pid]);
   render();
 }
 
@@ -2808,7 +2830,7 @@ function pgAddProp(){
     iffHtml+
     '</div>'+
 
-    '<button class="btn" onclick="saveProp(S.did)">Add to viewing day</button>'+
+    '<button class="btn" id="ap-save-btn" onclick="saveProp(S.did)">Add to viewing day</button>'+
     '</div>';
 }
 function togInt(){_intOpen=!_intOpen;var b=document.getElementById("ai-body"),a=document.getElementById("ai-arr");if(b)b.style.display=_intOpen?"block":"none";if(a)a.innerHTML=_intOpen?"&#9650;":"&#9660;";}
@@ -2999,7 +3021,10 @@ function _applyMapsCoords(lat, lng, prefix, dayId, propId){
 }
 
 function saveProp(did){
+  var btn=document.getElementById('ap-save-btn');
+  if(btn&&btn.disabled)return;
   var url=gv("ap-url");if(!url){alert("Please enter a listing URL.");return;}
+  if(btn){btn.disabled=true;btn.style.opacity='.6';btn.textContent='Adding…';}
   var hiddenImg=document.getElementById("ap-img-data");
   var imgUrl=window._ogImage||(hiddenImg?hiddenImg.value:"")||"";
   window._ogImage=null;
@@ -3188,7 +3213,7 @@ function pgEditProp(){
     iffHtml+
     '</div>'+
 
-    '<button class="btn" onclick="saveEditProp(\''+sourceDayId+'\',\''+S.epid+'\')">Save changes</button>'+
+    '<button class="btn" id="ep-save-btn" onclick="saveEditProp(\''+sourceDayId+'\',\''+S.epid+'\')">Save changes</button>'+
     '</div>';
 }
 
@@ -3204,6 +3229,9 @@ function uploadEditPropImg(input){
 }
 
 function saveEditProp(dayId,pid){
+  var btn=document.getElementById('ep-save-btn');
+  if(btn&&btn.disabled)return;
+  if(btn){btn.disabled=true;btn.style.opacity='.6';btn.textContent='Saving…';}
   if(!dayId){
     S.days.forEach(function(d){
       (d.properties||[]).forEach(function(p){
@@ -3679,6 +3707,7 @@ function removeFromLibrary(pid){
   });
   S.library=(S.library||[]).filter(function(x){return x.id!==pid;});
   persist();
+  recordDeleted([pid]);
   if(currentUser)_deleteRows('agent_library',[pid]);
   render();
 }
@@ -3859,6 +3888,14 @@ function showOnboarding(){S._showOnboarding=true;showTab('home');}
 function hideOnboarding(){S._showOnboarding=false;showTab('home');}
 
 function goAddLibProp(){clearDraft();window._libNewHighlights=[];window._libNewImage=null;go('add-lib-prop');}
+function cancelAddLibProp(){
+  var hasData=false;
+  document.querySelectorAll('input[id^="alp-"],textarea[id^="alp-"]').forEach(function(el){
+    if(el.value&&el.value.trim())hasData=true;
+  });
+  if(hasData&&!confirm('Discard this property? Anything you\'ve entered will be lost — it hasn\'t been saved yet.'))return;
+  showTab('properties');
+}
 
 // ── ADD LIBRARY PROPERTY ──────────────────────────────────────────────────────
 function pgAddLibraryProp(){
@@ -3879,7 +3916,7 @@ function pgAddLibraryProp(){
 
   return '<div class="wrap" style="background:#FCFBF7">'+
     topNav()+
-    '<button class="bback" onclick="showTab(\'properties\')">&#8592; Properties</button>'+
+    '<button class="bback" onclick="cancelAddLibProp()">&#8592; Properties</button>'+
     '<div style="font-family:\'Cormorant Garamond\',serif;font-size:32px;font-weight:300;color:#1A1917;margin-bottom:20px">Add Property</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
@@ -3941,7 +3978,7 @@ function pgAddLibraryProp(){
     '</div>'+
     '</div>'+
 
-    '<button class="btn" onclick="saveLibraryProp()">Save to library</button>'+
+    '<button class="btn" id="alp-save-btn" onclick="saveLibraryProp()">Save to library</button>'+
     '</div>';
 }
 
@@ -3957,8 +3994,11 @@ function uploadLibraryImg(input){
 }
 
 function saveLibraryProp(){
+  var btn=document.getElementById('alp-save-btn');
+  if(btn&&btn.disabled)return; // already saving — ignore a second tap
   var title=document.getElementById('alp-title')?document.getElementById('alp-title').value.trim():'';
   if(!title){alert('Please enter a title.');return;}
+  if(btn){btn.disabled=true;btn.style.opacity='.6';btn.textContent='Saving…';}
   var prop={
     id:'lp'+Date.now(),
     url:document.getElementById('alp-url')?document.getElementById('alp-url').value.trim():'',
