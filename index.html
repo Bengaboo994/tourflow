@@ -3086,11 +3086,14 @@ function pgEditProp(){
     '</div>'+
     '</div>'+
 
-    (sourceDayId?'<div class="card" style="margin-bottom:14px">'+
-    '<div class="g2" style="margin-bottom:12px">'+
-    '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" style="min-height:46px;-webkit-appearance:none;appearance:none" id="ep-time" '+v(p.time||'')+'/></div>'+
-    '<div><label class="lbl">Price</label><input class="inp" id="ep-price" '+v(p.price||'')+' placeholder="Price"/></div>'+
-    '</div>':'')+
+    '<div class="card" style="margin-bottom:14px">'+
+    (sourceDayId
+      ?'<div class="g2" style="margin-bottom:0">'+
+       '<div><label class="lbl">Viewing time</label><input type="time" step="900" class="inp" style="min-height:46px;-webkit-appearance:none;appearance:none" id="ep-time" '+v(p.time||'')+'/></div>'+
+       '<div><label class="lbl">Price</label><input class="inp" id="ep-price" '+v(p.price||'')+' placeholder="Price"/></div>'+
+       '</div>'
+      :'<div><label class="lbl">Price</label><input class="inp" id="ep-price" '+v(p.price||'')+' placeholder="Price"/></div>')+
+    '</div>'+
 
     '<div class="card" style="margin-bottom:14px">'+
     '<div style="margin-bottom:14px"><label class="lbl">Hero image</label>'+
@@ -3196,7 +3199,7 @@ function saveEditProp(dayId,pid){
     });
 
     var updates={
-      url:gv('ep-url'),time:gv('ep-time'),
+      url:gv('ep-url'),
       title:gv('ep-title'),address:gv('ep-addr'),area:gv('ep-area2'),
       price:gv('ep-price'),rooms:gv('ep-rooms'),bathrooms:gv('ep-bath'),sqm:gv('ep-sqm'),
       mapsUrl:mapsUrl,agentRec:gv('ep-rec'),
@@ -3209,6 +3212,9 @@ function saveEditProp(dayId,pid){
       distanceToBeach:gv('ep-dbeach'),distanceToGolf:gv('ep-dgolf'),
       highlights:window._editHighlights||[]
     };
+    // Viewing time only exists/means anything in a day context — don't force-clear it
+    // when editing straight from the library (no #ep-time field rendered there).
+    if(sourceDayId){ updates.time=gv('ep-time'); }
 
     // Priority: 1) pending pin, 2) coords from URL, 3) existing on property
     if(window._pendingPinLat!=null){
