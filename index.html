@@ -1071,6 +1071,11 @@ function uploadExistingPropImg(input,dayId,propId){
 }
 
 function persist(){
+  // Stamp every record so cloudLoad() can tell fresh local edits from stale server data
+  var now=Date.now();
+  (S.clients||[]).forEach(function(c){c.updatedAt=now;});
+  (S.days||[]).forEach(function(d){d.updatedAt=now;});
+  (S.library||[]).forEach(function(p){p.updatedAt=now;});
   // Always save locally first (instant, offline-safe)
   save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
   // Then sync to Supabase if logged in
@@ -1152,6 +1157,25 @@ function _doCloudSync(){
   });
 }
 
+// Merge remote rows into a local array: per-id, keep whichever side was
+// touched more recently. Prevents a stale/incomplete server row (e.g. from
+// a write that never finished syncing) from silently overwriting a newer
+// local edit on reload.
+function mergeById(localArr,remoteArr){
+  var remoteById={};
+  (remoteArr||[]).forEach(function(r){if(r&&r.id)remoteById[r.id]=r;});
+  var merged=[];var seen={};
+  (localArr||[]).forEach(function(l){
+    var rem=remoteById[l.id];
+    if(rem&&(rem.updatedAt||0)>(l.updatedAt||0)){merged.push(rem);}else{merged.push(l);}
+    seen[l.id]=true;
+  });
+  Object.keys(remoteById).forEach(function(id){
+    if(!seen[id])merged.push(remoteById[id]);
+  });
+  return merged;
+}
+
 // Load all data from Supabase after login
 function cloudLoad(onDone, accessToken){
   if(!currentUser||!supa){if(onDone)onDone();return;}
@@ -1172,7 +1196,7 @@ function cloudLoad(onDone, accessToken){
     fetch(SUPA_URL+'/rest/v1/agent_clients?user_id=eq.'+uid+'&select=data',{headers:headers})
     .then(function(r){return r.json();}).then(function(rows){
       if(rows&&rows.length){
-        S.clients=rows.map(function(r){return r.data;});
+        S.clients=mergeById(S.clients,rows.map(function(r){return r.data;}));
         save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
       }
       check();
@@ -1182,7 +1206,7 @@ function cloudLoad(onDone, accessToken){
     fetch(SUPA_URL+'/rest/v1/agent_days?user_id=eq.'+uid+'&select=data',{headers:headers})
     .then(function(r){return r.json();}).then(function(rows){
       if(rows&&rows.length){
-        S.days=rows.map(function(r){return r.data;});
+        S.days=mergeById(S.days,rows.map(function(r){return r.data;}));
         save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
       }
       check();
@@ -1192,7 +1216,7 @@ function cloudLoad(onDone, accessToken){
     fetch(SUPA_URL+'/rest/v1/agent_library?user_id=eq.'+uid+'&select=data',{headers:headers})
     .then(function(r){return r.json();}).then(function(rows){
       if(rows&&rows.length){
-        S.library=rows.map(function(r){return r.data;});
+        S.library=mergeById(S.library,rows.map(function(r){return r.data;}));
         save({clients:S.clients,days:S.days,cfg:S.cfg,library:S.library});
       }
       check();
