@@ -460,14 +460,29 @@ function loadGuidedTour(){
 function fetchTourData(token){
   var headers = {'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + token};
 
+  // index.html syncs to Supabase on a 1.5s debounce, so the server copy can
+  // briefly lag behind what's already saved locally. Read the local cache
+  // (same origin/localStorage key as index.html) and use whichever version
+  // — local or remote — was touched more recently.
+  var localDay = null;
+  try{
+    var localRaw = JSON.parse(localStorage.getItem('tf-v2') || '{}');
+    if(localRaw.days){
+      localDay = localRaw.days.find(function(d){ return d.id === GS.did; }) || null;
+    }
+  }catch(e){}
+
   fetch(SUPA_URL + '/rest/v1/agent_days?id=eq.' + GS.did + '&select=data', {headers: headers})
     .then(function(r){ return r.json(); })
     .then(function(rows){
-      if(!rows || !rows.length){
+      var remoteDay = (rows && rows.length) ? rows[0].data : null;
+      if(!remoteDay && !localDay){
         showAccessDenied('Tour not found.');
         return;
       }
-      GS.day = rows[0].data;
+      GS.day = (localDay && (!remoteDay || (localDay.updatedAt||0) > (remoteDay.updatedAt||0)))
+        ? localDay
+        : remoteDay;
       GS.properties = (GS.day.properties || []).slice().sort(function(a,b){
         return (a.time||'zz').localeCompare(b.time||'zz');
       });
@@ -488,7 +503,18 @@ function fetchTourData(token){
     })
     .catch(function(e){
       console.error(e);
-      showAccessDenied('Could not load tour data.');
+      // Network/Supabase failure — fall back to local cache rather than blocking access
+      if(localDay){
+        GS.day = localDay;
+        GS.properties = (GS.day.properties || []).slice().sort(function(a,b){
+          return (a.time||'zz').localeCompare(b.time||'zz');
+        });
+        GS.cfg = {};
+        GS.client = null;
+        renderApp();
+      } else {
+        showAccessDenied('Could not load tour data.');
+      }
     });
 }
 
