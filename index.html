@@ -3437,6 +3437,23 @@ function pgOutput(){
   var day=curD();if(!day)return"";
   var c=curC();
   var props=[].concat(day.properties).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
+  var viewToggle=
+    "<div style='display:flex;background:#fff;border-radius:10px;border:1px solid #edeae4;padding:3px;margin-bottom:16px;gap:2px'>"+
+    "<button onclick='S.viewMode=\"client\";render()' style='flex:1;padding:8px 4px;border:1.5px solid "+(S.viewMode==="client"?"#C9A14A":"transparent")+";border-radius:7px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;background:"+(S.viewMode==="client"?"#fff":"transparent")+";color:"+(S.viewMode==="client"?"#2D2B28":"#9e9a94")+";box-shadow:"+(S.viewMode==="client"?"0 1px 4px rgba(0,0,0,.08)":"none")+"'>&#128196; Client view</button>"+ 
+    "<button onclick='S.viewMode=\"agent\";render()' style='flex:1;padding:8px 4px;border:1.5px solid "+(S.viewMode==="agent"?"#C9A14A":"transparent")+";border-radius:7px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;background:"+(S.viewMode==="agent"?"#fff":"transparent")+";color:"+(S.viewMode==="agent"?"#2D2B28":"#9e9a94")+";box-shadow:"+(S.viewMode==="agent"?"0 1px 4px rgba(0,0,0,.08)":"none")+"'>&#128274; Agent view</button>"+ 
+    "<button onclick='S.viewMode=\"tour\";render()' style='flex:1;padding:8px 4px;border:1.5px solid "+(S.viewMode==="tour"?"#C9A14A":"transparent")+";border-radius:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:"+(S.viewMode==="tour"?"#fff":"transparent")+";color:"+(S.viewMode==="tour"?"#2D2B28":"#92731a")+";box-shadow:"+(S.viewMode==="tour"?"0 1px 4px rgba(0,0,0,.08)":"none")+"'>&#9654; Tour Mode</button>"+ 
+    "</div>";
+
+  if(S.viewMode==="tour"){
+    return "<div class='mobile-view'><div class='wrap' style='background:#FCFBF7'>"+
+      topNav()+
+      viewToggle+
+      "<div style='min-height:50vh;display:flex;align-items:center;justify-content:center'>"+
+      "<a href='/guided.html?did="+day.id+"' style='display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 40px;background:#071226;color:#C9A14A;border-radius:14px;font-family:inherit;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(7,18,38,.25)'>&#9654; Start Tour</a>"+
+      "</div>"+
+      "</div></div>";
+  }
+
   var isAg=S.viewMode==="agent";
   var cfg=S.cfg;
   var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
@@ -3747,11 +3764,7 @@ function pgOutput(){
     // TOP NAV
     topNav()+
     // VIEW TOGGLE
-    "<div style='display:flex;background:#fff;border-radius:10px;border:1px solid #edeae4;padding:3px;margin-bottom:16px;gap:2px'>"+
-    "<button onclick='S.viewMode=\"client\";render()' style='flex:1;padding:8px 4px;border:1.5px solid "+(S.viewMode==="client"?"#C9A14A":"transparent")+";border-radius:7px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;background:"+(S.viewMode==="client"?"#fff":"transparent")+";color:"+(S.viewMode==="client"?"#2D2B28":"#9e9a94")+";box-shadow:"+(S.viewMode==="client"?"0 1px 4px rgba(0,0,0,.08)":"none")+"'>&#128196; Client view</button>"+ 
-    "<button onclick='S.viewMode=\"agent\";render()' style='flex:1;padding:8px 4px;border:1.5px solid "+(S.viewMode==="agent"?"#C9A14A":"transparent")+";border-radius:7px;font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;background:"+(S.viewMode==="agent"?"#fff":"transparent")+";color:"+(S.viewMode==="agent"?"#2D2B28":"#9e9a94")+";box-shadow:"+(S.viewMode==="agent"?"0 1px 4px rgba(0,0,0,.08)":"none")+"'>&#128274; Agent view</button>"+ 
-    "<a href='/guided.html?did="+day.id+"' style='flex:1;padding:8px 4px;border:1.5px solid transparent;border-radius:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:#92731a;box-shadow:none;display:flex;align-items:center;justify-content:center;gap:3px;text-decoration:none'>&#9654; Tour Mode</a>"+ 
-    "</div>"+
+    viewToggle+
     // AGENT BANNER
     (isAg?"<div style='display:flex;align-items:center;gap:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;margin-bottom:20px;font-size:12px;font-weight:500;color:#78350f'><span style='font-size:14px'>&#128274;</span>Internal — keep for yourself.</div>":"<div style='margin-bottom:4px'></div>")+
     // DARK CARD: stats + cover
