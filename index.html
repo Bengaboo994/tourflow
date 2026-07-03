@@ -3238,7 +3238,7 @@ function saveEditProp(dayId,pid){
     };
     // Viewing time only exists/means anything in a day context — don't force-clear it
     // when editing straight from the library (no #ep-time field rendered there).
-    if(sourceDayId){ updates.time=gv('ep-time'); }
+    if(dayId){ updates.time=gv('ep-time'); }
 
     // Priority: 1) pending pin, 2) coords from URL, 3) existing on property
     if(window._pendingPinLat!=null){
