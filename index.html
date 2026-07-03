@@ -1438,7 +1438,21 @@ function delDay(id){
   if(currentUser)_deleteRows('agent_days',[id]);
 }
 function addProp(did,p){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.concat([Object.assign({id:uid()},p)])}):d;});persist();}
-function updProp(did,pid,ch){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.map(function(p){return p.id===pid?Object.assign({},p,ch):p;})}):d;});persist();}
+function updProp(did,pid,ch){
+  var libId=null;
+  S.days=S.days.map(function(d){
+    if(d.id!==did)return d;
+    return Object.assign({},d,{properties:d.properties.map(function(p){
+      if(p.id!==pid)return p;
+      libId=p.libId||null;
+      return Object.assign({},p,ch);
+    })});
+  });
+  if(libId){
+    S.library=(S.library||[]).map(function(p){return p.id===libId?Object.assign({},p,ch):p;});
+  }
+  persist();
+}
 function delProp(did,pid){S.days=S.days.map(function(d){return d.id===did?Object.assign({},d,{properties:d.properties.filter(function(p){return p.id!==pid;})}):d;});persist();}
 function addEv(did,ev){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.concat([Object.assign({id:uid()},ev)])}):d;});persist();}
 function delEv(did,eid){S.days=S.days.map(function(d){var e=d.events||[];return d.id===did?Object.assign({},d,{events:e.filter(function(ev){return ev.id!==eid;})}):d;});persist();}
@@ -3212,7 +3226,7 @@ function saveEditProp(dayId,pid){
     if(dayId){
       updProp(dayId,pid,updates);
       S.library=(S.library||[]).map(function(p){
-        if(p.id===pid||p.id===updates.libId||(updates.url&&p.url&&p.url===updates.url)){
+        if(p.id===pid||(existingProp&&p.id===existingProp.libId)||(updates.url&&p.url&&p.url===updates.url)){
           return Object.assign({},p,updates);
         }
         return p;
