@@ -1,6 +1,6 @@
 // TourFlow Service Worker
 // ⬆ Bump this number every time you deploy a change
-const VERSION = 4;
+const VERSION = 5;
 const CACHE_NAME = 'tourflow-v' + VERSION;
 
 const STATIC_ASSETS = [
@@ -42,8 +42,9 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Let admin.html and t.html pass through directly (no cache)
-  if (url.includes('/admin.html') || url.includes('/t.html')) {
+  // Let admin.html, t.html and guided.html pass through directly (no cache) —
+  // these all read live/sensitive data and must never risk serving a stale copy.
+  if (url.includes('/admin.html') || url.includes('/t.html') || url.includes('/guided.html')) {
     event.respondWith(fetch(event.request));
     return;
   }
