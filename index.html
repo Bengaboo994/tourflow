@@ -589,6 +589,124 @@ function fmtDate(d){if(!d)return"";try{return new Date(d+"T12:00:00").toLocaleDa
 function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function getDomain(url){try{return new URL(url).hostname.replace("www.","");}catch(e){return url||"";}}
 function gv(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+
+// ── BUDGET (single max value: slider + manual entry, replaces old range dropdown) ──
+// Non-linear scale: fine 25k steps where most buyers fall (0-500k), coarser above.
+var BUDGET_STEPS=[0,25000,50000,75000,100000,125000,150000,175000,200000,225000,250000,275000,300000,325000,350000,375000,400000,425000,450000,475000,500000,600000,700000,800000,900000,1000000,1250000,1500000,1750000,2000000,2500000,3000000];
+var BUDGET_NOLIMIT_IDX=BUDGET_STEPS.length; // one slider position past the last real value = "No limit"
+function normalizeBudget(val){
+  // Legacy bucket codes (b150, b250, ...) from the old range-picker are no
+  // longer meaningful — treat them as "not specified" rather than crash/misdisplay.
+  if(val&&/^b\d+$/.test(val))return'';
+  return val||'';
+}
+function budgetDisplayText(val){
+  val=normalizeBudget(val);
+  if(!val)return'';
+  if(val==='nolimit')return'No limit';
+  var n=parseInt(val,10);
+  if(!n||n<=0)return'';
+  if(n>=1000000)return'\u20ac'+(n%1000000===0?(n/1000000):(n/1000000).toFixed(1))+'M';
+  return'\u20ac'+Math.round(n/1000)+'k';
+}
+function budgetNumericMax(val){
+  val=normalizeBudget(val);
+  if(!val)return null;
+  if(val==='nolimit')return 99999999;
+  var n=parseInt(val,10);
+  return n>0?n:null;
+}
+function budgetValueToNearestStep(n){
+  var best=0,bestDiff=Infinity;
+  for(var i=0;i<BUDGET_STEPS.length;i++){
+    var d=Math.abs(BUDGET_STEPS[i]-n);
+    if(d<bestDiff){bestDiff=d;best=i;}
+  }
+  return best;
+}
+function budgetRawToSliderIdx(val){
+  val=normalizeBudget(val);
+  if(val==='nolimit')return BUDGET_NOLIMIT_IDX;
+  var n=parseInt(val,10);
+  if(!n||n<=0)return 0;
+  return budgetValueToNearestStep(n);
+}
+function budgetSliderHtml(prefix,val){
+  val=normalizeBudget(val);
+  var isNoLimit=val==='nolimit';
+  var numVal=(!isNoLimit&&val)?parseInt(val,10):0;
+  var sliderIdx=budgetRawToSliderIdx(val);
+  var displayText=isNoLimit?'No limit':(numVal>0?('\u20ac'+numVal.toLocaleString('en-US')):'Not specified');
+  return '<div style="margin-bottom:13px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">'+
+      '<label class="lbl" style="margin-bottom:0">Budget (max)</label>'+
+      '<span id="'+prefix+'-budget-display" style="font-size:14px;font-weight:600;color:var(--brass)">'+displayText+'</span>'+
+    '</div>'+
+    '<input type="range" id="'+prefix+'-budget-slider" min="0" max="'+BUDGET_NOLIMIT_IDX+'" step="1" value="'+sliderIdx+'" data-nolimit="'+(isNoLimit?'1':'')+'" '+
+      'oninput="onBudgetSliderInput(\''+prefix+'\')" style="width:100%;height:6px;accent-color:#C9A14A"/>'+
+    '<div style="display:flex;gap:8px;margin-top:10px">'+
+      '<input type="number" class="inp" id="'+prefix+'-budget-manual" placeholder="Exact amount (\u20ac)" value="'+(!isNoLimit&&numVal>0?numVal:'')+'" min="0" step="1000" '+
+        'oninput="onBudgetManualInput(\''+prefix+'\')" style="flex:1;min-width:0"/>'+
+      '<button type="button" id="'+prefix+'-budget-nolimit-btn" onclick="setBudgetNoLimit(\''+prefix+'\')" style="padding:0 14px;border-radius:8px;border:1px solid '+(isNoLimit?'#C9A14A':'var(--fog)')+';background:'+(isNoLimit?'#071226':'var(--card)')+';color:'+(isNoLimit?'#C9A14A':'var(--slate)')+';font-size:12px;font-weight:600;white-space:nowrap">No limit</button>'+
+    '</div>'+
+  '</div>';
+}
+function onBudgetSliderInput(prefix){
+  var slider=document.getElementById(prefix+'-budget-slider');
+  var manual=document.getElementById(prefix+'-budget-manual');
+  var display=document.getElementById(prefix+'-budget-display');
+  var btn=document.getElementById(prefix+'-budget-nolimit-btn');
+  var idx=parseInt(slider.value,10);
+  if(idx>=BUDGET_NOLIMIT_IDX){
+    slider.dataset.nolimit='1';
+    if(manual)manual.value='';
+    if(display)display.textContent='No limit';
+    if(btn){btn.style.borderColor='#C9A14A';btn.style.background='#071226';btn.style.color='#C9A14A';}
+  } else {
+    var v=BUDGET_STEPS[idx]||0;
+    slider.dataset.nolimit='';
+    if(manual)manual.value=v>0?v:'';
+    if(display)display.textContent=v>0?('\u20ac'+v.toLocaleString('en-US')):'Not specified';
+    if(btn){btn.style.borderColor='var(--fog)';btn.style.background='var(--card)';btn.style.color='var(--slate)';}
+  }
+}
+function onBudgetManualInput(prefix){
+  var manual=document.getElementById(prefix+'-budget-manual');
+  var slider=document.getElementById(prefix+'-budget-slider');
+  var display=document.getElementById(prefix+'-budget-display');
+  var btn=document.getElementById(prefix+'-budget-nolimit-btn');
+  var n=parseInt(manual.value,10);
+  if(slider)slider.dataset.nolimit='';
+  if(btn){btn.style.borderColor='var(--fog)';btn.style.background='var(--card)';btn.style.color='var(--slate)';}
+  if(!n||n<=0){
+    if(slider)slider.value=0;
+    if(display)display.textContent='Not specified';
+    return;
+  }
+  if(slider)slider.value=budgetValueToNearestStep(n);
+  if(display)display.textContent='\u20ac'+n.toLocaleString('en-US');
+}
+function setBudgetNoLimit(prefix){
+  var slider=document.getElementById(prefix+'-budget-slider');
+  var manual=document.getElementById(prefix+'-budget-manual');
+  var display=document.getElementById(prefix+'-budget-display');
+  var btn=document.getElementById(prefix+'-budget-nolimit-btn');
+  if(slider){slider.value=BUDGET_NOLIMIT_IDX;slider.dataset.nolimit='1';}
+  if(manual)manual.value='';
+  if(display)display.textContent='No limit';
+  if(btn){btn.style.borderColor='#C9A14A';btn.style.background='#071226';btn.style.color='#C9A14A';}
+}
+function getBudgetValue(prefix){
+  var slider=document.getElementById(prefix+'-budget-slider');
+  var manual=document.getElementById(prefix+'-budget-manual');
+  if(slider&&slider.dataset.nolimit==='1')return'nolimit';
+  if(manual&&manual.value){
+    var n=parseInt(manual.value,10);
+    if(n>0)return String(n);
+  }
+  return'';
+}
+
 function initials(n){return(n||"?").split(" ").map(function(w){return w[0]||"";}).join("").slice(0,2).toUpperCase();}
 function dayStatus(date){if(!date)return"upcoming";var t=today();if(date===t)return"today";if(date<t)return"done";return"upcoming";}
 function statusBadge(s){if(s==="today")return'<span class="pill pill-br">Today</span>';if(s==="done")return'<span class="pill pill-gy">Completed</span>';return'<span class="pill pill-bl">Upcoming</span>';}
@@ -705,7 +823,8 @@ function reqFormHtml(r){
 function readReq(){
   var keys=['poolPrivate','poolCommunity','garage','garden','beach','restaurants','golf','newbuild','community','poorCondition'];
   var req={};
-  ['budget','minrooms','view','purpose'].forEach(function(k){req[k]=gv('req-'+k)||'';});
+  req.budget=getBudgetValue('req');
+  ['minrooms','view','purpose'].forEach(function(k){req[k]=gv('req-'+k)||'';});
   keys.forEach(function(k){req[k]=gv('req-'+k)||'';});
   var typeBoxes=document.querySelectorAll('[data-multisel="req-type"]');
   req.type=[];
@@ -776,8 +895,7 @@ function matchScore(c,p){
   // Budget check
   if(req.budget){
     var rawPrice=parseFloat((p.price||'').replace(/[^0-9.]/g,''))||0;
-    var budgetMap={'b150':150000,'b250':250000,'b400':400000,'b600':600000,'b1000':1000000,'b2000':2000000,'nolimit':99999999};
-    var bMax=budgetMap[req.budget]||9999999;
+    var bMax=budgetNumericMax(req.budget)||9999999;
     if(rawPrice>0) results.push({label:'Budget',pass:rawPrice<=bMax,level:'must'});
   }
 
@@ -1454,7 +1572,7 @@ function updateClient(cid){
   c.note=gv('ec-note')||'';
   c.req=c.req||{};
   var brEc=readBR('ec-br');if(brEc)c.req.buyerReadiness=brEc;
-  c.req.budget=gv('req-budget')||'';
+  c.req.budget=getBudgetValue('req');
   c.req.minrooms=gv('req-minrooms')||'';
   var typeBoxes996=document.querySelectorAll('[data-multisel="req-type"]');
   c.req.type=[];
@@ -1859,11 +1977,10 @@ function pgClients(){
   });
 
   // Sort
-  var budgetOrder={'b150':1,'b250':2,'b400':3,'b600':4,'b1000':5,'b2000':6,'nolimit':7};
   if(sortF==='budget-hi'){
     filtered=filtered.slice().sort(function(a,b){
-      var ba=(a.req&&a.req.budget)?budgetOrder[a.req.budget]||0:0;
-      var bb=(b.req&&b.req.budget)?budgetOrder[b.req.budget]||0:0;
+      var ba=(a.req&&a.req.budget)?(budgetNumericMax(a.req.budget)||0):0;
+      var bb=(b.req&&b.req.budget)?(budgetNumericMax(b.req.budget)||0):0;
       return bb-ba;
     });
   } else if(sortF==='readiness'){
@@ -1942,8 +2059,7 @@ function pgClients(){
       var cd=cDays(c.id);
       var req=c.req||{};
       var upc=cd.filter(function(d){return dayStatus(d.date)!=='done';});
-      var budgetLabels={"b150":"€0–150k","b250":"€150–250k","b400":"€250–400k","b600":"€400–600k","b1000":"€600k–1M","b2000":"€1M–2M","nolimit":"No limit"};
-      var budgetStr=req.budget?budgetLabels[req.budget]||(c.budget||""):c.budget||"";
+      var budgetStr=req.budget?(budgetDisplayText(req.budget)||(c.budget||"")):c.budget||"";
       var ini=initials(c.name);
 
       return '<div onclick="go(\'client-detail\',{cid:\''+c.id+'\'})" style="background:#fff;border-radius:14px;border:1px solid #edeae4;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
@@ -2014,8 +2130,7 @@ function pgClientDetail(){
     '<div class="card" style="margin-bottom:18px">'+
     (function(){
       var req=c.req||{};
-      var budgetLabels={'b150':'€0 – 150k','b250':'€150k – 250k','b400':'€250k – 400k','b600':'€400k – 600k','b1000':'€600k – 1M','b2000':'€1M – 2M','nolimit':'No limit'};
-      var budgetStr=req.budget?budgetLabels[req.budget]||req.budget:(c.budget||'');
+      var budgetStr=req.budget?(budgetDisplayText(req.budget)||req.budget):(c.budget||'');
       var mustHave=req.mustHave||[];
       var plus=req.plus||[];
 
@@ -2245,8 +2360,6 @@ function pgAddClient(){
   var summary=(mustHtml||plusHtml)?
     '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
 
-  var budgetOpts=['','b150','b250','b400','b600','b1000','b2000','nolimit'];
-  var budgetLabels={'':'Any','b150':'€0 – 150k','b250':'€150k – 250k','b400':'€250k – 400k','b600':'€400k – 600k','b1000':'€600k – 1M','b2000':'€1M – 2M','nolimit':'No limit'};
   var roomOpts=['','studio','1','2','3','4','5+'];
   var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
   var types=[{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'townhouse',l:'Townhouse'},{v:'semidetached',l:'Semi-detached house'},{v:'quad',l:'Quad house'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'}];
@@ -2273,10 +2386,8 @@ function pgAddClient(){
     '<div style="border-top:none;padding-top:0;margin-top:16px">'+
     '<div class="sec-sm" style="margin-bottom:12px">Essential Requirements</div>'+
     '<div class="card">'+
-    '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Budget (max)</label>'+sel('ac-budget',budgetOpts,budgetLabels,'')+'</div>'+
-      '<div><label class="lbl">Min bedrooms</label>'+sel('ac-minrooms',roomOpts,roomLabels,'')+'</div>'+
-    '</div>'+
+    budgetSliderHtml('ac','')+
+    '<div style="margin-bottom:13px"><label class="lbl">Min bedrooms</label>'+sel('ac-minrooms',roomOpts,roomLabels,'')+'</div>'+
     multiSel('ac-type',types,[],'Property type')+
     '</div>'+
     '<div class="sec-sm" style="margin-top:16px;margin-bottom:2px">Wishlist</div>'+
@@ -2290,7 +2401,7 @@ function pgAddClient(){
 function saveAddClient(){
   var n=gv("ac-name");if(!n){alert("Please enter a name.");return;}
   var req=window._newClientReq||{mustHave:[],plus:[]};
-  req.budget=gv("ac-budget")||'';
+  req.budget=getBudgetValue("ac");
   req.minrooms=gv("ac-minrooms")||'';
   var acTypeBoxes=document.querySelectorAll('[data-multisel="ac-type"]');
   req.type=[];
@@ -2355,8 +2466,6 @@ function pgEditClient(){
   var summary=(mustHtml||plusHtml)?
     '<div style="background:#f5f2ec;border-radius:10px;padding:12px 14px;margin-bottom:14px">'+mustHtml+plusHtml+'</div>':'';
 
-  var budgetOpts=['','b150','b250','b400','b600','b1000','b2000','nolimit'];
-  var budgetLabels={'':'Any','b150':'€0 – 150k','b250':'€150k – 250k','b400':'€250k – 400k','b600':'€400k – 600k','b1000':'€600k – 1M','b2000':'€1M – 2M','nolimit':'No limit'};
   var roomOpts=['','studio','1','2','3','4','5+'];
   var roomLabels={'':'Any','studio':'Studio','1':'1+','2':'2+','3':'3+','4':'4+','5+':'5+'};
   var types=[{v:'apt',l:'Apartment'},{v:'villa',l:'Villa'},{v:'townhouse',l:'Townhouse'},{v:'semidetached',l:'Semi-detached house'},{v:'quad',l:'Quad house'},{v:'bungalow',l:'Bungalow'},{v:'penthouse',l:'Penthouse'}];
@@ -2382,8 +2491,8 @@ function pgEditClient(){
     '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
     brPickerHtml(req.buyerReadiness||null,'ec-br')+
     '<div class="sec-sm" style="margin-bottom:12px">Essential Requirements</div>'+
+    budgetSliderHtml('req',req.budget||'')+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Budget (max)</label>'+sel('req-budget',budgetOpts,budgetLabels,req.budget||'')+'</div>'+
       '<div><label class="lbl">Min bedrooms</label>'+sel('req-minrooms',roomOpts,roomLabels,req.minrooms||'')+'</div>'+
     '</div>'+
     multiSel('req-type',types,Array.isArray(req.type)?req.type:(req.type&&req.type!=='any'?[req.type]:[]),'Property type')+
@@ -2401,8 +2510,7 @@ function pgEditClient(){
 function saveEditClient(){
   var n=gv("ec-name");if(!n){alert("Please enter a name.");return;}
   var rq=readReq();
-  var budgetLabels={'b150':'€0–150k','b250':'€150k–250k','b400':'€250k–400k','b600':'€400k–600k','b1000':'€600k–1M','b2000':'€1M–2M','nolimit':'No limit'};
-  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),notes:gv("ec-notes"),budget:budgetLabels[rq.budget]||'',req:rq});
+  updateClient(S.cid,{name:n,phone:gv("ec-phone"),email:gv("ec-email"),nationality:gv("ec-nat"),notes:gv("ec-notes"),budget:budgetDisplayText(rq.budget)||'',req:rq});
   go("client-detail");
 }
 
@@ -3401,9 +3509,8 @@ function pgOutput(){
     if(typeof req.type==="string"){req.type=req.type&&req.type!=="any"?[req.type]:[];}
     if(!Array.isArray(req.type)){req.type=[];}
     var mustHave=req.mustHave||[];
-    var budgetLabels={"b150":"€0 – 150k","b250":"€150k – 250k","b400":"€250k – 400k","b600":"€400k – 600k","b1000":"€600k – 1M","b2000":"€1M – 2M","nolimit":"No limit"};
     var lines=[];
-    if(req.budget)lines.push(budgetLabels[req.budget]||req.budget);
+    if(req.budget)lines.push(budgetDisplayText(req.budget)||req.budget);
     if(req.minrooms&&req.minrooms!=="studio")lines.push(req.minrooms+"+ bedrooms");
     if(req.type&&req.type.length){
       var tl={apt:"Apartment",villa:"Villa",townhouse:"Townhouse",semidetached:"Semi-detached",quad:"Quad house",bungalow:"Bungalow",penthouse:"Penthouse"};
