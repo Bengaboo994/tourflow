@@ -956,6 +956,74 @@ var S={
   library:d0.library||[]
 };
 
+// ── Nationality & Language autocomplete ─────────────────────────────────────
+// Curated for the Costa Blanca buyer demographic: 20 most common European
+// nationalities + 10 most common non-European, each with a flag.
+var NATIONALITY_LIST=[
+  {flag:'\ud83c\uddf8\ud83c\uddea',name:'Swedish'},
+  {flag:'\ud83c\uddf3\ud83c\uddf4',name:'Norwegian'},
+  {flag:'\ud83c\udde9\ud83c\uddf0',name:'Danish'},
+  {flag:'\ud83c\uddeb\ud83c\uddee',name:'Finnish'},
+  {flag:'\ud83c\uddec\ud83c\udde7',name:'British'},
+  {flag:'\ud83c\udde9\ud83c\uddea',name:'German'},
+  {flag:'\ud83c\uddf3\ud83c\uddf1',name:'Dutch'},
+  {flag:'\ud83c\udde7\ud83c\uddea',name:'Belgian'},
+  {flag:'\ud83c\uddeb\ud83c\uddf7',name:'French'},
+  {flag:'\ud83c\uddee\ud83c\uddea',name:'Irish'},
+  {flag:'\ud83c\uddf5\ud83c\uddf1',name:'Polish'},
+  {flag:'\ud83c\uddf7\ud83c\uddfa',name:'Russian'},
+  {flag:'\ud83c\uddfa\ud83c\udde6',name:'Ukrainian'},
+  {flag:'\ud83c\udde8\ud83c\udded',name:'Swiss'},
+  {flag:'\ud83c\udde6\ud83c\uddf9',name:'Austrian'},
+  {flag:'\ud83c\uddee\ud83c\uddf9',name:'Italian'},
+  {flag:'\ud83c\uddea\ud83c\uddf8',name:'Spanish'},
+  {flag:'\ud83c\uddf5\ud83c\uddf9',name:'Portuguese'},
+  {flag:'\ud83c\udde8\ud83c\uddff',name:'Czech'},
+  {flag:'\ud83c\uddf7\ud83c\uddf4',name:'Romanian'},
+  {flag:'\ud83c\uddfa\ud83c\uddf8',name:'American'},
+  {flag:'\ud83c\udde8\ud83c\udde6',name:'Canadian'},
+  {flag:'\ud83c\udde6\ud83c\uddfa',name:'Australian'},
+  {flag:'\ud83c\udde8\ud83c\uddf3',name:'Chinese'},
+  {flag:'\ud83c\uddf2\ud83c\udde6',name:'Moroccan'},
+  {flag:'\ud83c\udde6\ud83c\uddf7',name:'Argentinian'},
+  {flag:'\ud83c\udde7\ud83c\uddf7',name:'Brazilian'},
+  {flag:'\ud83c\uddff\ud83c\udde6',name:'South African'},
+  {flag:'\ud83c\uddee\ud83c\uddf3',name:'Indian'},
+  {flag:'\ud83c\uddee\ud83c\uddf1',name:'Israeli'}
+];
+var LANGUAGE_LIST=['Swedish','Norwegian','Danish','Finnish','English','German','Dutch','French','Russian','Ukrainian','Polish','Spanish','Italian','Portuguese','Arabic','Mandarin'];
+
+function autocompleteInputHtml(id,currentValue,listName){
+  return '<div style="position:relative">'+
+    '<input class="inp" id="'+id+'" value="'+esc(currentValue||'')+'" autocomplete="off" '+
+    'oninput="renderAutocomplete(\''+id+'\',\''+listName+'\')" '+
+    'onfocus="renderAutocomplete(\''+id+'\',\''+listName+'\')" '+
+    'onblur="setTimeout(function(){var d=document.getElementById(\''+id+'-ac\');if(d)d.style.display=\'none\';},150)"/>'+
+    '<div id="'+id+'-ac" style="display:none;position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#fff;border:1.5px solid var(--fog);border-radius:8px;max-height:220px;overflow-y:auto;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,.1)"></div>'+
+    '</div>';
+}
+function renderAutocomplete(id,listName){
+  var input=document.getElementById(id);
+  var dd=document.getElementById(id+'-ac');
+  if(!input||!dd)return;
+  var q=input.value.trim().toLowerCase();
+  var list=listName==='nationality'?NATIONALITY_LIST:LANGUAGE_LIST.map(function(l){return{flag:'',name:l};});
+  var matches=(q?list.filter(function(o){return o.name.toLowerCase().indexOf(q)===0;}):list).slice(0,8);
+  if(!matches.length){dd.style.display='none';return;}
+  dd.innerHTML=matches.map(function(o){
+    return '<button type="button" onmousedown="event.preventDefault()" onclick="selectAutocomplete(\''+id+'\',\''+o.name.replace(/'/g,"\\'")+'\')" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;background:none;border:none;border-bottom:1px solid #f5f2ec;text-align:left;cursor:pointer;font-family:inherit;font-size:14px;color:var(--ink)">'+
+      (o.flag?'<span style="font-size:16px">'+o.flag+'</span>':'')+o.name+
+      '</button>';
+  }).join('');
+  dd.style.display='block';
+}
+function selectAutocomplete(id,value){
+  var input=document.getElementById(id);
+  var dd=document.getElementById(id+'-ac');
+  if(input){input.value=value;}
+  if(dd)dd.style.display='none';
+}
+
 function multiSel(id,opts,vals,label){
   vals=vals||[];
   var summary=vals.length===0?'Any type':vals.length===1?(opts.find(function(o){return o.v===vals[0];})||{}).l||vals[0]:vals.length+' types selected';
@@ -1780,7 +1848,7 @@ function updateClient(cid){
   c.phone=gv('ec-phone')||'';
   c.email=gv('ec-email')||'';
   c.nationality=gv('ec-nat')||'';
-  c.note=gv('ec-note')||'';
+  c.language=gv('ec-lang')||'';
   c.req=c.req||{};
   var brEc=readBR('ec-br');if(brEc)c.req.buyerReadiness=brEc;
   c.req.budget=getBudgetValue('req');
@@ -2368,6 +2436,7 @@ function pgClientDetail(){
       var reqHtml='<div class="g2">'+
         '<div><label class="lbl">Budget</label><div style="font-size:14px">'+esc(budgetStr||'&#8212;')+'</div></div>'+
         '<div><label class="lbl">Nationality</label><div style="font-size:14px">'+esc(c.nationality||'&#8212;')+'</div></div>'+
+        '<div><label class="lbl">Language</label><div style="font-size:14px">'+esc(c.language||'&#8212;')+'</div></div>'+
         '</div>';
 
       // Must Have chips
@@ -2609,8 +2678,8 @@ function pgAddClient(){
       '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="Email address"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Nationality</label><input class="inp" id="ac-nat" placeholder="Nationality"/></div>'+
-      '<div><label class="lbl">Notes</label><input class="inp" id="ac-notes" placeholder="Notes"/></div>'+
+      '<div><label class="lbl">Nationality</label>'+autocompleteInputHtml('ac-nat','','nationality')+'</div>'+
+      '<div><label class="lbl">Language</label>'+autocompleteInputHtml('ac-lang','','language')+'</div>'+
     '</div>'+
     '</div>'+
     '<div class="card" style="margin-bottom:14px">'+brPickerHtml(null,'ac-br')+'</div>'+
@@ -2639,7 +2708,7 @@ function saveAddClient(){
   acTypeBoxes.forEach(function(b){if(b.checked)req.type.push(b.value);});
   var wasOnboarding=S.days.length===0;
   var brAc=readBR('ac-br');if(brAc)req.buyerReadiness=brAc;
-  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),note:gv("ac-notes"),req:req});
+  var id=addClient({name:n,phone:gv("ac-phone"),email:gv("ac-email"),nationality:gv("ac-nat"),language:gv("ac-lang"),req:req});
   window._newClientReq=null;
   clearDraft();
   if(wasOnboarding){showTab('home');}
@@ -2716,8 +2785,8 @@ function pgEditClient(){
       '<div><label class="lbl">Email</label><input class="inp" id="ec-email" value="'+esc(c.email||'')+'"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Nationality</label><input class="inp" id="ec-nat" placeholder="Nationality" value="'+esc(c.nationality||'')+'"/></div>'+
-      '<div><label class="lbl">Notes</label><input class="inp" id="ec-note" value="'+esc(c.note||'')+'"/></div>'+
+      '<div><label class="lbl">Nationality</label>'+autocompleteInputHtml('ec-nat',c.nationality,'nationality')+'</div>'+
+      '<div><label class="lbl">Language</label>'+autocompleteInputHtml('ec-lang',c.language,'language')+'</div>'+
     '</div>'+
     '<div style="border-top:1px solid var(--fog);padding-top:16px">'+
     brPickerHtml(req.buyerReadiness||null,'ec-br')+
