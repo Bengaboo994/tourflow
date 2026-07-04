@@ -3713,12 +3713,83 @@ function pgOutput(){
     "</div>";
 
   if(S.viewMode==="tour"){
+    var phoneIllustration=
+      '<div style="position:relative;width:100%;max-width:220px;margin:0 auto 8px">'+
+      '<div style="background:#071226;border-radius:32px;padding:8px;box-shadow:0 20px 50px rgba(7,18,38,.25)">'+
+      '<div style="background:#F4F1EA;border-radius:24px;overflow:hidden;position:relative;aspect-ratio:9/17.5">'+
+      '<svg width="100%" height="100%" viewBox="0 0 220 430" style="display:block">'+
+      '<rect width="220" height="430" fill="#F4F1EA"/>'+
+      '<path d="M0 60 Q50 40 90 70 T190 50 L220 90 L220 180 Q160 160 120 190 T0 170 Z" fill="#e3ecdf"/>'+
+      '<path d="M0 300 Q60 280 100 310 T220 290 L220 430 L0 430 Z" fill="#e3ecdf"/>'+
+      '<g stroke="#d8d2c2" stroke-width="1.5" fill="none" opacity=".8">'+
+      '<path d="M0 40 L220 55"/><path d="M0 120 L220 100"/><path d="M0 210 L220 225"/>'+
+      '<path d="M30 0 L15 430"/><path d="M120 0 L140 430"/><path d="M190 0 L175 430"/>'+
+      '</g>'+
+      '<circle cx="188" cy="30" r="16" fill="#fff" opacity=".9"/>'+
+      '<path d="M188 22v6l5 3" stroke="#1A1917" stroke-width="1.6" stroke-linecap="round" fill="none"/>'+
+      '<path d="M55 95 C75 130 60 165 90 190 C115 210 100 240 145 250" stroke="#C9A14A" stroke-width="2.5" stroke-dasharray="1 9" stroke-linecap="round" fill="none"/>'+
+      '<circle cx="55" cy="95" r="14" fill="#C9A14A"/><text x="55" y="100" font-size="14" font-weight="700" fill="#071226" text-anchor="middle" font-family="Jost,sans-serif">1</text>'+
+      '<circle cx="90" cy="190" r="14" fill="#C9A14A"/><text x="90" y="195" font-size="14" font-weight="700" fill="#071226" text-anchor="middle" font-family="Jost,sans-serif">2</text>'+
+      '<circle cx="145" cy="250" r="14" fill="#C9A14A"/><text x="145" y="255" font-size="14" font-weight="700" fill="#071226" text-anchor="middle" font-family="Jost,sans-serif">3</text>'+
+      '</svg>'+
+      '</div></div>'+
+      '<div style="position:absolute;left:50%;bottom:-34px;transform:translateX(-50%);width:78%;background:#fff;border-radius:16px;box-shadow:0 16px 32px rgba(7,18,38,.18);overflow:hidden">'+
+      '<div style="height:64px;background:linear-gradient(135deg,#cdd8c4,#e8dfc6)"></div>'+
+      '<div style="padding:10px 12px">'+
+      '<div style="font-size:11px;font-weight:700;color:#1A1917;letter-spacing:.02em">ROSALEDA \u00b7 TORREVIEJA</div>'+
+      '<div style="font-size:9px;color:#5a5754;margin-bottom:6px">Townhouse</div>'+
+      '<div style="display:flex;gap:10px;font-size:9px;color:#5a5754;align-items:center">'+
+      '<span>&#128716; 3 beds</span><span>&#128704; 2 baths</span><span>85 m\u00b2</span>'+
+      '</div>'+
+      '</div></div>'+
+      '</div>';
+
+    var features=[
+      {icon:'\ud83d\uddfa\ufe0f',title:'Plan smarter',desc:'Create complete viewing routes with properties and custom stops.'},
+      {icon:'\ud83d\udd52',title:'Stay on schedule',desc:'Automatic timing, driving times and ETA between every stop.'},
+      {icon:'\ud83e\udd1d',title:'Share with colleagues',desc:'Send your tour to another agent with a secure link.'},
+      {icon:'\ud83d\udd12',title:'Agent exclusive',desc:'Tour Mode is designed exclusively for real estate professionals.'}
+    ];
+    var featureList=features.map(function(f){
+      return '<div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:20px">'+
+        '<div style="width:38px;height:38px;border-radius:11px;background:#fdf6e8;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">'+f.icon+'</div>'+
+        '<div><div style="font-size:14px;font-weight:600;color:#1A1917;margin-bottom:2px">'+f.title+'</div>'+
+        '<div style="font-size:12px;color:#5a5754;line-height:1.5">'+f.desc+'</div></div>'+
+        '</div>';
+    }).join('');
+
+    var whyCards=[
+      {title:'Professional itineraries',desc:'Organize every viewing day with properties, coffee breaks, meetings and notes.'},
+      {title:'Live navigation',desc:'See the next destination, drive time and remaining stops throughout the day.'},
+      {title:'Share with colleagues',desc:'Share the complete itinerary with another agent when needed \u2014 colleagues only, never clients.'}
+    ];
+    var whySection=whyCards.map(function(w){
+      return '<div style="background:#fff;border:1px solid #edeae4;border-radius:20px;padding:20px;margin-bottom:12px">'+
+        '<div style="font-size:15px;font-weight:600;color:#1A1917;margin-bottom:6px">'+w.title+'</div>'+
+        '<div style="font-size:13px;color:#5a5754;line-height:1.6">'+w.desc+'</div>'+
+        '</div>';
+    }).join('');
+
     return "<div class='mobile-view'><div class='wrap' style='background:#FCFBF7'>"+
       topNav()+
       viewToggle+
-      "<div style='min-height:50vh;display:flex;align-items:center;justify-content:center'>"+
-      "<a href='/guided.html?did="+day.id+"' style='display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 40px;background:#071226;color:#C9A14A;border-radius:14px;font-family:inherit;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 4px 20px rgba(7,18,38,.25)'>&#9654; Start Tour</a>"+
-      "</div>"+
+      '<div style="padding-top:34px;margin-bottom:44px">'+phoneIllustration+'</div>'+
+      '<div style="text-align:center;margin-bottom:28px">'+
+      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:8px">For Agents</div>'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:400;color:#1A1917;line-height:1.1;margin-bottom:12px">Tour Mode</div>'+
+      '<div style="font-size:14px;color:#1A1917;font-weight:500;margin-bottom:6px;max-width:320px;margin-left:auto;margin-right:auto">Plan, organize and guide your property viewings from one place.</div>'+
+      '<div style="font-size:13px;color:#5a5754;line-height:1.6;max-width:320px;margin:0 auto">Build professional viewing itineraries, navigate effortlessly between properties and share your tour with colleagues.</div>'+
+      '</div>'+
+      '<div style="margin-bottom:8px">'+featureList+'</div>'+
+      '<a href="/guided.html?did='+day.id+'" class="tf-tap" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:18px;background:#071226;color:#C9A14A;border-radius:14px;font-family:inherit;font-size:15px;font-weight:700;text-decoration:none;box-shadow:0 8px 24px rgba(7,18,38,.2);margin-top:12px">&#9654; Start Tour Mode</a>'+
+      '<div style="text-align:center;font-size:11px;color:#5a5754;margin-top:10px;margin-bottom:36px;display:flex;align-items:center;justify-content:center;gap:5px">&#128274; Only available for agents</div>'+
+      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Why Tour Mode?</div>'+
+      whySection+
+      '<div style="background:#fff;border:1px solid #edeae4;border-radius:20px;padding:20px;margin-top:4px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px">'+
+      '<div><div style="font-size:14px;font-weight:600;color:#1A1917;margin-bottom:3px">Export PDF</div>'+
+      '<div style="font-size:12px;color:#5a5754">A branded PDF itinerary to share.</div></div>'+
+      '<span style="flex-shrink:0;background:#fdf6e8;color:#92731a;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:6px 12px;border-radius:100px">Soon</span>'+
+      '</div>'+
       "</div></div>";
   }
 
