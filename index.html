@@ -48,6 +48,10 @@ input,button,textarea,select{font-family:inherit}
 .nl.on{color:#C9A14A;font-weight:500}
 .nb.on{color:#C9A14A}.nd{width:20px;height:2px;background:#C9A14A;border-radius:1px;margin-top:2px}
 .wrap{padding:20px 18px 80px;min-height:calc(100vh - 60px)}
+.tf-tap{transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease}
+.tf-tap:active{transform:scale(.97);opacity:.9}
+@keyframes tfFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tf-fade-in{animation:tfFadeIn .4s ease both}
 .card{background:var(--card);border-radius:14px;border:1px solid var(--fog);padding:16px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .lbl{font-size:10px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:block}
 .inp{width:100%;padding:11px 13px;border:1.5px solid var(--fog);border-radius:8px;font-size:15px;font-weight:400;outline:none;background:var(--card);color:var(--ink);-webkit-appearance:none}
@@ -1510,6 +1514,7 @@ function openEditProp(pid,dayId){
   go('edit-prop');
 }
 function openTourOutput(did,cid){
+  if(navigator.vibrate){try{navigator.vibrate(8);}catch(e){}}
   S.did=did;S.cid=cid;
   var day=curD();
   if(day&&day.properties&&day.properties.length>0){
@@ -1701,16 +1706,19 @@ function pgHome(){
     var tLunch=hasLunch(todayDay);
     var tEvs=(todayDay.events||[]).filter(function(e){return e.type!=='meetingpoint';});
 
-    todayCard='<div style="margin-bottom:32px">'+
+    todayCard='<div class="tf-fade-in" style="margin-bottom:32px">'+
       '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today\'s Tour</div>'+
       '<div style="background:linear-gradient(145deg,#071226 0%,#071226 100%);border-radius:18px;padding:24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(7,18,38,.25)">'+
-      // Route dots decoration (right side)
-      '<svg style="position:absolute;right:18px;top:16px;opacity:.5" width="80" height="140" viewBox="0 0 80 140" fill="none">'+
-      '<circle cx="60" cy="18" r="5" fill="#C9A14A"/>'+
-      '<path d="M60 23 Q55 50 45 65 Q38 75 30 90 Q22 105 20 125" stroke="#C9A14A" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>'+
-      '<circle cx="45" cy="65" r="3.5" fill="#C9A14A"/>'+
-      '<circle cx="28" cy="96" r="3.5" fill="#C9A14A"/>'+
-      '<path d="M55 10 L65 10 L60 4 Z" fill="#C9A14A"/>'+
+      // Route illustration (thin line art, gold accent only)
+      '<svg style="position:absolute;right:16px;top:14px;opacity:.9" width="86" height="120" viewBox="0 0 86 120" fill="none">'+
+      '<path d="M72 10 C58 24 64 42 48 54 C34 64 38 80 24 92 C18 97 18 102 16 106" stroke="#C9A14A" stroke-width="1" stroke-linecap="round" fill="none" opacity=".5"/>'+
+      '<circle cx="72" cy="10" r="2.5" fill="#C9A14A" opacity=".8"/>'+
+      '<circle cx="48" cy="54" r="1.6" fill="#C9A14A" opacity=".45"/>'+
+      // minimalist house silhouette, just behind the pin
+      '<path d="M0 106 L9 98 L18 106 M3 104 L3 113 L15 113 L15 104" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".55"/>'+
+      // destination pin
+      '<path d="M16 96 C19.3 96 22 98.7 22 102 C22 106.5 16 114 16 114 S10 106.5 10 102 C10 98.7 12.7 96 16 96z" fill="#C9A14A" opacity=".9"/>'+
+      '<circle cx="16" cy="102" r="2" fill="#071226"/>'+
       '</svg>'+
       // Client name + time
       '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">'+
@@ -1730,7 +1738,7 @@ function pgHome(){
       (tArea?'<div style="display:flex;align-items:center;gap:8px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(201,161,74,.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg><span style="font-size:14px;color:rgba(255,255,255,.7)">'+esc(tArea)+'</span></div>':'')+
       '</div>'+
       // Open Tour button
-      '<button onclick="openTourOutput(\''+todayDay.id+'\',\''+todayDay.clientId+'\')" style="width:100%;background:linear-gradient(90deg,#C9A14A,#d4a84b);color:#071226;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px">Open Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'+
+      '<button class="tf-tap" onclick="openTourOutput(\''+todayDay.id+'\',\''+todayDay.clientId+'\')" style="width:100%;background:linear-gradient(90deg,#C9A14A,#d4a84b);color:#071226;border:none;border-radius:11px;padding:16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(201,161,74,.25)">Open Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>'+
       '</div></div>';
   }
 
@@ -1868,7 +1876,7 @@ function pgHome(){
 
   // ── QUICK ACTIONS ────────────────────────────────────────────────────────
   function qaBtn(onclick,iconSvg,title,sub){
-    return '<button onclick="'+onclick+'" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:14px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
+    return '<button class="tf-tap" onclick="'+onclick+'" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:14px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
       '<div style="width:34px;height:34px;background:#071226;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:9px">'+iconSvg+'</div>'+
       '<div style="font-size:12px;font-weight:600;color:#1A1917;margin-bottom:2px">'+title+'</div>'+
       '<div style="font-size:10px;color:#5a5754">'+sub+'</div>'+
@@ -1924,14 +1932,14 @@ function pgHome(){
         var uArea=firstArea(d);
         var bg=avatarBg(uc.name);
         var dateStr=fmtDate(d.date);
-        return '<button onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="width:100%;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left">'+
+        return '<button class="tf-tap" onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="width:100%;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:17px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left">'+
           '<div style="text-align:center;min-width:32px">'+
           '<div style="font-size:8px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
-          '<div style="font-size:20px;font-weight:600;color:#1A1917;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
+          '<div style="font-size:21px;font-weight:600;color:#1A1917;line-height:1">'+dateStr.split('<br>')[1]+'</div>'+
           '</div>'+
           '<div style="width:36px;height:36px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+initials(uc.name)+'</div>'+
           '<div style="flex:1;min-width:0">'+
-          '<div style="font-size:13px;font-weight:500;color:#1A1917;margin-bottom:1px">'+esc(uc.name)+'</div>'+
+          '<div style="font-size:14px;font-weight:500;color:#1A1917;margin-bottom:2px">'+esc(uc.name)+'</div>'+
           '<div style="font-size:11px;color:#5a5754">'+[uTime,uArea].filter(Boolean).join(' \u00b7 ')+'</div>'+
           '</div>'+
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
