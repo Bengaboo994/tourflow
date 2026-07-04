@@ -623,13 +623,15 @@ function tourPreviewSvg(properties,dayId){
 
   // Winding start-to-end path: base diagonal (bottom → top) with an
   // alternating side-to-side offset so the route curves gently rather
-  // than running in a straight line.
+  // than running in a straight line. Vertical range is kept well clear of
+  // the Open Tour button at the bottom of the card.
   var n=shown.length;
   var windAmt=n>2?16:8;
+  var yTop=H*0.10, yBottom=H*0.58;
   for(var i=0;i<n;i++){
     var t=n>1?i/(n-1):0.5;
     var baseX=PAD+t*(W-2*PAD);
-    var baseY=H-PAD-t*(H-2*PAD);
+    var baseY=yBottom-t*(yBottom-yTop);
     var sign=(i%2===0)?-1:1;
     pts.push({x:baseX+sign*windAmt,y:baseY});
   }
@@ -677,7 +679,7 @@ function tourPreviewSvg(properties,dayId){
   // Subtle map-like texture in a neutral tone (distinct from the gold
   // route), confined to the same right-half canvas. Static, no animation.
   var bgPattern=
-    '<g opacity=".16" stroke="#8b93a3" stroke-width=".6">'+
+    '<g opacity=".35" stroke="#9aa3b3" stroke-width=".7">'+
     '<path d="M-10 30 C40 20 90 42 180 15" fill="none"/>'+
     '<path d="M-10 75 C50 90 110 60 180 80" fill="none"/>'+
     '<path d="M-10 120 C45 105 120 132 180 110" fill="none"/>'+
