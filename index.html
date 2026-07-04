@@ -940,6 +940,27 @@ var ET=[
 ];
 function getET(k){for(var i=0;i<ET.length;i++){if(ET[i].key===k)return ET[i];}return ET[4];}
 
+// Figures out when the tour actually ends. Prefers an explicit "Tour
+// Complete" schedule item if the agent added one; otherwise assumes the
+// last viewing runs about an hour, so end time = last start time + 60 min.
+function addMinutesToTime(hhmm,mins){
+  if(!hhmm||hhmm.indexOf(':')<0)return'';
+  var parts=hhmm.split(':');
+  var h=parseInt(parts[0],10),m=parseInt(parts[1],10);
+  if(isNaN(h)||isNaN(m))return'';
+  var total=h*60+m+mins;
+  total=((total%1440)+1440)%1440;
+  var nh=Math.floor(total/60),nm=total%60;
+  return (nh<10?'0':'')+nh+':'+(nm<10?'0':'')+nm;
+}
+function computeTourEndTime(sortedProps,events){
+  var completeEv=(events||[]).find(function(e){return e.type==='tourcomplete';});
+  if(completeEv&&completeEv.time)return completeEv.time;
+  if(!sortedProps||!sortedProps.length)return'';
+  var lastStart=sortedProps[sortedProps.length-1].time;
+  return lastStart?addMinutesToTime(lastStart,60):'';
+}
+
 var DEMO_C=[];
 var DEMO_D=[];
 
@@ -3136,7 +3157,7 @@ function copyWA(){
     var hasLunch=(day.events||[]).some(function(e){return e.type==='lunch';});
 
     var pickupEv=(day.events||[]).find(function(e){return e.type==='pickup'||e.type==='meetingpoint';});
-    var lastTime=props.length>1?props[props.length-1].time:'';
+    var lastTime=computeTourEndTime(props,day.events);
 
     var nl='\n';
 
@@ -3888,7 +3909,7 @@ function pgOutput(){
   var dayClient=S.clients.find(function(x){return x.id===day.clientId;});
   var sortedProps=[].concat(props).sort(function(a,b){return(a.time||"zz").localeCompare(b.time||"zz");});
   var firstTime=sortedProps.length?sortedProps[0].time:"";
-  var lastTime=sortedProps.length>1?sortedProps[sortedProps.length-1].time:"";
+  var lastTime=computeTourEndTime(sortedProps,day.events);
   var pLen=props.length;
 
   function fmtPriceStr(p){
