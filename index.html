@@ -608,7 +608,12 @@ function gv(id){var el=document.getElementById(id);return el?el.value.trim():"";
 // ── Dynamic Tour Preview SVG (Today's Tour card) ──────────────────────────
 // Abstract, branded visual summary of today's properties — not a real map.
 // Pins are based on properties only (never pickup/lunch/drop-off/meeting stops).
-function tourPreviewSvg(properties){
+// If coordinates exist, the straight-line route is swapped for a real
+// road-following route (via OSRM) once it loads — cached per tour so it
+// only needs to fetch once. Falls back silently to the straight line if
+// OSRM is unavailable. The map background itself stays the abstract pattern
+// for now (kept fast, no tile/Leaflet dependency on Home).
+function tourPreviewSvg(properties,dayId){
   var props=(properties||[]).slice().sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
   var total=props.length;
   if(!total)return'';
@@ -617,6 +622,7 @@ function tourPreviewSvg(properties){
   var W=80,H=120,PAD=16;
   var pts=[];
   var haveCoords=shown.length>0&&shown.every(function(p){return p.lat&&p.lng&&!isNaN(parseFloat(p.lat))&&!isNaN(parseFloat(p.lng));});
+  var bbox=null;
 
   if(haveCoords){
     var lats=shown.map(function(p){return parseFloat(p.lat);});
@@ -625,6 +631,7 @@ function tourPreviewSvg(properties){
     var minLng=Math.min.apply(null,lngs),maxLng=Math.max.apply(null,lngs);
     var latRange=(maxLat-minLat)||0.0005;
     var lngRange=(maxLng-minLng)||0.0005;
+    bbox={minLat:minLat,maxLat:maxLat,minLng:minLng,maxLng:maxLng,W:W,H:H,PAD:PAD};
     shown.forEach(function(p){
       var lat=parseFloat(p.lat),lng=parseFloat(p.lng);
       var x=PAD+((lng-minLng)/lngRange)*(W-2*PAD);
@@ -678,9 +685,72 @@ function tourPreviewSvg(properties){
     '<line x1="48" y1="0" x2="52" y2="120"/>'+
     '</g>';
 
+  if(haveCoords&&pts.length>1&&dayId){
+    setTimeout(function(){loadRealRouteForToday(dayId,shown,bbox);},30);
+  }
+
   return '<svg class="tf-route-svg" style="position:absolute;right:16px;top:14px" width="80" height="120" viewBox="0 0 '+W+' '+H+'" fill="none">'+
     bgPattern+pathHtml+pinsHtml+extraBadge+
     '</svg>';
+}
+
+// Cache key includes the property coordinates so a changed itinerary
+// invalidates the cached route automatically.
+function _routeHash(props){
+  return props.map(function(p){return p.lat+','+p.lng;}).join('|');
+}
+function _getCachedRoute(dayId,hash){
+  try{
+    var raw=localStorage.getItem('tf-route-'+dayId);
+    if(!raw)return null;
+    var obj=JSON.parse(raw);
+    if(obj.hash!==hash)return null;
+    return obj.pathD;
+  }catch(e){return null;}
+}
+function _setCachedRoute(dayId,hash,pathD){
+  try{localStorage.setItem('tf-route-'+dayId,JSON.stringify({hash:hash,pathD:pathD,ts:Date.now()}));}catch(e){}
+}
+function _normalizeRouteCoords(coords,bbox){
+  var latRange=(bbox.maxLat-bbox.minLat)||0.0005;
+  var lngRange=(bbox.maxLng-bbox.minLng)||0.0005;
+  var d='';
+  coords.forEach(function(c,i){
+    var lng=c[0],lat=c[1];
+    var x=bbox.PAD+((lng-bbox.minLng)/lngRange)*(bbox.W-2*bbox.PAD);
+    var y=bbox.PAD+((bbox.maxLat-lat)/latRange)*(bbox.H-2*bbox.PAD);
+    // Clamp — real roads can briefly detour outside the straight-line bounding
+    // box; keep the line on-canvas instead of letting it fly off the card.
+    x=Math.max(2,Math.min(bbox.W-2,x));
+    y=Math.max(2,Math.min(bbox.H-2,y));
+    d+=(i===0?'M':'L')+x.toFixed(1)+' '+y.toFixed(1)+' ';
+  });
+  return d.trim();
+}
+function _applyRoutePath(pathD){
+  var pathEl=document.getElementById('tf-route-path');
+  if(!pathEl)return; // navigated away before it loaded — no harm done
+  pathEl.style.transition='opacity .35s ease';
+  pathEl.style.opacity='0';
+  setTimeout(function(){
+    pathEl.setAttribute('d',pathD);
+    pathEl.style.opacity='.85';
+  },300);
+}
+function loadRealRouteForToday(dayId,props,bbox){
+  var hash=_routeHash(props);
+  var cached=_getCachedRoute(dayId,hash);
+  if(cached){_applyRoutePath(cached);return;}
+  var coordsStr=props.map(function(p){return p.lng+','+p.lat;}).join(';');
+  var url='https://router.project-osrm.org/route/v1/driving/'+coordsStr+'?overview=full&geometries=geojson';
+  fetch(url).then(function(r){return r.json();}).then(function(data){
+    if(!data||!data.routes||!data.routes[0]||!data.routes[0].geometry)return;
+    var pathD=_normalizeRouteCoords(data.routes[0].geometry.coordinates,bbox);
+    _setCachedRoute(dayId,hash,pathD);
+    _applyRoutePath(pathD);
+  }).catch(function(){
+    // OSRM unreachable — keep the straight-line SVG fallback, no error shown
+  });
 }
 
 
@@ -1800,7 +1870,7 @@ function pgHome(){
       '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today\'s Tour</div>'+
       '<div style="background:linear-gradient(145deg,#071226 0%,#071226 100%);border-radius:18px;padding:24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(7,18,38,.25)">'+
       // Dynamic tour preview — one gold pin per property, thin route line
-      tourPreviewSvg(tProps)+
+      tourPreviewSvg(tProps,todayDay.id)+
       // Client name
       '<div style="margin-bottom:16px">'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#fff;letter-spacing:-.3px;line-height:1.1">'+esc(tc.name)+'</div>'+
