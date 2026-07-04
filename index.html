@@ -1675,6 +1675,12 @@ function restoreDraft(){
     if(!raw)return;
     var draft=JSON.parse(raw);
     if(draft.screen!==S.screen)return;
+    // The draft must also belong to the SAME record currently open — otherwise
+    // an abandoned draft from a different property/client/day could silently
+    // overwrite freshly-loaded correct values just because the screen name matches.
+    if((draft.epid||'')!==(S.epid||''))return;
+    if((draft.did||'')!==(S.did||''))return;
+    if((draft.cid||'')!==(S.cid||''))return;
     Object.keys(draft).forEach(function(id){
       if(id==='screen'||id==='did'||id==='cid'||id==='epid'||id==='tab')return;
       var el=document.getElementById(id);
