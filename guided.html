@@ -1373,6 +1373,50 @@ function toggleSection(id){
 
 // ── CUSTOMER QUESTIONS STATE ───────────────────────────────────────────────
 var propQuestions = {}; // { idx: [{id, text, answered}] }
+var propFeedback = {}; // { idx: [{id, text}] }
+function getFeedback(idx){
+  if(!propFeedback[idx]) propFeedback[idx] = [];
+  return propFeedback[idx];
+}
+function addFeedback(idx){
+  var input = document.getElementById('fb-input-' + idx);
+  if(!input) return;
+  var text = input.value.trim();
+  if(!text) return;
+  var feedback = getFeedback(idx);
+  feedback.push({ id: 'fb' + Date.now(), text: text });
+  input.value = '';
+  rerenderFeedback(idx);
+}
+function removeFeedback(idx, fid){
+  propFeedback[idx] = getFeedback(idx).filter(function(f){ return f.id !== fid; });
+  rerenderFeedback(idx);
+}
+function rerenderFeedback(idx){
+  var el = document.getElementById('feedback-' + idx);
+  if(el) el.outerHTML = renderFeedbackBlock(idx);
+}
+function renderFeedbackBlock(idx){
+  var feedback = getFeedback(idx);
+  var rows = feedback.map(function(f){
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--fog)">' +
+      '<span style="flex:1;font-size:14px;color:var(--ink);font-weight:400;line-height:1.5">' + esc(f.text) + '</span>' +
+      '<button onclick="removeFeedback(' + idx + ',\'' + f.id + '\')" style="background:none;border:none;color:var(--slate);font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0">\u00d7</button>' +
+      '</div>';
+  }).join('');
+
+  return '<div id="feedback-' + idx + '">' +
+    rows +
+    '<div style="display:flex;gap:8px;padding:14px 0 4px">' +
+    '<input id="fb-input-' + idx + '" type="text" placeholder="Add feedback…" ' +
+      'style="flex:1;padding:10px 14px;border:1.5px solid var(--fog);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:#fff;color:var(--ink)" ' +
+      'onkeydown="if(event.key===\'Enter\')addFeedback(' + idx + ')" ' +
+      'onfocus="this.style.borderColor=\'var(--brass)\'" ' +
+      'onblur="this.style.borderColor=\'var(--fog)\'"/>' +
+    '<button onclick="addFeedback(' + idx + ')" style="padding:10px 16px;background:var(--navy);color:var(--brass);border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0">Add</button>' +
+    '</div>' +
+    '</div>';
+}
 
 function getQuestions(idx){
   if(!propQuestions[idx]) propQuestions[idx] = [];
@@ -1541,10 +1585,16 @@ function renderPropertyScreen(p, idx){
         '</div>';
     })() +
 
-    // ── CUSTOMER QUESTIONS ──────────────────────────────────────────────────
+    // ── CLIENT QUESTIONS ──────────────────────────────────────────────────
     '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 1px 6px rgba(7,18,38,.04)">' +
-    '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:4px">Customer Questions</div>' +
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:4px">Client Questions</div>' +
     renderQuestionsBlock(idx) +
+    '</div>' +
+
+    // ── CLIENT FEEDBACK ──────────────────────────────────────────────────
+    '<div style="background:#fff;border:1px solid var(--fog);border-radius:14px;padding:16px;margin-bottom:20px;box-shadow:0 1px 6px rgba(7,18,38,.04)">' +
+    '<div style="font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:4px">Client Feedback</div>' +
+    renderFeedbackBlock(idx) +
     '</div>' +
 
     // Agent note
@@ -2183,10 +2233,35 @@ function closeCelebrationAndOpenProgress(){
 }
 
 function exportNotes(){
+  var dateStr = GS.day ? fmtDate(GS.day.date) : '';
+  var clientName = GS.client ? GS.client.name : '';
   var lines = [];
+  lines.push('TOUR NOTES' + (clientName ? ' \u2014 ' + clientName : '') + (dateStr ? ' \u2014 ' + dateStr : ''));
+  lines.push('');
   GS.properties.forEach(function(p, i){
-    lines.push((i+1) + '. ' + (p.title || p.area || 'Property') + ' \u2014 ' + fmtPrice(p.price));
-    if(p.note) lines.push('   Note: ' + p.note);
+    lines.push('\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014\u2014');
+    lines.push((i+1) + '. ' + (p.title || p.area || 'Property'));
+    if(p.address) lines.push(p.address);
+    var meta = [];
+    if(p.price) meta.push(fmtPrice(p.price));
+    if(p.time) meta.push(p.time);
+    if(meta.length) lines.push(meta.join(' \u00b7 '));
+    lines.push('Status: ' + (completedSet[i] ? 'Completed' : 'Not completed'));
+    if(p.note) lines.push('Internal note: ' + p.note);
+
+    var qs = getQuestions(i);
+    if(qs.length){
+      lines.push('Client questions:');
+      qs.forEach(function(q){
+        lines.push('  [' + (q.answered ? 'x' : ' ') + '] ' + q.text);
+      });
+    }
+    var fb = getFeedback(i);
+    if(fb.length){
+      lines.push('Client feedback:');
+      fb.forEach(function(f){ lines.push('  - ' + f.text); });
+    }
+    lines.push('');
   });
   var text = lines.join('\n');
   if(navigator.clipboard){
@@ -2196,13 +2271,24 @@ function exportNotes(){
 
 function copyWhatsappSummary(){
   var client = GS.client;
-  var lines = ['Viewing day summary' + (client ? ' \u2014 ' + client.name : '') + ':', ''];
+  var dateStr = GS.day ? fmtDate(GS.day.date) : '';
+  var firstName = client && client.name ? client.name.split(' ')[0] : '';
+  var lines = [];
+  lines.push('Hi' + (firstName ? ' ' + firstName : '') + ',');
+  lines.push('');
+  lines.push('Thank you for joining today' + (dateStr ? ' (' + dateStr + ')' : '') + '! Here\u2019s a quick recap of the properties we viewed:');
+  lines.push('');
   GS.properties.forEach(function(p, i){
-    lines.push((i+1) + '. ' + (p.title || p.area || 'Property') + ' \u2014 ' + fmtPrice(p.price));
+    var line = (i+1) + '. ' + (p.title || p.area || 'Property');
+    if(p.price) line += ' \u2014 ' + fmtPrice(p.price);
+    lines.push(line);
+    if(p.address) lines.push('   ' + p.address);
   });
+  lines.push('');
+  lines.push('Let me know if you have any questions or would like to arrange a second viewing for any of these.');
   var text = lines.join('\n');
   if(navigator.clipboard){
-    navigator.clipboard.writeText(text).then(function(){ alert('Summary copied — paste into WhatsApp'); });
+    navigator.clipboard.writeText(text).then(function(){ alert('Summary copied \u2014 paste into WhatsApp'); });
   }
 }
 
