@@ -53,7 +53,7 @@ input,button,textarea,select{font-family:inherit}
 @keyframes tfFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .tf-fade-in{animation:tfFadeIn .4s ease both}
 .tf-route-svg{opacity:1}
-#tf-route-path{stroke-dasharray:340;stroke-dashoffset:340;animation:tfDrawRoute .7s ease forwards}
+#tf-route-path{stroke-dasharray:340;stroke-dashoffset:340;animation:tfDrawRoute 2s ease forwards}
 .tf-route-pin{opacity:0;animation:tfPinFade .4s ease forwards}
 @keyframes tfDrawRoute{to{stroke-dashoffset:0}}
 @keyframes tfPinFade{to{opacity:1}}
@@ -619,10 +619,10 @@ function tourPreviewSvg(properties,dayId){
   var W=170,H=260,PAD=30; // right-half canvas only — left half stays clean for text
   var pts=[];
 
-  // A believable, organic drive from start to destination — bottom to top,
-  // with gentle, non-repeating turns (not a mechanical zigzag, not a
-  // decorative S). Vertical range stays clear of the Open Tour button.
-  var n=shown.length;
+  // A believable, organic drive from a start point (not a property) to the
+  // final destination — total markers = properties + 1, so the visual
+  // count always matches the "N properties" text exactly.
+  var n=shown.length+1;
   var yTop=H*0.10, yBottom=H*0.58;
   for(var i=0;i<n;i++){
     var t=n>1?i/(n-1):0.5;
@@ -630,8 +630,9 @@ function tourPreviewSvg(properties,dayId){
     var baseY=yBottom-t*(yBottom-yTop);
     // Irregular, non-repeating turn amount per point — reads as a real
     // street's gentle bends rather than a uniform decorative wave.
-    var wiggle=Math.sin((i+1)*2.1)*14 + Math.sin((i+1)*0.7)*6;
-    pts.push({x:baseX+(n>1?wiggle:0),y:baseY,t:t});
+    var wiggleX=Math.sin((i+1)*2.1)*15 + Math.sin((i+1)*0.7)*7;
+    var wiggleY=Math.sin((i+1)*1.4)*6;
+    pts.push({x:baseX+(n>1?wiggleX:0),y:baseY+(n>1?wiggleY:0),t:t});
   }
 
   function smoothPath(points){
@@ -647,7 +648,7 @@ function tourPreviewSvg(properties,dayId){
   }
 
   var pathD=smoothPath(pts);
-  var DRAW_DURATION=0.7; // seconds — matches the CSS draw-in animation
+  var DRAW_DURATION=2.0; // seconds — matches the CSS draw-in animation
   var pathHtml=pts.length>1
     ?'<path id="tf-route-path" d="'+pathD+'" stroke="#C9A14A" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>'
     :'';
@@ -701,6 +702,12 @@ function tourPreviewSvg(properties,dayId){
     '<path d="M40 -10 C22 40 52 85 30 130 C14 162 34 200 22 250"/>'+
     '<path d="M115 -10 C130 42 100 88 118 132 C132 165 108 205 122 250"/>'+
     '<circle cx="100" cy="130" r="16"/>'+
+    '<circle cx="45" cy="70" r="9"/>'+
+    '<path d="M100 114 C90 100 95 85 82 78"/>'+
+    '<path d="M116 140 C128 152 142 148 152 160"/>'+
+    '<path d="M60 90 C50 78 40 82 30 72"/>'+
+    '<path d="M140 90 C150 100 148 112 158 120"/>'+
+    '<path d="M75 165 C85 178 78 192 90 202"/>'+
     '</g>';
 
   return '<svg class="tf-route-svg" style="position:absolute;right:0;top:0;z-index:0;pointer-events:none" width="50%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" fill="none">'+
