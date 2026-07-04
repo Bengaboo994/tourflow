@@ -613,6 +613,50 @@ function gv(id){var el=document.getElementById(id);return el?el.value.trim():"";
 // chart. Pins are based on properties only (never pickup/lunch/drop-off/
 // meeting stops). Purely simulated positions (no real coordinates), so it's
 // fast and never has a jarring "swap to real data" moment.
+// Light-theme companion to tourPreviewSvg, used on the "No Tour" hero.
+// Same spirit (subtle abstract streets, gold route) but a single destination
+// pin and a small sun — a calm, optimistic mirror of the active card.
+function noTourPreviewSvg(){
+  var W=170,H=230;
+  var start={x:18,y:H-24};
+  var mid={x:78,y:H-96};
+  var end={x:128,y:52};
+  var pathD='M'+start.x+' '+start.y+' Q'+mid.x+' '+(mid.y+18)+' '+mid.x+' '+mid.y+' Q'+mid.x+' '+(mid.y-30)+' '+end.x+' '+end.y;
+
+  function seeded(i){ var x=Math.sin(i*12.9898)*43758.5453; return x-Math.floor(x); }
+  var bgLines='';
+  for(var k=0;k<10;k++){
+    var bx1=seeded(k*3+1)*W, by1=seeded(k*3+2)*H;
+    var ang=seeded(k*3+3)*Math.PI;
+    var len=16+seeded(k*7+5)*22;
+    var bx2=bx1+Math.cos(ang)*len, by2=by1+Math.sin(ang)*len;
+    bgLines+='<path d="M'+bx1.toFixed(1)+' '+by1.toFixed(1)+' L'+bx2.toFixed(1)+' '+by2.toFixed(1)+'"/>';
+  }
+
+  return '<svg style="position:absolute;right:0;top:0;z-index:0;pointer-events:none" width="52%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" fill="none">'+
+    '<defs><linearGradient id="tf-notour-fade" x1="0" y1="0" x2="1" y2="0">'+
+    '<stop offset="0%" stop-color="#F6F2E9" stop-opacity="1"/>'+
+    '<stop offset="32%" stop-color="#F6F2E9" stop-opacity="0"/>'+
+    '</linearGradient></defs>'+
+    '<g opacity=".18" stroke="#C9A14A" stroke-width=".8">'+bgLines+'<circle cx="90" cy="120" r="14" fill="none"/></g>'+
+    '<path d="'+pathD+'" stroke="#C9A14A" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".75"/>'+
+    // sun
+    '<g opacity=".8">'+
+    '<circle cx="150" cy="20" r="7" fill="none" stroke="#C9A14A" stroke-width="1.4"/>'+
+    '<g stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round">'+
+    '<line x1="150" y1="4" x2="150" y2="8"/><line x1="150" y1="32" x2="150" y2="36"/>'+
+    '<line x1="134" y1="20" x2="138" y2="20"/><line x1="162" y1="20" x2="166" y2="20"/>'+
+    '<line x1="139" y1="9" x2="142" y2="12"/><line x1="158" y1="28" x2="161" y2="31"/>'+
+    '<line x1="161" y1="9" x2="158" y2="12"/><line x1="142" y1="28" x2="139" y2="31"/>'+
+    '</g></g>'+
+    // destination pin
+    '<path d="M'+end.x+' '+(end.y-9).toFixed(1)+' C'+(end.x+5.2).toFixed(1)+' '+(end.y-9).toFixed(1)+' '+(end.x+8).toFixed(1)+' '+(end.y-4.8).toFixed(1)+' '+(end.x+8).toFixed(1)+' '+(end.y-0.5).toFixed(1)+' C'+(end.x+8).toFixed(1)+' '+(end.y+5.5).toFixed(1)+' '+end.x+' '+(end.y+13).toFixed(1)+' '+end.x+' '+(end.y+13).toFixed(1)+' C'+end.x+' '+(end.y+13).toFixed(1)+' '+(end.x-8).toFixed(1)+' '+(end.y+5.5).toFixed(1)+' '+(end.x-8).toFixed(1)+' '+(end.y-0.5).toFixed(1)+' C'+(end.x-8).toFixed(1)+' '+(end.y-4.8).toFixed(1)+' '+(end.x-5.2).toFixed(1)+' '+(end.y-9).toFixed(1)+' '+end.x+' '+(end.y-9).toFixed(1)+' z" fill="#C9A14A"/>'+
+    '<circle cx="'+end.x+'" cy="'+(end.y-0.5).toFixed(1)+'" r="2.4" fill="#F6F2E9"/>'+
+    '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="url(#tf-notour-fade)"/>'+
+    '</svg>';
+}
+
+
 function tourPreviewSvg(properties,dayId){
   var props=(properties||[]).slice().sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
   var total=props.length;
@@ -1964,40 +2008,37 @@ function pgHome(){
           '</div>';
       }
     } else if(hasUpcoming){
-      // ── EXPERIENCED USER: same large card ────────────────────────────────
-      noTourCard='<div style="margin-bottom:28px">'+
-        '<div style="background:#F6F2E9;border-radius:18px;padding:32px 24px;text-align:center;border:1px solid #e8e0d0">'+
-        '<svg width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;opacity:.7">'+
-        '<path d="M10 60 Q30 20 60 25 Q90 30 110 10"/>'+
-        '<rect x="42" y="35" width="16" height="18" rx="1"/>'+
-        '<path d="M40 35l10-10 10 10"/>'+
-        '<rect x="48" y="46" width="4" height="7"/>'+
-        '<circle cx="90" cy="20" r="8"/>'+
-        '<path d="M90 12V8M90 32v-4M82 20H78M102 20h-4"/>'+
-        '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
-        '<line x1="5" y1="62" x2="115" y2="62"/>'+
-        '</svg>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#1A1917;margin-bottom:6px">No tour scheduled today</div>'+
-        '<div style="font-size:13px;color:#5a5754;margin-bottom:20px">You\'re all clear for today.</div>'+
-        '<button onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+      // ── EXPERIENCED USER: light hero, same proportions as the active card ──
+      var nextTour=upcoming[0];
+      var nextIsTomorrow=(function(){
+        var t=new Date(today); t.setDate(t.getDate()+1);
+        var ty=t.getFullYear(),tm=String(t.getMonth()+1).padStart(2,'0'),td=String(t.getDate()).padStart(2,'0');
+        return nextTour.date===(ty+'-'+tm+'-'+td);
+      })();
+      var nextCopy=nextIsTomorrow
+        ?'Your next tour starts tomorrow.'
+        :'Your next tour is on '+dayNames[new Date(nextTour.date.split('-')[0],parseInt(nextTour.date.split('-')[1])-1,nextTour.date.split('-')[2]).getDay()]+'.';
+      noTourCard='<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today</div>'+
+        '<div style="margin-bottom:20px">'+
+        '<div style="background:#F6F2E9;border-radius:18px;padding:24px;position:relative;overflow:hidden;border:1px solid #e8e0d0">'+
+        noTourPreviewSvg()+
+        '<div style="position:relative;z-index:1">'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#1A1917;letter-spacing:-.3px;line-height:1.1;margin-bottom:10px">No tours today</div>'+
+        '<div style="font-size:14px;color:#5a5754;margin-bottom:22px;max-width:60%">'+nextCopy+'</div>'+
+        '<button class="tf-tap" onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:11px;padding:17px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(7,18,38,.15)">Create New Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+        '</div>'+
         '</div></div>';
     } else {
-      // ── HAS CLIENTS but no upcoming — standard empty state ────────────────
-      noTourCard='<div style="margin-bottom:28px">'+
-        '<div style="background:#F6F2E9;border-radius:18px;padding:32px 24px;text-align:center;border:1px solid #e8e0d0">'+
-        '<svg width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="#C9A14A" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;opacity:.7">'+
-        '<path d="M10 60 Q30 20 60 25 Q90 30 110 10"/>'+
-        '<rect x="42" y="35" width="16" height="18" rx="1"/>'+
-        '<path d="M40 35l10-10 10 10"/>'+
-        '<rect x="48" y="46" width="4" height="7"/>'+
-        '<circle cx="90" cy="20" r="8"/>'+
-        '<path d="M90 12V8M90 32v-4M82 20H78M102 20h-4"/>'+
-        '<path d="M20 60Q40 50 60 55Q80 60 100 50" opacity=".4"/>'+
-        '<line x1="5" y1="62" x2="115" y2="62"/>'+
-        '</svg>'+
-        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:24px;font-weight:400;color:#1A1917;margin-bottom:6px">No tour scheduled today</div>'+
-        '<div style="font-size:13px;color:#5a5754;margin-bottom:20px">You\'re all clear for today.</div>'+
-        '<button onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px">Create New Tour <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+      // ── HAS CLIENTS but no upcoming — same hero, generic copy ─────────────
+      noTourCard='<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today</div>'+
+        '<div style="margin-bottom:20px">'+
+        '<div style="background:#F6F2E9;border-radius:18px;padding:24px;position:relative;overflow:hidden;border:1px solid #e8e0d0">'+
+        noTourPreviewSvg()+
+        '<div style="position:relative;z-index:1">'+
+        '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#1A1917;letter-spacing:-.3px;line-height:1.1;margin-bottom:10px">No tours today</div>'+
+        '<div style="font-size:14px;color:#5a5754;margin-bottom:22px;max-width:60%">Ready when you are.</div>'+
+        '<button class="tf-tap" onclick="quickDay()" style="width:100%;background:#071226;color:#C9A14A;border:none;border-radius:11px;padding:17px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.03em;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(7,18,38,.15)">Create New Tour <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>'+
+        '</div>'+
         '</div></div>';
     }
   }
@@ -2060,6 +2101,10 @@ function pgHome(){
         var uArea=firstArea(d);
         var bg=avatarBg(uc.name);
         var dateStr=fmtDate(d.date);
+        var tmrw=new Date(today); tmrw.setDate(tmrw.getDate()+1);
+        var tmrwStr=tmrw.getFullYear()+'-'+String(tmrw.getMonth()+1).padStart(2,'0')+'-'+String(tmrw.getDate()).padStart(2,'0');
+        var isTomorrow=d.date===tmrwStr;
+        var badge=isTomorrow?'<span style="background:#fdf3e2;color:#92731a;font-size:11px;font-weight:600;padding:5px 11px;border-radius:100px;white-space:nowrap">Tomorrow</span>':'';
         return '<button class="tf-tap" onclick="S.did=\''+d.id+'\';S.cid=\''+d.clientId+'\';go(\'output\')" style="width:100%;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:17px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;cursor:pointer;font-family:inherit;text-align:left">'+
           '<div style="text-align:center;min-width:32px">'+
           '<div style="font-size:8px;font-weight:600;color:#5a5754;text-transform:uppercase;letter-spacing:.1em">'+dateStr.split('<br>')[0]+'</div>'+
@@ -2070,10 +2115,38 @@ function pgHome(){
           '<div style="font-size:14px;font-weight:500;color:#1A1917;margin-bottom:2px">'+esc(uc.name)+'</div>'+
           '<div style="font-size:11px;color:#5a5754">'+[uTime,uArea].filter(Boolean).join(' \u00b7 ')+'</div>'+
           '</div>'+
+          badge+
           '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>'+
         '</button>';
       }).join('')+
       '</div>';
+  }
+
+  // ── RECENT CLIENTS ───────────────────────────────────────────────────────
+  // Simple and lightweight on purpose — no CRM-style status badges.
+  var recentClientsSection='';
+  if(S.clients.length){
+    var recentClients=S.clients.slice(0,3);
+    recentClientsSection='<div style="margin-top:28px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+
+      '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em">Recent Clients</div>'+
+      '<button onclick="showTab(\'clients\')" style="font-size:11px;color:#C9A14A;background:none;border:none;cursor:pointer;font-family:inherit">View all</button>'+
+      '</div>'+
+      '<div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:4px">'+
+      recentClients.map(function(c){
+        var bg=avatarBg(c.name);
+        var agoText='';
+        if(c.updatedAt){
+          var daysAgo=Math.max(0,Math.round((Date.now()-c.updatedAt)/(1000*60*60*24)));
+          agoText=daysAgo===0?'Today':daysAgo===1?'1d ago':daysAgo+'d ago';
+        }
+        return '<button class="tf-tap" onclick="S.cid=\''+c.id+'\';go(\'client-detail\')" style="flex:0 0 auto;width:110px;background:#fff;border:1.5px solid #e8e0d0;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;font-family:inherit">'+
+          '<div style="width:40px;height:40px;border-radius:50%;background:'+bg+';color:#C9A14A;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">'+initials(c.name)+'</div>'+
+          '<div style="font-size:12px;font-weight:600;color:#1A1917;line-height:1.2;margin-bottom:3px">'+esc((c.name||'').split(' ')[0])+'</div>'+
+          (agoText?'<div style="font-size:10px;color:#5a5754">'+agoText+'</div>':'')+
+        '</button>';
+      }).join('')+
+      '</div></div>';
   }
 
   // ── HEADER ───────────────────────────────────────────────────────────────
@@ -2090,10 +2163,10 @@ function pgHome(){
     greeting_block+
     todayCard+
     noTourCard+
-    (todayDay&&!isNew?quickActions:'')+
-    (isNew?'':continueSection)+
-    (todayDay||isNew?'':quickActions)+
     (isNew?'':upcomingSection)+
+    (todayDay&&!isNew?quickActions:'')+
+    (todayDay||isNew?'':quickActions)+
+    (isNew?'':recentClientsSection)+
     '</div></div>';
 }
 function quickDay(){
