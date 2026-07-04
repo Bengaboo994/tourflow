@@ -4878,6 +4878,8 @@ function upPhoto(input){var f=input.files[0];if(!f)return;var r=new FileReader()
 // ── PUBLIC CLIENT LINK ────────────────────────────────────────────────────────
 
 function sanitizeTourForClient(day, client, cfg){
+  cfg=cfg||{};
+  day=day||{};
   // Strip all agent-only fields from properties
   var cleanProps=(day.properties||[]).map(function(p){
     return {
@@ -4944,40 +4946,58 @@ function sanitizeTourForClient(day, client, cfg){
 
 function createPublicTour(day, client, cfg, callback){
   var publicId='tf-'+Math.random().toString(36).slice(2,9)+Date.now().toString(36);
-  var cleanTour=sanitizeTourForClient(day, client, cfg);
-  cleanTour.publicId=publicId;
-  cleanTour.createdAt=new Date().toISOString();
 
-  function saveLocalFallback(){
-    var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
-    store[publicId]=cleanTour;
-    localStorage.setItem('tf-public', JSON.stringify(store));
+  function saveLocalFallback(cleanTour){
+    try{
+      var store=JSON.parse(localStorage.getItem('tf-public')||'{}');
+      store[publicId]=cleanTour;
+      localStorage.setItem('tf-public', JSON.stringify(store));
+    }catch(e){}
+  }
+
+  var cleanTour;
+  try{
+    cleanTour=sanitizeTourForClient(day, client, cfg);
+    cleanTour.publicId=publicId;
+    cleanTour.createdAt=new Date().toISOString();
+  }catch(e){
+    // If sanitizing throws for any reason, don't let the whole call hang
+    // silently — fail fast so the caller's timeout doesn't have to catch it.
+    console.error('sanitizeTourForClient failed:',e);
+    if(callback)callback(publicId,false);
+    return publicId;
   }
 
   // Save to Supabase — wait for completion before returning the link via callback
-  fetch(SUPA_URL+'/rest/v1/public_tours', {
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':SUPA_KEY,
-      'Authorization':'Bearer '+SUPA_KEY,
-      'Prefer':'return=minimal'
-    },
-    body:JSON.stringify({public_id:publicId, tour_data:cleanTour})
-  }).then(function(r){
-    if(!r.ok){
-      return r.text().then(function(t){
-        console.error('Supabase error:',r.status,t);
-        saveLocalFallback();
-        if(callback)callback(publicId,false);
-      });
-    }
-    if(callback)callback(publicId,true);
-  }).catch(function(e){
-    console.error('Supabase save failed:',e);
-    saveLocalFallback();
+  try{
+    fetch(SUPA_URL+'/rest/v1/public_tours', {
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPA_KEY,
+        'Authorization':'Bearer '+SUPA_KEY,
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify({public_id:publicId, tour_data:cleanTour})
+    }).then(function(r){
+      if(!r.ok){
+        return r.text().then(function(t){
+          console.error('Supabase error:',r.status,t);
+          saveLocalFallback(cleanTour);
+          if(callback)callback(publicId,false);
+        });
+      }
+      if(callback)callback(publicId,true);
+    }).catch(function(e){
+      console.error('Supabase save failed:',e);
+      saveLocalFallback(cleanTour);
+      if(callback)callback(publicId,false);
+    });
+  }catch(e){
+    console.error('createPublicTour fetch setup failed:',e);
+    saveLocalFallback(cleanTour);
     if(callback)callback(publicId,false);
-  });
+  }
 
   return publicId;
 }
