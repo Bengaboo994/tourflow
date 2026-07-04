@@ -695,12 +695,26 @@ function tourPreviewSvg(properties,dayId){
 
   // Confined to the right half of the card only — left half (name, pills,
   // button) stays completely clean.
+  // Subtle map-like texture, confined to the same right-half canvas as the
+  // route. Static (no animation) so it never causes the "flash" swap effect —
+  // just a calm backdrop the route sits on top of.
+  var bgPattern=
+    '<g opacity=".11" stroke="#C9A14A" stroke-width=".6">'+
+    '<path d="M-10 55 C40 45 90 65 180 40" fill="none"/>'+
+    '<path d="M-10 110 C50 125 110 95 180 115" fill="none"/>'+
+    '<path d="M-10 165 C45 150 120 175 180 155" fill="none"/>'+
+    '<path d="M-10 210 C55 222 115 200 180 218" fill="none"/>'+
+    '<path d="M35 -10 C45 60 20 140 48 270" fill="none"/>'+
+    '<path d="M95 -10 C82 70 108 150 90 270" fill="none"/>'+
+    '<path d="M140 -10 C150 70 128 160 148 270" fill="none"/>'+
+    '</g>';
+
   return '<svg class="tf-route-svg" style="position:absolute;right:0;top:0;z-index:0;pointer-events:none" width="50%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" fill="none">'+
     '<defs><linearGradient id="tf-fade-mask" x1="0" y1="0" x2="1" y2="0">'+
     '<stop offset="0%" stop-color="#071226" stop-opacity="1"/>'+
     '<stop offset="35%" stop-color="#071226" stop-opacity="0"/>'+
     '</linearGradient></defs>'+
-    pathHtml+pinsHtml+extraBadge+
+    bgPattern+pathHtml+pinsHtml+extraBadge+
     '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="url(#tf-fade-mask)"/>'+
     '</svg>';
 }
