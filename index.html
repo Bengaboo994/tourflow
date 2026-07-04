@@ -638,10 +638,10 @@ function noTourPreviewSvg(){
     '<stop offset="0%" stop-color="#F6F2E9" stop-opacity="1"/>'+
     '<stop offset="32%" stop-color="#F6F2E9" stop-opacity="0"/>'+
     '</linearGradient></defs>'+
-    '<g opacity=".18" stroke="#C9A14A" stroke-width=".8">'+bgLines+'<circle cx="90" cy="120" r="14" fill="none"/></g>'+
-    '<path d="'+pathD+'" stroke="#C9A14A" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".75"/>'+
+    '<g opacity=".15" stroke="#C9A14A" stroke-width=".8">'+bgLines+'<circle cx="90" cy="120" r="14" fill="none"/></g>'+
+    '<path d="'+pathD+'" stroke="#C9A14A" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".64"/>'+
     // sun
-    '<g opacity=".8">'+
+    '<g opacity=".68">'+
     '<circle cx="150" cy="20" r="7" fill="none" stroke="#C9A14A" stroke-width="1.4"/>'+
     '<g stroke="#C9A14A" stroke-width="1.4" stroke-linecap="round">'+
     '<line x1="150" y1="4" x2="150" y2="8"/><line x1="150" y1="32" x2="150" y2="36"/>'+
@@ -4919,13 +4919,24 @@ function handleShareWithColleague(){
       alert('Could not create the share link. Please check your connection and try again.');
       return;
     }
-    copyAgentShareLink(publicId);
+    copyAgentShareLink(publicId,(c&&c.name)||'',day.date||'');
   });
 }
-function copyAgentShareLink(publicId){
+function copyAgentShareLink(publicId,clientName,dateStr){
   var base=window.location.origin+window.location.pathname.replace('index.html','');
   var url=base+'guided.html?share='+publicId;
   var btn=document.getElementById('share-colleague-btn');
+
+  var dayNamesShort=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var monthNamesShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var dateLabel='';
+  if(dateStr){
+    var dp=dateStr.split('-');
+    var dObj=new Date(parseInt(dp[0]),parseInt(dp[1])-1,parseInt(dp[2]));
+    dateLabel=dayNamesShort[dObj.getDay()]+', '+dObj.getDate()+' '+monthNamesShort[dObj.getMonth()];
+  }
+  var contextLine='Tour Mode'+(clientName?' \u2014 '+clientName:'')+(dateLabel?' \u00b7 '+dateLabel:'');
+  var shareText=contextLine+'\n'+url;
 
   var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
   if(isIOS){
@@ -4936,8 +4947,8 @@ function copyAgentShareLink(publicId){
     modal.style.cssText='position:fixed;inset:0;background:rgba(7,18,38,.6);z-index:8000;display:flex;align-items:center;justify-content:center;padding:24px';
     modal.innerHTML='<div style="background:#FCFBF7;border-radius:16px;padding:24px;width:100%;max-width:380px;text-align:center">'+
       '<div style="font-size:14px;font-weight:600;color:#1A1917;margin-bottom:8px">Colleague Link Ready</div>'+
-      '<div style="font-size:11px;color:#5a5754;margin-bottom:14px">Tap the link to copy it \u2014 opens Tour Mode, no login needed</div>'+
-      '<div id="link-copy-box" onclick="copyLinkText(\''+url.replace(/'/g,"\\'")+'\')" style="background:#f5f2ec;border:1.5px solid #edeae4;border-radius:8px;padding:12px;font-size:11px;color:#1A1917;word-break:break-all;text-align:left;cursor:pointer">'+url+'</div>'+
+      '<div style="font-size:11px;color:#5a5754;margin-bottom:14px">Tap to copy \u2014 opens Tour Mode, no login needed</div>'+
+      '<div id="link-copy-box" onclick="copyLinkText(\''+shareText.replace(/'/g,"\\'").replace(/\n/g,'\\n')+'\')" style="background:#f5f2ec;border:1.5px solid #edeae4;border-radius:8px;padding:12px;font-size:11px;color:#1A1917;word-break:break-all;text-align:left;cursor:pointer;white-space:pre-line">'+esc(contextLine)+'\n'+url+'</div>'+
       '<div id="link-copy-msg" style="font-size:12px;color:#059669;font-weight:600;margin-top:10px;min-height:18px"></div>'+
       '<button onclick="document.getElementById(\'link-modal\').remove()" style="width:100%;margin-top:14px;padding:12px;background:#071226;color:#C9A14A;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit">Done</button>'+
       '</div>';
@@ -4955,8 +4966,8 @@ function copyAgentShareLink(publicId){
     },3000);
   }
   if(navigator.clipboard){
-    navigator.clipboard.writeText(url).then(done).catch(function(){fallback(url,done);});
-  } else { fallback(url,done); }
+    navigator.clipboard.writeText(shareText).then(done).catch(function(){fallback(shareText,done);});
+  } else { fallback(shareText,done); }
   function fallback(t,cb){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
 }
 function origShareBtnHtml(){
