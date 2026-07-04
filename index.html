@@ -3714,50 +3714,6 @@ function pgOutput(){
     "</div>";
 
   if(S.viewMode==="tour"){
-    var phoneIllustration=
-      '<div style="position:relative;width:100%;max-width:230px;margin:0 auto 8px">'+
-      '<div style="background:#071226;border-radius:32px;padding:8px;box-shadow:0 20px 50px rgba(7,18,38,.25)">'+
-      '<div style="background:#cfe0e8;border-radius:24px;overflow:hidden;position:relative;aspect-ratio:9/17.5">'+
-      // Map background: green parks, tan roads, blue coastline
-      '<svg width="100%" height="100%" viewBox="0 0 220 430" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0">'+
-      '<rect width="220" height="430" fill="#eef0ea"/>'+
-      '<path d="M0 0 L130 0 L150 60 L110 110 L60 90 L20 40 Z" fill="#c9dcc0"/>'+
-      '<path d="M0 120 L60 140 L70 190 L20 220 L0 200 Z" fill="#c9dcc0"/>'+
-      '<path d="M150 430 L220 430 L220 300 L190 260 L160 300 Z" fill="#a9c8d6"/>'+
-      '<path d="M120 250 Q170 270 220 240 L220 430 L60 430 Q90 340 120 250 Z" fill="#a9c8d6" opacity=".7"/>'+
-      '<g stroke="#e3c86b" stroke-width="3" fill="none" opacity=".85">'+
-      '<path d="M0 90 L100 70 L150 130 L220 110"/>'+
-      '<path d="M40 0 L60 150 L90 260 L70 430"/>'+
-      '</g>'+
-      '<g stroke="#fff" stroke-width="1.2" fill="none" opacity=".9">'+
-      '<path d="M10 30 L60 20 M20 60 L80 50 M0 150 L90 145 M10 190 L100 200 M30 250 L110 245 M20 300 L130 310 M0 350 L100 345"/>'+
-      '<path d="M110 30 L100 150 M140 60 L130 200 M170 90 L160 250"/>'+
-      '</g>'+
-      '</svg>'+
-      // Status pill
-      '<div style="position:absolute;top:14px;left:10px;right:10px;background:#071226;border-radius:100px;padding:8px 14px;display:flex;align-items:center;gap:6px;font-size:9px;color:#fff;font-weight:600;box-shadow:0 4px 10px rgba(0,0,0,.2)">'+
-      '<span style="color:#C9A14A">&#128205;</span>1 stop left<span style="color:#C9A14A">\u00b7</span>Finish 12:30'+
-      '</div>'+
-      // Numbered pin on the map
-      '<div style="position:absolute;top:44%;left:52%;width:26px;height:26px;border-radius:50%;background:#C9A14A;border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#071226;box-shadow:0 4px 8px rgba(0,0,0,.25)">2</div>'+
-      '</div></div>'+
-      // Floating property card
-      '<div style="position:absolute;left:50%;bottom:-58px;transform:translateX(-50%);width:88%;background:#fff;border-radius:18px;box-shadow:0 18px 36px rgba(7,18,38,.2);overflow:hidden">'+
-      '<div style="display:flex;gap:8px;padding:10px 10px 0">'+
-      '<div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#8a8f98,#c7cbd1);flex-shrink:0"></div>'+
-      '<div style="min-width:0">'+
-      '<div style="font-size:10px;font-weight:800;color:#1A1917;letter-spacing:.01em;line-height:1.15">ROSALEDA | TORREVIEJA</div>'+
-      '<div style="font-size:8.5px;color:#5a5754">Townhouse</div>'+
-      '</div></div>'+
-      '<div style="display:flex;justify-content:space-around;text-align:center;padding:9px 6px;margin-top:8px;border-top:1px solid #f0ede6">'+
-      '<div><div style="font-size:11px;font-weight:800;color:#1A1917">12:00</div><div style="font-size:6px;color:#5a5754;letter-spacing:.04em">APPT</div></div>'+
-      '<div><div style="font-size:11px;font-weight:800;color:#1A1917">4.1km</div><div style="font-size:6px;color:#5a5754;letter-spacing:.04em">DIST</div></div>'+
-      '<div><div style="font-size:11px;font-weight:800;color:#1A1917">8 min</div><div style="font-size:6px;color:#C9A14A;letter-spacing:.04em">ETA 17:49</div></div>'+
-      '</div>'+
-      '<div style="background:#071226;color:#C9A14A;font-size:9px;font-weight:700;text-align:center;padding:9px;margin:0 8px 8px;border-radius:9px">&#9654; START TOUR</div>'+
-      '</div>'+
-      '</div>';
-
     var features=[
       {icon:'\ud83d\uddfa\ufe0f',title:'Plan smarter',desc:'Create complete viewing routes with properties and custom stops.'},
       {icon:'\ud83d\udd52',title:'Stay on schedule',desc:'Automatic timing, driving times and ETA between every stop.'},
@@ -3787,7 +3743,7 @@ function pgOutput(){
     return "<div class='mobile-view'><div class='wrap' style='background:#FCFBF7'>"+
       topNav()+
       viewToggle+
-      '<div style="padding-top:34px;margin-bottom:68px">'+phoneIllustration+'</div>'+
+      '<div style="padding-top:34px"></div>'+
       '<div style="text-align:center;margin-bottom:28px">'+
       '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:8px">For Agents</div>'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:400;color:#1A1917;line-height:1.1;margin-bottom:12px">Tour Mode</div>'+
@@ -3810,29 +3766,6 @@ function pgOutput(){
   var isAg=S.viewMode==="agent";
 
   if(isAg&&!S.agentUnlocked){
-    var agentPhoneIllustration=
-      '<div style="position:relative;width:100%;max-width:230px;margin:0 auto 8px">'+
-      '<div style="background:#071226;border-radius:32px;padding:8px;box-shadow:0 20px 50px rgba(7,18,38,.25)">'+
-      '<div style="background:#fff;border-radius:24px;overflow:hidden;position:relative;aspect-ratio:9/17.5;padding:22px 14px">'+
-      '<div style="font-size:8px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.15em;margin-bottom:10px">Agent View</div>'+
-      [1,2,3].map(function(n){
-        return '<div style="display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f0ede6">'+
-          '<div style="width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#8a8f98,#c7cbd1);flex-shrink:0"></div>'+
-          '<div style="flex:1;min-width:0">'+
-          '<div style="height:6px;width:'+(60-n*6)+'%;background:#1A1917;border-radius:2px;margin-bottom:5px;opacity:.85"></div>'+
-          '<div style="height:4px;width:'+(40-n*4)+'%;background:#d8d4cc;border-radius:2px"></div>'+
-          '</div>'+
-          '<div style="font-size:6px;font-weight:700;color:#92731a;background:#fdf6e8;padding:3px 6px;border-radius:6px;white-space:nowrap">3%</div>'+
-          '</div>';
-      }).join('')+
-      '<div style="position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;font-size:10px">&#128274;</div>'+
-      '</div></div>'+
-      '<div style="position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);width:76%;background:#fff;border-radius:16px;box-shadow:0 16px 32px rgba(7,18,38,.18);padding:12px 14px;display:flex;align-items:center;gap:10px">'+
-      '<div style="width:30px;height:30px;border-radius:50%;background:#071226;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">&#128222;</div>'+
-      '<div><div style="font-size:9px;font-weight:700;color:#1A1917">Owner contact</div><div style="font-size:8px;color:#5a5754">+34 650 123 456</div></div>'+
-      '</div>'+
-      '</div>';
-
     var agentFeatures=[
       {icon:'\ud83d\udccb',title:'Full property details',desc:'Every field you\u2019ve entered — plot size, year built, fees and more.'},
       {icon:'\ud83d\udcde',title:'Contact information',desc:'Owner, listing agent and firm details, right where you need them.'},
@@ -3862,7 +3795,7 @@ function pgOutput(){
     return "<div class='mobile-view'><div class='wrap' style='background:#FCFBF7'>"+
       topNav()+
       viewToggle+
-      '<div style="padding-top:34px;margin-bottom:56px">'+agentPhoneIllustration+'</div>'+
+      '<div style="padding-top:34px"></div>'+
       '<div style="text-align:center;margin-bottom:28px">'+
       '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.2em;margin-bottom:8px">For Agents</div>'+
       '<div style="font-family:\'Cormorant Garamond\',serif;font-size:36px;font-weight:400;color:#1A1917;line-height:1.1;margin-bottom:12px">Agent View</div>'+
