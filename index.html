@@ -649,11 +649,12 @@ function tourPreviewSvg(properties,dayId){
       'L'+p1.x.toFixed(1)+' '+p1.y.toFixed(1);
   }
 
-  var SEG_DURATION=0.4; // seconds per leg — segment draws, then next marker appears
+  var TOTAL_TARGET=2.0; // whole route always takes ~2s, regardless of stop count
+  var SEG_DURATION=pts.length>1?TOTAL_TARGET/(pts.length-1):TOTAL_TARGET;
   var segsHtml='';
   for(var i=0;i<pts.length-1;i++){
     var d=legPath(pts[i],pts[i+1]);
-    segsHtml+='<path class="tf-route-seg" data-idx="'+i+'" d="'+d+'" stroke="#C9A14A" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".8" style="stroke-dasharray:220;stroke-dashoffset:220;animation-delay:'+(i*SEG_DURATION).toFixed(2)+'s;animation-duration:'+SEG_DURATION+'s"/>';
+    segsHtml+='<path class="tf-route-seg" data-idx="'+i+'" d="'+d+'" stroke="#C9A14A" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".8" style="stroke-dasharray:220;stroke-dashoffset:220;animation-delay:'+(i*SEG_DURATION).toFixed(2)+'s;animation-duration:'+SEG_DURATION.toFixed(2)+'s"/>';
   }
   var TOTAL_DURATION=(pts.length-1)*SEG_DURATION;
 
