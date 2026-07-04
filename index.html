@@ -507,7 +507,7 @@ function accountStatusInfo(){
     return {ring:'#d4c9b8',label:'Guest',detail:'Sign in to save and share your tours.'};
   }
   if(S.isPremium===true){
-    return {ring:'#22c55e',label:'Premium plan',detail:'Your subscription is active.'};
+    return {ring:'#071226',label:'Premium plan',detail:'Your subscription is active.'};
   }
   var left=trialDaysLeft();
   if(left.total>0){
@@ -550,6 +550,7 @@ function topNav(){
     '<div style="position:relative">'+
     '<button onclick="toggleAccountMenu()" style="width:30px;height:30px;border-radius:50%;background:#071226;border:2px solid '+acct.ring+';color:#C9A14A;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;font-family:inherit">'+initials+'</button>'+
     (currentUser?'<span style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:#22c55e;border:1.5px solid #FCFBF7"></span>':'')+
+    (S.isPremium===true?'<span style="position:absolute;top:-3px;right:-3px;width:15px;height:15px;border-radius:50%;background:#C9A14A;border:1.5px solid #FCFBF7;display:flex;align-items:center;justify-content:center"><svg width="8" height="8" viewBox="0 0 24 24" fill="#071226"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7-5.4-4.7 7.1-.6z"/></svg></span>':'')+
     '</div>'+
     '</div>'+
     '<div id="account-menu" style="display:none;position:absolute;top:38px;right:0;background:#FCFBF7;border:1px solid #edeae4;border-radius:12px;padding:14px;width:220px;box-shadow:0 8px 24px rgba(0,0,0,.1);z-index:500">'+
@@ -1706,30 +1707,20 @@ function pgHome(){
     var tLunch=hasLunch(todayDay);
     var tEvs=(todayDay.events||[]).filter(function(e){return e.type!=='meetingpoint';});
 
-    todayCard='<div class="tf-fade-in" style="margin-bottom:32px">'+
+    todayCard='<div class="tf-fade-in" style="margin-bottom:20px">'+
       '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px">Today\'s Tour</div>'+
       '<div style="background:linear-gradient(145deg,#071226 0%,#071226 100%);border-radius:18px;padding:24px;position:relative;overflow:hidden;box-shadow:0 8px 40px rgba(7,18,38,.25)">'+
-      // Route illustration (thin line art, gold accent only)
-      '<svg style="position:absolute;right:16px;top:14px;opacity:.6" width="86" height="120" viewBox="0 0 86 120" fill="none">'+
-      '<path d="M72 10 C58 24 64 42 48 54 C34 64 38 80 24 92 C18 97 18 102 16 106" stroke="#C9A14A" stroke-width="0.75" stroke-linecap="round" fill="none" opacity=".4"/>'+
-      '<circle cx="72" cy="10" r="2" fill="#C9A14A" opacity=".65"/>'+
-      '<circle cx="48" cy="54" r="1.3" fill="#C9A14A" opacity=".35"/>'+
-      // minimalist house silhouette, just behind the pin
-      '<path d="M0 106 L9 98 L18 106 M3 104 L3 113 L15 113 L15 104" stroke="#C9A14A" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".4"/>'+
+      // Route illustration (minimal, iconic — closer to a map glyph than a drawing)
+      '<svg style="position:absolute;right:18px;top:16px;opacity:.55" width="70" height="100" viewBox="0 0 70 100" fill="none">'+
+      '<path d="M58 8 C46 20 50 36 36 46 C24 54 26 68 16 78" stroke="#C9A14A" stroke-width="0.75" stroke-linecap="round" fill="none" opacity=".4"/>'+
+      '<circle cx="58" cy="8" r="1.8" fill="#C9A14A" opacity=".6"/>'+
       // destination pin
-      '<path d="M16 96 C19.3 96 22 98.7 22 102 C22 106.5 16 114 16 114 S10 106.5 10 102 C10 98.7 12.7 96 16 96z" fill="#C9A14A" opacity=".7"/>'+
-      '<circle cx="16" cy="102" r="2" fill="#071226"/>'+
+      '<path d="M16 68 C19 68 21.5 70.5 21.5 73.5 C21.5 77.5 16 84 16 84 S10.5 77.5 10.5 73.5 C10.5 70.5 13 68 16 68z" fill="#C9A14A" opacity=".7"/>'+
+      '<circle cx="16" cy="73.5" r="1.8" fill="#071226"/>'+
       '</svg>'+
-      // Client name + time
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">'+
-      '<div>'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#fff;letter-spacing:-.3px;line-height:1.1;margin-bottom:6px">'+esc(tc.name)+'</div>'+
-      (tTime?'<div style="font-size:15px;color:#C9A14A;font-weight:400;letter-spacing:.01em;font-family:\'Cormorant Garamond\',serif">'+tTime+'</div>':'')+
-      '</div>'+
-      (tProps.length&&tTime?'<div style="text-align:center;background:rgba(201,161,74,.1);border:1.5px solid rgba(201,161,74,.3);border-radius:50%;width:62px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">'+
-      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:16px;color:#C9A14A;font-weight:400;line-height:1.1">'+esc(tTime.split('\u2013')[0].trim())+'</div>'+
-      '<div style="font-size:7px;color:rgba(201,161,74,.55);text-transform:uppercase;letter-spacing:.14em;margin-top:2px">START</div>'+
-      '</div>':'')+
+      // Client name
+      '<div style="margin-bottom:16px">'+
+      '<div style="font-family:\'Cormorant Garamond\',serif;font-size:30px;font-weight:300;color:#fff;letter-spacing:-.3px;line-height:1.1">'+esc(tc.name)+'</div>'+
       '</div>'+
       // Info pills
       '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px">'+
@@ -1879,8 +1870,8 @@ function pgHome(){
   function qaBtn(onclick,iconSvg,title,sub){
     return '<button class="tf-tap" onclick="'+onclick+'" style="background:#fff;border:1px solid #edeae4;border-radius:14px;padding:14px;text-align:left;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.05)">'+
       '<div style="width:34px;height:34px;background:#071226;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:9px">'+iconSvg+'</div>'+
-      '<div style="font-size:12px;font-weight:600;color:#1A1917;margin-bottom:2px">'+title+'</div>'+
-      '<div style="font-size:10px;color:#5a5754">'+sub+'</div>'+
+      '<div style="font-size:13px;font-weight:600;color:#1A1917;margin-bottom:3px">'+title+'</div>'+
+      '<div style="font-size:12px;color:#5a5754">'+sub+'</div>'+
     '</button>';
   }
   var quickActions='<div style="margin-bottom:32px">'+
