@@ -3038,7 +3038,7 @@ function copyWA(){
   },10000);
 
   // Wait for the public link to actually save before sharing it
-  createPublicTour(day,c,cfg,function(publicId,savedOk){
+  createPublicTour(day,c,cfg,function(publicId,savedOk,errDetail){
     if(settled)return;
     settled=true;
     clearTimeout(timeoutId);
@@ -3049,7 +3049,7 @@ function copyWA(){
       // Total failure — nothing saved anywhere
       if(btn){btn.innerHTML=origBtnHtml;btn.disabled=false;}
       if(waWindow&&!waWindow.closed)waWindow.close();
-      alert('Could not create the client link. Please check your connection and try again.');
+      alert('Could not create the client link.\n\n'+(errDetail||'Please check your connection and try again.'));
       return;
     }
 
@@ -4961,10 +4961,8 @@ function createPublicTour(day, client, cfg, callback){
     cleanTour.publicId=publicId;
     cleanTour.createdAt=new Date().toISOString();
   }catch(e){
-    // If sanitizing throws for any reason, don't let the whole call hang
-    // silently — fail fast so the caller's timeout doesn't have to catch it.
     console.error('sanitizeTourForClient failed:',e);
-    if(callback)callback(publicId,false);
+    if(callback)callback(publicId,false,'Prep error: '+(e&&e.message?e.message:e));
     return publicId;
   }
 
@@ -4984,19 +4982,19 @@ function createPublicTour(day, client, cfg, callback){
         return r.text().then(function(t){
           console.error('Supabase error:',r.status,t);
           saveLocalFallback(cleanTour);
-          if(callback)callback(publicId,false);
+          if(callback)callback(publicId,false,'HTTP '+r.status+': '+(t||'no details').slice(0,200));
         });
       }
       if(callback)callback(publicId,true);
     }).catch(function(e){
       console.error('Supabase save failed:',e);
       saveLocalFallback(cleanTour);
-      if(callback)callback(publicId,false);
+      if(callback)callback(publicId,false,'Network error: '+(e&&e.message?e.message:e));
     });
   }catch(e){
     console.error('createPublicTour fetch setup failed:',e);
     saveLocalFallback(cleanTour);
-    if(callback)callback(publicId,false);
+    if(callback)callback(publicId,false,'Setup error: '+(e&&e.message?e.message:e));
   }
 
   return publicId;
@@ -5199,13 +5197,13 @@ function handleCreateClientLink(){
     if(btn){btn.innerHTML=origHtml;btn.disabled=false;}
     alert('This is taking longer than expected. Please check your connection and try again.');
   },10000);
-  createPublicTour(day,c,cfg,function(publicId,savedOk){
+  createPublicTour(day,c,cfg,function(publicId,savedOk,errDetail){
     if(settled)return;
     settled=true;
     clearTimeout(timeoutId);
     if(btn){btn.disabled=false;btn.innerHTML=origHtml;}
     if(!savedOk&&!localStorage.getItem('tf-public')){
-      alert('Could not create the client link. Please check your connection and try again.');
+      alert('Could not create the client link.\n\n'+(errDetail||'Please check your connection and try again.'));
       return;
     }
     copyPublicLink(publicId);
