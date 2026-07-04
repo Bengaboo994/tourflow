@@ -53,7 +53,7 @@ input,button,textarea,select{font-family:inherit}
 @keyframes tfFadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .tf-fade-in{animation:tfFadeIn .4s ease both}
 .tf-route-svg{opacity:1}
-#tf-route-path{stroke-dasharray:260;stroke-dashoffset:260;animation:tfDrawRoute .7s ease forwards}
+#tf-route-path{stroke-dasharray:340;stroke-dashoffset:340;animation:tfDrawRoute .7s ease forwards}
 .tf-route-pin{opacity:0;animation:tfPinFade .4s ease forwards}
 @keyframes tfDrawRoute{to{stroke-dashoffset:0}}
 @keyframes tfPinFade{to{opacity:1}}
@@ -608,49 +608,34 @@ function gv(id){var el=document.getElementById(id);return el?el.value.trim():"";
 // ── Dynamic Tour Preview SVG (Today's Tour card) ──────────────────────────
 // Abstract, branded visual summary of today's properties — not a real map.
 // Pins are based on properties only (never pickup/lunch/drop-off/meeting stops).
-// If coordinates exist, the straight-line route is swapped for a real
-// road-following route (via OSRM) once it loads — cached per tour so it
-// only needs to fetch once. Falls back silently to the straight line if
-// OSRM is unavailable. The map background itself stays the abstract pattern
-// for now (kept fast, no tile/Leaflet dependency on Home).
+// Purely simulated, branded visual — number of pins always matches the
+// number of properties, but positions are never derived from real
+// coordinates. This keeps it fast, consistent-looking, and avoids any
+// network dependency or jarring "swap to real route" moment.
 function tourPreviewSvg(properties,dayId){
   var props=(properties||[]).slice().sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
   var total=props.length;
   if(!total)return'';
   var shown=props.slice(0,5);
   var extra=total>5?total-5:0;
-  var W=170,H=260,PAD=28; // right-half canvas only — left half stays clean for text
+  var W=170,H=260,PAD=30; // right-half canvas only — left half stays clean for text
   var pts=[];
-  var haveCoords=shown.length>0&&shown.every(function(p){return p.lat&&p.lng&&!isNaN(parseFloat(p.lat))&&!isNaN(parseFloat(p.lng));});
-  var bbox=null;
 
-  if(haveCoords){
-    var lats=shown.map(function(p){return parseFloat(p.lat);});
-    var lngs=shown.map(function(p){return parseFloat(p.lng);});
-    var minLat=Math.min.apply(null,lats),maxLat=Math.max.apply(null,lats);
-    var minLng=Math.min.apply(null,lngs),maxLng=Math.max.apply(null,lngs);
-    var latRange=(maxLat-minLat)||0.0005;
-    var lngRange=(maxLng-minLng)||0.0005;
-    bbox={minLat:minLat,maxLat:maxLat,minLng:minLng,maxLng:maxLng,W:W,H:H,PAD:PAD};
-    shown.forEach(function(p){
-      var lat=parseFloat(p.lat),lng=parseFloat(p.lng);
-      var x=PAD+((lng-minLng)/lngRange)*(W-2*PAD);
-      var y=PAD+((maxLat-lat)/latRange)*(H-2*PAD); // north = up
-      pts.push({x:x,y:y});
-    });
-  } else {
-    // Simple, clear start-to-end progression (bottom → top), no coords needed
-    var n=shown.length;
-    for(var i=0;i<n;i++){
-      var t=n>1?i/(n-1):0.5;
-      pts.push({x:PAD+t*(W-2*PAD)*0.55+((i%2)*14), y:H-PAD-t*(H-2*PAD)});
-    }
+  // Winding start-to-end path: base diagonal (bottom → top) with an
+  // alternating side-to-side offset so the route curves gently rather
+  // than running in a straight line.
+  var n=shown.length;
+  var windAmt=n>2?16:8;
+  for(var i=0;i<n;i++){
+    var t=n>1?i/(n-1):0.5;
+    var baseX=PAD+t*(W-2*PAD);
+    var baseY=H-PAD-t*(H-2*PAD);
+    var sign=(i%2===0)?-1:1;
+    pts.push({x:baseX+sign*windAmt,y:baseY});
   }
 
-  // Smooth curve through the points (quadratic mid-point technique) instead
-  // of hard straight segments — reads as one calm route from start to end,
-  // and matches the look of the real-road route closely enough that
-  // swapping one for the other later doesn't feel like a jump.
+  // Smooth curve through the points (quadratic mid-point technique) —
+  // reads as one calm, winding route from start to end.
   function smoothPath(points){
     if(points.length<2)return'';
     var d='M'+points[0].x.toFixed(1)+' '+points[0].y.toFixed(1)+' ';
@@ -665,7 +650,7 @@ function tourPreviewSvg(properties,dayId){
 
   var pathD=smoothPath(pts);
   var pathHtml=pts.length>1
-    ?'<path id="tf-route-path" d="'+pathD+'" stroke="#C9A14A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/>'
+    ?'<path id="tf-route-path" d="'+pathD+'" stroke="#C9A14A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/>'
     :'';
 
   var pinsHtml=pts.map(function(pt,i){
@@ -689,24 +674,20 @@ function tourPreviewSvg(properties,dayId){
       '</g>';
   }
 
-  if(haveCoords&&pts.length>1&&dayId){
-    setTimeout(function(){loadRealRouteForToday(dayId,shown,bbox);},30);
-  }
-
-  // Confined to the right half of the card only — left half (name, pills,
-  // button) stays completely clean.
-  // Subtle map-like texture, confined to the same right-half canvas as the
-  // route. Static (no animation) so it never causes the "flash" swap effect —
-  // just a calm backdrop the route sits on top of.
+  // Subtle map-like texture in a neutral tone (distinct from the gold
+  // route), confined to the same right-half canvas. Static, no animation.
   var bgPattern=
-    '<g opacity=".11" stroke="#C9A14A" stroke-width=".6">'+
-    '<path d="M-10 55 C40 45 90 65 180 40" fill="none"/>'+
-    '<path d="M-10 110 C50 125 110 95 180 115" fill="none"/>'+
-    '<path d="M-10 165 C45 150 120 175 180 155" fill="none"/>'+
-    '<path d="M-10 210 C55 222 115 200 180 218" fill="none"/>'+
-    '<path d="M35 -10 C45 60 20 140 48 270" fill="none"/>'+
-    '<path d="M95 -10 C82 70 108 150 90 270" fill="none"/>'+
-    '<path d="M140 -10 C150 70 128 160 148 270" fill="none"/>'+
+    '<g opacity=".16" stroke="#8b93a3" stroke-width=".6">'+
+    '<path d="M-10 30 C40 20 90 42 180 15" fill="none"/>'+
+    '<path d="M-10 75 C50 90 110 60 180 80" fill="none"/>'+
+    '<path d="M-10 120 C45 105 120 132 180 110" fill="none"/>'+
+    '<path d="M-10 165 C55 178 115 155 180 172" fill="none"/>'+
+    '<path d="M-10 210 C48 198 125 222 180 205" fill="none"/>'+
+    '<path d="M-10 245 C60 258 110 235 180 250" fill="none"/>'+
+    '<path d="M25 -10 C35 65 12 145 42 270" fill="none"/>'+
+    '<path d="M75 -10 C62 70 90 150 70 270" fill="none"/>'+
+    '<path d="M120 -10 C130 70 108 150 128 270" fill="none"/>'+
+    '<path d="M155 -10 C165 70 145 160 158 270" fill="none"/>'+
     '</g>';
 
   return '<svg class="tf-route-svg" style="position:absolute;right:0;top:0;z-index:0;pointer-events:none" width="50%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" fill="none">'+
@@ -719,64 +700,6 @@ function tourPreviewSvg(properties,dayId){
     '</svg>';
 }
 
-// Cache key includes the property coordinates so a changed itinerary
-// invalidates the cached route automatically.
-function _routeHash(props){
-  return props.map(function(p){return p.lat+','+p.lng;}).join('|');
-}
-function _getCachedRoute(dayId,hash){
-  try{
-    var raw=localStorage.getItem('tf-route-'+dayId);
-    if(!raw)return null;
-    var obj=JSON.parse(raw);
-    if(obj.hash!==hash)return null;
-    return obj.pathD;
-  }catch(e){return null;}
-}
-function _setCachedRoute(dayId,hash,pathD){
-  try{localStorage.setItem('tf-route-'+dayId,JSON.stringify({hash:hash,pathD:pathD,ts:Date.now()}));}catch(e){}
-}
-function _normalizeRouteCoords(coords,bbox){
-  var latRange=(bbox.maxLat-bbox.minLat)||0.0005;
-  var lngRange=(bbox.maxLng-bbox.minLng)||0.0005;
-  var d='';
-  coords.forEach(function(c,i){
-    var lng=c[0],lat=c[1];
-    var x=bbox.PAD+((lng-bbox.minLng)/lngRange)*(bbox.W-2*bbox.PAD);
-    var y=bbox.PAD+((bbox.maxLat-lat)/latRange)*(bbox.H-2*bbox.PAD);
-    // Clamp — real roads can briefly detour outside the straight-line bounding
-    // box; keep the line on-canvas instead of letting it fly off the card.
-    x=Math.max(2,Math.min(bbox.W-2,x));
-    y=Math.max(2,Math.min(bbox.H-2,y));
-    d+=(i===0?'M':'L')+x.toFixed(1)+' '+y.toFixed(1)+' ';
-  });
-  return d.trim();
-}
-function _applyRoutePath(pathD){
-  var pathEl=document.getElementById('tf-route-path');
-  if(!pathEl)return; // navigated away before it loaded — no harm done
-  pathEl.style.transition='opacity .35s ease';
-  pathEl.style.opacity='0';
-  setTimeout(function(){
-    pathEl.setAttribute('d',pathD);
-    pathEl.style.opacity='.85';
-  },300);
-}
-function loadRealRouteForToday(dayId,props,bbox){
-  var hash=_routeHash(props);
-  var cached=_getCachedRoute(dayId,hash);
-  if(cached){_applyRoutePath(cached);return;}
-  var coordsStr=props.map(function(p){return p.lng+','+p.lat;}).join(';');
-  var url='https://router.project-osrm.org/route/v1/driving/'+coordsStr+'?overview=full&geometries=geojson';
-  fetch(url).then(function(r){return r.json();}).then(function(data){
-    if(!data||!data.routes||!data.routes[0]||!data.routes[0].geometry)return;
-    var pathD=_normalizeRouteCoords(data.routes[0].geometry.coordinates,bbox);
-    _setCachedRoute(dayId,hash,pathD);
-    _applyRoutePath(pathD);
-  }).catch(function(){
-    // OSRM unreachable — keep the straight-line SVG fallback, no error shown
-  });
-}
 
 
 // ── Collapsible card section (used on Edit Property and similar forms) ──
