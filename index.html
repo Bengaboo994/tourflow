@@ -3954,13 +3954,13 @@ function pgOutput(){
 
   var coverHdr=
     "<div style='padding:26px 22px 24px'>"+
-    "<div style='font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px'>Personalised Viewing Day</div>"+
+    "<div style='font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:8px'>Personalised Viewing Day</div>"+
     (c?
       "<div style='display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:3px'>"+
       "<div style='font-family:Cormorant Garamond,serif;font-size:38px;font-weight:300;color:#fff;line-height:1.0;letter-spacing:-.4px'>"+esc(c.name)+"</div>"+
       (topPickBadge?"<div style='flex-shrink:0;max-width:148px'>"+topPickBadge+"</div>":"")+
       "</div>":"<div style='height:10px'></div>")+
-    "<div style='font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:22px'>"+fmtDate(day.date)+"</div>"+
+    "<div style='font-size:12px;color:rgba(255,255,255,.35);font-weight:300;margin-bottom:16px'>"+fmtDate(day.date)+"</div>"+
     "<div style='height:1px;background:linear-gradient(90deg,rgba(201,161,74,.4),transparent);margin-bottom:16px'></div>"+
     "<div style='display:flex;flex-wrap:wrap;gap:6px'>"+
     (ft&&lt?"<span style='display:inline-flex;align-items:center;gap:5px;font-size:10px;color:rgba(255,255,255,.5);background:rgba(255,255,255,.07);border-radius:100px;padding:4px 10px'><svg width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='rgba(201,161,74,.7)' stroke-width='2' stroke-linecap='round'><rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/></svg>"+esc(ft)+" – "+esc(lt)+"</span>":"")+
@@ -3986,7 +3986,7 @@ function pgOutput(){
     mustHave.forEach(function(f){lines.push(f);});
     if(lines.length){
       reqCard="<div style='background:#fff;border-radius:18px;border:1px solid #edeae4;padding:18px 18px 16px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)'>"+
-        "<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:12px'>Your Requirements</div>"+
+        "<div style='font-size:9px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.22em;margin-bottom:10px'>Your Requirements</div>"+
         "<div style='display:flex;flex-wrap:wrap;gap:6px'>"+
         lines.map(function(r){
           return "<span style='display:inline-flex;align-items:center;gap:5px;background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:5px 12px;font-size:11px;font-weight:500;color:#1A1917'>"+
@@ -4157,7 +4157,7 @@ function pgOutput(){
       hlChips+costsBlock+
       (p.mapsUrl?"<a href='"+esc(p.mapsUrl)+"' target='_blank' style='display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#4a4744;text-decoration:none;border:1.5px solid #edeae4;border-radius:8px;padding:8px 13px;background:#faf8f4;margin-bottom:10px;margin-right:8px'><svg width='10' height='12' viewBox='0 0 24 24' fill='#C9A14A'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z'/></svg>Directions</a>":"")+
       (p.url?"<a href='"+esc(p.url)+"' target='_blank' style='display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#C9A14A;text-decoration:none;background:#071226;border-radius:8px;padding:10px 13px;margin-bottom:10px;gap:6px;box-shadow:0 2px 8px rgba(7,18,38,.25);letter-spacing:.03em;-webkit-tap-highlight-color:rgba(201,161,74,.1);transition:opacity .15s' ontouchstart='this.style.opacity=.75' ontouchend='this.style.opacity=1'><svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><path d='M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6'/><path d='M15 3h6v6'/><path d='M10 14L21 3'/></svg>View full listing</a>":"")+
-      (!isAg&&p.agentRec?"<div style='border-top:1px solid #f0ece8;padding-top:10px;font-size:12px;color:#4a4744;line-height:1.6;font-style:italic'>“"+esc(p.agentRec)+"”</div>":"")+
+      (!isAg&&p.agentRec?"<div style='border-top:1px solid #f0ece8;padding-top:10px;font-size:12px;color:#4a4744;line-height:1.5;font-style:italic'>“"+esc(p.agentRec)+"”</div>":"")+
       ibox+
       "</div></div>";
   }).join("");
@@ -4170,7 +4170,7 @@ function pgOutput(){
     return "<div style='background:linear-gradient(160deg,#0d1f38 0%,#071226 100%);border-radius:20px;overflow:hidden;margin:0 0 20px;box-shadow:0 4px 24px rgba(7,18,38,.2);border:1px solid rgba(201,161,74,.08)'>"+
 
       // ── Consultant row ──────────────────────────────────────────────────────
-      "<div style='display:flex;align-items:stretch;min-height:150px'>"+
+      "<div style='display:flex;align-items:stretch;min-height:180px'>"+
 
       // Left: name + agency + contact icons
       "<div style='flex:1;padding:22px 20px;display:flex;flex-direction:column;justify-content:center'>"+
@@ -4185,7 +4185,7 @@ function pgOutput(){
 
       // Right: portrait photo
       (cfg.photo?
-        "<div style='width:120px;flex-shrink:0;position:relative;overflow:hidden'>"+
+        "<div style='width:144px;flex-shrink:0;position:relative;overflow:hidden'>"+
         "<img src='"+cfg.photo+"' style='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center'/>"+
         "<div style='position:absolute;inset:0;background:linear-gradient(to right,rgba(7,18,38,.3),transparent 40%)'></div>"+
         "</div>"
@@ -4197,10 +4197,10 @@ function pgOutput(){
       "<div style='height:1px;background:linear-gradient(90deg,transparent,rgba(201,161,74,.2),transparent);margin:0 20px'></div>"+
 
       // ── Thank You ───────────────────────────────────────────────────────────
-      "<div style='padding:20px 22px 22px;text-align:center'>"+
-      "<div style='font-size:8px;font-weight:600;color:rgba(201,161,74,.4);text-transform:uppercase;letter-spacing:.28em;margin-bottom:10px'>Thank You For Today</div>"+
-      "<div style='font-family:Cormorant Garamond,serif;font-size:20px;font-weight:300;color:rgba(255,255,255,.85);line-height:1.5;font-style:italic;margin-bottom:8px'>I hope one of these homes felt right.</div>"+
-      "<div style='font-size:11px;color:rgba(255,255,255,.22);line-height:1.7;max-width:240px;margin:0 auto'>Feel free to contact me if you\'d like a second viewing or have any questions.</div>"+
+      "<div style='padding:16px 22px 18px;text-align:center'>"+
+      "<div style='font-size:8px;font-weight:600;color:rgba(201,161,74,.4);text-transform:uppercase;letter-spacing:.28em;margin-bottom:7px'>Thank You For Today</div>"+
+      "<div style='font-family:Cormorant Garamond,serif;font-size:20px;font-weight:300;color:rgba(255,255,255,.85);line-height:1.4;font-style:italic;margin-bottom:6px'>I hope one of these homes felt right.</div>"+
+      "<div style='font-size:11px;color:rgba(255,255,255,.22);line-height:1.5;max-width:240px;margin:0 auto'>Feel free to contact me if you\'d like a second viewing or have any questions.</div>"+
       "</div>"+
 
       "</div>";
@@ -4222,9 +4222,9 @@ function pgOutput(){
     statsBar+
     coverHdr+
     (!isAg&&day.welcomeMsg?
-      "<div style='padding:20px 22px 18px;border-top:1px solid rgba(255,255,255,.06)'>"+
-      "<div style='font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:8px'>A personal note</div>"+
-      "<div style='font-family:Cormorant Garamond,serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.75;font-style:italic'>“"+esc(day.welcomeMsg)+"”</div>"+
+      "<div style='padding:16px 22px 14px;border-top:1px solid rgba(255,255,255,.06)'>"+
+      "<div style='font-size:8px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:6px'>A personal note</div>"+
+      "<div style='font-family:Cormorant Garamond,serif;font-size:17px;color:rgba(255,255,255,.88);line-height:1.6;font-style:italic'>“"+esc(day.welcomeMsg)+"”</div>"+
       "</div>":"")+
     "</div>"+
     // WHITE REQUIREMENTS CARD
