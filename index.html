@@ -606,12 +606,10 @@ function getDomain(url){try{return new URL(url).hostname.replace("www.","");}cat
 function gv(id){var el=document.getElementById(id);return el?el.value.trim():"";}
 
 // ── Dynamic Tour Preview SVG (Today's Tour card) ──────────────────────────
-// Abstract, branded visual summary of today's properties — not a real map.
-// Pins are based on properties only (never pickup/lunch/drop-off/meeting stops).
-// Purely simulated, branded visual — number of pins always matches the
-// number of properties, but positions are never derived from real
-// coordinates. This keeps it fast, consistent-looking, and avoids any
-// network dependency or jarring "swap to real route" moment.
+// A calm, branded visual summary of today's journey — not a map, not a
+// chart. Pins are based on properties only (never pickup/lunch/drop-off/
+// meeting stops). Purely simulated positions (no real coordinates), so it's
+// fast and never has a jarring "swap to real data" moment.
 function tourPreviewSvg(properties,dayId){
   var props=(properties||[]).slice().sort(function(a,b){return(a.time||'zz').localeCompare(b.time||'zz');});
   var total=props.length;
@@ -621,23 +619,21 @@ function tourPreviewSvg(properties,dayId){
   var W=170,H=260,PAD=30; // right-half canvas only — left half stays clean for text
   var pts=[];
 
-  // Winding start-to-end path: base diagonal (bottom → top) with an
-  // alternating side-to-side offset so the route curves gently rather
-  // than running in a straight line. Vertical range is kept well clear of
-  // the Open Tour button at the bottom of the card.
+  // A believable, organic drive from start to destination — bottom to top,
+  // with gentle, non-repeating turns (not a mechanical zigzag, not a
+  // decorative S). Vertical range stays clear of the Open Tour button.
   var n=shown.length;
-  var windAmt=n>2?16:8;
   var yTop=H*0.10, yBottom=H*0.58;
   for(var i=0;i<n;i++){
     var t=n>1?i/(n-1):0.5;
     var baseX=PAD+t*(W-2*PAD);
     var baseY=yBottom-t*(yBottom-yTop);
-    var sign=(i%2===0)?-1:1;
-    pts.push({x:baseX+sign*windAmt,y:baseY});
+    // Irregular, non-repeating turn amount per point — reads as a real
+    // street's gentle bends rather than a uniform decorative wave.
+    var wiggle=Math.sin((i+1)*2.1)*14 + Math.sin((i+1)*0.7)*6;
+    pts.push({x:baseX+(n>1?wiggle:0),y:baseY,t:t});
   }
 
-  // Smooth curve through the points (quadratic mid-point technique) —
-  // reads as one calm, winding route from start to end.
   function smoothPath(points){
     if(points.length<2)return'';
     var d='M'+points[0].x.toFixed(1)+' '+points[0].y.toFixed(1)+' ';
@@ -651,45 +647,60 @@ function tourPreviewSvg(properties,dayId){
   }
 
   var pathD=smoothPath(pts);
+  var DRAW_DURATION=0.7; // seconds — matches the CSS draw-in animation
   var pathHtml=pts.length>1
-    ?'<path id="tf-route-path" d="'+pathD+'" stroke="#C9A14A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/>'
+    ?'<path id="tf-route-path" d="'+pathD+'" stroke="#C9A14A" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".8"/>'
     :'';
 
+  // Route hierarchy: start = small filled dot, middle properties = elegant
+  // hollow rings, final property = destination pin. Each marker reveals
+  // roughly when the drawing line reaches it.
   var pinsHtml=pts.map(function(pt,i){
+    var isStart=(i===0);
     var isEnd=(i===pts.length-1);
-    var r=isEnd?5:3.5;
-    var ring=(pts.length===1||isEnd)?'<circle cx="'+pt.x.toFixed(1)+'" cy="'+pt.y.toFixed(1)+'" r="'+(r+5)+'" fill="none" stroke="#C9A14A" stroke-width="1" opacity=".3"/>':'';
-    return '<g class="tf-route-pin" style="animation-delay:'+(0.5+i*0.09).toFixed(2)+'s">'+
-      ring+
-      '<circle cx="'+pt.x.toFixed(1)+'" cy="'+pt.y.toFixed(1)+'" r="'+r+'" fill="#C9A14A"/>'+
-      '<circle cx="'+pt.x.toFixed(1)+'" cy="'+pt.y.toFixed(1)+'" r="'+(r*0.4).toFixed(1)+'" fill="#071226"/>'+
+    var delay=(0.08+pt.t*DRAW_DURATION*0.82).toFixed(2)+'s';
+    if(isEnd){
+      // Destination pin (teardrop)
+      var px=pt.x,py=pt.y;
+      return '<g class="tf-route-pin" style="animation-delay:'+delay+'">'+
+        '<circle cx="'+px.toFixed(1)+'" cy="'+(py+2).toFixed(1)+'" r="9" fill="none" stroke="#C9A14A" stroke-width="1" opacity=".3"/>'+
+        '<path d="M'+px.toFixed(1)+' '+(py-7).toFixed(1)+' C'+(px+4.2).toFixed(1)+' '+(py-7).toFixed(1)+' '+(px+6.5).toFixed(1)+' '+(py-3.8).toFixed(1)+' '+(px+6.5).toFixed(1)+' '+(py-0.5).toFixed(1)+' C'+(px+6.5).toFixed(1)+' '+(py+4.5).toFixed(1)+' '+px.toFixed(1)+' '+(py+11).toFixed(1)+' '+px.toFixed(1)+' '+(py+11).toFixed(1)+' C'+px.toFixed(1)+' '+(py+11).toFixed(1)+' '+(px-6.5).toFixed(1)+' '+(py+4.5).toFixed(1)+' '+(px-6.5).toFixed(1)+' '+(py-0.5).toFixed(1)+' C'+(px-6.5).toFixed(1)+' '+(py-3.8).toFixed(1)+' '+(px-4.2).toFixed(1)+' '+(py-7).toFixed(1)+' '+px.toFixed(1)+' '+(py-7).toFixed(1)+' z" fill="#C9A14A"/>'+
+        '<circle cx="'+px.toFixed(1)+'" cy="'+(py-0.5).toFixed(1)+'" r="2.1" fill="#071226"/>'+
+        '</g>';
+    }
+    if(isStart){
+      // Start: small solid filled dot
+      return '<g class="tf-route-pin" style="animation-delay:'+delay+'">'+
+        '<circle cx="'+pt.x.toFixed(1)+'" cy="'+pt.y.toFixed(1)+'" r="3.2" fill="#C9A14A"/>'+
+        '</g>';
+    }
+    // Intermediate properties: elegant hollow ring
+    return '<g class="tf-route-pin" style="animation-delay:'+delay+'">'+
+      '<circle cx="'+pt.x.toFixed(1)+'" cy="'+pt.y.toFixed(1)+'" r="4" fill="#071226" stroke="#C9A14A" stroke-width="1.4"/>'+
       '</g>';
   }).join('');
 
   var extraBadge='';
   if(extra>0&&pts.length){
     var lp=pts[pts.length-1];
-    var bx=Math.min(W-14,lp.x+16),by=Math.max(12,lp.y-4);
-    extraBadge='<g class="tf-route-pin" style="animation-delay:'+(0.5+shown.length*0.09).toFixed(2)+'s">'+
+    var bx=Math.min(W-14,lp.x+16),by=Math.max(12,lp.y-8);
+    extraBadge='<g class="tf-route-pin" style="animation-delay:'+(0.08+DRAW_DURATION).toFixed(2)+'s">'+
       '<circle cx="'+bx.toFixed(1)+'" cy="'+by.toFixed(1)+'" r="9" fill="rgba(201,161,74,.2)" stroke="#C9A14A" stroke-width="1"/>'+
       '<text x="'+bx.toFixed(1)+'" y="'+(by+3).toFixed(1)+'" font-size="8" fill="#C9A14A" text-anchor="middle" font-family="Jost,sans-serif" font-weight="700">+'+extra+'</text>'+
       '</g>';
   }
 
-  // Subtle map-like texture in a neutral tone (distinct from the gold
-  // route), confined to the same right-half canvas. Static, no animation.
+  // Artistic, abstract street network — soft curved streets, a couple of
+  // intersections and a roundabout. Not a real map, not a grid. Kept at
+  // very low opacity so it's felt more than seen.
   var bgPattern=
-    '<g opacity=".35" stroke="#9aa3b3" stroke-width=".7">'+
-    '<path d="M-10 30 C40 20 90 42 180 15" fill="none"/>'+
-    '<path d="M-10 75 C50 90 110 60 180 80" fill="none"/>'+
-    '<path d="M-10 120 C45 105 120 132 180 110" fill="none"/>'+
-    '<path d="M-10 165 C55 178 115 155 180 172" fill="none"/>'+
-    '<path d="M-10 210 C48 198 125 222 180 205" fill="none"/>'+
-    '<path d="M-10 245 C60 258 110 235 180 250" fill="none"/>'+
-    '<path d="M25 -10 C35 65 12 145 42 270" fill="none"/>'+
-    '<path d="M75 -10 C62 70 90 150 70 270" fill="none"/>'+
-    '<path d="M120 -10 C130 70 108 150 128 270" fill="none"/>'+
-    '<path d="M155 -10 C165 70 145 160 158 270" fill="none"/>'+
+    '<g opacity=".07" stroke="#c7cddb" stroke-width=".8" fill="none">'+
+    '<path d="M-10 55 C35 35 65 70 100 50 C125 36 150 48 180 34"/>'+
+    '<path d="M-10 130 C40 155 85 110 125 140 C148 157 162 138 180 148"/>'+
+    '<path d="M-10 205 C30 188 70 218 108 198 C132 186 150 202 180 190"/>'+
+    '<path d="M40 -10 C22 40 52 85 30 130 C14 162 34 200 22 250"/>'+
+    '<path d="M115 -10 C130 42 100 88 118 132 C132 165 108 205 122 250"/>'+
+    '<circle cx="100" cy="130" r="16"/>'+
     '</g>';
 
   return '<svg class="tf-route-svg" style="position:absolute;right:0;top:0;z-index:0;pointer-events:none" width="50%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid slice" fill="none">'+
