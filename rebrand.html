@@ -41,6 +41,17 @@
   .rule-text{flex:1;color:rgba(255,255,255,.8)}
   #access-denied{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
   .domain-tag{display:inline-block;background:rgba(201,161,74,.12);color:#C9A14A;font-size:11px;font-weight:600;padding:4px 10px;border-radius:100px;margin-bottom:14px}
+  .cselect{position:relative}
+  .cselect-btn{width:100%;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;cursor:pointer;height:auto}
+  .cselect-list{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#0d1c30;border:1px solid rgba(201,161,74,.3);border-radius:8px;z-index:60;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  .cselect-opt{padding:11px 14px;font-size:13px;color:#fff;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06)}
+  .cselect-opt:last-child{border-bottom:none}
+  .cselect-opt:active{background:rgba(201,161,74,.15)}
+  .desc-edit-box{width:100%;min-height:220px;background:rgba(255,255,255,.04);border:1.5px solid rgba(201,161,74,.3);border-radius:8px;padding:14px;color:#fff;font-size:14px;line-height:1.6;font-family:inherit;resize:vertical}
+  .img-tile{position:relative;border-radius:6px;overflow:hidden;border:2px solid transparent}
+  .img-tile-actions{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:3px;background:linear-gradient(transparent,rgba(0,0,0,.65))}
+  .img-tile-actions button{background:rgba(7,18,38,.75);color:#fff;border:none;border-radius:4px;padding:2px 6px;font-size:11px;height:auto;cursor:pointer}
+  .img-delete-btn{position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:rgba(220,38,38,.85);color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 </style>
 </head>
 <body>
@@ -206,6 +217,75 @@ function runRebrandScrape(){
     });
 }
 
+// ── Custom dropdown (native <select> is unreadable on iOS dark theme) ────
+function customSelectHtml(id,options,selected){
+  var current=options.filter(function(o){return o.value===selected;})[0]||options[0];
+  return '<div class="cselect" id="'+id+'-wrap">'+
+    '<button type="button" class="cselect-btn" onclick="toggleCSelect(\''+id+'\')">'+esc(current.label)+' <span style="float:right;color:#C9A14A">\u25be</span></button>'+
+    '<div class="cselect-list" id="'+id+'-list" style="display:none">'+
+    options.map(function(o){
+      return '<div class="cselect-opt" onclick="chooseCSelect(\''+id+'\',\''+o.value+'\')" data-value="'+esc(o.value)+'">'+esc(o.label)+'</div>';
+    }).join('')+
+    '</div>'+
+    '<input type="hidden" id="'+id+'" value="'+esc(current.value)+'"/>'+
+    '</div>';
+}
+function toggleCSelect(id){
+  var list=document.getElementById(id+'-list');
+  if(!list)return;
+  var isOpen=list.style.display!=='none';
+  document.querySelectorAll('.cselect-list').forEach(function(l){l.style.display='none';});
+  list.style.display=isOpen?'none':'block';
+}
+function chooseCSelect(id,value){
+  var hidden=document.getElementById(id);
+  var list=document.getElementById(id+'-list');
+  var wrap=document.getElementById(id+'-wrap');
+  if(!wrap)return;
+  var btn=wrap.querySelector('.cselect-btn');
+  var opt=list.querySelector('[data-value="'+value.replace(/"/g,'\\"')+'"]');
+  if(hidden)hidden.value=value;
+  if(btn&&opt)btn.innerHTML=opt.textContent+' <span style="float:right;color:#C9A14A">\u25be</span>';
+  list.style.display='none';
+  if(id==='rule-action')onRuleActionChange();
+}
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.cselect')){
+    document.querySelectorAll('.cselect-list').forEach(function(l){l.style.display='none';});
+  }
+});
+
+// ── Description: inline large textarea instead of a tiny prompt() ───────
+var editingDescription=false;
+function startEditDescription(){
+  editingDescription=true;
+  renderResults();
+}
+function saveDescription(){
+  correctedData.description=document.getElementById('desc-edit-input').value;
+  editingDescription=false;
+  renderResults();
+}
+function cancelEditDescription(){
+  editingDescription=false;
+  renderResults();
+}
+
+// ── Image reorder & delete ───────────────────────────────────────────────
+function moveImage(idx,dir){
+  var imgs=currentData.images;
+  var newIdx=idx+dir;
+  if(newIdx<0||newIdx>=imgs.length)return;
+  var tmp=imgs[idx];imgs[idx]=imgs[newIdx];imgs[newIdx]=tmp;
+  renderResults();
+}
+function deleteImage(idx){
+  var src=currentData.images[idx];
+  currentData.images.splice(idx,1);
+  delete selectedImages[src];
+  renderResults();
+}
+
 function toggleFieldLock(field){
   lockedFields[field]=!lockedFields[field];
   renderResults();
@@ -273,19 +353,28 @@ function renderResults(){
 
   var descHtml='<div style="margin-top:16px">'+
     '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Description '+
-    '<span><button class="edit-btn" onclick="toggleFieldLock(\'description\')">'+(lockedFields.description?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
-    '<button class="edit-btn" onclick="editField(\'description\')">\u270f\ufe0f edit</button></span></div>'+
-    (data.description?'<div class="desc-box">'+esc(data.description)+'</div>':'<div class="empty" style="font-size:13px">not found</div>')+
+    (editingDescription?'':'<span><button class="edit-btn" onclick="toggleFieldLock(\'description\')">'+(lockedFields.description?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
+    '<button class="edit-btn" onclick="startEditDescription()">\u270f\ufe0f edit</button></span>')+
+    '</div>'+
+    (editingDescription?
+      '<textarea id="desc-edit-input" class="desc-edit-box">'+esc(data.description||'')+'</textarea>'+
+      '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-ghost" onclick="saveDescription()">Save</button><button class="btn-ghost" onclick="cancelEditDescription()">Cancel</button></div>'
+      :(data.description?'<div class="desc-box">'+esc(data.description)+'</div>':'<div class="empty" style="font-size:13px">not found</div>'))+
     '</div>';
 
   var imagesHtml=currentData.images&&currentData.images.length?
-    '<div style="margin-top:16px"><div class="section-label">Images ('+Object.keys(selectedImages).length+' of '+currentData.images.length+' selected \u2014 tap to select)</div>'+
+    '<div style="margin-top:16px"><div class="section-label">Images ('+Object.keys(selectedImages).length+' of '+currentData.images.length+' selected \u2014 tap to select, arrows to reorder, \u00d7 to remove)</div>'+
     '<div class="img-grid">'+
-    currentData.images.map(function(src){
+    currentData.images.map(function(src,idx){
       var sel=selectedImages[src];
-      return '<div class="img-tile'+(sel?' selected':'')+'" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\')">'+
-        '<img src="'+src+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'"/>'+
+      return '<div class="img-tile'+(sel?' selected':'')+'">'+
+        '<img src="'+src+'" loading="lazy" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\')" onerror="this.parentElement.style.display=\'none\'"/>'+
         '<div class="img-check">\u2713</div>'+
+        '<button class="img-delete-btn" onclick="event.stopPropagation();deleteImage('+idx+')" title="Remove">\u00d7</button>'+
+        '<div class="img-tile-actions">'+
+        '<button onclick="event.stopPropagation();moveImage('+idx+',-1)" '+(idx===0?'disabled style="opacity:.3"':'')+'>\u2039</button>'+
+        '<button onclick="event.stopPropagation();moveImage('+idx+',1)" '+(idx===currentData.images.length-1?'disabled style="opacity:.3"':'')+'>\u203a</button>'+
+        '</div>'+
         '</div>';
     }).join('')+
     '</div></div>':'<div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">No images found.</div>';
@@ -302,15 +391,15 @@ function renderResults(){
     rulesHtml+
     '<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
     '<div class="section-label">Add a rule</div>'+
-    '<div class="row" style="margin-bottom:8px">'+
-    '<select id="rule-field" style="flex:1">'+
-      ['title','price','rooms','bathrooms','sqm','area','address','description'].map(function(f){return '<option value="'+f+'">'+f+'</option>';}).join('')+
-    '</select>'+
-    '<select id="rule-action" style="flex:1" onchange="onRuleActionChange()">'+
-      '<option value="ignore">Ignore this field</option>'+
-      '<option value="extract_from">Get value from elsewhere</option>'+
-      '<option value="replace">Find &amp; replace text</option>'+
-    '</select>'+
+    '<div class="row" style="margin-bottom:8px;align-items:flex-start">'+
+    '<div style="flex:1">'+customSelectHtml('rule-field',
+      ['title','price','rooms','bathrooms','sqm','area','address','description'].map(function(f){return{value:f,label:f};}),
+      'title')+'</div>'+
+    '<div style="flex:1">'+customSelectHtml('rule-action',[
+      {value:'ignore',label:'Ignore this field'},
+      {value:'extract_from',label:'Get value from elsewhere'},
+      {value:'replace',label:'Find & replace text'}
+    ],'ignore')+'</div>'+
     '</div>'+
     '<div id="rule-extra"></div>'+
     '<button class="btn-ghost" onclick="addDomainRule()" style="margin-top:8px">+ Add rule</button>'+
@@ -382,10 +471,10 @@ function onRuleActionChange(){
   if(!action)return;
   var extra=document.getElementById('rule-extra');
   if(action.value==='extract_from'){
-    extra.innerHTML='<select id="rule-source" style="width:100%">'+
-      '<option value="og_title_after_comma">Page title, after the comma</option>'+
-      '<option value="url_path_last_segment">Last part of the URL</option>'+
-      '</select>';
+    extra.innerHTML=customSelectHtml('rule-source',[
+      {value:'og_title_after_comma',label:'Page title, after the comma'},
+      {value:'url_path_last_segment',label:'Last part of the URL'}
+    ],'og_title_after_comma');
   } else if(action.value==='replace'){
     extra.innerHTML='<div class="row"><input id="rule-find" placeholder="Find text\u2026"/><input id="rule-replace" placeholder="Replace with\u2026"/></div>';
   } else {
