@@ -94,6 +94,14 @@ exports.handler = async function(event) {
     }
     if (sqmMatches.length > 0) sqm = String(Math.max(...sqmMatches));
 
+    let plotSize = null;
+    const plotMatch = firstMatch([
+      /"plotArea"\s*:\s*(\d+)/i,
+      /(?:plot|parcela|solar|grundstück|tomt)[^0-9]{0,20}(\d{2,5})\s*m[²2]/i,
+      /(\d{2,5})\s*m[²2][^0-9]{0,20}(?:plot|parcela|solar)/i
+    ]);
+    if (plotMatch) { const n = parseInt(plotMatch, 10); if (n >= 30 && n <= 100000) plotSize = String(n); }
+
     let area = null;
     try {
       const urlObj = new URL(url);
@@ -116,7 +124,7 @@ exports.handler = async function(event) {
     // Prefer a real description meta tag; these are usually the fullest
     // human-written summary a page exposes without needing per-site rules.
     let description = og('description') || meta('description') || null;
-    if (description) description = description.slice(0, 2000);
+    if (description) description = description.slice(0, 4000);
 
     // ── IMAGE GALLERY (new for Rebrand) ──────────────────────────────────
     // og:image is usually just the cover photo — pull every <img> src too,
@@ -162,7 +170,7 @@ exports.handler = async function(event) {
       body: JSON.stringify({
         sourceUrl: url,
         title: ogTitle || null,
-        price, rooms, bathrooms, sqm, area, address,
+        price, rooms, bathrooms, sqm, plotSize, area, address,
         description,
         images: Array.from(imageSet),
         imageCount: imageSet.size,
