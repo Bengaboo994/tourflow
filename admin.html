@@ -166,10 +166,6 @@ td{padding:12px 16px;font-size:12px;color:rgba(255,255,255,.7);vertical-align:mi
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Access Control
       </div>
-      <div class="nav-item" onclick="showTab('rebrand')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 11-9-9c2.52 0 4.85.99 6.57 2.61"/><polyline points="21 3 21 9 15 9"/></svg>
-        Rebrand <span style="opacity:.5;font-size:9px;margin-left:2px">(Pilot)</span>
-      </div>
     </div>
     <div class="nav-section">
       <div class="nav-label">Future</div>
@@ -340,23 +336,6 @@ td{padding:12px 16px;font-size:12px;color:rgba(255,255,255,.7);vertical-align:mi
       </div>
     </div>
 
-    <!-- ── REBRAND (PILOT) ────────────────────────────────────── -->
-    <div id="tab-rebrand" class="tab-content">
-      <div class="section-header">
-        <div><div class="section-title">Rebrand <span style="opacity:.5;font-size:12px;font-weight:500">(Pilot)</span></div>
-        <div class="section-sub">Step 1: scraping only. No AI rewriting yet — verify the raw extraction first.</div></div>
-      </div>
-      <div style="background:rgba(255,255,255,.02);border:1px solid rgba(201,161,74,.12);border-radius:14px;padding:20px;margin-bottom:20px">
-        <label style="display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Listing URL</label>
-        <div style="display:flex;gap:10px">
-          <input id="rebrand-url" placeholder="https://reveny.es/..." style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;outline:none"/>
-          <button id="rebrand-scrape-btn" onclick="runRebrandScrape()" style="background:#C9A14A;color:#071226;border:none;border-radius:8px;padding:0 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Scrape</button>
-        </div>
-        <div id="rebrand-status" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:10px"></div>
-      </div>
-      <div id="rebrand-results"></div>
-    </div>
-
     <!-- ── ANALYTICS ──────────────────────────────────────────── -->
     <div id="tab-analytics" class="tab-content">
       <div class="section-header">
@@ -517,58 +496,6 @@ function signOut(){
 }
 
 // ── NAVIGATION ───────────────────────────────────────────────────────────────
-// ── REBRAND PILOT: scrape-only test ─────────────────────────────────────────
-function runRebrandScrape(){
-  var url=document.getElementById('rebrand-url').value.trim();
-  var status=document.getElementById('rebrand-status');
-  var resultsEl=document.getElementById('rebrand-results');
-  var btn=document.getElementById('rebrand-scrape-btn');
-  if(!url){status.textContent='Paste a listing URL first.';return;}
-  status.textContent='Scraping…';
-  resultsEl.innerHTML='';
-  btn.disabled=true;btn.style.opacity='.6';
-  fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
-    .then(function(r){return r.json();})
-    .then(function(data){
-      btn.disabled=false;btn.style.opacity='1';
-      if(data.error){
-        status.innerHTML='<span style="color:#f87171">Error: '+data.error+'</span>';
-        return;
-      }
-      status.innerHTML='<span style="color:#4ade80">Done — '+data.imageCount+' candidate images found</span>';
-      var fields=[
-        ['Title',data.title],['Price',data.price],['Rooms',data.rooms],
-        ['Bathrooms',data.bathrooms],['Sqm',data.sqm],['Area',data.area],
-        ['Address',data.address]
-      ];
-      var fieldsHtml=fields.map(function(f){
-        return '<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)">'+
-          '<span style="font-size:12px;color:rgba(255,255,255,.4)">'+f[0]+'</span>'+
-          '<span style="font-size:13px;color:#fff;font-weight:500;text-align:right;max-width:60%">'+(f[1]!=null&&f[1]!==''?f[1]:'<span style="color:rgba(255,255,255,.25)">not found</span>')+'</span>'+
-          '</div>';
-      }).join('');
-      var descHtml=data.description?
-        '<div style="margin-top:16px"><div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Description</div>'+
-        '<div style="font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;background:rgba(255,255,255,.03);border-radius:8px;padding:12px">'+data.description+'</div></div>':'';
-      var imagesHtml=data.images&&data.images.length?
-        '<div style="margin-top:16px"><div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Images ('+data.images.length+')</div>'+
-        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px">'+
-        data.images.map(function(src){
-          return '<img src="'+src+'" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,.1)" loading="lazy" onerror="this.style.display=\'none\'"/>';
-        }).join('')+
-        '</div></div>':'<div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">No images found.</div>';
-
-      resultsEl.innerHTML=
-        '<div style="background:rgba(255,255,255,.02);border:1px solid rgba(201,161,74,.12);border-radius:14px;padding:20px">'+
-        fieldsHtml+descHtml+imagesHtml+
-        '</div>';
-    })
-    .catch(function(e){
-      btn.disabled=false;btn.style.opacity='1';
-      status.innerHTML='<span style="color:#f87171">Request failed: '+e.message+'</span>';
-    });
-}
-
 function showTab(tab){
   document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
   document.querySelectorAll('.nav-item').forEach(function(el){el.classList.remove('active');});
