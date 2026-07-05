@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Rebrand (Pilot) — TourFlow</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#050e1a;color:#fff;min-height:100vh}
+  .wrap{max-width:760px;margin:0 auto;padding:32px 20px 60px}
+  .back{display:inline-flex;align-items:center;gap:6px;color:rgba(201,161,74,.6);text-decoration:none;font-size:12px;font-weight:500;margin-bottom:20px}
+  h1{font-family:'Georgia',serif;font-weight:400;font-size:28px;margin:0 0 4px;color:#fff}
+  .sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px}
+  .card{background:rgba(255,255,255,.02);border:1px solid rgba(201,161,74,.12);border-radius:14px;padding:20px;margin-bottom:20px}
+  label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;outline:none}
+  .row{display:flex;gap:10px}
+  .row input{flex:1}
+  button{background:#C9A14A;color:#071226;border:none;border-radius:8px;padding:0 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+  button:disabled{opacity:.6;cursor:default}
+  #status{font-size:12px;color:rgba(255,255,255,.4);margin-top:10px}
+  .field-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .field-label{font-size:12px;color:rgba(255,255,255,.4)}
+  .field-value{font-size:13px;color:#fff;font-weight:500;text-align:right;max-width:60%}
+  .empty{color:rgba(255,255,255,.25)}
+  .section-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+  .desc-box{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;background:rgba(255,255,255,.03);border-radius:8px;padding:12px}
+  .img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+  .img-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,.1)}
+  #access-denied{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
+</style>
+</head>
+<body>
+
+<div id="access-denied">
+  <div style="font-size:40px;margin-bottom:14px">🔒</div>
+  <div style="font-family:'Georgia',serif;font-size:22px;margin-bottom:8px">Rebrand (Pilot)</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:20px" id="access-denied-msg">This page is restricted.</div>
+  <a href="/" style="color:#C9A14A;font-size:13px;text-decoration:none">&larr; Back to TourFlow</a>
+</div>
+
+<div class="wrap" id="main-content" style="display:none">
+  <a class="back" href="/"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
+  <h1>Rebrand <span style="opacity:.5;font-size:18px;font-weight:400">(Pilot)</span></h1>
+  <div class="sub">Step 1: scraping only. No AI rewriting yet — verify the raw extraction first.</div>
+
+  <div class="card">
+    <label>Listing URL</label>
+    <div class="row">
+      <input id="rebrand-url" placeholder="https://reveny.es/..."/>
+      <button id="rebrand-scrape-btn" onclick="runRebrandScrape()">Scrape</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <div id="rebrand-results"></div>
+</div>
+
+<script>
+var SUPA_URL='https://dhcqbdyrbviormfsdcyr.supabase.co';
+var SUPA_KEY='sb_publishable_ZKyT9nBrTruUnVDZF0VrWQ_HefTPZB3';
+var ADMIN_EMAILS=['niklasbengtsson@hotmail.com'];
+var supa=null;
+
+try{
+  if(window.supabase&&window.supabase.createClient){
+    supa=window.supabase.createClient(SUPA_URL,SUPA_KEY);
+  }
+}catch(e){console.error('Supabase init:',e);}
+
+function showAccessDenied(msg){
+  document.getElementById('access-denied-msg').textContent=msg||'This page is restricted.';
+  document.getElementById('access-denied').style.display='flex';
+  document.getElementById('main-content').style.display='none';
+}
+function showMain(){
+  document.getElementById('access-denied').style.display='none';
+  document.getElementById('main-content').style.display='block';
+}
+
+function init(){
+  if(!supa){showAccessDenied('Could not connect.');return;}
+  supa.auth.getSession().then(function(res){
+    var session=res.data&&res.data.session;
+    if(!session||!session.user){
+      showAccessDenied('Please sign in to TourFlow first.');
+      return;
+    }
+    var email=(session.user.email||'').toLowerCase();
+    if(ADMIN_EMAILS.indexOf(email)<0){
+      showAccessDenied();
+      return;
+    }
+    showMain();
+  }).catch(function(){showAccessDenied('Could not verify session.');});
+}
+init();
+
+// ── REBRAND PILOT: scrape-only test ─────────────────────────────────────────
+function runRebrandScrape(){
+  var url=document.getElementById('rebrand-url').value.trim();
+  var status=document.getElementById('status');
+  var resultsEl=document.getElementById('rebrand-results');
+  var btn=document.getElementById('rebrand-scrape-btn');
+  if(!url){status.textContent='Paste a listing URL first.';return;}
+  status.textContent='Scraping…';
+  resultsEl.innerHTML='';
+  btn.disabled=true;
+  fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      btn.disabled=false;
+      if(data.error){
+        status.innerHTML='<span style="color:#f87171">Error: '+data.error+'</span>';
+        return;
+      }
+      status.innerHTML='<span style="color:#4ade80">Done — '+data.imageCount+' candidate images found</span>';
+      var fields=[
+        ['Title',data.title],['Price',data.price],['Rooms',data.rooms],
+        ['Bathrooms',data.bathrooms],['Sqm',data.sqm],['Area',data.area],
+        ['Address',data.address]
+      ];
+      var fieldsHtml=fields.map(function(f){
+        return '<div class="field-row"><span class="field-label">'+f[0]+'</span>'+
+          '<span class="field-value">'+(f[1]!=null&&f[1]!==''?f[1]:'<span class="empty">not found</span>')+'</span></div>';
+      }).join('');
+      var descHtml=data.description?
+        '<div style="margin-top:16px"><div class="section-label">Description</div>'+
+        '<div class="desc-box">'+data.description+'</div></div>':'';
+      var imagesHtml=data.images&&data.images.length?
+        '<div style="margin-top:16px"><div class="section-label">Images ('+data.images.length+')</div>'+
+        '<div class="img-grid">'+
+        data.images.map(function(src){
+          return '<img src="'+src+'" loading="lazy" onerror="this.style.display=\'none\'"/>';
+        }).join('')+
+        '</div></div>':'<div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">No images found.</div>';
+
+      resultsEl.innerHTML='<div class="card">'+fieldsHtml+descHtml+imagesHtml+'</div>';
+    })
+    .catch(function(e){
+      btn.disabled=false;
+      status.innerHTML='<span style="color:#f87171">Request failed: '+e.message+'</span>';
+    });
+}
+</script>
+</body>
+</html>
