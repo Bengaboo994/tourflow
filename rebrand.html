@@ -339,7 +339,7 @@ function renderResults(){
 
   var fields=[
     ['title','Title'],['price','Price'],['rooms','Rooms'],
-    ['bathrooms','Bathrooms'],['sqm','Sqm'],['area','Area'],['address','Address']
+    ['bathrooms','Bathrooms'],['sqm','Sqm'],['plotSize','Plot (m\u00b2)'],['area','Area'],['address','Address']
   ];
   var fieldsHtml=fields.map(function(f){
     var wasEdited=currentData&&data[f[0]]!==currentData[f[0]];
@@ -393,7 +393,7 @@ function renderResults(){
     '<div class="section-label">Add a rule</div>'+
     '<div class="row" style="margin-bottom:8px;align-items:flex-start">'+
     '<div style="flex:1">'+customSelectHtml('rule-field',
-      ['title','price','rooms','bathrooms','sqm','area','address','description'].map(function(f){return{value:f,label:f};}),
+      ['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'].map(function(f){return{value:f,label:f};}),
       'title')+'</div>'+
     '<div style="flex:1">'+customSelectHtml('rule-action',[
       {value:'ignore',label:'Ignore this field'},
@@ -415,10 +415,28 @@ function renderResults(){
 
   resultsEl.innerHTML=
     '<div class="card">'+fieldsHtml+descHtml+imagesHtml+
-    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
+    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;flex-wrap:wrap">'+
     '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Scrape again</button>'+
-    '</div></div>'+
+    '<button class="btn-ghost" id="ai-read-btn" onclick="runAiRead()">&#129302; AI Read (screenshot)</button>'+
+    '</div>'+
+    '<div id="ai-read-status" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:8px"></div>'+
+    '</div>'+
     domainRulesHtml+
+    '<div class="card">'+
+    '<div class="section-label">Agent business card (shown at the bottom of the presentation)</div>'+
+    '<div class="row" style="margin-bottom:8px">'+
+    '<input id="agent-name" placeholder="Name" oninput="saveAgentCardField(\'name\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.name||'Niklas Bengtsson')+'"/>'+
+    '<input id="agent-title" placeholder="Title" oninput="saveAgentCardField(\'title\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.title||'Your Property Consultant')+'"/>'+
+    '</div>'+
+    '<div class="row" style="margin-bottom:8px">'+
+    '<input id="agent-agency" placeholder="Agency" oninput="saveAgentCardField(\'agency\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.agency||'Reveny Properties')+'"/>'+
+    '</div>'+
+    '<div class="row" style="margin-bottom:8px">'+
+    '<input id="agent-phone" placeholder="Phone (e.g. +34...)" oninput="saveAgentCardField(\'phone\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.phone||'')+'"/>'+
+    '<input id="agent-email" placeholder="Email" oninput="saveAgentCardField(\'email\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.email||'')+'"/>'+
+    '</div>'+
+    '<input id="agent-photo" placeholder="Photo URL (optional)" oninput="saveAgentCardField(\'photo\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.photo||'')+'" style="margin-bottom:4px"/>'+
+    '</div>'+
     '<div class="card">'+
     '<div class="section-label">When you\'re happy with everything above</div>'+
     '<button onclick="publishListing()" id="publish-btn" style="width:100%;margin-top:4px">Generate Presentation Link</button>'+
@@ -426,6 +444,49 @@ function renderResults(){
     '</div>';
 
   onRuleActionChange();
+}
+
+function runAiRead(){
+  var btn=document.getElementById('ai-read-btn');
+  var status=document.getElementById('ai-read-status');
+  var url=document.getElementById('rebrand-url').value.trim();
+  if(!url||!currentData){status.textContent='Scrape the listing first.';return;}
+  btn.disabled=true;btn.textContent='\u23f3 Reading screenshot\u2026 (can take 10\u201320s)';
+  status.textContent='';
+  fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
+      if(data.error){
+        status.innerHTML='<span style="color:#f87171">'+esc(data.error)+'</span>';
+        return;
+      }
+      var fieldsToMerge=['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'];
+      var applied=[];
+      fieldsToMerge.forEach(function(f){
+        if(lockedFields[f])return; // never overwrite something already locked
+        if(data[f]!=null&&data[f]!==''){
+          correctedData[f]=data[f];
+          applied.push(f);
+        }
+      });
+      renderResults();
+      var freshStatus=document.getElementById('ai-read-status');
+      if(freshStatus){
+        freshStatus.innerHTML=applied.length?
+          '<span style="color:#4ade80">AI updated: '+applied.join(', ')+'</span>':
+          '<span style="color:rgba(255,255,255,.4)">AI found nothing new (locked fields were left alone).</span>';
+      }
+    })
+    .catch(function(e){
+      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
+      status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
+    });
+}
+
+function saveAgentCardField(field,value){
+  window.__lastAgentCard=window.__lastAgentCard||{};
+  window.__lastAgentCard[field]=value;
 }
 
 function publishListing(){
@@ -445,10 +506,17 @@ function publishListing(){
     rooms:correctedData.rooms||null,
     bathrooms:correctedData.bathrooms||null,
     sqm:correctedData.sqm||null,
+    plot_size:correctedData.plotSize||null,
     area:correctedData.area||null,
     address:correctedData.address||null,
     description:correctedData.description||null,
     images:chosenImages,
+    agent_name:document.getElementById('agent-name').value||null,
+    agent_title:document.getElementById('agent-title').value||null,
+    agent_agency:document.getElementById('agent-agency').value||null,
+    agent_phone:document.getElementById('agent-phone').value||null,
+    agent_email:document.getElementById('agent-email').value||null,
+    agent_photo:document.getElementById('agent-photo').value||null,
     source_url:currentData.sourceUrl||null // internal only — never shown on the public page
   };
   supa.from('rebrand_listings').insert(payload).then(function(res){
