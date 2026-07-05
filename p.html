@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Property — TourFlow</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FCFBF7;color:#1A1917;min-height:100vh}
+  .wrap{max-width:520px;margin:0 auto;padding:0 0 60px}
+  .hero{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#e8e0d0}
+  .content{padding:24px 20px}
+  .brand{display:flex;align-items:center;gap:6px;font-family:Georgia,serif;font-size:14px;color:rgba(26,25,23,.4);margin-bottom:18px}
+  .brand em{font-style:italic;color:#C9A14A}
+  h1{font-family:Georgia,serif;font-weight:400;font-size:26px;margin:0 0 6px;line-height:1.2}
+  .price{font-family:Georgia,serif;font-size:24px;color:#C9A14A;font-weight:600;margin-bottom:14px}
+  .loc{font-size:14px;color:#5a5754;margin-bottom:18px;display:flex;align-items:center;gap:6px}
+  .specs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+  .spec{background:#f5f2ec;border:1px solid #edeae4;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;color:#1A1917}
+  .desc{font-size:14px;color:#4a4744;line-height:1.7;margin-bottom:26px;white-space:pre-line}
+  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
+  #loading,#not-found{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div style="font-family:Georgia,serif;font-size:20px;color:rgba(26,25,23,.4)">Tour<em style="color:#C9A14A;font-style:italic">Flow</em></div>
+</div>
+
+<div id="not-found" style="display:none">
+  <div style="font-size:20px;font-family:Georgia,serif;margin-bottom:8px">Listing not found</div>
+  <div style="font-size:13px;color:#5a5754">This link may have expired or been removed.</div>
+</div>
+
+<div class="wrap" id="main" style="display:none">
+  <img class="hero" id="hero-img" src="" alt=""/>
+  <div class="content">
+    <div class="brand">Tour<em>Flow</em></div>
+    <h1 id="title"></h1>
+    <div class="price" id="price"></div>
+    <div class="loc" id="loc"></div>
+    <div class="specs" id="specs"></div>
+    <div class="desc" id="desc"></div>
+    <div class="gallery" id="gallery"></div>
+  </div>
+</div>
+
+<script>
+var SUPA_URL='https://dhcqbdyrbviormfsdcyr.supabase.co';
+var SUPA_KEY='sb_publishable_ZKyT9nBrTruUnVDZF0VrWQ_HefTPZB3';
+
+function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function getParam(name){
+  var params=new URLSearchParams(window.location.search);
+  return params.get(name);
+}
+
+function showNotFound(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('not-found').style.display='flex';
+}
+
+function render(data){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('main').style.display='block';
+
+  var images=data.images||[];
+  document.getElementById('hero-img').src=images[0]||'';
+  document.title=(data.title||'Property')+' — TourFlow';
+  document.getElementById('title').textContent=data.title||'Property';
+  document.getElementById('price').textContent=data.price||'';
+
+  var locParts=[data.area,data.address].filter(Boolean);
+  document.getElementById('loc').innerHTML=locParts.length?
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg><span>'+esc(locParts.join(' \u00b7 '))+'</span>':'';
+
+  var specs=[];
+  if(data.rooms)specs.push(data.rooms+' beds');
+  if(data.bathrooms)specs.push(data.bathrooms+' baths');
+  if(data.sqm)specs.push(data.sqm+' m\u00b2');
+  document.getElementById('specs').innerHTML=specs.map(function(s){return '<span class="spec">'+esc(s)+'</span>';}).join('');
+
+  document.getElementById('desc').textContent=data.description||'';
+
+  var restImages=images.slice(1);
+  document.getElementById('gallery').innerHTML=restImages.map(function(src){
+    return '<img src="'+src+'" loading="lazy" onerror="this.style.display=\'none\'"/>';
+  }).join('');
+}
+
+var id=getParam('id');
+if(!id){
+  showNotFound();
+} else {
+  fetch(SUPA_URL+'/rest/v1/rebrand_listings?id=eq.'+encodeURIComponent(id)+'&select=title,price,rooms,bathrooms,sqm,area,address,description,images',{
+    headers:{'apikey':SUPA_KEY}
+  })
+  .then(function(r){return r.json();})
+  .then(function(rows){
+    if(!rows||!rows.length){showNotFound();return;}
+    render(rows[0]);
+  })
+  .catch(function(){showNotFound();});
+}
+</script>
+</body>
+</html>
