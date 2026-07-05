@@ -112,6 +112,7 @@ init();
 // ── STATE ────────────────────────────────────────────────────────────────
 var currentData=null;
 var correctedData=null;
+var lockedFields={};
 var selectedImages={};
 var currentDomain='';
 var currentDomainNotes=null;
@@ -183,10 +184,16 @@ function runRebrandScrape(){
         return;
       }
       currentData=data;
-      selectedImages={};
       return loadDomainNotes(currentDomain).then(function(notes){
         currentDomainNotes=notes;
-        correctedData=applyDomainRules(data,notes);
+        var freshCorrected=applyDomainRules(data,notes);
+        var prevCorrected=correctedData;
+        correctedData=freshCorrected;
+        if(prevCorrected){
+          Object.keys(lockedFields).forEach(function(field){
+            if(lockedFields[field]) correctedData[field]=prevCorrected[field];
+          });
+        }
         btn.disabled=false;
         var ruleCount=(notes.rules||[]).length;
         status.innerHTML='<span style="color:#4ade80">Done \u2014 '+data.imageCount+' candidate images'+(ruleCount?', '+ruleCount+' saved rule(s) applied':'')+'</span>';
@@ -197,6 +204,11 @@ function runRebrandScrape(){
       btn.disabled=false;
       status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
     });
+}
+
+function toggleFieldLock(field){
+  lockedFields[field]=!lockedFields[field];
+  renderResults();
 }
 
 function editField(field){
@@ -251,14 +263,18 @@ function renderResults(){
   ];
   var fieldsHtml=fields.map(function(f){
     var wasEdited=currentData&&data[f[0]]!==currentData[f[0]];
+    var isLocked=!!lockedFields[f[0]];
     return '<div class="field-row"><span class="field-label">'+f[1]+'</span>'+
       '<span class="field-value'+(wasEdited?' edited':'')+'">'+(data[f[0]]!=null&&data[f[0]]!==''?esc(data[f[0]]):'<span class="empty">not found</span>')+'</span>'+
+      '<button class="edit-btn" onclick="toggleFieldLock(\''+f[0]+'\')" title="'+(isLocked?'Unlock':'Lock this value')+'">'+(isLocked?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
       '<button class="edit-btn" onclick="editField(\''+f[0]+'\')">\u270f\ufe0f</button>'+
       '</div>';
   }).join('');
 
   var descHtml='<div style="margin-top:16px">'+
-    '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Description <button class="edit-btn" onclick="editField(\'description\')">\u270f\ufe0f edit</button></div>'+
+    '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Description '+
+    '<span><button class="edit-btn" onclick="toggleFieldLock(\'description\')">'+(lockedFields.description?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
+    '<button class="edit-btn" onclick="editField(\'description\')">\u270f\ufe0f edit</button></span></div>'+
     (data.description?'<div class="desc-box">'+esc(data.description)+'</div>':'<div class="empty" style="font-size:13px">not found</div>')+
     '</div>';
 
@@ -313,9 +329,52 @@ function renderResults(){
     '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
     '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Scrape again</button>'+
     '</div></div>'+
-    domainRulesHtml;
+    domainRulesHtml+
+    '<div class="card">'+
+    '<div class="section-label">When you\'re happy with everything above</div>'+
+    '<button onclick="publishListing()" id="publish-btn" style="width:100%;margin-top:4px">Generate Presentation Link</button>'+
+    '<div id="publish-result" style="margin-top:12px"></div>'+
+    '</div>';
 
   onRuleActionChange();
+}
+
+function publishListing(){
+  var btn=document.getElementById('publish-btn');
+  var resultEl=document.getElementById('publish-result');
+  var chosenImages=Object.keys(selectedImages);
+  if(!chosenImages.length){
+    resultEl.innerHTML='<span style="color:#f87171;font-size:12px">Select at least one image first.</span>';
+    return;
+  }
+  btn.disabled=true;btn.textContent='Publishing\u2026';
+  var id='p'+Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+  var payload={
+    id:id,
+    title:correctedData.title||null,
+    price:correctedData.price||null,
+    rooms:correctedData.rooms||null,
+    bathrooms:correctedData.bathrooms||null,
+    sqm:correctedData.sqm||null,
+    area:correctedData.area||null,
+    address:correctedData.address||null,
+    description:correctedData.description||null,
+    images:chosenImages,
+    source_url:currentData.sourceUrl||null // internal only — never shown on the public page
+  };
+  supa.from('rebrand_listings').insert(payload).then(function(res){
+    btn.disabled=false;btn.textContent='Generate Presentation Link';
+    if(res.error){
+      resultEl.innerHTML='<span style="color:#f87171;font-size:12px">Could not publish: '+esc(res.error.message)+'</span>';
+      return;
+    }
+    var link=window.location.origin+'/p.html?id='+id;
+    resultEl.innerHTML='<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:12px;font-size:12px;color:#fff;word-break:break-all">'+link+'</div>'+
+      '<button class="btn-ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(\''+link+'\');this.textContent=\'Copied!\'">Copy link</button>';
+  }).catch(function(e){
+    btn.disabled=false;btn.textContent='Generate Presentation Link';
+    resultEl.innerHTML='<span style="color:#f87171;font-size:12px">Could not publish: '+esc(e.message)+'</span>';
+  });
 }
 
 function onRuleActionChange(){
