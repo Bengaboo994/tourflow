@@ -435,7 +435,16 @@ function renderResults(){
     '<input id="agent-phone" placeholder="Phone (e.g. +34...)" oninput="saveAgentCardField(\'phone\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.phone||'')+'"/>'+
     '<input id="agent-email" placeholder="Email" oninput="saveAgentCardField(\'email\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.email||'')+'"/>'+
     '</div>'+
-    '<input id="agent-photo" placeholder="Photo URL (optional)" oninput="saveAgentCardField(\'photo\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.photo||'')+'" style="margin-bottom:4px"/>'+
+    '<div style="margin-bottom:4px">'+
+    '<div style="display:flex;gap:8px;align-items:center">'+
+    '<div id="agent-photo-preview" style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(201,161,74,.2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">'+
+    (window.__lastAgentCard&&window.__lastAgentCard.photo?'<img src="'+esc(window.__lastAgentCard.photo)+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:16px;opacity:.3">\ud83d\udc64</span>')+
+    '</div>'+
+    '<label class="btn-ghost" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">Upload photo'+
+    '<input type="file" accept="image/*" style="display:none" onchange="uploadAgentPhoto(this)"/>'+
+    '</label>'+
+    '</div>'+
+    '<input id="agent-photo" placeholder="...or paste a photo URL instead" oninput="saveAgentCardField(\'photo\',this.value);updateAgentPhotoPreview(this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.photo||'')+'" style="margin-top:8px"/>'+
     '</div>'+
     '<div class="card">'+
     '<div class="section-label">When you\'re happy with everything above</div>'+
@@ -488,6 +497,24 @@ function saveAgentCardField(field,value){
   window.__lastAgentCard=window.__lastAgentCard||{};
   window.__lastAgentCard[field]=value;
 }
+function updateAgentPhotoPreview(url){
+  var preview=document.getElementById('agent-photo-preview');
+  if(!preview)return;
+  preview.innerHTML=url?'<img src="'+url.replace(/"/g,'&quot;')+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:16px;opacity:.3">\ud83d\udc64</span>';
+}
+function uploadAgentPhoto(input){
+  var file=input.files[0];
+  if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var dataUrl=e.target.result;
+    saveAgentCardField('photo',dataUrl);
+    var urlField=document.getElementById('agent-photo');
+    if(urlField)urlField.value=''; // uploaded photo takes priority over the URL field
+    updateAgentPhotoPreview(dataUrl);
+  };
+  reader.readAsDataURL(file);
+}
 
 function publishListing(){
   var btn=document.getElementById('publish-btn');
@@ -516,7 +543,7 @@ function publishListing(){
     agent_agency:document.getElementById('agent-agency').value||null,
     agent_phone:document.getElementById('agent-phone').value||null,
     agent_email:document.getElementById('agent-email').value||null,
-    agent_photo:document.getElementById('agent-photo').value||null,
+    agent_photo:(window.__lastAgentCard&&window.__lastAgentCard.photo)||document.getElementById('agent-photo').value||null,
     source_url:currentData.sourceUrl||null // internal only — never shown on the public page
   };
   supa.from('rebrand_listings').insert(payload).then(function(res){
