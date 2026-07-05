@@ -14,21 +14,33 @@
   .sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px}
   .card{background:rgba(255,255,255,.02);border:1px solid rgba(201,161,74,.12);border-radius:14px;padding:20px;margin-bottom:20px}
   label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-  input{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;outline:none}
+  input,select,textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;outline:none}
+  textarea{resize:vertical;min-height:70px;line-height:1.5}
   .row{display:flex;gap:10px}
   .row input{flex:1}
-  button{background:#C9A14A;color:#071226;border:none;border-radius:8px;padding:0 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+  button{background:#C9A14A;color:#071226;border:none;border-radius:8px;padding:0 20px;height:44px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
   button:disabled{opacity:.6;cursor:default}
+  .btn-ghost{background:transparent;border:1.5px solid rgba(201,161,74,.3);color:#C9A14A;height:38px;padding:0 14px;font-size:12px}
+  .btn-danger{background:transparent;border:1.5px solid rgba(248,113,113,.3);color:#f87171;height:32px;padding:0 12px;font-size:11px}
   #status{font-size:12px;color:rgba(255,255,255,.4);margin-top:10px}
-  .field-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
-  .field-label{font-size:12px;color:rgba(255,255,255,.4)}
-  .field-value{font-size:13px;color:#fff;font-weight:500;text-align:right;max-width:60%}
+  .field-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .field-label{font-size:12px;color:rgba(255,255,255,.4);flex-shrink:0;width:90px}
+  .field-value{font-size:13px;color:#fff;font-weight:500;text-align:right;flex:1}
+  .field-value.edited{color:#4ade80}
   .empty{color:rgba(255,255,255,.25)}
+  .edit-btn{background:none;border:none;color:rgba(201,161,74,.6);font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0}
   .section-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-  .desc-box{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;background:rgba(255,255,255,.03);border-radius:8px;padding:12px}
+  .desc-box{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;background:rgba(255,255,255,.03);border-radius:8px;padding:12px;white-space:pre-line}
   .img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
-  .img-grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,.1)}
+  .img-tile{position:relative;border-radius:6px;overflow:hidden;border:2px solid transparent;cursor:pointer}
+  .img-tile.selected{border-color:#C9A14A}
+  .img-tile img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+  .img-check{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;background:rgba(7,18,38,.7);border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent}
+  .img-tile.selected .img-check{background:#C9A14A;border-color:#C9A14A;color:#071226}
+  .rule-row{display:flex;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px}
+  .rule-text{flex:1;color:rgba(255,255,255,.8)}
   #access-denied{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
+  .domain-tag{display:inline-block;background:rgba(201,161,74,.12);color:#C9A14A;font-size:11px;font-weight:600;padding:4px 10px;border-radius:100px;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -43,7 +55,7 @@
 <div class="wrap" id="main-content" style="display:none">
   <a class="back" href="/"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
   <h1>Rebrand <span style="opacity:.5;font-size:18px;font-weight:400">(Pilot)</span></h1>
-  <div class="sub">Step 1: scraping only. No AI rewriting yet — verify the raw extraction first.</div>
+  <div class="sub">Step 1: scraping &amp; review. No AI rewriting yet.</div>
 
   <div class="card">
     <label>Listing URL</label>
@@ -97,51 +109,229 @@ function init(){
 }
 init();
 
-// ── REBRAND PILOT: scrape-only test ─────────────────────────────────────────
+// ── STATE ────────────────────────────────────────────────────────────────
+var currentData=null;
+var correctedData=null;
+var selectedImages={};
+var currentDomain='';
+var currentDomainNotes=null;
+
+function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function getDomain(url){
+  try{ return new URL(url).hostname.replace(/^www\./,''); }catch(e){ return ''; }
+}
+
+function applyDomainRules(data, notes){
+  var out=Object.assign({},data);
+  if(!notes||!notes.rules)return out;
+  notes.rules.forEach(function(rule){
+    if(rule.action==='ignore'){
+      out[rule.field]=null;
+    } else if(rule.action==='extract_from'){
+      if(rule.source==='og_title_after_comma'&&out.title&&out.title.indexOf(',')>=0){
+        out[rule.field]=out.title.split(',').slice(1).join(',').trim();
+      } else if(rule.source==='url_path_last_segment'&&out.sourceUrl){
+        try{
+          var parts=new URL(out.sourceUrl).pathname.split('/').filter(Boolean);
+          var last=parts[parts.length-1]||'';
+          out[rule.field]=last.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+        }catch(e){}
+      }
+    } else if(rule.action==='replace'&&out[rule.field]){
+      out[rule.field]=out[rule.field].split(rule.find).join(rule.replaceWith||'');
+    }
+  });
+  return out;
+}
+
+function loadDomainNotes(domain){
+  return supa.from('rebrand_domain_notes').select('*').eq('domain',domain).maybeSingle()
+    .then(function(res){ return res.data||{domain:domain,rules:[],free_text:''}; })
+    .catch(function(){ return {domain:domain,rules:[],free_text:''}; });
+}
+function saveDomainNotes(){
+  var payload={
+    domain: currentDomain,
+    rules: currentDomainNotes.rules||[],
+    free_text: document.getElementById('domain-freetext').value,
+    updated_at: new Date().toISOString()
+  };
+  supa.from('rebrand_domain_notes').upsert(payload,{onConflict:'domain'}).then(function(){
+    document.getElementById('domain-save-status').textContent='Saved \u2713';
+    setTimeout(function(){document.getElementById('domain-save-status').textContent='';},2000);
+  }).catch(function(e){
+    document.getElementById('domain-save-status').textContent='Could not save: '+e.message;
+  });
+}
+
 function runRebrandScrape(){
   var url=document.getElementById('rebrand-url').value.trim();
   var status=document.getElementById('status');
   var resultsEl=document.getElementById('rebrand-results');
   var btn=document.getElementById('rebrand-scrape-btn');
   if(!url){status.textContent='Paste a listing URL first.';return;}
-  status.textContent='Scraping…';
+  currentDomain=getDomain(url);
+  status.textContent='Scraping\u2026';
   resultsEl.innerHTML='';
   btn.disabled=true;
   fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
     .then(function(r){return r.json();})
     .then(function(data){
-      btn.disabled=false;
       if(data.error){
-        status.innerHTML='<span style="color:#f87171">Error: '+data.error+'</span>';
+        btn.disabled=false;
+        status.innerHTML='<span style="color:#f87171">Error: '+esc(data.error)+'</span>';
         return;
       }
-      status.innerHTML='<span style="color:#4ade80">Done — '+data.imageCount+' candidate images found</span>';
-      var fields=[
-        ['Title',data.title],['Price',data.price],['Rooms',data.rooms],
-        ['Bathrooms',data.bathrooms],['Sqm',data.sqm],['Area',data.area],
-        ['Address',data.address]
-      ];
-      var fieldsHtml=fields.map(function(f){
-        return '<div class="field-row"><span class="field-label">'+f[0]+'</span>'+
-          '<span class="field-value">'+(f[1]!=null&&f[1]!==''?f[1]:'<span class="empty">not found</span>')+'</span></div>';
-      }).join('');
-      var descHtml=data.description?
-        '<div style="margin-top:16px"><div class="section-label">Description</div>'+
-        '<div class="desc-box">'+data.description+'</div></div>':'';
-      var imagesHtml=data.images&&data.images.length?
-        '<div style="margin-top:16px"><div class="section-label">Images ('+data.images.length+')</div>'+
-        '<div class="img-grid">'+
-        data.images.map(function(src){
-          return '<img src="'+src+'" loading="lazy" onerror="this.style.display=\'none\'"/>';
-        }).join('')+
-        '</div></div>':'<div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">No images found.</div>';
-
-      resultsEl.innerHTML='<div class="card">'+fieldsHtml+descHtml+imagesHtml+'</div>';
+      currentData=data;
+      selectedImages={};
+      return loadDomainNotes(currentDomain).then(function(notes){
+        currentDomainNotes=notes;
+        correctedData=applyDomainRules(data,notes);
+        btn.disabled=false;
+        var ruleCount=(notes.rules||[]).length;
+        status.innerHTML='<span style="color:#4ade80">Done \u2014 '+data.imageCount+' candidate images'+(ruleCount?', '+ruleCount+' saved rule(s) applied':'')+'</span>';
+        renderResults();
+      });
     })
     .catch(function(e){
       btn.disabled=false;
-      status.innerHTML='<span style="color:#f87171">Request failed: '+e.message+'</span>';
+      status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
     });
+}
+
+function editField(field){
+  var current=correctedData[field]||'';
+  var val=prompt('Correct value for "'+field+'":',current);
+  if(val===null)return;
+  correctedData[field]=val;
+  renderResults();
+}
+
+function toggleImage(src){
+  if(selectedImages[src])delete selectedImages[src];
+  else selectedImages[src]=true;
+  renderResults();
+}
+
+function addDomainRule(){
+  var field=document.getElementById('rule-field').value;
+  var action=document.getElementById('rule-action').value;
+  var rule={field:field,action:action};
+  if(action==='extract_from'){
+    rule.source=document.getElementById('rule-source').value;
+  } else if(action==='replace'){
+    rule.find=document.getElementById('rule-find').value;
+    rule.replaceWith=document.getElementById('rule-replace').value;
+    if(!rule.find)return;
+  }
+  currentDomainNotes.rules=currentDomainNotes.rules||[];
+  currentDomainNotes.rules.push(rule);
+  correctedData=applyDomainRules(currentData,currentDomainNotes);
+  renderResults();
+}
+function removeDomainRule(idx){
+  currentDomainNotes.rules.splice(idx,1);
+  correctedData=applyDomainRules(currentData,currentDomainNotes);
+  renderResults();
+}
+function ruleActionLabel(r){
+  if(r.action==='ignore')return 'Ignore <b>'+r.field+'</b>';
+  if(r.action==='extract_from')return 'Get <b>'+r.field+'</b> from '+r.source.replace(/_/g,' ');
+  if(r.action==='replace')return 'In <b>'+r.field+'</b>, replace "'+esc(r.find)+'" \u2192 "'+esc(r.replaceWith||'')+'"';
+  return JSON.stringify(r);
+}
+
+function renderResults(){
+  var resultsEl=document.getElementById('rebrand-results');
+  var data=correctedData;
+
+  var fields=[
+    ['title','Title'],['price','Price'],['rooms','Rooms'],
+    ['bathrooms','Bathrooms'],['sqm','Sqm'],['area','Area'],['address','Address']
+  ];
+  var fieldsHtml=fields.map(function(f){
+    var wasEdited=currentData&&data[f[0]]!==currentData[f[0]];
+    return '<div class="field-row"><span class="field-label">'+f[1]+'</span>'+
+      '<span class="field-value'+(wasEdited?' edited':'')+'">'+(data[f[0]]!=null&&data[f[0]]!==''?esc(data[f[0]]):'<span class="empty">not found</span>')+'</span>'+
+      '<button class="edit-btn" onclick="editField(\''+f[0]+'\')">\u270f\ufe0f</button>'+
+      '</div>';
+  }).join('');
+
+  var descHtml='<div style="margin-top:16px">'+
+    '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Description <button class="edit-btn" onclick="editField(\'description\')">\u270f\ufe0f edit</button></div>'+
+    (data.description?'<div class="desc-box">'+esc(data.description)+'</div>':'<div class="empty" style="font-size:13px">not found</div>')+
+    '</div>';
+
+  var imagesHtml=currentData.images&&currentData.images.length?
+    '<div style="margin-top:16px"><div class="section-label">Images ('+Object.keys(selectedImages).length+' of '+currentData.images.length+' selected \u2014 tap to select)</div>'+
+    '<div class="img-grid">'+
+    currentData.images.map(function(src){
+      var sel=selectedImages[src];
+      return '<div class="img-tile'+(sel?' selected':'')+'" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\')">'+
+        '<img src="'+src+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'"/>'+
+        '<div class="img-check">\u2713</div>'+
+        '</div>';
+    }).join('')+
+    '</div></div>':'<div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">No images found.</div>';
+
+  var rulesHtml=(currentDomainNotes.rules||[]).map(function(r,idx){
+    return '<div class="rule-row"><span class="rule-text">'+ruleActionLabel(r)+'</span>'+
+      '<button class="btn-danger" onclick="removeDomainRule('+idx+')">Remove</button></div>';
+  }).join('') || '<div style="font-size:12px;color:rgba(255,255,255,.3);padding:8px 0">No saved rules for this domain yet.</div>';
+
+  var domainRulesHtml=
+    '<div class="card">'+
+    '<span class="domain-tag">'+esc(currentDomain)+'</span>'+
+    '<div class="section-label">Saved rules for this domain</div>'+
+    rulesHtml+
+    '<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
+    '<div class="section-label">Add a rule</div>'+
+    '<div class="row" style="margin-bottom:8px">'+
+    '<select id="rule-field" style="flex:1">'+
+      ['title','price','rooms','bathrooms','sqm','area','address','description'].map(function(f){return '<option value="'+f+'">'+f+'</option>';}).join('')+
+    '</select>'+
+    '<select id="rule-action" style="flex:1" onchange="onRuleActionChange()">'+
+      '<option value="ignore">Ignore this field</option>'+
+      '<option value="extract_from">Get value from elsewhere</option>'+
+      '<option value="replace">Find &amp; replace text</option>'+
+    '</select>'+
+    '</div>'+
+    '<div id="rule-extra"></div>'+
+    '<button class="btn-ghost" onclick="addDomainRule()" style="margin-top:8px">+ Add rule</button>'+
+    '</div>'+
+    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
+    '<label>Free-text notes for '+esc(currentDomain)+'</label>'+
+    '<textarea id="domain-freetext" placeholder="e.g. Double-check price manually for rental listings on this site.">'+esc(currentDomainNotes.free_text||'')+'</textarea>'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
+    '<button class="btn-ghost" onclick="saveDomainNotes()">Save domain notes</button>'+
+    '<span id="domain-save-status" style="font-size:12px;color:#4ade80"></span>'+
+    '</div></div>'+
+    '</div>';
+
+  resultsEl.innerHTML=
+    '<div class="card">'+fieldsHtml+descHtml+imagesHtml+
+    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
+    '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Scrape again</button>'+
+    '</div></div>'+
+    domainRulesHtml;
+
+  onRuleActionChange();
+}
+
+function onRuleActionChange(){
+  var action=document.getElementById('rule-action');
+  if(!action)return;
+  var extra=document.getElementById('rule-extra');
+  if(action.value==='extract_from'){
+    extra.innerHTML='<select id="rule-source" style="width:100%">'+
+      '<option value="og_title_after_comma">Page title, after the comma</option>'+
+      '<option value="url_path_last_segment">Last part of the URL</option>'+
+      '</select>';
+  } else if(action.value==='replace'){
+    extra.innerHTML='<div class="row"><input id="rule-find" placeholder="Find text\u2026"/><input id="rule-replace" placeholder="Replace with\u2026"/></div>';
+  } else {
+    extra.innerHTML='';
+  }
 }
 </script>
 </body>
