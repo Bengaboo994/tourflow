@@ -32,6 +32,15 @@ exports.handler = async function (event) {
 
   try {
     // ── 1. Take a full-page screenshot ──────────────────────────────────
+    // Try to auto-expand any collapsed "Read more / Ver más / Visa mer"
+    // description before the screenshot is taken — otherwise Claude only
+    // ever sees the short, truncated preview text.
+    const expandScript =
+      'var re=/ver\\s*m[aá]s|leer\\s*m[aá]s|mostrar\\s*m[aá]s|read\\s*more|show\\s*more|see\\s*more|mehr\\s*anzeigen|lire\\s*la\\s*suite|visa\\s*mer|l[aä]s\\s*mer/i;' +
+      'var els=document.querySelectorAll("button,a,span,div");' +
+      'for(var i=0;i<els.length;i++){var t=(els[i].textContent||"").trim();' +
+      'if(t.length>0&&t.length<40&&re.test(t)){els[i].click();break;}}';
+
     const shotUrl = 'https://api.screenshotone.com/take'
       + '?access_key=' + encodeURIComponent(SCREENSHOTONE_KEY)
       + '&url=' + encodeURIComponent(url)
@@ -41,9 +50,11 @@ exports.handler = async function (event) {
       + '&block_ads=true'
       + '&block_cookie_banners=true'
       + '&block_banners_by_heuristics=true'
+      + '&scripts=' + encodeURIComponent(expandScript)
+      + '&delay=2'
       + '&viewport_width=1400'
       + '&viewport_height=1000'
-      + '&timeout=20';
+      + '&timeout=25';
 
     const shotRes = await fetch(shotUrl);
     if (!shotRes.ok) {
@@ -91,8 +102,12 @@ exports.handler = async function (event) {
     try {
       parsed = JSON.parse(cleaned);
     } catch (e) {
-      return { statusCode: 200, headers, body: JSON.stringify({ error: 'Could not parse the AI response as JSON.', raw: rawText.slice(0, 400) }) };
+      return { statusCode: 200, headers, body: JSON.stringify({ error: 'Could not parse the AI response as JSON.', raw: rawText.slice(0, 400), screenshotPreview: 'data:image/jpeg;base64,' + base64Image }) };
     }
+
+    // Include the screenshot itself so the UI can show what Claude actually
+    // saw — invaluable for debugging cookie banners, unloaded content, etc.
+    parsed.screenshotPreview = 'data:image/jpeg;base64,' + base64Image;
 
     return { statusCode: 200, headers, body: JSON.stringify(parsed) };
 
