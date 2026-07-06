@@ -33,15 +33,6 @@ exports.handler = async function (event) {
 
   try {
     // ── 1. Take a full-page screenshot ──────────────────────────────────
-    // Try to auto-expand any collapsed "Read more / Ver más / Visa mer"
-    // description before the screenshot is taken — otherwise Claude only
-    // ever sees the short, truncated preview text.
-    const expandScript =
-      'var re=/ver\\s*m[aá]s|leer\\s*m[aá]s|mostrar\\s*m[aá]s|read\\s*more|show\\s*more|see\\s*more|mehr\\s*anzeigen|lire\\s*la\\s*suite|visa\\s*mer|l[aä]s\\s*mer/i;' +
-      'var els=document.querySelectorAll("button,a,span,div");' +
-      'for(var i=0;i<els.length;i++){var t=(els[i].textContent||"").trim();' +
-      'if(t.length>0&&t.length<40&&re.test(t)){els[i].click();break;}}';
-
     const shotUrl = 'https://api.screenshotone.com/take'
       + '?access_key=' + encodeURIComponent(SCREENSHOTONE_KEY)
       + '&url=' + encodeURIComponent(url)
@@ -51,7 +42,6 @@ exports.handler = async function (event) {
       + '&block_ads=true'
       + '&block_cookie_banners=true'
       + '&block_banners_by_heuristics=true'
-      + '&scripts=' + encodeURIComponent(expandScript)
       + '&delay=3'
       + '&viewport_width=1400'
       + '&viewport_height=1000'
