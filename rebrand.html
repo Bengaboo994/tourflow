@@ -40,7 +40,6 @@
   .rule-row{display:flex;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px}
   .rule-text{flex:1;color:rgba(255,255,255,.8)}
   #access-denied{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
-  .domain-tag{display:inline-block;background:rgba(201,161,74,.12);color:#C9A14A;font-size:11px;font-weight:600;padding:4px 10px;border-radius:100px;margin-bottom:14px}
   .cselect{position:relative}
   .cselect-btn{width:100%;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;cursor:pointer;height:auto}
   .cselect-list{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#0d1c30;border:1px solid rgba(201,161,74,.3);border-radius:8px;z-index:60;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -144,8 +143,6 @@ var currentData=null;
 var correctedData=null;
 var lockedFields={};
 var selectedImages={};
-var currentDomain='';
-var currentDomainNotes=null;
 
 function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function getDomain(url){
@@ -170,49 +167,6 @@ function checkPortalWarning(url){
   }
 }
 
-function applyDomainRules(data, notes){
-  var out=Object.assign({},data);
-  if(!notes||!notes.rules)return out;
-  notes.rules.forEach(function(rule){
-    if(rule.action==='ignore'){
-      out[rule.field]=null;
-    } else if(rule.action==='extract_from'){
-      if(rule.source==='og_title_after_comma'&&out.title&&out.title.indexOf(',')>=0){
-        out[rule.field]=out.title.split(',').slice(1).join(',').trim();
-      } else if(rule.source==='url_path_last_segment'&&out.sourceUrl){
-        try{
-          var parts=new URL(out.sourceUrl).pathname.split('/').filter(Boolean);
-          var last=parts[parts.length-1]||'';
-          out[rule.field]=last.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
-        }catch(e){}
-      }
-    } else if(rule.action==='replace'&&out[rule.field]){
-      out[rule.field]=out[rule.field].split(rule.find).join(rule.replaceWith||'');
-    }
-  });
-  return out;
-}
-
-function loadDomainNotes(domain){
-  return supa.from('rebrand_domain_notes').select('*').eq('domain',domain).maybeSingle()
-    .then(function(res){ return res.data||{domain:domain,rules:[],free_text:''}; })
-    .catch(function(){ return {domain:domain,rules:[],free_text:''}; });
-}
-function saveDomainNotes(){
-  var payload={
-    domain: currentDomain,
-    rules: currentDomainNotes.rules||[],
-    free_text: document.getElementById('domain-freetext').value,
-    updated_at: new Date().toISOString()
-  };
-  supa.from('rebrand_domain_notes').upsert(payload,{onConflict:'domain'}).then(function(){
-    document.getElementById('domain-save-status').textContent='Saved \u2713';
-    setTimeout(function(){document.getElementById('domain-save-status').textContent='';},2000);
-  }).catch(function(e){
-    document.getElementById('domain-save-status').textContent='Could not save: '+e.message;
-  });
-}
-
 function runRebrandScrape(){
   var url=document.getElementById('rebrand-url').value.trim();
   var galleryUrl=document.getElementById('rebrand-gallery-url').value.trim();
@@ -220,10 +174,10 @@ function runRebrandScrape(){
   var resultsEl=document.getElementById('rebrand-results');
   var btn=document.getElementById('rebrand-scrape-btn');
   if(!url){status.textContent='Paste a listing URL first.';return;}
-  currentDomain=getDomain(url);
-  status.textContent='Scraping\u2026';
+  status.textContent='Importing\u2026';
   resultsEl.innerHTML='';
   btn.disabled=true;
+
   fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
     .then(function(r){return r.json();})
     .then(function(data){
@@ -233,39 +187,49 @@ function runRebrandScrape(){
         return null;
       }
       currentData=data;
-      // If a separate gallery URL was given, fetch its images and use those
-      // instead — some listing sites put only a handful of photos on the
-      // main page but the full set on a dedicated gallery subpage.
-      if(galleryUrl){
-        status.textContent='Fetching gallery images\u2026';
-        return fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(galleryUrl))
+
+      // Optional separate gallery page for the image set
+      var imagesStep=galleryUrl
+        ? fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(galleryUrl))
+            .then(function(r){return r.json();})
+            .then(function(galleryData){
+              if(!galleryData.error&&galleryData.images&&galleryData.images.length){
+                currentData.images=galleryData.images;
+                currentData.imageCount=galleryData.imageCount;
+              }
+            })
+            .catch(function(){})
+        : Promise.resolve();
+
+      return imagesStep.then(function(){
+        // Quietly follow up with the AI screenshot read to fill in and improve
+        // the text fields — the person never sees this as a separate step.
+        status.textContent='Reading with AI\u2026';
+        var lang=document.getElementById('output-lang')?document.getElementById('output-lang').value:'original';
+        var langParam=lang&&lang!=='original'?'&lang='+encodeURIComponent(lang):'';
+        return fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam)
           .then(function(r){return r.json();})
-          .then(function(galleryData){
-            if(!galleryData.error&&galleryData.images&&galleryData.images.length){
-              currentData.images=galleryData.images;
-              currentData.imageCount=galleryData.imageCount;
-            }
-          })
-          .catch(function(){/* fall back to main page's images silently */});
-      }
-    })
-    .then(function(){
-      if(!currentData)return;
-      return loadDomainNotes(currentDomain).then(function(notes){
-        currentDomainNotes=notes;
-        var freshCorrected=applyDomainRules(currentData,notes);
-        var prevCorrected=correctedData;
-        correctedData=freshCorrected;
-        if(prevCorrected){
-          Object.keys(lockedFields).forEach(function(field){
-            if(lockedFields[field]) correctedData[field]=prevCorrected[field];
-          });
-        }
-        btn.disabled=false;
-        var ruleCount=(notes.rules||[]).length;
-        status.innerHTML='<span style="color:#4ade80">Done \u2014 '+currentData.imageCount+' candidate images'+(ruleCount?', '+ruleCount+' saved rule(s) applied':'')+'</span>';
-        renderResults();
+          .catch(function(){return {error:'AI read failed'};});
       });
+    })
+    .then(function(aiData){
+      if(!currentData)return;
+      var prevCorrected=correctedData;
+      correctedData=Object.assign({},currentData);
+      var aiApplied=false;
+      if(aiData&&!aiData.error){
+        ['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'].forEach(function(f){
+          if(aiData[f]!=null&&aiData[f]!==''){correctedData[f]=aiData[f];aiApplied=true;}
+        });
+      }
+      if(prevCorrected){
+        Object.keys(lockedFields).forEach(function(field){
+          if(lockedFields[field]) correctedData[field]=prevCorrected[field];
+        });
+      }
+      btn.disabled=false;
+      status.innerHTML='<span style="color:#4ade80">Done \u2014 '+currentData.imageCount+' candidate images'+(aiApplied?', text refined with AI':'')+'</span>';
+      renderResults();
     })
     .catch(function(e){
       btn.disabled=false;
@@ -303,7 +267,6 @@ function chooseCSelect(id,value){
   if(hidden)hidden.value=value;
   if(btn&&opt)btn.innerHTML=opt.textContent+' <span style="float:right;color:#C9A14A">\u25be</span>';
   list.style.display='none';
-  if(id==='rule-action')onRuleActionChange();
 }
 document.addEventListener('click',function(e){
   if(!e.target.closest('.cselect')){
@@ -361,34 +324,6 @@ function toggleImage(src){
   renderResults();
 }
 
-function addDomainRule(){
-  var field=document.getElementById('rule-field').value;
-  var action=document.getElementById('rule-action').value;
-  var rule={field:field,action:action};
-  if(action==='extract_from'){
-    rule.source=document.getElementById('rule-source').value;
-  } else if(action==='replace'){
-    rule.find=document.getElementById('rule-find').value;
-    rule.replaceWith=document.getElementById('rule-replace').value;
-    if(!rule.find)return;
-  }
-  currentDomainNotes.rules=currentDomainNotes.rules||[];
-  currentDomainNotes.rules.push(rule);
-  correctedData=applyDomainRules(currentData,currentDomainNotes);
-  renderResults();
-}
-function removeDomainRule(idx){
-  currentDomainNotes.rules.splice(idx,1);
-  correctedData=applyDomainRules(currentData,currentDomainNotes);
-  renderResults();
-}
-function ruleActionLabel(r){
-  if(r.action==='ignore')return 'Ignore <b>'+r.field+'</b>';
-  if(r.action==='extract_from')return 'Get <b>'+r.field+'</b> from '+r.source.replace(/_/g,' ');
-  if(r.action==='replace')return 'In <b>'+r.field+'</b>, replace "'+esc(r.find)+'" \u2192 "'+esc(r.replaceWith||'')+'"';
-  return JSON.stringify(r);
-}
-
 function renderResults(){
   var resultsEl=document.getElementById('rebrand-results');
   var data=correctedData;
@@ -435,49 +370,12 @@ function renderResults(){
     }).join('')+
     '</div></div>':'<div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">No images found.</div>';
 
-  var rulesHtml=(currentDomainNotes.rules||[]).map(function(r,idx){
-    return '<div class="rule-row"><span class="rule-text">'+ruleActionLabel(r)+'</span>'+
-      '<button class="btn-danger" onclick="removeDomainRule('+idx+')">Remove</button></div>';
-  }).join('') || '<div style="font-size:12px;color:rgba(255,255,255,.3);padding:8px 0">No saved rules for this domain yet.</div>';
-
-  var domainRulesHtml=
-    '<div class="card">'+
-    '<span class="domain-tag">'+esc(currentDomain)+'</span>'+
-    '<div class="section-label">Saved rules for this domain</div>'+
-    rulesHtml+
-    '<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
-    '<div class="section-label">Add a rule</div>'+
-    '<div class="row" style="margin-bottom:8px;align-items:flex-start">'+
-    '<div style="flex:1">'+customSelectHtml('rule-field',
-      ['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'].map(function(f){return{value:f,label:f};}),
-      'title')+'</div>'+
-    '<div style="flex:1">'+customSelectHtml('rule-action',[
-      {value:'ignore',label:'Ignore this field'},
-      {value:'extract_from',label:'Get value from elsewhere'},
-      {value:'replace',label:'Find & replace text'}
-    ],'ignore')+'</div>'+
-    '</div>'+
-    '<div id="rule-extra"></div>'+
-    '<button class="btn-ghost" onclick="addDomainRule()" style="margin-top:8px">+ Add rule</button>'+
-    '</div>'+
-    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
-    '<label>Free-text notes for '+esc(currentDomain)+'</label>'+
-    '<textarea id="domain-freetext" placeholder="e.g. Double-check price manually for rental listings on this site.">'+esc(currentDomainNotes.free_text||'')+'</textarea>'+
-    '<div style="display:flex;align-items:center;gap:10px;margin-top:8px">'+
-    '<button class="btn-ghost" onclick="saveDomainNotes()">Save domain notes</button>'+
-    '<span id="domain-save-status" style="font-size:12px;color:#4ade80"></span>'+
-    '</div></div>'+
-    '</div>';
-
   resultsEl.innerHTML=
     '<div class="card">'+fieldsHtml+descHtml+imagesHtml+
-    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;flex-wrap:wrap">'+
-    '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Scrape again</button>'+
-    '<button class="btn-ghost" id="ai-read-btn" onclick="runAiRead()">&#129302; AI Read (screenshot)</button>'+
+    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
+    '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Re-import this listing</button>'+
     '</div>'+
-    '<div id="ai-read-status" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:8px"></div>'+
     '</div>'+
-    domainRulesHtml+
     '<div class="card">'+
     '<div class="section-label">Agent business card (shown at the bottom of the presentation)</div>'+
     '<div class="row" style="margin-bottom:8px">'+
@@ -507,51 +405,6 @@ function renderResults(){
     '<button onclick="publishListing()" id="publish-btn" style="width:100%;margin-top:4px">Generate Presentation Link</button>'+
     '<div id="publish-result" style="margin-top:12px"></div>'+
     '</div>';
-
-  onRuleActionChange();
-}
-
-function runAiRead(){
-  var btn=document.getElementById('ai-read-btn');
-  var status=document.getElementById('ai-read-status');
-  var url=document.getElementById('rebrand-url').value.trim();
-  if(!url||!currentData){status.textContent='Scrape the listing first.';return;}
-  btn.disabled=true;btn.textContent='\u23f3 Reading screenshot\u2026 (can take 10\u201320s)';
-  status.textContent='';
-  var lang=document.getElementById('output-lang')?document.getElementById('output-lang').value:'original';
-  var langParam=lang&&lang!=='original'?'&lang='+encodeURIComponent(lang):'';
-  fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
-      if(data.error){
-        status.innerHTML='<span style="color:#f87171">'+esc(data.error)+'</span>';
-        return;
-      }
-      var fieldsToMerge=['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'];
-      var applied=[];
-      fieldsToMerge.forEach(function(f){
-        if(lockedFields[f])return; // never overwrite something already locked
-        if(data[f]!=null&&data[f]!==''){
-          correctedData[f]=data[f];
-          applied.push(f);
-        }
-      });
-      renderResults();
-      var freshStatus=document.getElementById('ai-read-status');
-      if(freshStatus){
-        var statusMsg=applied.length?
-          '<span style="color:#4ade80">AI updated: '+applied.join(', ')+'</span>':
-          '<span style="color:#f87171">AI found nothing on this screenshot \u2014 see below, might be a cookie banner or unloaded page.</span>';
-        var previewHtml=data.screenshotPreview?
-          '<div style="margin-top:10px"><img src="'+data.screenshotPreview+'" style="max-width:100%;border-radius:8px;border:1px solid rgba(201,161,74,.3)"/></div>':'';
-        freshStatus.innerHTML=statusMsg+previewHtml;
-      }
-    })
-    .catch(function(e){
-      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
-      status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
-    });
 }
 
 function saveAgentCardField(field,value){
@@ -620,22 +473,6 @@ function publishListing(){
     btn.disabled=false;btn.textContent='Generate Presentation Link';
     resultEl.innerHTML='<span style="color:#f87171;font-size:12px">Could not publish: '+esc(e.message)+'</span>';
   });
-}
-
-function onRuleActionChange(){
-  var action=document.getElementById('rule-action');
-  if(!action)return;
-  var extra=document.getElementById('rule-extra');
-  if(action.value==='extract_from'){
-    extra.innerHTML=customSelectHtml('rule-source',[
-      {value:'og_title_after_comma',label:'Page title, after the comma'},
-      {value:'url_path_last_segment',label:'Last part of the URL'}
-    ],'og_title_after_comma');
-  } else if(action.value==='replace'){
-    extra.innerHTML='<div class="row"><input id="rule-find" placeholder="Find text\u2026"/><input id="rule-replace" placeholder="Replace with\u2026"/></div>';
-  } else {
-    extra.innerHTML='';
-  }
 }
 </script>
 </body>
