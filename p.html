@@ -36,6 +36,16 @@
   .price-label{font-size:11px;color:#8a857c;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
   .price{font-family:Georgia,serif;font-size:28px;font-weight:600;color:#C9A14A}
 
+  .costs-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:22px}
+  .cost-item{font-size:13px;color:#4a4744}
+  .cost-item b{color:#1A1917;font-weight:700}
+
+  .features-section{margin-bottom:26px}
+  .features-label{font-size:11px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+  .feature-badges{display:flex;flex-wrap:wrap;gap:8px}
+  .feature-badge{background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:8px 14px;font-size:12px;font-weight:600;color:#1A1917;display:inline-flex;align-items:center;gap:5px}
+  .feature-badge svg{flex-shrink:0}
+
   .desc-section{margin-bottom:28px}
   .desc-label{font-size:11px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
   .desc{font-size:14px;color:#4a4744;line-height:1.75;white-space:pre-line;position:relative}
@@ -101,6 +111,13 @@
     <div class="price-block">
       <div class="price-label">Asking Price</div>
       <div class="price" id="price"></div>
+    </div>
+
+    <div class="costs-row" id="costs-row"></div>
+
+    <div class="features-section" id="features-section" style="display:none">
+      <div class="features-label">Features</div>
+      <div class="feature-badges" id="feature-badges"></div>
     </div>
 
     <div class="desc-section" id="desc-section" style="display:none">
@@ -218,6 +235,20 @@ function render(data){
 
   document.getElementById('price').textContent=data.price||'Price on request';
 
+  var costs=[];
+  if(data.community_fee)costs.push('<span class="cost-item">Community fee <b>'+esc(data.community_fee)+'</b></span>');
+  if(data.ibi)costs.push('<span class="cost-item">IBI <b>'+esc(data.ibi)+'</b></span>');
+  if(data.garbage_fee)costs.push('<span class="cost-item">Garbage fee <b>'+esc(data.garbage_fee)+'</b></span>');
+  if(data.energy_class)costs.push('<span class="cost-item">Energy rating <b>'+esc(data.energy_class)+'</b></span>');
+  document.getElementById('costs-row').innerHTML=costs.join('');
+
+  if(data.features&&data.features.length){
+    document.getElementById('features-section').style.display='block';
+    document.getElementById('feature-badges').innerHTML=data.features.map(function(f){
+      return '<span class="feature-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'+esc(f)+'</span>';
+    }).join('');
+  }
+
   if(data.description){
     document.getElementById('desc-section').style.display='block';
     document.getElementById('desc').textContent=data.description;
@@ -260,7 +291,7 @@ var id=getParam('id');
 if(!id){
   showNotFound();
 } else {
-  fetch(SUPA_URL+'/rest/v1/rebrand_listings?id=eq.'+encodeURIComponent(id)+'&select=title,price,rooms,bathrooms,sqm,plot_size,area,address,description,images,agent_name,agent_title,agent_agency,agent_phone,agent_email,agent_photo',{
+  fetch(SUPA_URL+'/rest/v1/rebrand_listings?id=eq.'+encodeURIComponent(id)+'&select=title,price,rooms,bathrooms,sqm,plot_size,area,address,description,images,agent_name,agent_title,agent_agency,agent_phone,agent_email,agent_photo,community_fee,ibi,garbage_fee,features,energy_class',{
     headers:{'apikey':SUPA_KEY}
   })
   .then(function(r){return r.json();})
