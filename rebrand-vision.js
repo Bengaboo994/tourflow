@@ -52,7 +52,7 @@ exports.handler = async function (event) {
       + '&block_cookie_banners=true'
       + '&block_banners_by_heuristics=true'
       + '&scripts=' + encodeURIComponent(expandScript)
-      + '&delay=2'
+      + '&delay=3'
       + '&viewport_width=1400'
       + '&viewport_height=1000'
       + '&timeout=25';
@@ -87,7 +87,7 @@ exports.handler = async function (event) {
             {
               type: 'text',
               text: 'This is a screenshot of a real estate listing page. Read it like a person would and return ONLY a raw JSON object — no markdown fences, no explanation, nothing before or after — with exactly these fields: '
-                + '{"title": string or null (never include any internal reference/listing ID number, even if visible on the page; if no explicit title is shown on the page, create a short, natural one yourself from the description and other visible facts — e.g. property type + bedrooms + area, like "2-Bedroom Apartment in Sarrià-Sant Gervasi" — only use null if there truly isn\u2019t enough information to form any reasonable title), "price": string or null (include the currency symbol), "rooms": string or null (bedrooms, just the number), "bathrooms": string or null (just the number), "sqm": string or null (built size, just the number), "plotSize": string or null (plot/land size if shown, just the number), "area": string or null (neighbourhood/town), "address": string or null, "description": string or null (the actual property description written by the agent, NOT generic agency marketing copy about the agency itself — if you cannot find a real per-property description, use null instead of guessing. Include the FULL description, do not summarize or shorten it — up to 3000 characters)}. '
+                + '{"title": string or null (never include any internal reference/listing ID number, even if visible on the page; NEVER use breadcrumb/navigation trail text like "Sale » Villa » Orihuela Costa » La Zenia" as the title — that\u2019s navigation, not a title; if no real headline title is shown, create a short natural one yourself from the description and other visible facts — e.g. property type + bedrooms + area, like "2-Bedroom Apartment in Sarrià-Sant Gervasi" — only use null if there truly isn\u2019t enough information to form any reasonable title), "price": string or null (include the currency symbol; look for a large, prominent number near the top of the page, often the single biggest number shown), "rooms": string or null (bedrooms — look carefully near a bed icon or a number followed by "bed"/"bedrooms"/"hab"/"dormitorio", just the number), "bathrooms": string or null (just the number, look near a bath icon), "sqm": string or null (built size — look near a house icon, "m\u00b2 built", "built size", or similar, just the number), "plotSize": string or null (plot/land size — often a separate, larger number near a different icon than built size, just the number), "area": string or null (neighbourhood/town), "address": string or null, "description": string or null (the actual property description written by the agent, NOT generic agency marketing copy about the agency itself and NOT breadcrumb navigation text — if you cannot find a real per-property description, use null instead of guessing. Include the FULL description, do not summarize or shorten it — up to 3000 characters)}. Take your time to look at the whole image carefully, including small icon+number rows near the top, before deciding a field is missing. '
                 + langInstruction
             }
           ]
