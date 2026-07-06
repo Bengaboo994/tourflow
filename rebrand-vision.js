@@ -17,6 +17,7 @@ exports.handler = async function (event) {
   };
 
   const url = event.queryStringParameters && event.queryStringParameters.url;
+  const lang = event.queryStringParameters && event.queryStringParameters.lang;
   if (!url) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'No URL provided' }) };
   }
@@ -65,6 +66,10 @@ exports.handler = async function (event) {
     const base64Image = Buffer.from(shotBuffer).toString('base64');
 
     // ── 2. Ask Claude to read the listing off the screenshot ────────────
+    const langInstruction = lang
+      ? ('Write the "title" and "description" fields in ' + lang + ', translating naturally as a native speaker would (not a literal word-for-word translation). Keep numbers, the currency symbol, and proper nouns like street names or neighbourhood names as-is — do not translate place names.')
+      : 'Write "title" and "description" in the same language as the page.';
+
     const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -82,7 +87,8 @@ exports.handler = async function (event) {
             {
               type: 'text',
               text: 'This is a screenshot of a real estate listing page. Read it like a person would and return ONLY a raw JSON object — no markdown fences, no explanation, nothing before or after — with exactly these fields: '
-                + '{"title": string or null (never include any internal reference/listing ID number, even if visible on the page), "price": string or null (include the currency symbol), "rooms": string or null (bedrooms, just the number), "bathrooms": string or null (just the number), "sqm": string or null (built size, just the number), "plotSize": string or null (plot/land size if shown, just the number), "area": string or null (neighbourhood/town), "address": string or null, "description": string or null (the actual property description written by the agent, NOT generic agency marketing copy about the agency itself — if you cannot find a real per-property description, use null instead of guessing. Include the FULL description, do not summarize or shorten it — up to 3000 characters, in the same language as the page)}.'
+                + '{"title": string or null (never include any internal reference/listing ID number, even if visible on the page), "price": string or null (include the currency symbol), "rooms": string or null (bedrooms, just the number), "bathrooms": string or null (just the number), "sqm": string or null (built size, just the number), "plotSize": string or null (plot/land size if shown, just the number), "area": string or null (neighbourhood/town), "address": string or null, "description": string or null (the actual property description written by the agent, NOT generic agency marketing copy about the agency itself — if you cannot find a real per-property description, use null instead of guessing. Include the FULL description, do not summarize or shorten it — up to 3000 characters)}. '
+                + langInstruction
             }
           ]
         }]
