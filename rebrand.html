@@ -51,6 +51,14 @@
   .img-tile-actions{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:3px;background:linear-gradient(transparent,rgba(0,0,0,.65))}
   .img-tile-actions button{background:rgba(7,18,38,.75);color:#fff;border:none;border-radius:4px;padding:2px 6px;font-size:11px;height:auto;cursor:pointer}
   .img-delete-btn{position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:rgba(220,38,38,.85);color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+  .step-label{font-size:11px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.14em;margin:26px 0 10px}
+  .update-banner{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.35);border-radius:10px;padding:14px 16px;font-size:14px;font-weight:600;color:#4ade80;margin-top:14px;line-height:1.5}
+  .thinking{display:flex;align-items:center;gap:12px;padding:16px;background:rgba(201,161,74,.06);border:1px solid rgba(201,161,74,.2);border-radius:10px;margin-top:14px}
+  .thinking-spinner{width:22px;height:22px;border-radius:50%;border:2.5px solid rgba(201,161,74,.2);border-top-color:#C9A14A;animation:tf-spin 0.9s linear infinite;flex-shrink:0}
+  @keyframes tf-spin{to{transform:rotate(360deg)}}
+  .thinking-text{font-size:13px;color:#C9A14A;font-weight:600}
+  .img-collapsed-summary{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(201,161,74,.2);border-radius:10px;padding:14px 16px;cursor:pointer;margin-top:8px}
+  .img-tile.dragging{opacity:.4}
 </style>
 </head>
 <body>
@@ -63,24 +71,55 @@
 </div>
 
 <div class="wrap" id="main-content" style="display:none">
-  <a class="back" href="/"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <a class="back" href="/"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
+    <button onclick="toggleSettings()" style="background:none;border:none;color:rgba(201,161,74,.6);cursor:pointer;padding:0;height:auto" title="Your contact card">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
   <h1>Rebrand <span style="opacity:.5;font-size:18px;font-weight:400">(Pilot)</span></h1>
-  <div class="sub">Step 1: scraping &amp; review. No AI rewriting yet.</div>
+  <div class="sub">Turn any listing into a polished TourFlow presentation.</div>
   <div style="font-size:11px;color:rgba(255,255,255,.3);line-height:1.6;border-left:2px solid rgba(201,161,74,.25);padding:10px 14px;margin-bottom:22px">
     <b style="color:rgba(255,255,255,.45)">Please review before publishing.</b><br>
     Rebrand helps you import property content automatically. Before sharing or publishing, ensure you have permission to use any imported text or images. We recommend confirming reuse rights with the listing agent and reviewing all content for accuracy.
   </div>
 
+  <div class="card" id="settings-card" style="display:none">
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Your Contact Card <button class="edit-btn" onclick="toggleSettings()" style="font-size:16px">&times;</button></div>
+    <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px">Saved once, used automatically on every listing you publish.</div>
+    <div class="row" style="margin-bottom:8px">
+      <input id="settings-agent-name" placeholder="Name"/>
+      <input id="settings-agent-title" placeholder="Title"/>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <input id="settings-agent-agency" placeholder="Agency"/>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <input id="settings-agent-phone" placeholder="Phone (e.g. +34...)"/>
+      <input id="settings-agent-email" placeholder="Email"/>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div id="settings-photo-preview" style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(201,161,74,.2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center"><span style="font-size:16px;opacity:.3">&#128100;</span></div>
+      <label class="btn-ghost" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">Upload photo
+        <input type="file" accept="image/*" style="display:none" onchange="uploadSettingsPhoto(this)"/>
+      </label>
+    </div>
+    <input id="settings-agent-photo" placeholder="...or paste a photo URL instead" oninput="updateSettingsPhotoPreview(this.value)" style="margin-top:8px;margin-bottom:10px"/>
+    <button class="btn-ghost" onclick="saveSettings()" style="width:100%">Save Contact Card</button>
+    <div id="settings-save-status" style="font-size:12px;color:#4ade80;margin-top:8px"></div>
+  </div>
+
+  <div class="step-label">Step 1 &middot; Import</div>
   <div class="card">
     <label>Listing URL</label>
     <div class="row">
       <input id="rebrand-url" placeholder="https://reveny.es/..." oninput="checkPortalWarning(this.value)"/>
-      <button id="rebrand-scrape-btn" onclick="runRebrandScrape()">Scrape</button>
+      <button id="rebrand-scrape-btn" onclick="runRebrandScrape()">Import</button>
     </div>
     <div id="portal-warning" style="display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:12px 14px;margin-top:10px;font-size:12px;color:#fca5a5;line-height:1.6"></div>
     <label style="margin-top:14px">Gallery URL <span style="text-transform:none;font-weight:400;opacity:.5">(optional — only if the main page has few photos but a separate gallery page has more)</span></label>
     <input id="rebrand-gallery-url" placeholder="https://.../galeria (leave empty to use the main URL)"/>
-    <label style="margin-top:14px">Output language <span style="text-transform:none;font-weight:400;opacity:.5">(applies to AI Read — title &amp; description)</span></label>
+    <label style="margin-top:14px">Output language <span style="text-transform:none;font-weight:400;opacity:.5">(applies to Step 3 — title &amp; description)</span></label>
     <div id="lang-select-wrap"></div>
     <div id="status"></div>
   </div>
@@ -142,6 +181,9 @@ init();
 var currentData=null;
 var correctedData=null;
 var lockedFields={};
+var featureState={}; // { "Private pool": true/false }
+var imagesCollapsed=false;
+var dragSrcIdx=null;
 var selectedImages={};
 
 function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -177,6 +219,7 @@ function runRebrandScrape(){
   status.textContent='Scraping\u2026';
   resultsEl.innerHTML='';
   btn.disabled=true;
+  imagesCollapsed=false;
 
   fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
     .then(function(r){return r.json();})
@@ -219,46 +262,52 @@ function runRebrandScrape(){
     });
 }
 
+var FRIENDLY_FIELD_NAMES={title:'Title',price:'Price',rooms:'Rooms',bathrooms:'Bathrooms',sqm:'Sqm',plotSize:'Plot',area:'Area',address:'Address',communityFee:'Community Fee',ibi:'IBI',garbageFee:'Garbage Fee',energyClass:'Energy Class',description:'Description',features:'Features'};
+
 function runAiRead(){
   var btn=document.getElementById('ai-read-btn');
   var status=document.getElementById('ai-read-status');
   var url=document.getElementById('rebrand-url').value.trim();
-  if(!url||!currentData){if(status)status.textContent='Scrape the listing first.';return;}
-  btn.disabled=true;btn.textContent='\u23f3 Reading screenshot\u2026 (can take 10\u201320s)';
-  status.textContent='';
+  if(!url||!currentData){if(status)status.textContent='Import the listing first.';return;}
+  btn.disabled=true;
+  status.innerHTML='<div class="thinking"><div class="thinking-spinner"></div><div class="thinking-text">Preparing your presentation\u2026 this can take up to 20 seconds</div></div>';
   var lang=document.getElementById('output-lang')?document.getElementById('output-lang').value:'original';
   var langParam=lang&&lang!=='original'?'&lang='+encodeURIComponent(lang):'';
   fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam)
     .then(function(r){return r.json();})
     .then(function(data){
-      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
+      btn.disabled=false;
       if(data.error){
-        status.innerHTML='<span style="color:#f87171">'+esc(data.error)+'</span>';
+        status.innerHTML='<span style="color:#f87171;font-size:12px">'+esc(data.error)+'</span>';
         return;
       }
-      var fieldsToMerge=['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'];
+      var fieldsToMerge=['title','price','rooms','bathrooms','sqm','plotSize','area','address','communityFee','ibi','garbageFee','energyClass','description'];
       var applied=[];
       fieldsToMerge.forEach(function(f){
         if(lockedFields[f])return;
         if(data[f]!=null&&data[f]!==''){
           correctedData[f]=data[f];
-          applied.push(f);
+          applied.push(FRIENDLY_FIELD_NAMES[f]||f);
         }
       });
+      if(data.features&&data.features.length&&!lockedFields.features){
+        featureState=featureState||{};
+        data.features.forEach(function(f){
+          if(!(f in featureState)) featureState[f]=true;
+        });
+        applied.push('Features');
+      }
       renderResults();
       var freshStatus=document.getElementById('ai-read-status');
       if(freshStatus){
-        var statusMsg=applied.length?
-          '<span style="color:#4ade80">AI updated: '+applied.join(', ')+' \u2014 double-check these before locking.</span>':
-          '<span style="color:#f87171">AI found nothing on this screenshot \u2014 see below, might be a cookie banner or unloaded page.</span>';
-        var previewHtml=data.screenshotPreview?
-          '<div style="margin-top:10px"><img src="'+data.screenshotPreview+'" style="max-width:100%;border-radius:8px;border:1px solid rgba(201,161,74,.3)"/></div>':'';
-        freshStatus.innerHTML=statusMsg+previewHtml;
+        freshStatus.innerHTML=applied.length?
+          '<div class="update-banner">\u2713 Updated: '+applied.join(', ')+'<br><span style="font-weight:400;font-size:12px;opacity:.85">Double-check these before locking them in.</span></div>':
+          '<div class="update-banner" style="background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.35);color:#fca5a5">Nothing new was found \u2014 the page may not have loaded fully. Try again in a moment.</div>';
       }
     })
     .catch(function(e){
-      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
-      status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
+      btn.disabled=false;
+      status.innerHTML='<span style="color:#f87171;font-size:12px">Request failed: '+esc(e.message)+'</span>';
     });
 }
 
@@ -323,6 +372,28 @@ function moveImage(idx,dir){
   var tmp=imgs[idx];imgs[idx]=imgs[newIdx];imgs[newIdx]=tmp;
   renderResults();
 }
+function onImgDragStart(e,idx){
+  dragSrcIdx=idx;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed='move';
+}
+function onImgDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+}
+function onImgDrop(e,idx){
+  e.preventDefault();
+  if(dragSrcIdx===null||dragSrcIdx===idx)return;
+  var imgs=currentData.images;
+  var moved=imgs.splice(dragSrcIdx,1)[0];
+  imgs.splice(idx,0,moved);
+  dragSrcIdx=null;
+  renderResults();
+}
+function onImgDragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  dragSrcIdx=null;
+}
 function deleteImage(idx){
   var src=currentData.images[idx];
   currentData.images.splice(idx,1);
@@ -349,13 +420,27 @@ function toggleImage(src){
   renderResults();
 }
 
+function toggleFeature(key){
+  featureState[key]=!featureState[key];
+  renderResults();
+}
+function addCustomFeature(){
+  var input=document.getElementById('custom-feature-input');
+  var val=input.value.trim();
+  if(!val)return;
+  featureState[val]=true;
+  input.value='';
+  renderResults();
+}
+
 function renderResults(){
   var resultsEl=document.getElementById('rebrand-results');
   var data=correctedData;
 
   var fields=[
     ['title','Title'],['price','Price'],['rooms','Rooms'],
-    ['bathrooms','Bathrooms'],['sqm','Sqm'],['plotSize','Plot (m\u00b2)'],['area','Area'],['address','Address']
+    ['bathrooms','Bathrooms'],['sqm','Sqm'],['plotSize','Plot (m\u00b2)'],['area','Area'],['address','Address'],
+    ['communityFee','Community Fee'],['ibi','IBI / Property Tax'],['garbageFee','Garbage Fee'],['energyClass','Energy Class']
   ];
   var fieldsHtml=fields.map(function(f){
     var wasEdited=currentData&&data[f[0]]!==currentData[f[0]];
@@ -378,55 +463,80 @@ function renderResults(){
       :(data.description?'<div class="desc-box">'+esc(data.description)+'</div>':'<div class="empty" style="font-size:13px">not found</div>'))+
     '</div>';
 
-  var imagesHtml=currentData.images&&currentData.images.length?
-    '<div style="margin-top:16px"><div class="section-label">Images ('+Object.keys(selectedImages).length+' of '+currentData.images.length+' selected \u2014 tap to select, arrows to reorder, \u00d7 to remove)</div>'+
-    '<div class="img-grid">'+
-    currentData.images.map(function(src,idx){
-      var sel=selectedImages[src];
-      return '<div class="img-tile'+(sel?' selected':'')+'">'+
-        '<img src="'+src+'" loading="lazy" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\')" onerror="this.parentElement.style.display=\'none\'"/>'+
-        '<div class="img-check">\u2713</div>'+
-        '<button class="img-delete-btn" onclick="event.stopPropagation();deleteImage('+idx+')" title="Remove">\u00d7</button>'+
-        '<div class="img-tile-actions">'+
-        '<button onclick="event.stopPropagation();moveImage('+idx+',-1)" '+(idx===0?'disabled style="opacity:.3"':'')+'>\u2039</button>'+
-        '<button onclick="event.stopPropagation();moveImage('+idx+',1)" '+(idx===currentData.images.length-1?'disabled style="opacity:.3"':'')+'>\u203a</button>'+
-        '</div>'+
-        '</div>';
-    }).join('')+
-    '</div></div>':'<div style="margin-top:16px;font-size:12px;color:rgba(255,255,255,.3)">No images found.</div>';
+  var featureKeys=Object.keys(featureState);
+  var selectedCount=featureKeys.filter(function(k){return featureState[k];}).length;
+  var featuresHtml='<div style="margin-top:16px">'+
+    '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Features '+
+    '<button class="edit-btn" onclick="toggleFieldLock(\'features\')">'+(lockedFields.features?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
+    '</div>'+
+    (featureKeys.length?
+      '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:8px">'+selectedCount+' of '+featureKeys.length+' selected \u2014 shown as badges on the presentation</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">'+
+      featureKeys.map(function(k){
+        var on=featureState[k];
+        return '<button onclick="toggleFeature(\''+esc(k).replace(/'/g,"\\'")+'\')" style="background:'+(on?'rgba(201,161,74,.15)':'rgba(255,255,255,.03)')+';border:1px solid '+(on?'rgba(201,161,74,.5)':'rgba(255,255,255,.1)')+';color:'+(on?'#C9A14A':'rgba(255,255,255,.35)')+';border-radius:100px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">'+(on?'\u2713 ':'')+esc(k)+'</button>';
+      }).join('')+
+      '</div>'
+      :'<div class="empty" style="font-size:13px;margin-bottom:10px">No features detected yet \u2014 try Step 3 below.</div>')+
+    '<div class="row">'+
+    '<input id="custom-feature-input" placeholder="Add a custom feature\u2026" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addCustomFeature();}"/>'+
+    '<button class="btn-ghost" onclick="addCustomFeature()">Add</button>'+
+    '</div>'+
+    '</div>';
+
+  var step1Card='<div class="card">'+fieldsHtml+descHtml+featuresHtml+
+    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.35);line-height:1.6">'+
+    'Tap \ud83d\udd13 next to any field that\u2019s already correct to lock \ud83d\udd12 it \u2014 locked fields are never overwritten by Step 3.'+
+    '</div>'+
+    '<button class="btn-ghost" onclick="runRebrandScrape()" style="margin-top:12px">&#8635; Re-import</button>'+
+    '</div>';
+
+  var imgCount=currentData.images?currentData.images.length:0;
+  var selCount=Object.keys(selectedImages).length;
+  var imagesHtml;
+  if(!imgCount){
+    imagesHtml='<div class="card"><div class="empty" style="font-size:13px">No images found.</div></div>';
+  } else if(imagesCollapsed){
+    imagesHtml='<div class="card">'+
+      '<div class="img-collapsed-summary" onclick="imagesCollapsed=false;renderResults()">'+
+      '<span style="font-size:13px;color:#fff;font-weight:600">'+selCount+' of '+imgCount+' images selected</span>'+
+      '<span style="font-size:12px;color:#C9A14A">Edit \u203a</span>'+
+      '</div></div>';
+  } else {
+    imagesHtml='<div class="card">'+
+      '<div class="section-label">Images ('+selCount+' of '+imgCount+' selected \u2014 drag or use arrows to reorder, tap to select, \u00d7 to remove)</div>'+
+      '<div class="img-grid" id="img-grid">'+
+      currentData.images.map(function(src,idx){
+        var sel=selectedImages[src];
+        return '<div class="img-tile'+(sel?' selected':'')+'" draggable="true" data-idx="'+idx+'" ondragstart="onImgDragStart(event,'+idx+')" ondragover="onImgDragOver(event)" ondrop="onImgDrop(event,'+idx+')" ondragend="onImgDragEnd(event)">'+
+          '<img src="'+src+'" loading="lazy" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\')" onerror="this.parentElement.style.display=\'none\'"/>'+
+          '<div class="img-check">\u2713</div>'+
+          '<button class="img-delete-btn" onclick="event.stopPropagation();deleteImage('+idx+')" title="Remove">\u00d7</button>'+
+          '<div class="img-tile-actions">'+
+          '<button onclick="event.stopPropagation();moveImage('+idx+',-1)" '+(idx===0?'disabled style="opacity:.3"':'')+'>\u2039</button>'+
+          '<button onclick="event.stopPropagation();moveImage('+idx+',1)" '+(idx===imgCount-1?'disabled style="opacity:.3"':'')+'>\u203a</button>'+
+          '</div>'+
+          '</div>';
+      }).join('')+
+      '</div>'+
+      '<button onclick="imagesCollapsed=true;renderResults()" style="width:100%;margin-top:14px">Done</button>'+
+      '</div>';
+  }
+
+  var aiSection='<div class="card">'+
+    '<div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:12px">Improve the title, description and details using AI, and detect features and energy rating automatically.</div>'+
+    '<button class="btn-ghost" id="ai-read-btn" onclick="runAiRead()" style="width:100%">Enhance Listing</button>'+
+    '<div id="ai-read-status"></div>'+
+    '</div>';
 
   resultsEl.innerHTML=
-    '<div class="card">'+fieldsHtml+descHtml+imagesHtml+
-    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;flex-wrap:wrap">'+
-    '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Scrape again</button>'+
-    '<button class="btn-ghost" id="ai-read-btn" onclick="runAiRead()">&#129302; AI Read (screenshot)</button>'+
-    '</div>'+
-    '<div id="ai-read-status" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:8px"></div>'+
-    '</div>'+
-    '<div class="card">'+
-    '<div class="section-label">Agent business card (shown at the bottom of the presentation)</div>'+
-    '<div class="row" style="margin-bottom:8px">'+
-    '<input id="agent-name" placeholder="Name" oninput="saveAgentCardField(\'name\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.name||'Niklas Bengtsson')+'"/>'+
-    '<input id="agent-title" placeholder="Title" oninput="saveAgentCardField(\'title\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.title||'Your Property Consultant')+'"/>'+
-    '</div>'+
-    '<div class="row" style="margin-bottom:8px">'+
-    '<input id="agent-agency" placeholder="Agency" oninput="saveAgentCardField(\'agency\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.agency||'Reveny Properties')+'"/>'+
-    '</div>'+
-    '<div class="row" style="margin-bottom:8px">'+
-    '<input id="agent-phone" placeholder="Phone (e.g. +34...)" oninput="saveAgentCardField(\'phone\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.phone||'')+'"/>'+
-    '<input id="agent-email" placeholder="Email" oninput="saveAgentCardField(\'email\',this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.email||'')+'"/>'+
-    '</div>'+
-    '<div style="margin-bottom:4px">'+
-    '<div style="display:flex;gap:8px;align-items:center">'+
-    '<div id="agent-photo-preview" style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(201,161,74,.2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">'+
-    (window.__lastAgentCard&&window.__lastAgentCard.photo?'<img src="'+esc(window.__lastAgentCard.photo)+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:16px;opacity:.3">\ud83d\udc64</span>')+
-    '</div>'+
-    '<label class="btn-ghost" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">Upload photo'+
-    '<input type="file" accept="image/*" style="display:none" onchange="uploadAgentPhoto(this)"/>'+
-    '</label>'+
-    '</div>'+
-    '<input id="agent-photo" placeholder="...or paste a photo URL instead" oninput="saveAgentCardField(\'photo\',this.value);updateAgentPhotoPreview(this.value)" value="'+esc(window.__lastAgentCard&&window.__lastAgentCard.photo||'')+'" style="margin-top:8px"/>'+
-    '</div>'+
+    '<div class="step-label">Step 1 &middot; Review</div>'+
+    step1Card+
+    '<div class="step-label">Step 2 &middot; Select Photos</div>'+
+    imagesHtml+
+    '<div class="step-label">Step 3 &middot; Enhance</div>'+
+    aiSection+
+    '<div class="step-label">Step 4 &middot; Publish</div>'+
     '<div class="card">'+
     '<div class="section-label">When you\'re happy with everything above</div>'+
     '<button onclick="publishListing()" id="publish-btn" style="width:100%;margin-top:4px">Generate Presentation Link</button>'+
@@ -434,25 +544,59 @@ function renderResults(){
     '</div>';
 }
 
-function saveAgentCardField(field,value){
-  window.__lastAgentCard=window.__lastAgentCard||{};
-  window.__lastAgentCard[field]=value;
+// ── Settings (agent contact card) — saved once in localStorage, reused every time ──
+var SETTINGS_KEY='tf_rebrand_agent_settings';
+function toggleSettings(){
+  var card=document.getElementById('settings-card');
+  var isOpen=card.style.display!=='none';
+  if(!isOpen)loadSettingsIntoForm();
+  card.style.display=isOpen?'none':'block';
 }
-function updateAgentPhotoPreview(url){
-  var preview=document.getElementById('agent-photo-preview');
+function loadSettings(){
+  try{
+    var raw=localStorage.getItem(SETTINGS_KEY);
+    return raw?JSON.parse(raw):{name:'Niklas Bengtsson',title:'Your Property Consultant',agency:'Reveny Properties',phone:'',email:'',photo:''};
+  }catch(e){
+    return {name:'Niklas Bengtsson',title:'Your Property Consultant',agency:'Reveny Properties',phone:'',email:'',photo:''};
+  }
+}
+function loadSettingsIntoForm(){
+  var s=loadSettings();
+  document.getElementById('settings-agent-name').value=s.name||'';
+  document.getElementById('settings-agent-title').value=s.title||'';
+  document.getElementById('settings-agent-agency').value=s.agency||'';
+  document.getElementById('settings-agent-phone').value=s.phone||'';
+  document.getElementById('settings-agent-email').value=s.email||'';
+  document.getElementById('settings-agent-photo').value=s.photo||'';
+  updateSettingsPhotoPreview(s.photo||'');
+}
+function saveSettings(){
+  var s={
+    name:document.getElementById('settings-agent-name').value,
+    title:document.getElementById('settings-agent-title').value,
+    agency:document.getElementById('settings-agent-agency').value,
+    phone:document.getElementById('settings-agent-phone').value,
+    email:document.getElementById('settings-agent-email').value,
+    photo:document.getElementById('settings-agent-photo').value
+  };
+  localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
+  var status=document.getElementById('settings-save-status');
+  status.textContent='Saved \u2713';
+  setTimeout(function(){status.textContent='';},2000);
+}
+function updateSettingsPhotoPreview(url){
+  var preview=document.getElementById('settings-photo-preview');
   if(!preview)return;
   preview.innerHTML=url?'<img src="'+url.replace(/"/g,'&quot;')+'" style="width:100%;height:100%;object-fit:cover"/>':'<span style="font-size:16px;opacity:.3">\ud83d\udc64</span>';
 }
-function uploadAgentPhoto(input){
+function uploadSettingsPhoto(input){
   var file=input.files[0];
   if(!file)return;
   var reader=new FileReader();
   reader.onload=function(e){
     var dataUrl=e.target.result;
-    saveAgentCardField('photo',dataUrl);
-    var urlField=document.getElementById('agent-photo');
-    if(urlField)urlField.value=''; // uploaded photo takes priority over the URL field
-    updateAgentPhotoPreview(dataUrl);
+    document.getElementById('settings-agent-photo').value=dataUrl;
+    updateSettingsPhotoPreview(dataUrl);
   };
   reader.readAsDataURL(file);
 }
@@ -461,12 +605,14 @@ function publishListing(){
   var btn=document.getElementById('publish-btn');
   var resultEl=document.getElementById('publish-result');
   var chosenImages=Object.keys(selectedImages);
+  var chosenFeatures=Object.keys(featureState).filter(function(k){return featureState[k];});
   if(!chosenImages.length){
     resultEl.innerHTML='<span style="color:#f87171;font-size:12px">Select at least one image first.</span>';
     return;
   }
   btn.disabled=true;btn.textContent='Publishing\u2026';
   var id='p'+Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+  var agentSettings=loadSettings();
   var payload={
     id:id,
     title:correctedData.title||null,
@@ -477,14 +623,19 @@ function publishListing(){
     plot_size:correctedData.plotSize||null,
     area:correctedData.area||null,
     address:correctedData.address||null,
+    community_fee:correctedData.communityFee||null,
+    ibi:correctedData.ibi||null,
+    garbage_fee:correctedData.garbageFee||null,
+    energy_class:correctedData.energyClass||null,
+    features:chosenFeatures,
     description:correctedData.description||null,
     images:chosenImages,
-    agent_name:document.getElementById('agent-name').value||null,
-    agent_title:document.getElementById('agent-title').value||null,
-    agent_agency:document.getElementById('agent-agency').value||null,
-    agent_phone:document.getElementById('agent-phone').value||null,
-    agent_email:document.getElementById('agent-email').value||null,
-    agent_photo:(window.__lastAgentCard&&window.__lastAgentCard.photo)||document.getElementById('agent-photo').value||null,
+    agent_name:agentSettings.name||null,
+    agent_title:agentSettings.title||null,
+    agent_agency:agentSettings.agency||null,
+    agent_phone:agentSettings.phone||null,
+    agent_email:agentSettings.email||null,
+    agent_photo:agentSettings.photo||null,
     source_url:currentData.sourceUrl||null // internal only — never shown on the public page
   };
   supa.from('rebrand_listings').insert(payload).then(function(res){
