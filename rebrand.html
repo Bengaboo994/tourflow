@@ -76,6 +76,8 @@
     </div>
     <label style="margin-top:14px">Gallery URL <span style="text-transform:none;font-weight:400;opacity:.5">(optional — only if the main page has few photos but a separate gallery page has more)</span></label>
     <input id="rebrand-gallery-url" placeholder="https://.../galeria (leave empty to use the main URL)"/>
+    <label style="margin-top:14px">Output language <span style="text-transform:none;font-weight:400;opacity:.5">(applies to AI Read — title &amp; description)</span></label>
+    <div id="lang-select-wrap"></div>
     <div id="status"></div>
   </div>
 
@@ -102,6 +104,16 @@ function showAccessDenied(msg){
 function showMain(){
   document.getElementById('access-denied').style.display='none';
   document.getElementById('main-content').style.display='block';
+  document.getElementById('lang-select-wrap').innerHTML=customSelectHtml('output-lang',[
+    {value:'original',label:'Keep original language'},
+    {value:'English',label:'English'},
+    {value:'Spanish',label:'Spanish'},
+    {value:'Swedish',label:'Swedish'},
+    {value:'German',label:'German'},
+    {value:'Dutch',label:'Dutch'},
+    {value:'French',label:'French'},
+    {value:'Russian',label:'Russian'}
+  ],'original');
 }
 
 function init(){
@@ -483,7 +495,9 @@ function runAiRead(){
   if(!url||!currentData){status.textContent='Scrape the listing first.';return;}
   btn.disabled=true;btn.textContent='\u23f3 Reading screenshot\u2026 (can take 10\u201320s)';
   status.textContent='';
-  fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url))
+  var lang=document.getElementById('output-lang')?document.getElementById('output-lang').value:'original';
+  var langParam=lang&&lang!=='original'?'&lang='+encodeURIComponent(lang):'';
+  fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam)
     .then(function(r){return r.json();})
     .then(function(data){
       btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
