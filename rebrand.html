@@ -74,6 +74,8 @@
       <input id="rebrand-url" placeholder="https://reveny.es/..."/>
       <button id="rebrand-scrape-btn" onclick="runRebrandScrape()">Scrape</button>
     </div>
+    <label style="margin-top:14px">Gallery URL <span style="text-transform:none;font-weight:400;opacity:.5">(optional — only if the main page has few photos but a separate gallery page has more)</span></label>
+    <input id="rebrand-gallery-url" placeholder="https://.../galeria (leave empty to use the main URL)"/>
     <div id="status"></div>
   </div>
 
@@ -178,6 +180,7 @@ function saveDomainNotes(){
 
 function runRebrandScrape(){
   var url=document.getElementById('rebrand-url').value.trim();
+  var galleryUrl=document.getElementById('rebrand-gallery-url').value.trim();
   var status=document.getElementById('status');
   var resultsEl=document.getElementById('rebrand-results');
   var btn=document.getElementById('rebrand-scrape-btn');
@@ -192,12 +195,30 @@ function runRebrandScrape(){
       if(data.error){
         btn.disabled=false;
         status.innerHTML='<span style="color:#f87171">Error: '+esc(data.error)+'</span>';
-        return;
+        return null;
       }
       currentData=data;
+      // If a separate gallery URL was given, fetch its images and use those
+      // instead — some listing sites put only a handful of photos on the
+      // main page but the full set on a dedicated gallery subpage.
+      if(galleryUrl){
+        status.textContent='Fetching gallery images\u2026';
+        return fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(galleryUrl))
+          .then(function(r){return r.json();})
+          .then(function(galleryData){
+            if(!galleryData.error&&galleryData.images&&galleryData.images.length){
+              currentData.images=galleryData.images;
+              currentData.imageCount=galleryData.imageCount;
+            }
+          })
+          .catch(function(){/* fall back to main page's images silently */});
+      }
+    })
+    .then(function(){
+      if(!currentData)return;
       return loadDomainNotes(currentDomain).then(function(notes){
         currentDomainNotes=notes;
-        var freshCorrected=applyDomainRules(data,notes);
+        var freshCorrected=applyDomainRules(currentData,notes);
         var prevCorrected=correctedData;
         correctedData=freshCorrected;
         if(prevCorrected){
@@ -207,7 +228,7 @@ function runRebrandScrape(){
         }
         btn.disabled=false;
         var ruleCount=(notes.rules||[]).length;
-        status.innerHTML='<span style="color:#4ade80">Done \u2014 '+data.imageCount+' candidate images'+(ruleCount?', '+ruleCount+' saved rule(s) applied':'')+'</span>';
+        status.innerHTML='<span style="color:#4ade80">Done \u2014 '+currentData.imageCount+' candidate images'+(ruleCount?', '+ruleCount+' saved rule(s) applied':'')+'</span>';
         renderResults();
       });
     })
@@ -482,9 +503,12 @@ function runAiRead(){
       renderResults();
       var freshStatus=document.getElementById('ai-read-status');
       if(freshStatus){
-        freshStatus.innerHTML=applied.length?
+        var statusMsg=applied.length?
           '<span style="color:#4ade80">AI updated: '+applied.join(', ')+'</span>':
-          '<span style="color:rgba(255,255,255,.4)">AI found nothing new (locked fields were left alone).</span>';
+          '<span style="color:#f87171">AI found nothing on this screenshot \u2014 see below, might be a cookie banner or unloaded page.</span>';
+        var previewHtml=data.screenshotPreview?
+          '<div style="margin-top:10px"><img src="'+data.screenshotPreview+'" style="max-width:100%;border-radius:8px;border:1px solid rgba(201,161,74,.3)"/></div>':'';
+        freshStatus.innerHTML=statusMsg+previewHtml;
       }
     })
     .catch(function(e){
