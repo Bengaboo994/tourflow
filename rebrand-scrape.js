@@ -102,6 +102,24 @@ exports.handler = async function(event) {
     ]);
     if (plotMatch) { const n = parseInt(plotMatch, 10); if (n >= 30 && n <= 100000) plotSize = String(n); }
 
+    // Extra costs — best-effort, these vary a lot in how sites label them
+    function cleanCost(s) {
+      if (!s) return null;
+      const num = parseInt(s.replace(/[^0-9]/g, ''), 10);
+      if (!num) return null;
+      return '\u20AC' + num.toLocaleString('en-US');
+    }
+    const communityFee = cleanCost(firstMatch([
+      /(?:cuota\s*comunitaria|community\s*fee|gastos?\s*de\s*comunidad|hoa\s*fee)[^0-9]{0,20}([\d\.,]+)/i
+    ]));
+    const ibi = cleanCost(firstMatch([
+      /\bibi\b[^0-9]{0,20}([\d\.,]+)/i,
+      /(?:property\s*tax|council\s*tax)[^0-9]{0,20}([\d\.,]+)/i
+    ]));
+    const garbageFee = cleanCost(firstMatch([
+      /(?:basura|tasa\s*de\s*basuras?|garbage\s*(?:tax|fee))[^0-9]{0,20}([\d\.,]+)/i
+    ]));
+
     let area = null;
     try {
       const urlObj = new URL(url);
@@ -171,6 +189,7 @@ exports.handler = async function(event) {
         sourceUrl: url,
         title: ogTitle || null,
         price, rooms, bathrooms, sqm, plotSize, area, address,
+        communityFee, ibi, garbageFee,
         description,
         images: Array.from(imageSet),
         imageCount: imageSet.size,
