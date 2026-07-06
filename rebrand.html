@@ -67,13 +67,18 @@
   <a class="back" href="/"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
   <h1>Rebrand <span style="opacity:.5;font-size:18px;font-weight:400">(Pilot)</span></h1>
   <div class="sub">Step 1: scraping &amp; review. No AI rewriting yet.</div>
+  <div style="font-size:11px;color:rgba(255,255,255,.3);line-height:1.6;border-left:2px solid rgba(201,161,74,.25);padding:10px 14px;margin-bottom:22px">
+    <b style="color:rgba(255,255,255,.45)">Please review before publishing.</b><br>
+    Rebrand helps you import property content automatically. Before sharing or publishing, ensure you have permission to use any imported text or images. We recommend confirming reuse rights with the listing agent and reviewing all content for accuracy.
+  </div>
 
   <div class="card">
     <label>Listing URL</label>
     <div class="row">
-      <input id="rebrand-url" placeholder="https://reveny.es/..."/>
+      <input id="rebrand-url" placeholder="https://reveny.es/..." oninput="checkPortalWarning(this.value)"/>
       <button id="rebrand-scrape-btn" onclick="runRebrandScrape()">Scrape</button>
     </div>
+    <div id="portal-warning" style="display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:12px 14px;margin-top:10px;font-size:12px;color:#fca5a5;line-height:1.6"></div>
     <label style="margin-top:14px">Gallery URL <span style="text-transform:none;font-weight:400;opacity:.5">(optional — only if the main page has few photos but a separate gallery page has more)</span></label>
     <input id="rebrand-gallery-url" placeholder="https://.../galeria (leave empty to use the main URL)"/>
     <label style="margin-top:14px">Output language <span style="text-transform:none;font-weight:400;opacity:.5">(applies to AI Read — title &amp; description)</span></label>
@@ -145,6 +150,24 @@ var currentDomainNotes=null;
 function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function getDomain(url){
   try{ return new URL(url).hostname.replace(/^www\./,''); }catch(e){ return ''; }
+}
+
+// Big aggregator portals actively block automated scraping and screenshot
+// tools (CAPTCHAs, bot detection) — Rebrand needs the real source instead:
+// the agency's own website, where the same listing is almost always
+// published too.
+var KNOWN_PORTALS=['idealista.com','fotocasa.es','habitaclia.com','pisos.com','rightmove.co.uk','zoopla.co.uk','immoweb.be','funda.nl','seloger.com','immobilienscout24.de','thinkspain.com'];
+function checkPortalWarning(url){
+  var warningEl=document.getElementById('portal-warning');
+  if(!warningEl)return;
+  var domain=getDomain(url);
+  var matched=KNOWN_PORTALS.find(function(p){return domain===p||domain.endsWith('.'+p);});
+  if(matched){
+    warningEl.style.display='block';
+    warningEl.innerHTML='<b>'+esc(matched)+'</b> is a listing portal, not the original source. Portals like this actively block scraping and screenshot tools (CAPTCHAs, bot detection), so results here will likely fail or be incomplete.<br><br>Rebrand needs the <b>real source</b> — the agency\u2019s own website. The same listing is almost always published there too; search for it and paste that URL instead.';
+  } else {
+    warningEl.style.display='none';
+  }
 }
 
 function applyDomainRules(data, notes){
