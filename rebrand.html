@@ -174,7 +174,7 @@ function runRebrandScrape(){
   var resultsEl=document.getElementById('rebrand-results');
   var btn=document.getElementById('rebrand-scrape-btn');
   if(!url){status.textContent='Paste a listing URL first.';return;}
-  status.textContent='Importing\u2026';
+  status.textContent='Scraping\u2026';
   resultsEl.innerHTML='';
   btn.disabled=true;
 
@@ -187,52 +187,77 @@ function runRebrandScrape(){
         return null;
       }
       currentData=data;
-
-      // Optional separate gallery page for the image set
-      var imagesStep=galleryUrl
-        ? fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(galleryUrl))
-            .then(function(r){return r.json();})
-            .then(function(galleryData){
-              if(!galleryData.error&&galleryData.images&&galleryData.images.length){
-                currentData.images=galleryData.images;
-                currentData.imageCount=galleryData.imageCount;
-              }
-            })
-            .catch(function(){})
-        : Promise.resolve();
-
-      return imagesStep.then(function(){
-        // Quietly follow up with the AI screenshot read to fill in and improve
-        // the text fields — the person never sees this as a separate step.
-        status.textContent='Reading with AI\u2026';
-        var lang=document.getElementById('output-lang')?document.getElementById('output-lang').value:'original';
-        var langParam=lang&&lang!=='original'?'&lang='+encodeURIComponent(lang):'';
-        return fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam)
+      if(galleryUrl){
+        status.textContent='Fetching gallery images\u2026';
+        return fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(galleryUrl))
           .then(function(r){return r.json();})
-          .catch(function(){return {error:'AI read failed'};});
-      });
+          .then(function(galleryData){
+            if(!galleryData.error&&galleryData.images&&galleryData.images.length){
+              currentData.images=galleryData.images;
+              currentData.imageCount=galleryData.imageCount;
+            }
+          })
+          .catch(function(){});
+      }
     })
-    .then(function(aiData){
+    .then(function(){
       if(!currentData)return;
       var prevCorrected=correctedData;
       correctedData=Object.assign({},currentData);
-      var aiApplied=false;
-      if(aiData&&!aiData.error){
-        ['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'].forEach(function(f){
-          if(aiData[f]!=null&&aiData[f]!==''){correctedData[f]=aiData[f];aiApplied=true;}
-        });
-      }
       if(prevCorrected){
         Object.keys(lockedFields).forEach(function(field){
           if(lockedFields[field]) correctedData[field]=prevCorrected[field];
         });
       }
       btn.disabled=false;
-      status.innerHTML='<span style="color:#4ade80">Done \u2014 '+currentData.imageCount+' candidate images'+(aiApplied?', text refined with AI':'')+'</span>';
+      status.innerHTML='<span style="color:#4ade80">Done \u2014 '+currentData.imageCount+' candidate images</span>';
       renderResults();
     })
     .catch(function(e){
       btn.disabled=false;
+      status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
+    });
+}
+
+function runAiRead(){
+  var btn=document.getElementById('ai-read-btn');
+  var status=document.getElementById('ai-read-status');
+  var url=document.getElementById('rebrand-url').value.trim();
+  if(!url||!currentData){if(status)status.textContent='Scrape the listing first.';return;}
+  btn.disabled=true;btn.textContent='\u23f3 Reading screenshot\u2026 (can take 10\u201320s)';
+  status.textContent='';
+  var lang=document.getElementById('output-lang')?document.getElementById('output-lang').value:'original';
+  var langParam=lang&&lang!=='original'?'&lang='+encodeURIComponent(lang):'';
+  fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
+      if(data.error){
+        status.innerHTML='<span style="color:#f87171">'+esc(data.error)+'</span>';
+        return;
+      }
+      var fieldsToMerge=['title','price','rooms','bathrooms','sqm','plotSize','area','address','description'];
+      var applied=[];
+      fieldsToMerge.forEach(function(f){
+        if(lockedFields[f])return;
+        if(data[f]!=null&&data[f]!==''){
+          correctedData[f]=data[f];
+          applied.push(f);
+        }
+      });
+      renderResults();
+      var freshStatus=document.getElementById('ai-read-status');
+      if(freshStatus){
+        var statusMsg=applied.length?
+          '<span style="color:#4ade80">AI updated: '+applied.join(', ')+' \u2014 double-check these before locking.</span>':
+          '<span style="color:#f87171">AI found nothing on this screenshot \u2014 see below, might be a cookie banner or unloaded page.</span>';
+        var previewHtml=data.screenshotPreview?
+          '<div style="margin-top:10px"><img src="'+data.screenshotPreview+'" style="max-width:100%;border-radius:8px;border:1px solid rgba(201,161,74,.3)"/></div>':'';
+        freshStatus.innerHTML=statusMsg+previewHtml;
+      }
+    })
+    .catch(function(e){
+      btn.disabled=false;btn.innerHTML='&#129302; AI Read (screenshot)';
       status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
     });
 }
@@ -372,9 +397,11 @@ function renderResults(){
 
   resultsEl.innerHTML=
     '<div class="card">'+fieldsHtml+descHtml+imagesHtml+
-    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08)">'+
-    '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Re-import this listing</button>'+
+    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);display:flex;gap:10px;flex-wrap:wrap">'+
+    '<button class="btn-ghost" onclick="runRebrandScrape()">&#8635; Scrape again</button>'+
+    '<button class="btn-ghost" id="ai-read-btn" onclick="runAiRead()">&#129302; AI Read (screenshot)</button>'+
     '</div>'+
+    '<div id="ai-read-status" style="font-size:12px;color:rgba(255,255,255,.4);margin-top:8px"></div>'+
     '</div>'+
     '<div class="card">'+
     '<div class="section-label">Agent business card (shown at the bottom of the presentation)</div>'+
