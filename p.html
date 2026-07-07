@@ -217,7 +217,12 @@ function render(data){
   document.getElementById('title').textContent=data.title||'Property';
 
   var subtitleParts=[data.area,data.address].filter(Boolean);
-  document.getElementById('subtitle').textContent=subtitleParts.join(' · ');
+  // If the address already ends with the area name, drop the standalone
+  // area to avoid showing it twice (e.g. "Benahavis · Paraiso Pueblo, Benahavis")
+  if(data.area&&data.address&&data.address.trim().toLowerCase().endsWith(data.area.trim().toLowerCase())){
+    subtitleParts=[data.address];
+  }
+  document.getElementById('subtitle').textContent=subtitleParts.join(' \u00b7 ');
 
   var specs=[];
   if(data.rooms)specs.push({num:data.rooms,label:'Bedrooms'});
