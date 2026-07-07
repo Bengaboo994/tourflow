@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
 <title>Property — TourFlow</title>
 <style>
+  :root{--brand-primary:#C9A14A;--brand-secondary:#071226;--brand-secondary-light:#0d1c30}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#FCFBF7;color:#1A1917;min-height:100vh}
   .wrap{max-width:560px;margin:0 auto;padding:0 0 90px}
@@ -19,13 +20,18 @@
   .hero-arrow.left{left:14px}.hero-arrow.right{right:14px}
   .hero-badge{position:absolute;top:20px;right:18px;background:rgba(7,18,38,.4);backdrop-filter:blur(4px);color:#fff;font-size:11px;font-weight:600;padding:7px 13px;border-radius:100px;z-index:5}
   .hero-brand{position:absolute;top:20px;left:20px;font-family:Georgia,serif;font-size:16px;color:#fff;z-index:5}
-  .hero-brand em{font-style:italic;color:#C9A14A}
+  .hero-brand em{font-style:italic;color:var(--brand-primary)}
+  .hero-brand.placement-top-center{left:50%;transform:translateX(-50%);right:auto}
+  .hero-brand img{height:36px;max-width:180px;width:auto;object-fit:contain}
+  .logo-white-shadow{filter:drop-shadow(0 2px 6px rgba(0,0,0,.45))}
+  .footer-logo{height:28px;max-width:150px;width:auto;object-fit:contain;vertical-align:middle}
+  .agent-brand-logo{height:22px;max-width:110px;width:auto;object-fit:contain;margin-bottom:8px;display:block}
 
   .hero-content{position:absolute;left:0;right:0;bottom:64px;padding:0 26px;z-index:4}
   .hero-eyebrow{font-size:11px;font-weight:700;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.2em;margin-bottom:12px;opacity:0;animation:tf-fade-up .7s ease forwards;animation-delay:.35s}
   .hero-title{font-family:Georgia,serif;font-weight:400;font-size:38px;color:#fff;line-height:1.08;margin-bottom:8px;opacity:0;animation:tf-fade-up .7s ease forwards;animation-delay:.5s}
   .hero-subtitle{font-size:14px;color:rgba(255,255,255,.75);margin-bottom:20px;opacity:0;animation:tf-fade-up .7s ease forwards;animation-delay:.62s}
-  .hero-price{font-family:Georgia,serif;font-size:26px;font-weight:600;color:#C9A14A;margin-bottom:14px;opacity:0;animation:tf-fade-up .7s ease forwards;animation-delay:.74s}
+  .hero-price{font-family:Georgia,serif;font-size:26px;font-weight:600;color:var(--brand-primary);margin-bottom:14px;opacity:0;animation:tf-fade-up .7s ease forwards;animation-delay:.74s}
   .hero-highlights{font-size:12px;color:rgba(255,255,255,.7);letter-spacing:.02em;opacity:0;animation:tf-fade-up .7s ease forwards;animation-delay:.86s}
   @keyframes tf-fade-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
@@ -35,12 +41,23 @@
   @keyframes tf-float{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
   .content{padding:34px 20px 0;background:#FCFBF7;position:relative;z-index:2;margin-top:-24px;border-radius:24px 24px 0 0}
+
+  /* Dark theme override */
+  body.theme-dark{background:#0d1210}
+  body.theme-dark .content{background:#12181a;color:#f0ece4}
+  body.theme-dark .spec-num,body.theme-dark .hero-content .hero-title{color:#f0ece4}
+  body.theme-dark .spec-label,body.theme-dark .breadcrumb,body.theme-dark .cost-item{color:rgba(240,236,228,.5)}
+  body.theme-dark .cost-item b{color:#f0ece4}
+  body.theme-dark .specs-row{border-color:rgba(255,255,255,.1)}
+  body.theme-dark .feature-badge{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);color:#f0ece4}
+  body.theme-dark .desc{color:rgba(240,236,228,.75)}
+  body.theme-dark .closing-brand{color:rgba(240,236,228,.35)}
   .breadcrumb{font-size:12px;color:#8a857c;margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
   .breadcrumb .sep{opacity:.5}
 
   .specs-row{display:flex;border-top:1px solid #edeae4;border-bottom:1px solid #edeae4;padding:24px 0;margin-bottom:26px}
   .spec-item{flex:1;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .spec-item svg{color:#C9A14A}
+  .spec-item svg{color:var(--brand-primary)}
   .spec-num{font-family:Georgia,serif;font-size:19px;font-weight:600;color:#1A1917}
   .spec-label{font-size:9px;color:#8a857c;text-transform:uppercase;letter-spacing:.08em}
 
@@ -49,16 +66,16 @@
   .cost-item b{color:#1A1917;font-weight:700}
 
   .features-section{margin-bottom:28px}
-  .features-label{font-size:11px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+  .features-label{font-size:11px;font-weight:700;color:var(--brand-primary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
   .feature-badges{display:flex;flex-wrap:wrap;gap:8px}
   .feature-badge{background:#f5f2ec;border:1px solid #edeae4;border-radius:100px;padding:8px 14px;font-size:12px;font-weight:600;color:#1A1917;display:inline-flex;align-items:center;gap:5px}
   .feature-badge svg{flex-shrink:0}
 
   .desc-section{margin-bottom:30px}
-  .desc-label{font-size:11px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+  .desc-label{font-size:11px;font-weight:700;color:var(--brand-primary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
   .desc{font-size:14px;color:#4a4744;line-height:1.75;white-space:pre-line;position:relative}
   .desc.clamped{max-height:110px;overflow:hidden}
-  .read-more{display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:#C9A14A;font-size:13px;font-weight:600;cursor:pointer;padding:10px 0 0;font-family:inherit}
+  .read-more{display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:var(--brand-primary);font-size:13px;font-weight:600;cursor:pointer;padding:10px 0 0;font-family:inherit}
 
   .gallery-section{margin-bottom:10px}
   .gallery-label{font-family:Georgia,serif;font-size:22px;font-weight:400;margin-bottom:14px}
@@ -67,26 +84,26 @@
 
   .closing{text-align:center;padding:32px 20px 8px}
   .closing-brand{font-family:Georgia,serif;font-size:15px;color:rgba(26,25,23,.35)}
-  .closing-brand em{font-style:italic;color:#C9A14A}
+  .closing-brand em{font-style:italic;color:var(--brand-primary)}
 
-  .agent-card{margin:8px 20px 0;background:linear-gradient(145deg,#071226,#0d1c30);border-radius:20px;overflow:hidden;box-shadow:0 12px 32px rgba(7,18,38,.2);display:flex;align-items:stretch}
-  .agent-photo{width:110px;flex-shrink:0;background:#0d1c30;position:relative;overflow:hidden}
+  .agent-card{margin:8px 20px 0;background:linear-gradient(145deg,var(--brand-secondary),var(--brand-secondary-light));border-radius:20px;overflow:hidden;box-shadow:0 12px 32px rgba(7,18,38,.2);display:flex;align-items:stretch}
+  .agent-photo{width:110px;flex-shrink:0;background:var(--brand-secondary-light);position:relative;overflow:hidden}
   .agent-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .agent-photo-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:26px;color:rgba(201,161,74,.4)}
   .agent-info{padding:18px 18px 18px 16px;flex:1;min-width:0}
-  .agent-label{font-size:9px;font-weight:600;color:#C9A14A;text-transform:uppercase;letter-spacing:.16em;margin-bottom:6px}
+  .agent-label{font-size:9px;font-weight:600;color:var(--brand-primary);text-transform:uppercase;letter-spacing:.16em;margin-bottom:6px}
   .agent-name{font-family:Georgia,serif;font-size:20px;color:#fff;line-height:1.15;margin-bottom:2px}
   .agent-agency{font-size:12px;color:rgba(255,255,255,.4);font-style:italic;margin-bottom:12px}
   .agent-actions{display:flex;gap:8px}
-  .agent-action{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;color:#C9A14A;text-decoration:none}
+  .agent-action{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;color:var(--brand-primary);text-decoration:none}
 
   /* Sticky bottom action bar */
-  .sticky-bar{position:fixed;left:0;right:0;bottom:0;background:#071226;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:50;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
+  .sticky-bar{position:fixed;left:0;right:0;bottom:0;background:var(--brand-secondary);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:50;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
   .sticky-bar.visible{transform:translateY(0)}
-  .sticky-price{font-family:Georgia,serif;font-size:16px;font-weight:600;color:#C9A14A;flex-shrink:0}
+  .sticky-price{font-family:Georgia,serif;font-size:16px;font-weight:600;color:var(--brand-primary);flex-shrink:0}
   .sticky-actions{display:flex;gap:8px}
-  .sticky-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;color:#C9A14A;text-decoration:none;flex-shrink:0}
-  .sticky-book{background:#C9A14A;color:#071226;border:none;border-radius:100px;padding:0 18px;height:38px;font-size:12px;font-weight:700;font-family:inherit;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
+  .sticky-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;color:var(--brand-primary);text-decoration:none;flex-shrink:0}
+  .sticky-book{background:var(--brand-primary);color:var(--brand-secondary);border:none;border-radius:100px;padding:0 18px;height:38px;font-size:12px;font-weight:700;font-family:inherit;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
 
   #loading,#not-found{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
 
@@ -100,7 +117,7 @@
 <body>
 
 <div id="loading">
-  <div style="font-family:Georgia,serif;font-size:20px;color:rgba(26,25,23,.4)">Tour<em style="color:#C9A14A;font-style:italic">Flow</em></div>
+  <div style="font-family:Georgia,serif;font-size:20px;color:rgba(26,25,23,.4)">Tour<em style="color:var(--brand-primary);font-style:italic">Flow</em></div>
 </div>
 
 <div id="not-found" style="display:none">
@@ -110,7 +127,7 @@
 
 <div class="wrap" id="main" style="display:none">
   <div class="hero-wrap">
-    <div class="hero-brand">Tour<em>Flow</em></div>
+    <div class="hero-brand" id="hero-brand">Tour<em>Flow</em></div>
     <div class="hero-track" id="hero-track"></div>
     <div class="hero-gradient"></div>
     <button class="hero-arrow left" onclick="shiftHero(-1)">&#8249;</button>
@@ -156,7 +173,7 @@
   <div id="agent-card-wrap"></div>
 
   <div class="closing">
-    <div class="closing-brand">Presented via Tour<em>Flow</em></div>
+    <div class="closing-brand" id="closing-brand">Presented via Tour<em>Flow</em></div>
   </div>
 </div>
 
@@ -236,6 +253,34 @@ function render(data){
   document.getElementById('loading').style.display='none';
   document.getElementById('main').style.display='block';
 
+  // ── White-label branding ────────────────────────────────────────────
+  if(data.brand_primary_color) document.documentElement.style.setProperty('--brand-primary',data.brand_primary_color);
+  if(data.brand_secondary_color){
+    document.documentElement.style.setProperty('--brand-secondary',data.brand_secondary_color);
+    document.documentElement.style.setProperty('--brand-secondary-light',data.brand_secondary_color);
+  }
+  if(data.brand_theme==='dark') document.body.classList.add('theme-dark');
+
+  var heroBrandEl=document.getElementById('hero-brand');
+  var placement=data.brand_logo_placement||'top-left';
+  if(data.brand_logo&&data.brand_logo_in_hero!==false&&placement!=='hidden'){
+    heroBrandEl.className='hero-brand'+(placement==='top-center'?' placement-top-center':'');
+    heroBrandEl.innerHTML='<img src="'+esc(data.brand_logo)+'"'+(data.brand_logo_is_white?' class="logo-white-shadow"':'')+'/>';
+  } else if(data.brand_logo&&data.brand_logo_in_hero===false){
+    heroBrandEl.style.display='none';
+  } else if(!data.brand_logo){
+    // No custom logo uploaded — keep the default TourFlow wordmark as-is
+  }
+  if(placement==='hidden')heroBrandEl.style.display='none';
+
+  var closingBrandEl=document.getElementById('closing-brand');
+  if(data.brand_logo){
+    closingBrandEl.innerHTML='Presented by '+(data.brand_company_name?esc(data.brand_company_name)+' ':'')+
+      '<img class="footer-logo'+(data.brand_logo_is_white?' logo-white-shadow':'')+'" src="'+esc(data.brand_logo)+'" style="'+(data.brand_theme==='dark'?'':'filter:none')+'margin-left:6px"/>';
+  } else if(data.brand_company_name){
+    closingBrandEl.textContent='Presented by '+data.brand_company_name;
+  }
+
   images=data.images||[];
   document.title=(data.title||'Property')+' — TourFlow';
 
@@ -282,7 +327,7 @@ function render(data){
   if(data.features&&data.features.length){
     document.getElementById('features-section').style.display='block';
     document.getElementById('feature-badges').innerHTML=data.features.map(function(f){
-      return '<span class="feature-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#C9A14A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'+esc(f)+'</span>';
+      return '<span class="feature-badge"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'+esc(f)+'</span>';
     }).join('');
   }
 
@@ -313,6 +358,7 @@ function render(data){
       (data.agent_photo?'<img src="'+esc(data.agent_photo)+'"/>':'<div class="agent-photo-fallback">'+esc(initials)+'</div>')+
       '</div>'+
       '<div class="agent-info">'+
+      (data.brand_logo?'<img class="agent-brand-logo'+(data.brand_logo_is_white?' logo-white-shadow':'')+'" src="'+esc(data.brand_logo)+'"/>':'')+
       '<div class="agent-label">'+esc(data.agent_title||'Your Property Consultant')+'</div>'+
       '<div class="agent-name">'+esc(data.agent_name)+'</div>'+
       (data.agent_agency?'<div class="agent-agency">'+esc(data.agent_agency)+'</div>':'')+
@@ -351,7 +397,7 @@ var id=getParam('id');
 if(!id){
   showNotFound();
 } else {
-  fetch(SUPA_URL+'/rest/v1/rebrand_listings?id=eq.'+encodeURIComponent(id)+'&select=title,price,rooms,bathrooms,sqm,plot_size,area,address,description,images,agent_name,agent_title,agent_agency,agent_phone,agent_email,agent_photo,community_fee,ibi,garbage_fee,features,energy_class',{
+  fetch(SUPA_URL+'/rest/v1/rebrand_listings?id=eq.'+encodeURIComponent(id)+'&select=title,price,rooms,bathrooms,sqm,plot_size,area,address,description,images,agent_name,agent_title,agent_agency,agent_phone,agent_email,agent_photo,community_fee,ibi,garbage_fee,features,energy_class,brand_company_name,brand_logo,brand_logo_is_white,brand_primary_color,brand_secondary_color,brand_logo_placement,brand_theme,brand_logo_in_hero',{
     headers:{'apikey':SUPA_KEY}
   })
   .then(function(r){return r.json();})
