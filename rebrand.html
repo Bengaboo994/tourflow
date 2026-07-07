@@ -269,11 +269,31 @@ function runAiRead(){
   var status=document.getElementById('ai-read-status');
   var url=document.getElementById('rebrand-url').value.trim();
   if(!url||!currentData){if(status)status.textContent='Import the listing first.';return;}
+
+  // Validate before doing anything else — a malformed URL passed to fetch()
+  // can throw synchronously (before the returned promise even exists), which
+  // a .catch() further down the chain can't catch. Fail with a clear message
+  // here instead of letting a cryptic browser error slip through.
+  try{ new URL(url); }catch(e){
+    status.innerHTML='<span style="color:#f87171;font-size:12px">That doesn\u2019t look like a full web address. Make sure it starts with http:// or https://</span>';
+    return;
+  }
+
   btn.disabled=true;
   status.innerHTML='<div class="thinking"><div class="thinking-spinner"></div><div class="thinking-text">Preparing your presentation\u2026 this can take up to 20 seconds</div></div>';
   var lang=document.getElementById('output-lang')?document.getElementById('output-lang').value:'original';
   var langParam=lang&&lang!=='original'?'&lang='+encodeURIComponent(lang):'';
-  fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam)
+
+  var fetchPromise;
+  try{
+    fetchPromise=fetch('/.netlify/functions/rebrand-vision?url='+encodeURIComponent(url)+langParam);
+  }catch(e){
+    btn.disabled=false;
+    status.innerHTML='<span style="color:#f87171;font-size:12px">Could not start the request: '+esc(e.message)+'</span>';
+    return;
+  }
+
+  fetchPromise
     .then(function(r){return r.json();})
     .then(function(data){
       btn.disabled=false;
