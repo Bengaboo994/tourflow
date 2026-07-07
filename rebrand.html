@@ -107,6 +107,50 @@
     <input id="settings-agent-photo" placeholder="...or paste a photo URL instead" oninput="updateSettingsPhotoPreview(this.value)" style="margin-top:8px;margin-bottom:10px"/>
     <button class="btn-ghost" onclick="saveSettings()" style="width:100%">Save Contact Card</button>
     <div id="settings-save-status" style="font-size:12px;color:#4ade80;margin-top:8px"></div>
+
+    <div style="margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
+      <div class="section-label">Branding <span style="text-transform:none;font-weight:400;opacity:.5">(white-label — makes the presentation feel like it\u2019s yours, not TourFlow\u2019s)</span></div>
+      <div class="row" style="margin-bottom:8px">
+        <input id="brand-company-name" placeholder="Company Name"/>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+        <div id="brand-logo-preview" style="width:64px;height:36px;border-radius:6px;background:rgba(255,255,255,.06);border:1px solid rgba(201,161,74,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden"><span style="font-size:10px;opacity:.3">Logo</span></div>
+        <label class="btn-ghost" style="display:inline-flex;align-items:center;justify-content:center;cursor:pointer">Upload Logo
+          <input type="file" id="brand-logo-input" accept="image/svg+xml,image/png,image/webp" style="display:none" onchange="uploadBrandLogo(this)"/>
+        </label>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,.3);line-height:1.5;margin-bottom:14px">SVG or transparent PNG/WEBP recommended \u2014 max 500KB. JPG is not supported (no transparency).</div>
+      <div id="brand-logo-error" style="font-size:11px;color:#f87171;margin-bottom:10px"></div>
+
+      <div class="row" style="margin-bottom:10px">
+        <div style="flex:1">
+          <label style="margin:0 0 6px">Primary Color</label>
+          <input type="color" id="brand-primary-color" value="#C9A14A" style="padding:4px;height:40px;cursor:pointer"/>
+        </div>
+        <div style="flex:1">
+          <label style="margin:0 0 6px">Secondary Color <span style="text-transform:none;font-weight:400;opacity:.5">(optional)</span></label>
+          <input type="color" id="brand-secondary-color" value="#071226" style="padding:4px;height:40px;cursor:pointer"/>
+        </div>
+      </div>
+
+      <label style="margin-bottom:6px">Logo Placement</label>
+      <div id="brand-placement-wrap" style="margin-bottom:10px"></div>
+
+      <label style="margin-bottom:6px">Theme</label>
+      <div id="brand-theme-wrap" style="margin-bottom:14px"></div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 14px;margin-bottom:14px">
+        <span style="font-size:13px;color:#fff">Use logo in hero</span>
+        <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+          <input type="checkbox" id="brand-logo-in-hero" checked style="opacity:0;width:0;height:0" onchange="renderBrandToggle()"/>
+          <span id="brand-toggle-track" onclick="toggleBrandLogoInHero()" style="position:absolute;inset:0;background:#C9A14A;border-radius:100px;cursor:pointer;transition:background .2s">
+            <span id="brand-toggle-thumb" style="position:absolute;top:2px;left:20px;width:18px;height:18px;background:#071226;border-radius:50%;transition:left .2s"></span>
+          </span>
+        </label>
+      </div>
+
+      <button class="btn-ghost" onclick="saveSettings()" style="width:100%">Save Branding</button>
+    </div>
   </div>
 
   <div class="step-label">Step 1 &middot; Import</div>
@@ -566,6 +610,8 @@ function renderResults(){
 
 // ── Settings (agent contact card) — saved once in localStorage, reused every time ──
 var SETTINGS_KEY='tf_rebrand_agent_settings';
+var BRAND_DEFAULTS={companyName:'',logo:'',logoIsWhite:false,primaryColor:'#C9A14A',secondaryColor:'#071226',logoPlacement:'top-left',theme:'light',logoInHero:true};
+
 function toggleSettings(){
   var card=document.getElementById('settings-card');
   var isOpen=card.style.display!=='none';
@@ -573,11 +619,13 @@ function toggleSettings(){
   card.style.display=isOpen?'none':'block';
 }
 function loadSettings(){
+  var base={name:'Niklas Bengtsson',title:'Your Property Consultant',agency:'Reveny Properties',phone:'',email:'',photo:''};
   try{
     var raw=localStorage.getItem(SETTINGS_KEY);
-    return raw?JSON.parse(raw):{name:'Niklas Bengtsson',title:'Your Property Consultant',agency:'Reveny Properties',phone:'',email:'',photo:''};
+    var parsed=raw?JSON.parse(raw):{};
+    return Object.assign({},base,BRAND_DEFAULTS,parsed);
   }catch(e){
-    return {name:'Niklas Bengtsson',title:'Your Property Consultant',agency:'Reveny Properties',phone:'',email:'',photo:''};
+    return Object.assign({},base,BRAND_DEFAULTS);
   }
 }
 function loadSettingsIntoForm(){
@@ -589,6 +637,22 @@ function loadSettingsIntoForm(){
   document.getElementById('settings-agent-email').value=s.email||'';
   document.getElementById('settings-agent-photo').value=s.photo||'';
   updateSettingsPhotoPreview(s.photo||'');
+
+  document.getElementById('brand-company-name').value=s.companyName||'';
+  document.getElementById('brand-primary-color').value=s.primaryColor||'#C9A14A';
+  document.getElementById('brand-secondary-color').value=s.secondaryColor||'#071226';
+  updateBrandLogoPreview(s.logo||'');
+  document.getElementById('brand-logo-in-hero').checked=s.logoInHero!==false;
+  renderBrandToggle();
+  document.getElementById('brand-placement-wrap').innerHTML=customSelectHtml('brand-placement',[
+    {value:'top-left',label:'Top Left (default)'},
+    {value:'top-center',label:'Top Center'},
+    {value:'hidden',label:'Hidden'}
+  ],s.logoPlacement||'top-left');
+  document.getElementById('brand-theme-wrap').innerHTML=customSelectHtml('brand-theme',[
+    {value:'light',label:'Light'},
+    {value:'dark',label:'Dark'}
+  ],s.theme||'light');
 }
 function saveSettings(){
   var s={
@@ -597,7 +661,15 @@ function saveSettings(){
     agency:document.getElementById('settings-agent-agency').value,
     phone:document.getElementById('settings-agent-phone').value,
     email:document.getElementById('settings-agent-email').value,
-    photo:document.getElementById('settings-agent-photo').value
+    photo:document.getElementById('settings-agent-photo').value,
+    companyName:document.getElementById('brand-company-name').value,
+    logo:document.getElementById('brand-logo-preview').getAttribute('data-logo')||'',
+    logoIsWhite:document.getElementById('brand-logo-preview').getAttribute('data-white')==='1',
+    primaryColor:document.getElementById('brand-primary-color').value,
+    secondaryColor:document.getElementById('brand-secondary-color').value,
+    logoPlacement:document.getElementById('brand-placement').value,
+    theme:document.getElementById('brand-theme').value,
+    logoInHero:document.getElementById('brand-logo-in-hero').checked
   };
   localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
   var status=document.getElementById('settings-save-status');
@@ -619,6 +691,88 @@ function uploadSettingsPhoto(input){
     updateSettingsPhotoPreview(dataUrl);
   };
   reader.readAsDataURL(file);
+}
+
+// ── Branding: logo upload, validation, white-logo detection ──────────────
+function updateBrandLogoPreview(dataUrl){
+  var preview=document.getElementById('brand-logo-preview');
+  if(!preview)return;
+  preview.setAttribute('data-logo',dataUrl||'');
+  preview.innerHTML=dataUrl?
+    '<img src="'+dataUrl.replace(/"/g,'&quot;')+'" style="max-width:90%;max-height:90%;object-fit:contain"/>':
+    '<span style="font-size:10px;opacity:.3">Logo</span>';
+}
+function uploadBrandLogo(input){
+  var file=input.files[0];
+  var errorEl=document.getElementById('brand-logo-error');
+  errorEl.textContent='';
+  if(!file)return;
+
+  var allowed=['image/svg+xml','image/png','image/webp'];
+  if(file.type==='image/jpeg'||file.type==='image/jpg'){
+    errorEl.textContent='JPG isn\u2019t supported \u2014 it can\u2019t have a transparent background. Please use SVG, PNG or WEBP instead.';
+    input.value='';
+    return;
+  }
+  if(allowed.indexOf(file.type)===-1){
+    errorEl.textContent='Unsupported file type. Please use SVG, PNG or WEBP.';
+    input.value='';
+    return;
+  }
+  if(file.size>500*1024){
+    errorEl.textContent='That file is too large ('+Math.round(file.size/1024)+'KB). Max size is 500KB.';
+    input.value='';
+    return;
+  }
+
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var dataUrl=e.target.result;
+    updateBrandLogoPreview(dataUrl);
+    detectIfLogoIsWhite(dataUrl,function(isWhite){
+      document.getElementById('brand-logo-preview').setAttribute('data-white',isWhite?'1':'0');
+    });
+  };
+  reader.readAsDataURL(file);
+}
+function detectIfLogoIsWhite(dataUrl,callback){
+  var img=new Image();
+  img.onload=function(){
+    try{
+      var canvas=document.createElement('canvas');
+      var size=40;
+      canvas.width=size;canvas.height=size;
+      var ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,size,size);
+      var pixels=ctx.getImageData(0,0,size,size).data;
+      var total=0,sum=0;
+      for(var i=0;i<pixels.length;i+=4){
+        var alpha=pixels[i+3];
+        if(alpha<20)continue; // skip transparent pixels
+        var brightness=(pixels[i]+pixels[i+1]+pixels[i+2])/3;
+        sum+=brightness;total++;
+      }
+      var avg=total?sum/total:0;
+      callback(avg>210); // predominantly near-white
+    }catch(e){
+      callback(false); // e.g. SVG cross-origin canvas read restrictions — default to no shadow
+    }
+  };
+  img.onerror=function(){callback(false);};
+  img.src=dataUrl;
+}
+function toggleBrandLogoInHero(){
+  var cb=document.getElementById('brand-logo-in-hero');
+  cb.checked=!cb.checked;
+  renderBrandToggle();
+}
+function renderBrandToggle(){
+  var cb=document.getElementById('brand-logo-in-hero');
+  var track=document.getElementById('brand-toggle-track');
+  var thumb=document.getElementById('brand-toggle-thumb');
+  if(!cb||!track||!thumb)return;
+  track.style.background=cb.checked?'#C9A14A':'rgba(255,255,255,.15)';
+  thumb.style.left=cb.checked?'20px':'2px';
 }
 
 function publishListing(){
@@ -656,6 +810,14 @@ function publishListing(){
     agent_phone:agentSettings.phone||null,
     agent_email:agentSettings.email||null,
     agent_photo:agentSettings.photo||null,
+    brand_company_name:agentSettings.companyName||null,
+    brand_logo:agentSettings.logo||null,
+    brand_logo_is_white:!!agentSettings.logoIsWhite,
+    brand_primary_color:agentSettings.primaryColor||null,
+    brand_secondary_color:agentSettings.secondaryColor||null,
+    brand_logo_placement:agentSettings.logoPlacement||'top-left',
+    brand_theme:agentSettings.theme||'light',
+    brand_logo_in_hero:agentSettings.logoInHero!==false,
     source_url:currentData.sourceUrl||null // internal only — never shown on the public page
   };
   supa.from('rebrand_listings').insert(payload).then(function(res){
