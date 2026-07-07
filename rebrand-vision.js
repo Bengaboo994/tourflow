@@ -39,6 +39,7 @@ exports.handler = async function (event) {
       + '&full_page=true'
       + '&format=jpg'
       + '&image_quality=80'
+      + '&image_height=7800' // Claude rejects images with any dimension over 8000px — this guarantees we stay under that no matter how long the source page is
       + '&block_ads=true'
       + '&block_cookie_banners=true'
       + '&block_banners_by_heuristics=true'
