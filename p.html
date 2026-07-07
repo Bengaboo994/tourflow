@@ -440,11 +440,27 @@ function render(data){
   document.getElementById('sticky-actions').innerHTML=stickyActions.join('');
 
   if(stickyActions.length){
-    window.addEventListener('scroll',function(){
+    var pastHero=false;
+    var reachedCta=false;
+    function updateStickyBar(){
       var bar=document.getElementById('sticky-bar');
-      if(window.scrollY>window.innerHeight*0.6) bar.classList.add('visible');
-      else bar.classList.remove('visible');
+      bar.classList.toggle('visible', pastHero && !reachedCta);
+    }
+    window.addEventListener('scroll',function(){
+      pastHero=window.scrollY>window.innerHeight*0.6;
+      updateStickyBar();
     },{passive:true});
+
+    // Once the full contact card / CTA section is on screen, the sticky bar
+    // would just repeat the same three buttons right above it — hide it
+    // there and only bring it back if the person scrolls back up past it.
+    var ctaSection=document.querySelector('.contact-section');
+    if(ctaSection&&'IntersectionObserver' in window){
+      new IntersectionObserver(function(entries){
+        reachedCta=entries[0].isIntersecting;
+        updateStickyBar();
+      },{threshold:0.15}).observe(ctaSection);
+    }
   }
 }
 
