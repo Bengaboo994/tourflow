@@ -82,21 +82,50 @@
   .gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:pointer}
 
-  .closing{text-align:center;padding:32px 20px 8px}
-  .closing-brand{font-family:Georgia,serif;font-size:15px;color:rgba(26,25,23,.35)}
-  .closing-brand em{font-style:italic;color:var(--brand-primary)}
+  /* ── Premium Contact Card ────────────────────────────────────────── */
+  .contact-section{padding:40px 20px 0}
+  .contact-card{background:#fff;border-radius:28px;box-shadow:0 16px 48px rgba(0,0,0,.06);padding:22px;display:flex;gap:24px;margin-bottom:24px}
+  .contact-photo{flex:0 0 40%;border-radius:20px;overflow:hidden;aspect-ratio:3/4;background:#e8e0d0}
+  .contact-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .contact-photo-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:32px;color:rgba(201,161,74,.4);background:#f5f2ec}
+  .contact-info{flex:1;min-width:0;padding-top:2px}
+  .contact-logo{height:26px;max-width:150px;width:auto;object-fit:contain;margin-bottom:16px;display:block}
+  .contact-logo-fallback{font-family:Georgia,serif;font-size:16px;color:#1A1917;margin-bottom:16px}
+  .contact-logo-fallback em{font-style:italic;color:var(--brand-primary)}
+  .contact-label{font-size:10px;font-weight:700;color:var(--brand-primary);text-transform:uppercase;letter-spacing:.16em;margin-bottom:6px}
+  .contact-name{font-family:Georgia,serif;font-size:24px;color:#1A1917;line-height:1.15;margin-bottom:6px}
+  .contact-agency{font-size:13px;color:#8a857c;font-style:italic;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #edeae4}
+  .contact-rows{display:flex;flex-direction:column;gap:12px}
+  .contact-row{display:flex;align-items:center;gap:10px;text-decoration:none;color:#1A1917;font-size:13px}
+  .contact-row-icon{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(201,161,74,.4);color:var(--brand-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
-  .agent-card{margin:8px 20px 0;background:linear-gradient(145deg,var(--brand-secondary),var(--brand-secondary-light));border-radius:20px;overflow:hidden;box-shadow:0 12px 32px rgba(7,18,38,.2);display:flex;align-items:stretch}
-  .agent-photo{width:110px;flex-shrink:0;background:var(--brand-secondary-light);position:relative;overflow:hidden}
-  .agent-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .agent-photo-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:26px;color:rgba(201,161,74,.4)}
-  .agent-info{padding:18px 18px 18px 16px;flex:1;min-width:0}
-  .agent-label{font-size:9px;font-weight:600;color:var(--brand-primary);text-transform:uppercase;letter-spacing:.16em;margin-bottom:6px}
-  .agent-name{font-family:Georgia,serif;font-size:20px;color:#fff;line-height:1.15;margin-bottom:2px}
-  .agent-agency{font-size:12px;color:rgba(255,255,255,.4);font-style:italic;margin-bottom:12px}
-  .agent-actions{display:flex;gap:8px}
-  .agent-action{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;color:var(--brand-primary);text-decoration:none}
+  .value-props{background:#f7f4ee;border-radius:22px;padding:26px 18px;display:flex;margin-bottom:32px}
+  .value-item{flex:1;text-align:center;padding:0 6px;display:flex;flex-direction:column;align-items:center}
+  .value-item svg{color:var(--brand-primary);margin-bottom:12px}
+  .value-title{font-size:10px;font-weight:700;color:#1A1917;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;line-height:1.3}
+  .value-desc{font-size:11px;color:#8a857c;line-height:1.5}
 
+  .cta-section{text-align:center;margin-bottom:28px}
+  .cta-headline{font-family:Georgia,serif;font-size:26px;font-weight:400;color:#1A1917;margin-bottom:8px}
+  .cta-support{font-size:14px;color:#8a857c;margin-bottom:22px;max-width:340px;margin-left:auto;margin-right:auto;line-height:1.5}
+  .cta-buttons{display:flex;gap:10px}
+  .cta-btn{flex:1;height:52px;border-radius:100px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap}
+  .cta-btn.outlined{background:#fff;border:1.5px solid var(--brand-primary);color:#1A1917}
+  .cta-btn.filled{background:var(--brand-primary);border:1.5px solid var(--brand-primary);color:#fff}
+
+  .closing{text-align:center;padding:28px 20px 8px;border-top:1px solid #edeae4}
+  .closing-msg{font-size:14px;color:#1A1917;font-weight:600;margin-bottom:4px}
+  .closing-brand{font-family:Georgia,serif;font-size:15px;color:var(--brand-primary);font-style:italic}
+
+  @media (max-width:480px){
+    .contact-card{flex-direction:column}
+    .contact-photo{flex:none;width:100%;aspect-ratio:16/10}
+    .value-props{flex-direction:column;gap:20px}
+    .value-item{flex-direction:row;text-align:left;gap:14px}
+    .value-item svg{margin-bottom:0;flex-shrink:0}
+    .value-desc-wrap{flex:1}
+    .cta-buttons{flex-direction:column}
+  }
   /* Sticky bottom action bar */
   .sticky-bar{position:fixed;left:0;right:0;bottom:0;background:var(--brand-secondary);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:50;transform:translateY(100%);transition:transform .3s ease;box-shadow:0 -8px 24px rgba(0,0,0,.2)}
   .sticky-bar.visible{transform:translateY(0)}
@@ -170,10 +199,11 @@
     </div>
   </div>
 
-  <div id="agent-card-wrap"></div>
+  <div id="contact-section-wrap"></div>
 
   <div class="closing">
-    <div class="closing-brand" id="closing-brand">Presented via Tour<em>Flow</em></div>
+    <div class="closing-msg">Thank you for your interest.</div>
+    <div class="closing-brand" id="closing-brand">I look forward to hearing from you!</div>
   </div>
 </div>
 
@@ -273,14 +303,6 @@ function render(data){
   }
   if(placement==='hidden')heroBrandEl.style.display='none';
 
-  var closingBrandEl=document.getElementById('closing-brand');
-  if(data.brand_logo){
-    closingBrandEl.innerHTML='Presented by '+(data.brand_company_name?esc(data.brand_company_name)+' ':'')+
-      '<img class="footer-logo'+(data.brand_logo_is_white?' logo-white-shadow':'')+'" src="'+esc(data.brand_logo)+'" style="'+(data.brand_theme==='dark'?'':'filter:none')+'margin-left:6px"/>';
-  } else if(data.brand_company_name){
-    closingBrandEl.textContent='Presented by '+data.brand_company_name;
-  }
-
   images=data.images||[];
   document.title=(data.title||'Property')+' — TourFlow';
 
@@ -352,21 +374,54 @@ function render(data){
   if(data.agent_name){
     var initials=data.agent_name.split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase();
     var phoneDigits=(data.agent_phone||'').replace(/[^0-9+]/g,'');
-    document.getElementById('agent-card-wrap').innerHTML=
-      '<div class="agent-card">'+
-      '<div class="agent-photo">'+
-      (data.agent_photo?'<img src="'+esc(data.agent_photo)+'"/>':'<div class="agent-photo-fallback">'+esc(initials)+'</div>')+
-      '</div>'+
-      '<div class="agent-info">'+
-      (data.brand_logo?'<img class="agent-brand-logo'+(data.brand_logo_is_white?' logo-white-shadow':'')+'" src="'+esc(data.brand_logo)+'"/>':'')+
-      '<div class="agent-label">'+esc(data.agent_title||'Your Property Consultant')+'</div>'+
-      '<div class="agent-name">'+esc(data.agent_name)+'</div>'+
-      (data.agent_agency?'<div class="agent-agency">'+esc(data.agent_agency)+'</div>':'')+
-      '<div class="agent-actions">'+
-      (phoneDigits?'<a class="agent-action" href="https://wa.me/'+phoneDigits.replace('+','')+'" title="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg></a>':'')+
-      (data.agent_phone?'<a class="agent-action" href="tel:'+esc(phoneDigits)+'" title="Call"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></a>':'')+
-      (data.agent_email?'<a class="agent-action" href="mailto:'+esc(data.agent_email)+'" title="Email"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z" opacity="0"/><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg></a>':'')+
+    var waMsgCard=encodeURIComponent('Hi, I\'m interested in '+(data.title||'this property')+'.');
+    var bookMsgCard=encodeURIComponent('Hi, I\'d like to book a viewing for '+(data.title||'this property')+'.');
+
+    var logoHtml=data.brand_logo?
+      '<img class="contact-logo'+(data.brand_logo_is_white?' logo-white-shadow':'')+'" src="'+esc(data.brand_logo)+'"/>':
+      '<div class="contact-logo-fallback">Tour<em>Flow</em></div>';
+
+    var rows=[];
+    if(data.agent_phone)rows.push({href:'tel:'+esc(phoneDigits),label:data.agent_phone,icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>'});
+    if(phoneDigits)rows.push({href:'https://wa.me/'+phoneDigits.replace('+','')+'?text='+waMsgCard,label:'WhatsApp',icon:'<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>'});
+    if(data.agent_email)rows.push({href:'mailto:'+esc(data.agent_email),label:data.agent_email,icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>'});
+
+    var contactHtml='<div class="contact-card">'+
+      '<div class="contact-photo">'+(data.agent_photo?'<img src="'+esc(data.agent_photo)+'"/>':'<div class="contact-photo-fallback">'+esc(initials)+'</div>')+'</div>'+
+      '<div class="contact-info">'+
+      logoHtml+
+      '<div class="contact-label">'+esc(data.agent_title||'Your Property Consultant')+'</div>'+
+      '<div class="contact-name">'+esc(data.agent_name)+'</div>'+
+      (data.agent_agency?'<div class="contact-agency">'+esc(data.agent_agency)+'</div>':'')+
+      '<div class="contact-rows">'+
+      rows.map(function(r){
+        return '<a class="contact-row" href="'+r.href+'"><span class="contact-row-icon">'+r.icon+'</span>'+esc(r.label)+'</a>';
+      }).join('')+
       '</div></div></div>';
+
+    var valueProps=[
+      {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8-6.2 3.8 1.6-7-5.4-4.7 7.1-.6z"/></svg>',title:'Local Expertise',desc:'Deep knowledge of the local market.'},
+      {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg>',title:'Full Service',desc:'Guidance from first viewing to completion.'},
+      {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l8 3v6c0 5-3.4 8.5-8 11-4.6-2.5-8-6-8-11V5z"/><path d="M9 12l2 2 4-4"/></svg>',title:'Personal Service',desc:'Always available when you need assistance.'},
+      {icon:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.3 2.9-6 6.5-6s6.5 2.7 6.5 6"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.5 14.3c2.7.5 4.5 2.6 4.5 5.7"/></svg>',title:'Trusted Advisor',desc:'Helping buyers make confident decisions.'}
+    ];
+    var valuePropsHtml='<div class="value-props">'+
+      valueProps.map(function(v){
+        return '<div class="value-item">'+v.icon+'<div class="value-desc-wrap"><div class="value-title">'+v.title+'</div><div class="value-desc">'+v.desc+'</div></div></div>';
+      }).join('')+
+      '</div>';
+
+    var ctaHtml='<div class="cta-section">'+
+      '<div class="cta-headline">Let\u2019s find your perfect home</div>'+
+      '<div class="cta-support">I\u2019m happy to answer your questions or arrange a private viewing.</div>'+
+      '<div class="cta-buttons">'+
+      (data.agent_phone?'<a class="cta-btn outlined" href="tel:'+esc(phoneDigits)+'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Call</a>':'')+
+      (phoneDigits?'<a class="cta-btn filled" href="https://wa.me/'+phoneDigits.replace('+','')+'?text='+waMsgCard+'"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>WhatsApp</a>':'')+
+      (phoneDigits?'<a class="cta-btn outlined" href="https://wa.me/'+phoneDigits.replace('+','')+'?text='+bookMsgCard+'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Book Viewing</a>':'')+
+      '</div></div>';
+
+    document.getElementById('contact-section-wrap').innerHTML=
+      '<div class="contact-section">'+contactHtml+valuePropsHtml+ctaHtml+'</div>';
   }
 
   // ── Sticky bottom action bar ─────────────────────────────────────────
