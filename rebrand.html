@@ -39,7 +39,6 @@
   .img-tile.selected .img-check{background:#C9A14A;border-color:#C9A14A;color:#071226}
   .rule-row{display:flex;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px}
   .rule-text{flex:1;color:rgba(255,255,255,.8)}
-  #access-denied{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
   .cselect{position:relative}
   .cselect-btn{width:100%;text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;cursor:pointer;height:auto}
   .cselect-list{position:absolute;left:0;right:0;top:100%;margin-top:4px;background:#0d1c30;border:1px solid rgba(201,161,74,.3);border-radius:8px;z-index:60;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -62,13 +61,6 @@
 </style>
 </head>
 <body>
-
-<div id="access-denied">
-  <div style="font-size:40px;margin-bottom:14px">🔒</div>
-  <div style="font-family:'Georgia',serif;font-size:22px;margin-bottom:8px">Rebrand (Pilot)</div>
-  <div style="font-size:13px;color:rgba(255,255,255,.5);margin-bottom:20px" id="access-denied-msg">This page is restricted.</div>
-  <a href="/" style="color:#C9A14A;font-size:13px;text-decoration:none">&larr; Back to TourFlow</a>
-</div>
 
 <div class="wrap" id="main-content" style="display:none">
   <div style="display:flex;align-items:center;justify-content:space-between">
@@ -132,6 +124,7 @@
           <input type="color" id="brand-secondary-color" value="#071226" style="padding:4px;height:40px;cursor:pointer"/>
         </div>
       </div>
+      <button class="btn-ghost" onclick="resetBrandColors()" style="margin-bottom:14px">Use TourFlow Default Colors</button>
 
       <label style="margin-bottom:6px">Logo Placement</label>
       <div id="brand-placement-wrap" style="margin-bottom:10px"></div>
@@ -174,7 +167,6 @@
 <script>
 var SUPA_URL='https://dhcqbdyrbviormfsdcyr.supabase.co';
 var SUPA_KEY='sb_publishable_ZKyT9nBrTruUnVDZF0VrWQ_HefTPZB3';
-var ADMIN_EMAILS=['niklasbengtsson@hotmail.com'];
 var supa=null;
 
 try{
@@ -183,13 +175,7 @@ try{
   }
 }catch(e){console.error('Supabase init:',e);}
 
-function showAccessDenied(msg){
-  document.getElementById('access-denied-msg').textContent=msg||'This page is restricted.';
-  document.getElementById('access-denied').style.display='flex';
-  document.getElementById('main-content').style.display='none';
-}
 function showMain(){
-  document.getElementById('access-denied').style.display='none';
   document.getElementById('main-content').style.display='block';
   document.getElementById('lang-select-wrap').innerHTML=customSelectHtml('output-lang',[
     {value:'original',label:'Keep original language'},
@@ -204,20 +190,7 @@ function showMain(){
 }
 
 function init(){
-  if(!supa){showAccessDenied('Could not connect.');return;}
-  supa.auth.getSession().then(function(res){
-    var session=res.data&&res.data.session;
-    if(!session||!session.user){
-      showAccessDenied('Please sign in to TourFlow first.');
-      return;
-    }
-    var email=(session.user.email||'').toLowerCase();
-    if(ADMIN_EMAILS.indexOf(email)<0){
-      showAccessDenied();
-      return;
-    }
-    showMain();
-  }).catch(function(){showAccessDenied('Could not verify session.');});
+  showMain();
 }
 init();
 
@@ -671,10 +644,16 @@ function saveSettings(){
     theme:document.getElementById('brand-theme').value,
     logoInHero:document.getElementById('brand-logo-in-hero').checked
   };
-  localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
   var status=document.getElementById('settings-save-status');
-  status.textContent='Saved \u2713';
-  setTimeout(function(){status.textContent='';},2000);
+  try{
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
+    status.style.color='#4ade80';
+    status.textContent='Saved \u2713';
+    setTimeout(function(){status.textContent='';},2500);
+  }catch(e){
+    status.style.color='#f87171';
+    status.textContent='Could not save \u2014 your logo or photo file is probably too large for browser storage. Try a smaller image.';
+  }
 }
 function updateSettingsPhotoPreview(url){
   var preview=document.getElementById('settings-photo-preview');
@@ -684,6 +663,11 @@ function updateSettingsPhotoPreview(url){
 function uploadSettingsPhoto(input){
   var file=input.files[0];
   if(!file)return;
+  if(file.size>1200*1024){
+    alert('That photo is too large ('+Math.round(file.size/1024)+'KB). Please use one under 1.2MB so it can be saved.');
+    input.value='';
+    return;
+  }
   var reader=new FileReader();
   reader.onload=function(e){
     var dataUrl=e.target.result;
@@ -766,6 +750,11 @@ function toggleBrandLogoInHero(){
   cb.checked=!cb.checked;
   renderBrandToggle();
 }
+function resetBrandColors(){
+  document.getElementById('brand-primary-color').value='#C9A14A';
+  document.getElementById('brand-secondary-color').value='#071226';
+}
+
 function renderBrandToggle(){
   var cb=document.getElementById('brand-logo-in-hero');
   var track=document.getElementById('brand-toggle-track');
@@ -828,7 +817,10 @@ function publishListing(){
     }
     var link=window.location.origin+'/p.html?id='+id;
     resultEl.innerHTML='<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:12px;font-size:12px;color:#fff;word-break:break-all">'+link+'</div>'+
-      '<button class="btn-ghost" style="margin-top:8px" onclick="navigator.clipboard.writeText(\''+link+'\');this.textContent=\'Copied!\'">Copy link</button>';
+      '<div style="display:flex;gap:8px;margin-top:8px">'+
+      '<button class="btn-ghost" onclick="navigator.clipboard.writeText(\''+link+'\');this.textContent=\'Copied!\'">Copy link</button>'+
+      '<a class="btn-ghost" href="'+link+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none">Open Link</a>'+
+      '</div>';
   }).catch(function(e){
     btn.disabled=false;btn.textContent='Generate Presentation Link';
     resultEl.innerHTML='<span style="color:#f87171;font-size:12px">Could not publish: '+esc(e.message)+'</span>';
