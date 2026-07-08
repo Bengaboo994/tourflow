@@ -193,6 +193,7 @@ exports.handler = async function(event) {
     // post-JavaScript HTML instead, then re-run the same image extraction
     // against that.
     let usedRenderedFallback = false;
+    let renderedFallbackError = null;
     if (imageSet.size === 0 && process.env.SCREENSHOTONE_API_KEY) {
       try {
         const renderUrl = 'https://api.screenshotone.com/take'
@@ -207,8 +208,13 @@ exports.handler = async function(event) {
           + '&timeout=25';
         const renderRes = await fetch(renderUrl);
         const renderJson = await renderRes.json();
-        const renderedHtml = renderJson && renderJson.content;
-        if (renderedHtml) {
+        // metadata_content doesn't return the HTML inline — it returns a
+        // { url, expires } pointer to where the rendered content is hosted,
+        // so we need a second fetch to actually get it.
+        const contentUrl = renderJson && renderJson.content && renderJson.content.url;
+        if (contentUrl) {
+          const contentRes = await fetch(contentUrl);
+          const renderedHtml = await contentRes.text();
           const renderedImgMatches = renderedHtml.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
           for (const m of renderedImgMatches) {
             let src = m[1];
@@ -222,8 +228,9 @@ exports.handler = async function(event) {
           usedRenderedFallback = true;
         }
       } catch (e) {
-        // Silently fall through — the person still gets everything else
-        // the plain scrape found; they can add images manually if needed.
+        // Still return everything else the plain scrape found; the person
+        // can add images manually if needed. Keep the error for debugging.
+        renderedFallbackError = e && e.message ? e.message : String(e);
       }
     }
 
@@ -238,7 +245,7 @@ exports.handler = async function(event) {
         description,
         images: Array.from(imageSet),
         imageCount: imageSet.size,
-        _debug: { htmlLength: html.length, usedRenderedFallback }
+        _debug: { htmlLength: html.length, usedRenderedFallback, renderedFallbackError }
       })
     };
 
