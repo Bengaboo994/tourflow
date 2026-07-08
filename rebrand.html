@@ -35,8 +35,8 @@
   .section-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
   .desc-box{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;background:rgba(255,255,255,.03);border-radius:8px;padding:12px;white-space:pre-line}
   .img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
-  .img-tile{position:relative;border-radius:6px;overflow:hidden;border:2px solid transparent;cursor:pointer}
-  .img-tile.selected{border-color:#C9A14A}
+  .img-tile{position:relative;border-radius:6px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+  .img-tile.selected{border-color:#C9A14A;border-width:3px;box-shadow:0 0 0 2px rgba(201,161,74,.35),0 0 12px rgba(201,161,74,.4)}
   .img-tile img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
   .img-check{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;background:rgba(7,18,38,.7);border:1.5px solid rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent}
   .img-tile.selected .img-check{background:#C9A14A;border-color:#C9A14A;color:#071226}
@@ -208,7 +208,7 @@
       </label>
     </div>
     <input id="settings-agent-photo" placeholder="...or paste a photo URL instead" oninput="updateSettingsPhotoPreview(this.value)" style="margin-top:8px;margin-bottom:10px"/>
-    <button class="btn-ghost" onclick="saveSettings()" style="width:100%">Save Contact Card</button>
+    <button class="btn-ghost" onclick="saveSettings('contact')" style="width:100%">Save Contact Card</button>
     <div id="settings-save-status" style="font-size:12px;color:#4ade80;margin-top:8px"></div>
 
     <div style="margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
@@ -249,7 +249,8 @@
         <button type="button" id="brand-logo-in-hero-btn" onclick="toggleBrandLogoInHero()" style="height:32px;padding:0 16px;font-size:12px;border-radius:100px;border:none"></button>
       </div>
 
-      <button class="btn-ghost" onclick="saveSettings()" style="width:100%">Save Branding</button>
+      <button class="btn-ghost" onclick="saveSettings('branding')" style="width:100%">Save Branding</button>
+      <div id="branding-save-status" style="font-size:12px;color:#4ade80;margin-top:8px"></div>
     </div>
   </div>
 
@@ -616,10 +617,14 @@ function editField(field){
   renderResults();
 }
 
-function toggleImage(src){
+function toggleImage(src,tileEl){
   if(selectedImages[src])delete selectedImages[src];
   else selectedImages[src]=true;
-  renderResults();
+  if(tileEl)tileEl.classList.toggle('selected',!!selectedImages[src]);
+  var counter=document.getElementById('img-select-count');
+  if(counter&&currentData&&currentData.images){
+    counter.textContent=Object.keys(selectedImages).length+' of '+currentData.images.length;
+  }
 }
 
 function toggleFeature(key){
@@ -755,14 +760,14 @@ function renderResults(){
       imagesHtml='<div class="card"><div class="empty" style="font-size:13px">No images found.</div></div>';
     } else {
       imagesHtml='<div class="card">'+
-        '<div class="section-label">Images ('+selCount+' of '+imgCount+' selected \u2014 drag or use arrows to reorder, tap to select, \u00d7 to remove)</div>'+
+        '<div class="section-label">Images (<span id="img-select-count">'+selCount+' of '+imgCount+'</span> selected \u2014 drag or use arrows to reorder, tap to select, \u00d7 to remove)</div>'+
         '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px">\u2b50 marks the cover photo \u2014 shown first on the presentation.</div>'+
         '<div class="img-grid" id="img-grid">'+
         currentData.images.map(function(src,idx){
           var sel=selectedImages[src];
           var isCover=idx===0;
           return '<div class="img-tile'+(sel?' selected':'')+'" draggable="true" data-idx="'+idx+'" ondragstart="onImgDragStart(event,'+idx+')" ondragover="onImgDragOver(event)" ondrop="onImgDrop(event,'+idx+')" ondragend="onImgDragEnd(event)">'+
-            '<img src="'+src+'" loading="lazy" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\')" onerror="this.parentElement.style.display=\'none\'"/>'+
+            '<img src="'+src+'" loading="lazy" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\',this.parentElement)" onerror="this.parentElement.style.display=\'none\'"/>'+
             '<div class="img-check">\u2713</div>'+
             '<button class="img-delete-btn" onclick="event.stopPropagation();deleteImage('+idx+')" title="Remove">\u00d7</button>'+
             '<button class="img-cover-btn'+(isCover?' is-cover':'')+'" onclick="event.stopPropagation();setAsCover('+idx+')" title="'+(isCover?'Cover photo':'Set as cover photo')+'">'+(isCover?'\u2b50':'\u2606')+'</button>'+
@@ -862,8 +867,8 @@ function loadSettingsIntoForm(){
     {value:'dark',label:'Dark'}
   ],s.theme||'light');
 }
-function saveSettings(){
-  var status=document.getElementById('settings-save-status');
+function saveSettings(sourceId){
+  var status=document.getElementById(sourceId==='branding'?'branding-save-status':'settings-save-status');
   try{
     var s={
       name:document.getElementById('settings-agent-name').value,
