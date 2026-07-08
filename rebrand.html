@@ -114,8 +114,8 @@
   /* Splash screen */
   #splash{position:fixed;inset:0;background:#0A0A0A;z-index:1000;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .6s ease}
   #splash.hidden{opacity:0;pointer-events:none}
-  #splash img{width:495px;max-width:85vw;opacity:0;animation:tf-splash-in 1s ease forwards}
-  @keyframes tf-splash-in{to{opacity:1}}
+  #splash img{width:743px;max-width:90vw;opacity:0;transform:scale(.8);animation:tf-splash-in 1.1s cubic-bezier(.16,1,.3,1) forwards}
+  @keyframes tf-splash-in{to{opacity:1;transform:scale(1)}}
 
   /* Minimal home hero */
   .home-hero{background:#F5F3EE;border-radius:20px;padding:32px 24px;margin-bottom:20px;text-align:center}
@@ -137,8 +137,8 @@
   /* Splash screen */
   #splash{position:fixed;inset:0;background:#0A0A0A;z-index:1000;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .6s ease}
   #splash.hidden{opacity:0;pointer-events:none}
-  #splash img{width:495px;max-width:85vw;opacity:0;animation:tf-splash-in 1s ease forwards}
-  @keyframes tf-splash-in{to{opacity:1}}
+  #splash img{width:743px;max-width:90vw;opacity:0;transform:scale(.8);animation:tf-splash-in 1.1s cubic-bezier(.16,1,.3,1) forwards}
+  @keyframes tf-splash-in{to{opacity:1;transform:scale(1)}}
 
   /* Minimal home hero */
   .home-hero{background:#F5F3EE;border-radius:20px;padding:32px 24px;margin-bottom:20px;text-align:center}
@@ -163,7 +163,7 @@
 
 <div class="wrap" id="main-content" style="display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-    <a class="back" href="/" style="display:inline-flex"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
+    <button onclick="startNewListing()" class="back" style="display:inline-flex;background:none;border:none;cursor:pointer;font:inherit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Home</button>
     <button onclick="toggleSettings()" title="Settings" style="background:none;border:none;color:rgba(201,161,74,.6);cursor:pointer;padding:0;display:inline-flex">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
