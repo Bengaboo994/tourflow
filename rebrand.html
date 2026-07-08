@@ -52,6 +52,8 @@
   .img-tile{position:relative;border-radius:6px;overflow:hidden;border:2px solid transparent}
   .img-tile-actions{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-between;padding:3px;background:linear-gradient(transparent,rgba(0,0,0,.65))}
   .img-tile-actions button{background:rgba(7,18,38,.75);color:#fff;border:none;border-radius:4px;padding:2px 6px;font-size:11px;height:auto;cursor:pointer}
+  .img-cover-btn{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(7,18,38,.6);border:none;color:rgba(255,255,255,.6);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+  .img-cover-btn.is-cover{background:#C9A14A;color:#050e1a}
   .img-delete-btn{position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:rgba(220,38,38,.85);color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
   .step-label{font-size:11px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.14em;margin:26px 0 10px}
   .update-banner{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.35);border-radius:10px;padding:14px 16px;font-size:14px;font-weight:600;color:#4ade80;margin-top:14px;line-height:1.5}
@@ -74,6 +76,22 @@
   .progress-item.active .progress-label,.progress-item.done .progress-label{color:#C9A14A;font-weight:600}
   .step-nav{display:flex;gap:10px;margin-top:14px}
   .step-nav button{flex:1}
+
+  .import-progress{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;margin-top:14px;text-align:left}
+  .import-progress-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
+  .import-progress-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px}
+  .import-checklist{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .import-check-item{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.3);transition:color .3s}
+  .import-check-item.done{color:#4ade80}
+  .import-check-item.active{color:#C9A14A}
+  .import-check-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+  .import-mini-spinner{width:11px;height:11px;border-radius:50%;border:2px solid rgba(201,161,74,.25);border-top-color:#C9A14A;animation:tf-spin .8s linear infinite}
+  .import-progress-bar-track{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+  .import-progress-bar-fill{height:100%;background:#C9A14A;transition:width .4s ease;border-radius:2px}
+
+  @keyframes tf-step-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+  #rebrand-results>*{animation:tf-step-in .3s ease}
+  .progress-bar{animation:tf-step-in .3s ease}
 
   /* Light theme for steps where the person is working (Review/Images/Confirm/Publish) —
      mirrors home-hero. Enhance stays dark since that's "AI working". */
@@ -144,14 +162,16 @@
 </div>
 
 <div class="wrap" id="main-content" style="display:none">
-  <a class="back" href="/" style="margin-bottom:14px;display:inline-flex"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <a class="back" href="/" style="display:inline-flex"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Back to app</a>
+    <button onclick="toggleSettings()" title="Settings" style="background:none;border:none;color:rgba(201,161,74,.6);cursor:pointer;padding:0;display:inline-flex">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
 
   <div class="home-hero">
     <div class="home-hero-top">
       <img class="home-hero-logo" id="home-logo" src="" alt="Rebrand"/>
-      <button class="home-hero-settings-btn" onclick="toggleSettings()" title="Settings">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      </button>
     </div>
     <label class="home-label">Paste property URL</label>
     <input id="rebrand-url" placeholder="https://reveny.es/..." oninput="checkPortalWarning(this.value)"/>
@@ -311,6 +331,43 @@ function checkPortalWarning(url){
   }
 }
 
+var IMPORT_STAGES=['Importing content','Extracting details','Fetching images','Detecting features','Almost done'];
+var importProgressTimer=null;
+var importProgressIdx=0;
+
+function renderImportProgress(idx,pct){
+  var status=document.getElementById('status');
+  if(!status)return;
+  status.innerHTML='<div class="import-progress">'+
+    '<div class="import-progress-title">Importing your listing</div>'+
+    '<div class="import-progress-sub">This usually takes 10\u201330 seconds</div>'+
+    '<div class="import-checklist">'+
+    IMPORT_STAGES.map(function(label,i){
+      var cls=i<idx?'done':(i===idx?'active':'');
+      var icon=i<idx?'\u2713':(i===idx?'<span class="import-mini-spinner"></span>':'\u25cb');
+      return '<div class="import-check-item '+cls+'"><span class="import-check-icon">'+icon+'</span>'+label+'</div>';
+    }).join('')+
+    '</div>'+
+    '<div class="import-progress-bar-track"><div class="import-progress-bar-fill" style="width:'+pct+'%"></div></div>'+
+    '</div>';
+}
+
+function startImportProgressAnimation(){
+  stopImportProgressAnimation();
+  importProgressIdx=0;
+  renderImportProgress(0,12);
+  importProgressTimer=setInterval(function(){
+    if(importProgressIdx<IMPORT_STAGES.length-1){
+      importProgressIdx++;
+      var pct=Math.min(92,Math.round((importProgressIdx+1)/IMPORT_STAGES.length*100));
+      renderImportProgress(importProgressIdx,pct);
+    }
+  },700);
+}
+function stopImportProgressAnimation(){
+  if(importProgressTimer){clearInterval(importProgressTimer);importProgressTimer=null;}
+}
+
 function runRebrandScrape(){
   var url=document.getElementById('rebrand-url').value.trim();
   var galleryUrl=document.getElementById('rebrand-gallery-url').value.trim();
@@ -318,7 +375,7 @@ function runRebrandScrape(){
   var resultsEl=document.getElementById('rebrand-results');
   var btn=document.getElementById('rebrand-scrape-btn');
   if(!url){status.textContent='Paste a listing URL first.';return;}
-  status.textContent='Scraping\u2026';
+  startImportProgressAnimation();
   resultsEl.innerHTML='';
   btn.disabled=true;
   imagesCollapsed=false;
@@ -327,13 +384,13 @@ function runRebrandScrape(){
     .then(function(r){return r.json();})
     .then(function(data){
       if(data.error){
+        stopImportProgressAnimation();
         btn.disabled=false;
         status.innerHTML='<span style="color:#f87171">Error: '+esc(data.error)+'</span>';
         return null;
       }
       currentData=data;
       if(galleryUrl){
-        status.textContent='Fetching gallery images\u2026';
         return fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(galleryUrl))
           .then(function(r){return r.json();})
           .then(function(galleryData){
@@ -354,11 +411,18 @@ function runRebrandScrape(){
           if(lockedFields[field]) correctedData[field]=prevCorrected[field];
         });
       }
+      stopImportProgressAnimation();
+      renderImportProgress(IMPORT_STAGES.length,100);
       btn.disabled=false;
-      status.innerHTML='<span style="color:#4ade80">Done \u2014 '+currentData.imageCount+' candidate images</span>';
-      renderResults();
+      currentStep='review';
+      setTimeout(function(){
+        status.innerHTML='';
+        renderResults();
+        window.scrollTo({top:0,behavior:'smooth'});
+      },500);
     })
     .catch(function(e){
+      stopImportProgressAnimation();
       btn.disabled=false;
       status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
     });
@@ -487,6 +551,14 @@ function cancelEditDescription(){
 }
 
 // ── Image reorder & delete ───────────────────────────────────────────────
+function setAsCover(idx){
+  if(idx===0)return;
+  var imgs=currentData.images;
+  var moved=imgs.splice(idx,1)[0];
+  imgs.unshift(moved);
+  renderResults();
+}
+
 function moveImage(idx,dir){
   var imgs=currentData.images;
   var newIdx=idx+dir;
@@ -684,13 +756,16 @@ function renderResults(){
     } else {
       imagesHtml='<div class="card">'+
         '<div class="section-label">Images ('+selCount+' of '+imgCount+' selected \u2014 drag or use arrows to reorder, tap to select, \u00d7 to remove)</div>'+
+        '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:10px">\u2b50 marks the cover photo \u2014 shown first on the presentation.</div>'+
         '<div class="img-grid" id="img-grid">'+
         currentData.images.map(function(src,idx){
           var sel=selectedImages[src];
+          var isCover=idx===0;
           return '<div class="img-tile'+(sel?' selected':'')+'" draggable="true" data-idx="'+idx+'" ondragstart="onImgDragStart(event,'+idx+')" ondragover="onImgDragOver(event)" ondrop="onImgDrop(event,'+idx+')" ondragend="onImgDragEnd(event)">'+
             '<img src="'+src+'" loading="lazy" onclick="toggleImage(\''+src.replace(/'/g,"\\'")+'\')" onerror="this.parentElement.style.display=\'none\'"/>'+
             '<div class="img-check">\u2713</div>'+
             '<button class="img-delete-btn" onclick="event.stopPropagation();deleteImage('+idx+')" title="Remove">\u00d7</button>'+
+            '<button class="img-cover-btn'+(isCover?' is-cover':'')+'" onclick="event.stopPropagation();setAsCover('+idx+')" title="'+(isCover?'Cover photo':'Set as cover photo')+'">'+(isCover?'\u2b50':'\u2606')+'</button>'+
             '<div class="img-tile-actions">'+
             '<button onclick="event.stopPropagation();moveImage('+idx+',-1)" '+(idx===0?'disabled style="opacity:.3"':'')+'>\u2039</button>'+
             '<button onclick="event.stopPropagation();moveImage('+idx+',1)" '+(idx===imgCount-1?'disabled style="opacity:.3"':'')+'>\u203a</button>'+
