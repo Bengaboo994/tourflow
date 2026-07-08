@@ -153,6 +153,10 @@ exports.handler = async function(event) {
     const imageSet = new Set();
     if (primaryImage) imageSet.add(primaryImage);
 
+    // Exclude icons, logos, flags (country flag icons on language switchers),
+    // and staff/agent headshots — none of these are photos of the property.
+    const NON_PROPERTY_IMAGE_RE = /(logo|icon|sprite|favicon|pixel|spacer|avatar|placeholder|flag|flagcdn|\/flags\/|agent[-_]|staff|headshot|team[-_]photo|author|profile[-_]pic|employee|broker[-_]photo)/i;
+
     const imgTagMatches = html.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
     for (const m of imgTagMatches) {
       let src = m[1];
@@ -160,7 +164,7 @@ exports.handler = async function(event) {
       // Resolve relative URLs against the source page
       try { src = new URL(src, url).href; } catch (e) { continue; }
       const lower = src.toLowerCase();
-      const looksLikeIcon = /(logo|icon|sprite|favicon|pixel|spacer|avatar|placeholder)/i.test(lower);
+      const looksLikeIcon = NON_PROPERTY_IMAGE_RE.test(lower);
       const looksLikePhoto = /\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower);
       if (looksLikePhoto && !looksLikeIcon) imageSet.add(src);
       if (imageSet.size >= 30) break; // generous cap — agent narrows down later
@@ -174,12 +178,53 @@ exports.handler = async function(event) {
         if (!src || src.startsWith('data:')) continue;
         try { src = new URL(src, url).href; } catch (e) { continue; }
         const lower = src.toLowerCase();
-        if (/\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower) && !/(logo|icon|sprite|favicon|pixel|spacer|avatar|placeholder)/i.test(lower)) {
+        if (/\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower) && !NON_PROPERTY_IMAGE_RE.test(lower)) {
           imageSet.add(src);
         }
         if (imageSet.size >= 30) break;
       }
       if (imageSet.size >= 30) break;
+    }
+
+    // Fallback: some sites load their photo gallery via JavaScript after
+    // page load, so a plain fetch() of the raw HTML finds zero <img> tags
+    // even though the page clearly has photos. If that happened, ask
+    // ScreenshotOne to render the page in a real browser and hand back the
+    // post-JavaScript HTML instead, then re-run the same image extraction
+    // against that.
+    let usedRenderedFallback = false;
+    if (imageSet.size === 0 && process.env.SCREENSHOTONE_API_KEY) {
+      try {
+        const renderUrl = 'https://api.screenshotone.com/take'
+          + '?access_key=' + encodeURIComponent(process.env.SCREENSHOTONE_API_KEY)
+          + '&url=' + encodeURIComponent(url)
+          + '&response_type=json'
+          + '&metadata_content=true'
+          + '&metadata_content_format=html'
+          + '&block_ads=true'
+          + '&block_cookie_banners=true'
+          + '&delay=3'
+          + '&timeout=25';
+        const renderRes = await fetch(renderUrl);
+        const renderJson = await renderRes.json();
+        const renderedHtml = renderJson && renderJson.content;
+        if (renderedHtml) {
+          const renderedImgMatches = renderedHtml.matchAll(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
+          for (const m of renderedImgMatches) {
+            let src = m[1];
+            if (!src || src.startsWith('data:')) continue;
+            try { src = new URL(src, url).href; } catch (e) { continue; }
+            const lower = src.toLowerCase();
+            const looksLikePhoto = /\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower);
+            if (looksLikePhoto && !NON_PROPERTY_IMAGE_RE.test(lower)) imageSet.add(src);
+            if (imageSet.size >= 30) break;
+          }
+          usedRenderedFallback = true;
+        }
+      } catch (e) {
+        // Silently fall through — the person still gets everything else
+        // the plain scrape found; they can add images manually if needed.
+      }
     }
 
     return {
@@ -193,7 +238,7 @@ exports.handler = async function(event) {
         description,
         images: Array.from(imageSet),
         imageCount: imageSet.size,
-        _debug: { htmlLength: html.length }
+        _debug: { htmlLength: html.length, usedRenderedFallback }
       })
     };
 
