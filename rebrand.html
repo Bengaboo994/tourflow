@@ -29,6 +29,9 @@
   .field-value.edited{color:#4ade80}
   .empty{color:rgba(255,255,255,.25)}
   .edit-btn{background:none;border:none;color:rgba(201,161,74,.6);font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0}
+  .lock-btn{border:none;cursor:pointer;flex-shrink:0;width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:14px;padding:0}
+  .lock-btn.unlocked{background:rgba(255,255,255,.06);color:rgba(255,255,255,.35)}
+  .lock-btn.locked{background:#C9A14A;color:#050e1a}
   .section-label{font-size:11px;font-weight:600;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
   .desc-box{font-size:13px;color:rgba(255,255,255,.75);line-height:1.6;background:rgba(255,255,255,.03);border-radius:8px;padding:12px;white-space:pre-line}
   .img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
@@ -72,10 +75,28 @@
   .step-nav{display:flex;gap:10px;margin-top:14px}
   .step-nav button{flex:1}
 
+  /* Light theme for steps where the person is working (Review/Images/Confirm/Publish) —
+     mirrors home-hero. Enhance stays dark since that's "AI working". */
+  .light-step-wrap{background:#F5F3EE;border-radius:20px;padding:20px;color:#1A1917}
+  .light-step-wrap .card{background:#fff;border:1px solid rgba(7,18,38,.08);box-shadow:0 2px 10px rgba(0,0,0,.03)}
+  .light-step-wrap .field-row{border-bottom-color:rgba(7,18,38,.08)}
+  .light-step-wrap .field-label{color:rgba(7,18,38,.45)}
+  .light-step-wrap .field-value{color:#1A1917}
+  .light-step-wrap .field-value.edited{color:#2d7a3f}
+  .light-step-wrap .empty{color:rgba(7,18,38,.32)}
+  .light-step-wrap .section-label{color:rgba(7,18,38,.45)}
+  .light-step-wrap .desc-box{background:rgba(7,18,38,.03);color:rgba(7,18,38,.75)}
+  .light-step-wrap input,.light-step-wrap textarea{background:#fff;border:1.5px solid rgba(7,18,38,.12);color:#1A1917}
+  .light-step-wrap .btn-ghost{border-color:rgba(201,161,74,.5)}
+  .light-step-wrap .lock-btn.unlocked{background:rgba(7,18,38,.06);color:rgba(7,18,38,.3)}
+  .light-step-wrap .edit-btn{color:#9c7a2e}
+  .light-step-wrap .img-collapsed-summary{background:#fff;border-color:rgba(201,161,74,.3)}
+  .light-step-wrap .img-collapsed-summary span:first-child{color:#1A1917}
+
   /* Splash screen */
   #splash{position:fixed;inset:0;background:#0A0A0A;z-index:1000;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .6s ease}
   #splash.hidden{opacity:0;pointer-events:none}
-  #splash img{width:330px;max-width:75vw;opacity:0;animation:tf-splash-in 1s ease forwards}
+  #splash img{width:495px;max-width:85vw;opacity:0;animation:tf-splash-in 1s ease forwards}
   @keyframes tf-splash-in{to{opacity:1}}
 
   /* Minimal home hero */
@@ -98,7 +119,7 @@
   /* Splash screen */
   #splash{position:fixed;inset:0;background:#0A0A0A;z-index:1000;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .6s ease}
   #splash.hidden{opacity:0;pointer-events:none}
-  #splash img{width:330px;max-width:75vw;opacity:0;animation:tf-splash-in 1s ease forwards}
+  #splash img{width:495px;max-width:85vw;opacity:0;animation:tf-splash-in 1s ease forwards}
   @keyframes tf-splash-in{to{opacity:1}}
 
   /* Minimal home hero */
@@ -511,6 +532,14 @@ function toggleFieldLock(field){
   renderResults();
 }
 
+function lockBtnHtml(field){
+  var isLocked=!!lockedFields[field];
+  var icon=isLocked
+    ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>'
+    : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 017.75-1.5"/></svg>';
+  return '<button class="lock-btn '+(isLocked?'locked':'unlocked')+'" onclick="toggleFieldLock(\''+field+'\')" title="'+(isLocked?'Locked \u2014 tap to unlock':'Unlocked \u2014 tap to lock')+'">'+icon+'</button>';
+}
+
 function editField(field){
   var current=correctedData[field]||'';
   var val=prompt('Correct value for "'+field+'":',current);
@@ -539,8 +568,8 @@ function addCustomFeature(){
 }
 
 var currentStep='review';
-var STEP_ORDER=['review','images','enhance','publish'];
-var STEP_LABELS={review:'Review',images:'Images',enhance:'Enhance',publish:'Publish'};
+var STEP_ORDER=['review','images','enhance','confirm','publish'];
+var STEP_LABELS={review:'Review',images:'Images',enhance:'Enhance',confirm:'Confirm',publish:'Publish'};
 
 function renderProgressBar(){
   var wrap=document.getElementById('progress-bar-wrap');
@@ -562,6 +591,67 @@ function goToStep(step){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+function buildReviewCardHtml(){
+  var data=correctedData;
+  var fields=[
+    ['title','Title'],['price','Price'],['rooms','Rooms'],
+    ['bathrooms','Bathrooms'],['sqm','Sqm'],['plotSize','Plot (m\u00b2)'],['area','Area'],['address','Address'],
+    ['communityFee','Community Fee'],['ibi','IBI / Property Tax'],['garbageFee','Garbage Fee'],['energyClass','Energy Class']
+  ];
+  var fieldsHtml=fields.map(function(f){
+    var wasEdited=currentData&&data[f[0]]!==currentData[f[0]];
+    if(data[f[0]]==null||data[f[0]]===''){
+      return '<div class="field-row"><span class="field-label">'+f[1]+'</span>'+
+        '<span class="empty" style="font-size:12px">Couldn\u2019t detect \u2014 </span>'+
+        '<button class="edit-btn" onclick="editField(\''+f[0]+'\')" style="text-decoration:underline;font-size:12px">Add manually</button>'+
+        '</div>';
+    }
+    return '<div class="field-row"><span class="field-label">'+f[1]+'</span>'+
+      '<span class="field-value'+(wasEdited?' edited':'')+'">'+esc(data[f[0]])+'</span>'+
+      '<button class="edit-btn" onclick="editField(\''+f[0]+'\')">\u270f\ufe0f</button>'+
+      lockBtnHtml(f[0])+
+      '</div>';
+  }).join('');
+
+  var descHtml='<div style="margin-top:16px">'+
+    '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Description '+
+    (editingDescription?'':'<span>'+lockBtnHtml('description')+' <button class="edit-btn" onclick="startEditDescription()">\u270f\ufe0f edit</button></span>')+
+    '</div>'+
+    (editingDescription?
+      '<textarea id="desc-edit-input" class="desc-edit-box">'+esc(data.description||'')+'</textarea>'+
+      '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-ghost" onclick="saveDescription()">Save</button><button class="btn-ghost" onclick="cancelEditDescription()">Cancel</button></div>'
+      :(data.description?'<div class="desc-box">'+esc(data.description)+'</div>':'<div class="empty" style="font-size:13px">Couldn\u2019t detect a description \u2014 <a href="#" onclick="startEditDescription();return false" style="color:#C9A14A">add one manually</a></div>'))+
+    '</div>';
+
+  var featureKeys=Object.keys(featureState);
+  var selectedCount=featureKeys.filter(function(k){return featureState[k];}).length;
+  var featuresHtml='<div style="margin-top:16px">'+
+    '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Features '+
+    lockBtnHtml('features')+
+    '</div>'+
+    (featureKeys.length?
+      '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:8px">'+selectedCount+' of '+featureKeys.length+' selected \u2014 shown as badges on the presentation</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">'+
+      featureKeys.map(function(k){
+        var on=featureState[k];
+        return '<button onclick="toggleFeature(\''+esc(k).replace(/'/g,"\\'")+'\')" style="background:'+(on?'rgba(201,161,74,.15)':'rgba(255,255,255,.03)')+';border:1px solid '+(on?'rgba(201,161,74,.5)':'rgba(255,255,255,.1)')+';color:'+(on?'#C9A14A':'rgba(255,255,255,.35)')+';border-radius:100px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">'+(on?'\u2713 ':'')+esc(k)+'</button>';
+      }).join('')+
+      '</div>'
+      :'<div class="empty" style="font-size:13px;margin-bottom:10px">No features detected yet \u2014 try the Enhance step.</div>')+
+    '<div class="row">'+
+    '<input id="custom-feature-input" placeholder="Add a custom feature\u2026" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addCustomFeature();}"/>'+
+    '<button class="btn-ghost" onclick="addCustomFeature()">Add</button>'+
+    '</div>'+
+    '</div>';
+
+  return '<div class="card">'+fieldsHtml+descHtml+featuresHtml+
+    '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.35);line-height:1.6">'+
+    'Tap the lock next to any field that\u2019s already correct \u2014 locked fields are never overwritten later.'+
+    '</div>'+
+    '<button class="btn-ghost" onclick="runRebrandScrape()" style="margin-top:12px">&#8635; Re-import</button>'+
+    '</div>';
+}
+
 function renderResults(){
   renderProgressBar();
   var resultsEl=document.getElementById('rebrand-results');
@@ -575,61 +665,17 @@ function renderResults(){
   }
   if(homeHero)homeHero.style.display='none';
 
-  if(currentStep==='review'){
-    var fields=[
-      ['title','Title'],['price','Price'],['rooms','Rooms'],
-      ['bathrooms','Bathrooms'],['sqm','Sqm'],['plotSize','Plot (m\u00b2)'],['area','Area'],['address','Address'],
-      ['communityFee','Community Fee'],['ibi','IBI / Property Tax'],['garbageFee','Garbage Fee'],['energyClass','Energy Class']
-    ];
-    var fieldsHtml=fields.map(function(f){
-      var wasEdited=currentData&&data[f[0]]!==currentData[f[0]];
-      var isLocked=!!lockedFields[f[0]];
-      return '<div class="field-row"><span class="field-label">'+f[1]+'</span>'+
-        '<span class="field-value'+(wasEdited?' edited':'')+'">'+(data[f[0]]!=null&&data[f[0]]!==''?esc(data[f[0]]):'<span class="empty">not found</span>')+'</span>'+
-        '<button class="edit-btn" onclick="toggleFieldLock(\''+f[0]+'\')" title="'+(isLocked?'Unlock':'Lock this value')+'">'+(isLocked?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
-        '<button class="edit-btn" onclick="editField(\''+f[0]+'\')">\u270f\ufe0f</button>'+
-        '</div>';
-    }).join('');
-
-    var descHtml='<div style="margin-top:16px">'+
-      '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Description '+
-      (editingDescription?'':'<span><button class="edit-btn" onclick="toggleFieldLock(\'description\')">'+(lockedFields.description?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
-      '<button class="edit-btn" onclick="startEditDescription()">\u270f\ufe0f edit</button></span>')+
+  if(currentStep==='review'||currentStep==='confirm'){
+    var reviewCardHtml=buildReviewCardHtml();
+    var isConfirm=currentStep==='confirm';
+    resultsEl.innerHTML='<div class="light-step-wrap">'+
+      (isConfirm?'<div style="font-size:13px;color:rgba(26,25,23,.6);margin-bottom:14px">One more look before you publish \u2014 change anything that needs it.</div>':'')+
+      reviewCardHtml+
       '</div>'+
-      (editingDescription?
-        '<textarea id="desc-edit-input" class="desc-edit-box">'+esc(data.description||'')+'</textarea>'+
-        '<div style="display:flex;gap:8px;margin-top:8px"><button class="btn-ghost" onclick="saveDescription()">Save</button><button class="btn-ghost" onclick="cancelEditDescription()">Cancel</button></div>'
-        :(data.description?'<div class="desc-box">'+esc(data.description)+'</div>':'<div class="empty" style="font-size:13px">not found</div>'))+
+      '<div class="step-nav">'+
+      (isConfirm?'<button class="btn-ghost" onclick="goToStep(\'enhance\')">Back</button><button onclick="goToStep(\'publish\')">Continue</button>'
+        :'<button onclick="goToStep(\'images\')">Continue</button>')+
       '</div>';
-
-    var featureKeys=Object.keys(featureState);
-    var selectedCount=featureKeys.filter(function(k){return featureState[k];}).length;
-    var featuresHtml='<div style="margin-top:16px">'+
-      '<div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Features '+
-      '<button class="edit-btn" onclick="toggleFieldLock(\'features\')">'+(lockedFields.features?'\ud83d\udd12':'\ud83d\udd13')+'</button>'+
-      '</div>'+
-      (featureKeys.length?
-        '<div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:8px">'+selectedCount+' of '+featureKeys.length+' selected \u2014 shown as badges on the presentation</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">'+
-        featureKeys.map(function(k){
-          var on=featureState[k];
-          return '<button onclick="toggleFeature(\''+esc(k).replace(/'/g,"\\'")+'\')" style="background:'+(on?'rgba(201,161,74,.15)':'rgba(255,255,255,.03)')+';border:1px solid '+(on?'rgba(201,161,74,.5)':'rgba(255,255,255,.1)')+';color:'+(on?'#C9A14A':'rgba(255,255,255,.35)')+';border-radius:100px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">'+(on?'\u2713 ':'')+esc(k)+'</button>';
-        }).join('')+
-        '</div>'
-        :'<div class="empty" style="font-size:13px;margin-bottom:10px">No features detected yet \u2014 try the Enhance step.</div>')+
-      '<div class="row">'+
-      '<input id="custom-feature-input" placeholder="Add a custom feature\u2026" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addCustomFeature();}"/>'+
-      '<button class="btn-ghost" onclick="addCustomFeature()">Add</button>'+
-      '</div>'+
-      '</div>';
-
-    resultsEl.innerHTML='<div class="card">'+fieldsHtml+descHtml+featuresHtml+
-      '<div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:rgba(255,255,255,.35);line-height:1.6">'+
-      'Tap \ud83d\udd13 next to any field that\u2019s already correct to lock \ud83d\udd12 it \u2014 locked fields are never overwritten later.'+
-      '</div>'+
-      '<button class="btn-ghost" onclick="runRebrandScrape()" style="margin-top:12px">&#8635; Re-import</button>'+
-      '</div>'+
-      '<div class="step-nav"><button onclick="goToStep(\'images\')">Continue</button></div>';
     return;
   }
 
@@ -657,7 +703,7 @@ function renderResults(){
         }).join('')+
         '</div></div>';
     }
-    resultsEl.innerHTML=imagesHtml+
+    resultsEl.innerHTML='<div class="light-step-wrap">'+imagesHtml+'</div>'+
       '<div class="step-nav"><button class="btn-ghost" onclick="goToStep(\'review\')">Back</button><button onclick="goToStep(\'enhance\')">Continue</button></div>';
     return;
   }
@@ -669,18 +715,18 @@ function renderResults(){
       '<div id="ai-read-status"></div>'+
       '</div>';
     resultsEl.innerHTML=aiSection+
-      '<div class="step-nav"><button class="btn-ghost" onclick="goToStep(\'images\')">Back</button><button onclick="goToStep(\'publish\')">Continue</button></div>';
+      '<div class="step-nav"><button class="btn-ghost" onclick="goToStep(\'images\')">Back</button><button onclick="goToStep(\'confirm\')">Continue</button></div>';
     return;
   }
 
   if(currentStep==='publish'){
-    resultsEl.innerHTML='<div class="card">'+
+    resultsEl.innerHTML='<div class="light-step-wrap"><div class="card">'+
       '<div class="section-label">When you\'re happy with everything above</div>'+
       '<button onclick="publishListing()" id="publish-btn" style="width:100%;margin-top:4px">Generate Presentation Link</button>'+
       '<div id="publish-result" style="margin-top:12px"></div>'+
-      '<div style="font-size:10px;color:rgba(255,255,255,.3);line-height:1.5;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08)">Please review before publishing \u2014 make sure you have permission to use any imported text or images. Confirming reuse rights with the listing agent is recommended.</div>'+
-      '</div>'+
-      '<div class="step-nav"><button class="btn-ghost" onclick="goToStep(\'enhance\')">Back</button></div>';
+      '<div style="font-size:10px;color:rgba(7,18,38,.4);line-height:1.5;margin-top:12px;padding-top:12px;border-top:1px solid rgba(7,18,38,.08)">Please review before publishing \u2014 make sure you have permission to use any imported text or images. Confirming reuse rights with the listing agent is recommended.</div>'+
+      '</div></div>'+
+      '<div class="step-nav"><button class="btn-ghost" onclick="goToStep(\'confirm\')">Back</button></div>';
     return;
   }
 }
@@ -934,7 +980,7 @@ function publishListing(){
       return;
     }
     var link=window.location.origin+'/p.html?id='+id;
-    resultEl.innerHTML='<div style="background:rgba(255,255,255,.04);border-radius:8px;padding:12px;font-size:12px;color:#fff;word-break:break-all">'+link+'</div>'+
+    resultEl.innerHTML='<div style="background:rgba(7,18,38,.04);border-radius:8px;padding:12px;font-size:12px;color:#1A1917;word-break:break-all">'+link+'</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px">'+
       '<button class="btn-ghost" onclick="navigator.clipboard.writeText(\''+link+'\');this.textContent=\'Copied!\'">Copy link</button>'+
       '<a class="btn-ghost" href="'+link+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none">Open Link</a>'+
