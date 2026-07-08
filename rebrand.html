@@ -192,7 +192,7 @@
     <div id="settings-save-status" style="font-size:12px;color:#4ade80;margin-top:8px"></div>
 
     <div style="margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
-      <div class="section-label">Branding <span style="text-transform:none;font-weight:400;opacity:.5">(white-label — makes the presentation feel like it\u2019s yours, not TourFlow\u2019s)</span></div>
+      <div class="section-label">Branding <span style="text-transform:none;font-weight:400;opacity:.5">(white-label — makes the presentation feel like it’s yours, not TourFlow’s)</span></div>
       <div class="row" style="margin-bottom:8px">
         <input id="brand-company-name" placeholder="Company Name"/>
       </div>
@@ -202,7 +202,7 @@
           <input type="file" id="brand-logo-input" accept="image/svg+xml,image/png,image/webp" style="display:none" onchange="uploadBrandLogo(this)"/>
         </label>
       </div>
-      <div style="font-size:10px;color:rgba(255,255,255,.3);line-height:1.5;margin-bottom:14px">SVG or transparent PNG/WEBP recommended \u2014 max 500KB. JPG is not supported (no transparency).</div>
+      <div style="font-size:10px;color:rgba(255,255,255,.3);line-height:1.5;margin-bottom:14px">SVG or transparent PNG/WEBP recommended — max 500KB. JPG is not supported (no transparency).</div>
       <div id="brand-logo-error" style="font-size:11px;color:#f87171;margin-bottom:10px"></div>
 
       <div class="row" style="margin-bottom:10px">
@@ -225,12 +225,8 @@
 
       <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:12px 14px;margin-bottom:14px">
         <span style="font-size:13px;color:#fff">Use logo in hero</span>
-        <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
-          <input type="checkbox" id="brand-logo-in-hero" checked style="opacity:0;width:0;height:0" onchange="renderBrandToggle()"/>
-          <span id="brand-toggle-track" onclick="toggleBrandLogoInHero()" style="position:absolute;inset:0;background:#C9A14A;border-radius:100px;cursor:pointer;transition:background .2s">
-            <span id="brand-toggle-thumb" style="position:absolute;top:2px;left:20px;width:18px;height:18px;background:#071226;border-radius:50%;transition:left .2s"></span>
-          </span>
-        </label>
+        <input type="checkbox" id="brand-logo-in-hero" checked style="display:none"/>
+        <button type="button" id="brand-logo-in-hero-btn" onclick="toggleBrandLogoInHero()" style="height:32px;padding:0 16px;font-size:12px;border-radius:100px;border:none"></button>
       </div>
 
       <button class="btn-ghost" onclick="saveSettings()" style="width:100%">Save Branding</button>
@@ -792,31 +788,31 @@ function loadSettingsIntoForm(){
   ],s.theme||'light');
 }
 function saveSettings(){
-  var s={
-    name:document.getElementById('settings-agent-name').value,
-    title:document.getElementById('settings-agent-title').value,
-    agency:document.getElementById('settings-agent-agency').value,
-    phone:document.getElementById('settings-agent-phone').value,
-    email:document.getElementById('settings-agent-email').value,
-    photo:document.getElementById('settings-agent-photo').value,
-    companyName:document.getElementById('brand-company-name').value,
-    logo:document.getElementById('brand-logo-preview').getAttribute('data-logo')||'',
-    logoIsWhite:document.getElementById('brand-logo-preview').getAttribute('data-white')==='1',
-    primaryColor:document.getElementById('brand-primary-color').value,
-    secondaryColor:document.getElementById('brand-secondary-color').value,
-    logoPlacement:document.getElementById('brand-placement').value,
-    theme:document.getElementById('brand-theme').value,
-    logoInHero:document.getElementById('brand-logo-in-hero').checked
-  };
   var status=document.getElementById('settings-save-status');
   try{
+    var s={
+      name:document.getElementById('settings-agent-name').value,
+      title:document.getElementById('settings-agent-title').value,
+      agency:document.getElementById('settings-agent-agency').value,
+      phone:document.getElementById('settings-agent-phone').value,
+      email:document.getElementById('settings-agent-email').value,
+      photo:document.getElementById('settings-agent-photo').value,
+      companyName:document.getElementById('brand-company-name').value,
+      logo:document.getElementById('brand-logo-preview').getAttribute('data-logo')||'',
+      logoIsWhite:document.getElementById('brand-logo-preview').getAttribute('data-white')==='1',
+      primaryColor:document.getElementById('brand-primary-color').value,
+      secondaryColor:document.getElementById('brand-secondary-color').value,
+      logoPlacement:document.getElementById('brand-placement')?document.getElementById('brand-placement').value:'top-left',
+      theme:document.getElementById('brand-theme')?document.getElementById('brand-theme').value:'light',
+      logoInHero:document.getElementById('brand-logo-in-hero').checked
+    };
     localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
     status.style.color='#4ade80';
     status.textContent='Saved \u2713';
     setTimeout(function(){status.textContent='';},2500);
   }catch(e){
     status.style.color='#f87171';
-    status.textContent='Could not save \u2014 your logo or photo file is probably too large for browser storage. Try a smaller image.';
+    status.textContent='Could not save: '+e.message;
   }
 }
 function updateSettingsPhotoPreview(url){
@@ -921,11 +917,17 @@ function resetBrandColors(){
 
 function renderBrandToggle(){
   var cb=document.getElementById('brand-logo-in-hero');
-  var track=document.getElementById('brand-toggle-track');
-  var thumb=document.getElementById('brand-toggle-thumb');
-  if(!cb||!track||!thumb)return;
-  track.style.background=cb.checked?'#C9A14A':'rgba(255,255,255,.15)';
-  thumb.style.left=cb.checked?'20px':'2px';
+  var btn=document.getElementById('brand-logo-in-hero-btn');
+  if(!cb||!btn)return;
+  if(cb.checked){
+    btn.textContent='ON';
+    btn.style.background='#C9A14A';
+    btn.style.color='#050e1a';
+  } else {
+    btn.textContent='OFF';
+    btn.style.background='rgba(255,255,255,.1)';
+    btn.style.color='rgba(255,255,255,.5)';
+  }
 }
 
 function publishListing(){
