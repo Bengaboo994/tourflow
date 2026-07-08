@@ -194,13 +194,15 @@ exports.handler = async function(event) {
     let usedRenderedFallback = false;
     let renderedFallbackError = null;
 
-    // If almost nothing came back, this page likely renders its content
-    // with JavaScript after load (common on React/Vue/Next.js listing
-    // sites) — a plain fetch() only ever sees the empty shell. Ask
-    // ScreenshotOne to render it in a real browser and re-run the exact
-    // same extraction against that instead.
-    const looksEmpty = !result.title && !result.price && result.imageCount === 0;
-    if (looksEmpty && process.env.SCREENSHOTONE_API_KEY) {
+    // Trigger the JS-rendered fallback if either: nothing useful came back
+    // at all, OR only the single og:image meta tag was found — many sites
+    // render that server-side for social previews even when the rest of
+    // the gallery is loaded client-side, so "1 image" is still a strong
+    // signal the real gallery didn't come through.
+    const looksEmpty = !result.title && !result.price;
+    const imagesThin = result.imageCount <= 1;
+
+    if ((looksEmpty || imagesThin) && process.env.SCREENSHOTONE_API_KEY) {
       try {
         const renderUrl = 'https://api.screenshotone.com/take'
           + '?access_key=' + encodeURIComponent(process.env.SCREENSHOTONE_API_KEY)
@@ -222,7 +224,21 @@ exports.handler = async function(event) {
         if (contentUrl) {
           const contentRes = await fetch(contentUrl);
           html = await contentRes.text();
-          result = extractAll();
+          const renderedResult = extractAll();
+          // Prefer the rendered pass's images whenever it found more of
+          // them (the common case — the plain fetch only had og:image).
+          if (renderedResult.imageCount > result.imageCount) {
+            result.images = renderedResult.images;
+            result.imageCount = renderedResult.imageCount;
+          }
+          // Fill in any text fields the first pass missed, without
+          // clobbering ones it already got right.
+          Object.keys(renderedResult).forEach(function(k) {
+            if (k === 'images' || k === 'imageCount') return;
+            if ((result[k] == null || result[k] === '') && renderedResult[k] != null && renderedResult[k] !== '') {
+              result[k] = renderedResult[k];
+            }
+          });
           usedRenderedFallback = true;
         }
       } catch (e) {
