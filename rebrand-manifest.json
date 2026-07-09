@@ -3,6 +3,7 @@
   "short_name": "Rebrand",
   "description": "Turn any listing into your brand.",
   "start_url": "/rebrand.html",
+  "scope": "/rebrand.html",
   "display": "standalone",
   "background_color": "#F5F3EE",
   "theme_color": "#0A0A0A",
