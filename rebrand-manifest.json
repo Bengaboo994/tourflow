@@ -1,0 +1,13 @@
+{
+  "name": "Rebrand",
+  "short_name": "Rebrand",
+  "description": "Turn any listing into your brand.",
+  "start_url": "/rebrand.html",
+  "display": "standalone",
+  "background_color": "#F5F3EE",
+  "theme_color": "#0A0A0A",
+  "icons": [
+    { "src": "/rebrand-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/rebrand-icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
