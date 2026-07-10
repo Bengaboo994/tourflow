@@ -22,6 +22,12 @@
   h1{font-family:'Georgia',serif;font-weight:400;font-size:28px;margin:0 0 4px;color:#fff}
   .sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px}
   .card{background:rgba(255,255,255,.02);border:1px solid rgba(201,161,74,.12);border-radius:14px;padding:20px;margin-bottom:20px}
+
+  /* Settings modal — always dark/gold, sits in front of whatever page is behind it */
+  #settings-modal{position:fixed;inset:0;z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:12vh 20px 20px}
+  #settings-modal-backdrop{position:fixed;inset:0;background:rgba(5,10,20,.6);backdrop-filter:blur(2px)}
+  #settings-modal .card{position:relative;z-index:1;background:#0d1520;border:1px solid rgba(201,161,74,.25);box-shadow:0 20px 60px rgba(0,0,0,.4);width:100%;max-width:440px;max-height:76vh;overflow-y:auto;color:#fff;margin-bottom:0;animation:tf-step-in .25s ease}
+  #settings-modal .card label,#settings-modal .card .section-label{color:rgba(255,255,255,.5)}
   label{display:block;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
   input,select,textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(201,161,74,.2);border-radius:8px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;outline:none}
   textarea{resize:vertical;min-height:70px;line-height:1.5}
@@ -199,8 +205,10 @@
     </div>
   </div>
 
-  <div class="card" id="settings-card" style="display:none">
-    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Your Contact Card <button class="edit-btn" onclick="toggleSettings()" style="font-size:16px">&times;</button></div>
+  <div id="settings-modal" style="display:none">
+    <div id="settings-modal-backdrop" onclick="toggleSettings()"></div>
+    <div class="card" id="settings-card">
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Your Contact Card <button class="edit-btn" onclick="toggleSettings()" style="font-size:20px;line-height:1">&times;</button></div>
     <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px">Saved once, used automatically on every listing you publish.</div>
     <div class="row" style="margin-bottom:8px">
       <input id="settings-agent-name" placeholder="Name"/>
@@ -263,6 +271,7 @@
 
       <button class="btn-ghost" onclick="saveSettings('branding')" style="width:100%">Save Branding</button>
       <div id="branding-save-status" style="font-size:12px;color:#4ade80;margin-top:8px"></div>
+    </div>
     </div>
   </div>
 
@@ -903,10 +912,10 @@ function startNewListing(){
 }
 
 function toggleSettings(){
-  var card=document.getElementById('settings-card');
-  var isOpen=card.style.display!=='none';
+  var modal=document.getElementById('settings-modal');
+  var isOpen=modal.style.display!=='none';
   if(!isOpen)loadSettingsIntoForm();
-  card.style.display=isOpen?'none':'block';
+  modal.style.display=isOpen?'none':'flex';
 }
 function loadSettings(){
   var base={name:'Niklas Bengtsson',title:'Your Property Consultant',agency:'Reveny Properties',phone:'',email:'',photo:''};
