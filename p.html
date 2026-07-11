@@ -94,7 +94,7 @@
   /* ── Premium Contact Card (Rebrand style — dark navy info panel) ──── */
   .contact-section{padding:40px 20px 0}
   .contact-card{background:#fff;border-radius:28px;box-shadow:0 16px 48px rgba(0,0,0,.08);display:flex;overflow:hidden;margin-bottom:32px}
-  .cc-info{flex:0 0 45%;padding:32px 24px;display:flex;flex-direction:column;justify-content:center;min-width:0;background:linear-gradient(160deg,#0c1420,#0f1c2c)}
+  .cc-info{flex:0 0 55%;padding:32px 24px;display:flex;flex-direction:column;justify-content:center;min-width:0;background:linear-gradient(160deg,#0c1420,#0f1c2c)}
   .cc-label{font-size:11px;font-weight:700;color:var(--brand-primary);text-transform:uppercase;letter-spacing:.14em;margin-bottom:14px;line-height:1.5}
   .cc-name{font-family:Georgia,serif;font-size:27px;color:#fdfbf7;line-height:1.2;margin-bottom:10px;word-break:break-word}
   .cc-company{font-size:14px;color:var(--brand-primary);font-style:italic;margin-bottom:18px}
@@ -106,7 +106,7 @@
   .cc-action-label{flex:1;min-width:0}
   .cc-action-arrow{color:var(--brand-primary);font-size:15px;flex-shrink:0;opacity:.8}
   .cc-divider{height:1px;background:rgba(255,255,255,.1)}
-  .cc-photo{flex:0 0 55%;position:relative;min-height:300px;background:#e8e0d0;overflow:hidden}
+  .cc-photo{flex:0 0 45%;position:relative;min-height:300px;background:#e8e0d0;overflow:hidden}
   .cc-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform-origin:center;transition:transform .05s linear}
   .cc-photo-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:36px;color:rgba(201,161,74,.4);background:#f5f2ec}
 
@@ -129,15 +129,15 @@
   .closing-brand{font-family:Georgia,serif;font-size:15px;color:var(--brand-primary);font-style:italic}
 
   @media (max-width:480px){
-    .cc-info{flex:0 0 42%;padding:20px 14px}
-    .cc-photo{flex:0 0 58%;min-height:240px}
+    .cc-info{flex:0 0 60%;padding:20px 14px}
+    .cc-photo{flex:0 0 40%;min-height:240px}
     .cc-name{font-size:19px}
     .cc-label{font-size:9px;letter-spacing:.1em;margin-bottom:8px}
     .cc-company{font-size:12px;margin-bottom:12px}
     .cc-rule{margin-bottom:14px}
     .cc-action-row{font-size:11px;padding:9px 0;gap:8px}
     .cc-action-icon{width:26px;height:26px}
-    .cc-action-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cc-action-label{white-space:normal;word-break:break-word;line-height:1.3}
     .cta-buttons{flex-direction:column}
     .value-props{flex-direction:column;gap:20px}
     .value-item{flex-direction:row;text-align:left;gap:14px}
@@ -150,6 +150,7 @@
   .sticky-price{font-family:Georgia,serif;font-size:16px;font-weight:600;color:var(--brand-primary);flex-shrink:0}
   .sticky-actions{display:flex;gap:8px}
   .sticky-btn{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(201,161,74,.3);display:flex;align-items:center;justify-content:center;color:var(--brand-primary);text-decoration:none;flex-shrink:0}
+  .sticky-btn-whatsapp{background:#25D366;border-color:#25D366}
   .sticky-book{background:var(--brand-primary);color:var(--brand-secondary);border:none;border-radius:100px;padding:0 18px;height:38px;font-size:12px;font-weight:700;font-family:inherit;white-space:nowrap;text-decoration:none;display:flex;align-items:center}
 
   #loading,#not-found{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
@@ -362,15 +363,14 @@ function render(data){
   if(data.brand_logo&&data.brand_logo_in_hero!==false&&placement!=='hidden'){
     heroBrandEl.className='hero-brand'+(placement==='top-center'?' placement-top-center':'');
     heroBrandEl.innerHTML='<img src="'+esc(data.brand_logo)+'"'+(data.brand_logo_is_white?' class="logo-white-shadow"':'')+'/>';
-  } else if(data.brand_logo&&data.brand_logo_in_hero===false){
+  } else {
+    // No custom logo uploaded, or logo explicitly hidden — never fall back
+    // to TourFlow's own branding on a client-facing white-label page.
     heroBrandEl.style.display='none';
-  } else if(!data.brand_logo){
-    // No custom logo uploaded — keep the default TourFlow wordmark as-is
   }
-  if(placement==='hidden')heroBrandEl.style.display='none';
 
   images=data.images||[];
-  document.title=(data.title||'Property')+' — TourFlow';
+  document.title=(data.title||'Property')+(data.brand_company_name?' — '+data.brand_company_name:'');
 
   document.getElementById('hero-track').innerHTML=images.map(function(src){
     return '<img src="'+src+'" onclick="openLightbox('+images.indexOf(src)+')"/>';
@@ -474,7 +474,7 @@ function render(data){
   if(phoneDigits){
     stickyActions.push('<a class="sticky-btn" href="tel:'+esc(phoneDigits)+'" title="Call"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></a>');
     var waMsg=encodeURIComponent('Hi, I\'m interested in '+(data.title||'this property')+'.');
-    stickyActions.push('<a class="sticky-btn" href="https://wa.me/'+phoneDigits.replace('+','')+'?text='+waMsg+'" title="WhatsApp"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg></a>');
+    stickyActions.push('<a class="sticky-btn sticky-btn-whatsapp" href="https://wa.me/'+phoneDigits.replace('+','')+'?text='+waMsg+'" title="WhatsApp"><svg width="17" height="17" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg></a>');
     var bookMsg=encodeURIComponent('Hi, I\'d like to book a viewing for '+(data.title||'this property')+'.');
     stickyActions.push('<a class="sticky-book" href="https://wa.me/'+phoneDigits.replace('+','')+'?text='+bookMsg+'">Book Viewing</a>');
   } else if(data.agent_email){
