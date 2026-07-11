@@ -511,6 +511,7 @@ function runRebrandScrape(){
           setTimeout(function(){
             hideProcessingScreen();
             btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
+            if(homeNav){homeNav.style.display='';homeNav.classList.remove('fade-out-home');}
             renderResults();
             window.scrollTo({top:0,behavior:'smooth'});
           },800);
@@ -875,6 +876,7 @@ function renderResults(){
     return;
   }
   if(homeWrap)homeWrap.style.display='none';
+  if(homeNav){homeNav.style.display='';homeNav.classList.remove('fade-out-home');}
   document.body.classList.remove('home-active');
 
   if(currentStep==='review'||currentStep==='confirm'){
