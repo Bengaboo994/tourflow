@@ -30,12 +30,15 @@ exports.handler = async function(event) {
     const buffer = await res.arrayBuffer();
     let html = new TextDecoder('utf-8').decode(buffer);
 
-    if (html.length < 500) {
-      return {
-        statusCode: 200, headers,
-        body: JSON.stringify({ error: 'Site blocked the request or returned an empty page', _source: 'blocked', htmlLength: html.length })
-      };
-    }
+    // A 403/blocked response or a suspiciously short page used to be
+    // treated as a hard failure here — but that meant sites which reject
+    // plain fetch() requests (common anti-bot behaviour) never got a
+    // chance at the browser-rendered fallback below. Instead, just note
+    // it and let extraction proceed: extractAll() will naturally come back
+    // near-empty on a block page, which correctly triggers the fallback
+    // further down. We only give up early if the body is empty outright.
+    const wasBlockedOrThin = !res.ok || html.length < 500;
+    if (!html) html = '';
 
     function decodeHtmlEntities(s) {
       if (!s) return s;
@@ -279,17 +282,21 @@ exports.handler = async function(event) {
     const looksEmpty = !result.title && !result.price;
     const imagesThin = result.imageCount <= 1;
 
-    if ((looksEmpty || imagesThin) && process.env.SCREENSHOTONE_API_KEY) {
+    if ((looksEmpty || imagesThin || wasBlockedOrThin) && process.env.SCREENSHOTONE_API_KEY) {
       try {
-        // Best-effort: many single-image-at-a-time carousels only load each
-        // photo into the DOM as you click "next" — try clicking through a
-        // generic set of common next-arrow selectors repeatedly so as many
-        // slides as possible have actually loaded before we capture the
-        // page. This won't work on every site (some carousels fetch images
-        // via an API call we can't easily trigger), but it's a reasonable
-        // attempt with negligible cost for the fallback path.
+        // Best-effort: many galleries hide behind a "view all photos" /
+        // "see gallery" opener button, and single-image-at-a-time
+        // carousels only load each photo into the DOM as you click
+        // "next". Try the opener first (if present), then click through
+        // next-arrows repeatedly so as many slides as possible have
+        // actually loaded before we capture the page. This won't work on
+        // every site (some galleries fetch images via an API call we
+        // can't easily trigger), but it's a reasonable attempt with
+        // negligible cost for the fallback path.
         const carouselScript =
           '(async function(){' +
+          'var openSels=[\'[class*="view-gallery"]\',\'[class*="see-all-photos"]\',\'[class*="show-all-photos"]\',\'[class*="gallery-trigger"]\',\'[aria-label*="photo" i]\',\'[aria-label*="gallery" i]\'];' +
+          'for(var k=0;k<openSels.length;k++){try{var o=document.querySelector(openSels[k]);if(o){o.click();await new Promise(function(r){setTimeout(r,400);});break;}}catch(e){}}' +
           'var sels=[".next",".slick-next",".swiper-button-next",\'[aria-label*="next" i]\',\'[class*="carousel-next"]\',\'[class*="arrow-right"]\',\'[class*="nav-next"]\'];' +
           'var btn=null;' +
           'for(var i=0;i<sels.length;i++){try{var el=document.querySelector(sels[i]);if(el){btn=el;break;}}catch(e){}}' +
