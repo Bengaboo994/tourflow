@@ -243,6 +243,7 @@ var SUPA_URL='https://dhcqbdyrbviormfsdcyr.supabase.co';
 var SUPA_KEY='sb_publishable_ZKyT9nBrTruUnVDZF0VrWQ_HefTPZB3';
 
 function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function handleCcPhotoError(img,initials){img.parentElement.innerHTML='<div class="cc-photo-fallback">'+(initials||'?')+'</div>';}
 
 // Shared component: builds the premium contact card. Used both on the
 // public presentation page and in Rebrand Settings' live preview, so the
@@ -286,7 +287,7 @@ function buildContactCardHtml(d){
     '<div class="cc-rule"></div>'+
     '<div class="cc-actions">'+actionsHtml+'</div>'+
     '</div>'+
-    '<div class="cc-photo" id="'+(d.previewMode?'cc-photo-editable':'')+'">'+(d.agent_photo?'<img src="'+esc(d.agent_photo)+'" style="transform:scale('+(d.photoZoom||d.agent_photo_zoom||1)+') translate('+(d.photoOffsetX||d.agent_photo_offset_x||0)+'%,'+(d.photoOffsetY||d.agent_photo_offset_y||0)+'%)"'+(d.previewMode?' id="cc-photo-img"':'')+'/>':'<div class="cc-photo-fallback">'+esc(initials||'?')+'</div>')+'</div>'+
+    '<div class="cc-photo" id="'+(d.previewMode?'cc-photo-editable':'')+'">'+(d.agent_photo?'<img src="'+esc(d.agent_photo)+'" style="transform:scale('+(d.photoZoom||d.agent_photo_zoom||1)+') translate('+(d.photoOffsetX||d.agent_photo_offset_x||0)+'%,'+(d.photoOffsetY||d.agent_photo_offset_y||0)+'%)" onerror="handleCcPhotoError(this,\''+esc(initials||'?')+'\')"'+(d.previewMode?' id="cc-photo-img"':'')+'/>':'<div class="cc-photo-fallback">'+esc(initials||'?')+'</div>')+'</div>'+
     '</div>';
 }
 
