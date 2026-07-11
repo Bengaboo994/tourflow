@@ -64,10 +64,6 @@ exports.handler = async function(event) {
       if (!num) return null;
       return '\u20AC' + num.toLocaleString('en-US');
     }
-    // Exclude icons, logos, flags (country flag icons on language switchers),
-    // and staff/agent headshots — none of these are photos of the property.
-    const NON_PROPERTY_IMAGE_RE = /(logo|icon|sprite|favicon|pixel|spacer|avatar|placeholder|flag|flagcdn|\/flags\/|agent[-_]|staff|headshot|team[-_]photo|author|profile[-_]pic|employee|broker[-_]photo)/i;
-
     // Runs the full field + image extraction against whatever HTML is
     // currently in `html` — called once against the plain fetch, and again
     // against a JS-rendered version if the first pass came back empty.
@@ -146,47 +142,128 @@ exports.handler = async function(event) {
       let description = og('description') || meta('description') || null;
       if (description) description = description.slice(0, 4000);
 
-      const primaryImage = og('image') || meta('twitter:image') || null;
-      const imageSet = new Set();
-      if (primaryImage) imageSet.add(primaryImage);
+      // ── IMAGE GALLERY ──────────────────────────────────────────────────
+      // Exclude icons, logos, flags, staff headshots, and content that
+      // belongs to OTHER listings on the page (nearby/similar/related
+      // property carousels) — none of these are photos of THIS property.
+      const NON_PROPERTY_IMAGE_RE = /(logo|icon|sprite|favicon|pixel|spacer|avatar|placeholder|flag|flagcdn|\/flags\/|agent[-_]|staff|headshot|team[-_]?photo|author|profile[-_]?pic|employee|broker[-_]?photo|nearby|similar|related|recommend|map[-_]?icon|location[-_]?icon|badge|watermark)/i;
+      const IMG_LIMIT = 30;
 
-      // Many galleries lazy-load: the real photo URL sits in data-src /
-      // data-lazy-src / data-original until the image scrolls into view,
-      // while src holds a blank placeholder — check both, preferring the
-      // lazy-load attribute when present.
-      const imgTagMatches = html.matchAll(/<img[^>]+>/gi);
-      for (const m of imgTagMatches) {
-        const tag = m[0];
-        const lazyMatch = tag.match(/(?:data-src|data-lazy-src|data-original)=["']([^"']+)["']/i);
-        const srcMatch = tag.match(/\ssrc=["']([^"']+)["']/i);
-        let src = (lazyMatch && lazyMatch[1]) || (srcMatch && srcMatch[1]);
-        if (!src || src.startsWith('data:')) continue;
-        try { src = new URL(src, url).href; } catch (e) { continue; }
+      // Ordered dedup: key by a normalized "base" URL (size/resize hints
+      // stripped) so different resolutions of the same photo collapse into
+      // one entry, keeping whichever variant looks highest-resolution,
+      // while preserving the order photos were first encountered in.
+      const imageMap = new Map();
+      const imageOrder = [];
+      function normalizeImageKey(u) {
+        try {
+          const p = new URL(u);
+          let path = p.pathname.toLowerCase();
+          path = path.replace(/[-_](thumb|thumbnail|small|medium|large|xl|xs|sm|md|lg|preview|full|fullsize|original|orig|hires|hi-res|big|\d{2,4}x\d{2,4})(?=\.\w+$)/i, '');
+          path = path.replace(/[-_]\d{2,4}(?=\.\w+$)/, '');
+          return p.hostname + path;
+        } catch (e) { return u; }
+      }
+      function resolutionScore(u) {
+        const lower = u.toLowerCase();
+        const m = u.match(/(\d{3,5})x(\d{3,5})/);
+        let score = m ? parseInt(m[1], 10) * parseInt(m[2], 10) : 0;
+        const m2 = u.match(/[-_=](\d{3,5})(?=[.\-_&]|$)/);
+        if (!score && m2) score = parseInt(m2[1], 10);
+        if (/(full|fullsize|original|orig|hires|hi-res|big|xl|large)(?=[.\-_]|$)/i.test(lower)) score += 100000;
+        if (/(thumb|thumbnail|small|preview|xs|sm)(?=[.\-_]|$)/i.test(lower)) score -= 1000;
+        return score;
+      }
+      function addImageCandidate(rawSrc) {
+        if (!rawSrc || rawSrc.startsWith('data:')) return;
+        let src;
+        try { src = new URL(rawSrc, url).href; } catch (e) { return; }
         const lower = src.toLowerCase();
-        const looksLikePhoto = /\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower);
-        if (looksLikePhoto && !NON_PROPERTY_IMAGE_RE.test(lower)) imageSet.add(src);
-        if (imageSet.size >= 30) break;
+        if (!/\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower)) return;
+        if (NON_PROPERTY_IMAGE_RE.test(lower)) return;
+        const key = normalizeImageKey(src);
+        const existing = imageMap.get(key);
+        const score = resolutionScore(src);
+        if (!existing) {
+          imageMap.set(key, { url: src, score });
+          imageOrder.push(key);
+        } else if (score > existing.score) {
+          imageMap.set(key, { url: src, score });
+        }
       }
 
-      const srcsetMatches = html.matchAll(/srcset=["']([^"']+)["']/gi);
-      for (const m of srcsetMatches) {
-        const candidates = m[1].split(',').map(s => s.trim().split(' ')[0]);
-        for (let src of candidates) {
-          if (!src || src.startsWith('data:')) continue;
-          try { src = new URL(src, url).href; } catch (e) { continue; }
-          const lower = src.toLowerCase();
-          if (/\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower) && !NON_PROPERTY_IMAGE_RE.test(lower)) {
-            imageSet.add(src);
-          }
-          if (imageSet.size >= 30) break;
+      const primaryImage = og('image') || meta('twitter:image') || null;
+      if (primaryImage) addImageCandidate(primaryImage);
+
+      function scanForImages(sourceHtml) {
+        // <img src>, plus lazy-load attributes — the real photo often sits
+        // in data-src/data-lazy-src/data-original while src holds a blank
+        // placeholder until the slide is viewed.
+        for (const m of sourceHtml.matchAll(/<img[^>]+>/gi)) {
+          const tag = m[0];
+          const lazyMatch = tag.match(/(?:data-src|data-lazy-src|data-original)=["']([^"']+)["']/i);
+          const srcMatch = tag.match(/\ssrc=["']([^"']+)["']/i);
+          addImageCandidate((lazyMatch && lazyMatch[1]) || (srcMatch && srcMatch[1]));
+          if (imageMap.size >= IMG_LIMIT) return;
         }
-        if (imageSet.size >= 30) break;
+        // srcset / data-srcset — every candidate, not just the first
+        for (const m of sourceHtml.matchAll(/(?:data-)?srcset=["']([^"']+)["']/gi)) {
+          m[1].split(',').map(s => s.trim().split(' ')[0]).forEach(addImageCandidate);
+          if (imageMap.size >= IMG_LIMIT) return;
+        }
+        // Gallery/lightbox anchors: <a href="full-res.jpg"> wrapping a
+        // thumbnail — a very common pattern (PhotoSwipe, Fancybox,
+        // Magnific Popup, etc.) that plain <img> scanning misses entirely,
+        // and it usually points at the full, un-cropped image.
+        for (const m of sourceHtml.matchAll(/<a[^>]+href=["']([^"']+\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)["']/gi)) {
+          addImageCandidate(m[1]);
+          if (imageMap.size >= IMG_LIMIT) return;
+        }
+        // CSS background-image: url(...)
+        for (const m of sourceHtml.matchAll(/background-image\s*:\s*url\(\s*['"]?([^'")]+)['"]?\s*\)/gi)) {
+          addImageCandidate(m[1]);
+          if (imageMap.size >= IMG_LIMIT) return;
+        }
       }
+
+      // Try to scope the first pass to a likely gallery container so
+      // "nearby properties" / "similar listings" carousels elsewhere on
+      // the page don't get swept in as if they belonged to this listing.
+      // HTML isn't a regular language so this is best-effort — if it looks
+      // too short to be a real gallery, we ignore it and fall through.
+      const galleryContainerMatch = html.match(/<(?:div|section|ul)[^>]+(?:id|class)=["'][^"']*(?:gallery|slider|carousel|lightbox|photo-viewer|property-images)[^"']*["'][^>]*>([\s\S]{0,60000}?)<\/(?:div|section|ul)>/i);
+      if (galleryContainerMatch && galleryContainerMatch[1].length > 200) {
+        scanForImages(galleryContainerMatch[1]);
+      }
+      // Always also scan the whole page if the scoped pass came up short —
+      // e.g. only placeholders loaded, or no gallery container was found
+      // at all. This is still filtered by NON_PROPERTY_IMAGE_RE and
+      // deduplicated, so re-scanning is cheap and safe.
+      if (imageMap.size < 10) {
+        scanForImages(html);
+      }
+      // Last resort: some galleries hydrate entirely from an embedded
+      // JS/JSON blob (React/Vue props, gallery.init({images:[...]})) with
+      // no matching markup at all. Scan <script> bodies that look
+      // gallery-related for image-shaped string literals.
+      if (imageMap.size < 10) {
+        for (const m of html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)) {
+          const body = m[1];
+          if (!/gallery|photos|images|slides|carousel/i.test(body)) continue;
+          for (const um of body.matchAll(/["'](https?:\/\/[^"'\\]+\.(?:jpg|jpeg|png|webp))(?:\?[^"'\\]*)?["']/gi)) {
+            addImageCandidate(um[1]);
+            if (imageMap.size >= IMG_LIMIT) break;
+          }
+          if (imageMap.size >= IMG_LIMIT) break;
+        }
+      }
+
+      const images = imageOrder.map(k => imageMap.get(k).url);
 
       return {
         title: ogTitle || null, price, rooms, bathrooms, sqm, plotSize, area, address,
         communityFee, ibi, garbageFee, description,
-        images: Array.from(imageSet), imageCount: imageSet.size
+        images: images, imageCount: images.length
       };
     }
 
@@ -204,6 +281,21 @@ exports.handler = async function(event) {
 
     if ((looksEmpty || imagesThin) && process.env.SCREENSHOTONE_API_KEY) {
       try {
+        // Best-effort: many single-image-at-a-time carousels only load each
+        // photo into the DOM as you click "next" — try clicking through a
+        // generic set of common next-arrow selectors repeatedly so as many
+        // slides as possible have actually loaded before we capture the
+        // page. This won't work on every site (some carousels fetch images
+        // via an API call we can't easily trigger), but it's a reasonable
+        // attempt with negligible cost for the fallback path.
+        const carouselScript =
+          '(async function(){' +
+          'var sels=[".next",".slick-next",".swiper-button-next",\'[aria-label*="next" i]\',\'[class*="carousel-next"]\',\'[class*="arrow-right"]\',\'[class*="nav-next"]\'];' +
+          'var btn=null;' +
+          'for(var i=0;i<sels.length;i++){try{var el=document.querySelector(sels[i]);if(el){btn=el;break;}}catch(e){}}' +
+          'if(btn){for(var j=0;j<28;j++){try{btn.click();}catch(e){}await new Promise(function(r){setTimeout(r,180);});}}' +
+          '})();';
+
         const renderUrl = 'https://api.screenshotone.com/take'
           + '?access_key=' + encodeURIComponent(process.env.SCREENSHOTONE_API_KEY)
           + '&url=' + encodeURIComponent(url)
@@ -211,10 +303,11 @@ exports.handler = async function(event) {
           + '&metadata_content=true'
           + '&metadata_content_format=html'
           + '&full_page=true'
+          + '&scripts=' + encodeURIComponent(carouselScript)
           + '&block_ads=true'
           + '&block_cookie_banners=true'
           + '&delay=3'
-          + '&timeout=25';
+          + '&timeout=35';
         const renderRes = await fetch(renderUrl);
         const renderJson = await renderRes.json();
         // metadata_content doesn't return the HTML inline — it returns a
