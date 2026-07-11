@@ -12,12 +12,31 @@ exports.handler = async function(event) {
     'Content-Type': 'application/json; charset=utf-8'
   };
 
-  const url = event.queryStringParameters && event.queryStringParameters.url;
-  if (!url) {
+  const rawUrl = event.queryStringParameters && event.queryStringParameters.url;
+  console.log('[rebrand-scrape] incoming url:', rawUrl);
+
+  if (!rawUrl) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'No URL provided' }) };
   }
 
+  // Validate before doing anything else — a malformed URL passed to
+  // fetch() can throw synchronously, and we'd rather return a clear,
+  // friendly validation error than let a raw parser exception escape.
+  let url;
   try {
+    const normalized = new URL(rawUrl);
+    if (normalized.protocol !== 'http:' && normalized.protocol !== 'https:') {
+      throw new Error('Not an http(s) URL');
+    }
+    url = normalized.href;
+    console.log('[rebrand-scrape] normalized url:', url);
+  } catch (e) {
+    console.error('[rebrand-scrape] URL validation failed for', rawUrl, '-', e && e.message);
+    return { statusCode: 200, headers, body: JSON.stringify({ error: 'Unable to parse listing URL.' }) };
+  }
+
+  try {
+    console.log('[rebrand-scrape] fetching:', url);
     const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
@@ -27,8 +46,10 @@ exports.handler = async function(event) {
       },
       redirect: 'follow'
     });
+    console.log('[rebrand-scrape] response status:', res.status, res.ok ? 'ok' : 'not-ok');
     const buffer = await res.arrayBuffer();
     let html = new TextDecoder('utf-8').decode(buffer);
+    console.log('[rebrand-scrape] html length:', html.length);
 
     // A 403/blocked response or a suspiciously short page used to be
     // treated as a hard failure here — but that meant sites which reject
@@ -355,10 +376,11 @@ exports.handler = async function(event) {
     };
 
   } catch (err) {
+    console.error('[rebrand-scrape] unexpected error for', url, ':', err && err.stack ? err.stack : err);
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ error: 'Fetch failed: ' + (err && err.message ? err.message : String(err)), _source: 'error' })
+      body: JSON.stringify({ error: 'The website rejected the request.', _source: 'error' })
     };
   }
 };
