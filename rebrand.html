@@ -39,7 +39,14 @@
   .cc-action-arrow{color:#C9A14A;font-size:13px;flex-shrink:0;opacity:.8}
   .cc-divider{height:1px;background:rgba(255,255,255,.1)}
   .cc-photo{flex:0 0 55%;position:relative;min-height:200px;background:#e8e0d0}
-  .cc-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  #cc-photo-editable{cursor:grab;touch-action:none;user-select:none}
+  #cc-photo-editable.dragging{cursor:grabbing}
+  #cc-photo-editable::after{content:'Drag to reposition';position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:9px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.35);padding:4px 0;pointer-events:none;opacity:0;transition:opacity .2s}
+  #cc-photo-editable:hover::after{opacity:1}
+  .crop-controls{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .crop-controls input[type=range]{flex:1;accent-color:#C9A14A;height:4px}
+  .crop-reset-btn{background:none;border:none;color:rgba(201,161,74,.7);font-size:11px;cursor:pointer;padding:0;white-space:nowrap;text-decoration:underline}
+  .cc-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transform-origin:center;transition:transform .05s linear}
   .cc-photo-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:28px;color:rgba(201,161,74,.4);background:#f5f2ec}
 
   /* Settings modal — always dark/gold, sits in front of whatever page is behind it */
@@ -255,7 +262,7 @@
         <input type="file" accept="image/*" style="display:none" onchange="uploadSettingsPhoto(this)"/>
       </label>
     </div>
-    <input id="settings-agent-photo" placeholder="...or paste a photo URL instead" oninput="updateSettingsPhotoPreview(this.value);updateCardPreview()" style="margin-top:8px;margin-bottom:10px"/>
+    <input id="settings-agent-photo" placeholder="...or paste a photo URL instead" oninput="updateSettingsPhotoPreview(this.value);photoCrop={zoom:1,offsetX:0,offsetY:0};updateCardPreview()" style="margin-top:8px;margin-bottom:10px"/>
     <button class="btn-ghost" onclick="saveSettings('contact')" style="width:100%">Save Contact Card</button>
     <div id="settings-save-status" style="font-size:12px;color:#4ade80;margin-top:8px"></div>
 
@@ -263,6 +270,11 @@
       <div class="section-label">Business Card Preview</div>
       <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px">Exactly what clients will see \u2014 updates as you type.</div>
       <div id="business-card-preview-wrap"></div>
+      <div class="crop-controls">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="range" id="crop-zoom-slider" min="1" max="2.5" step="0.02" value="1" oninput="onCropZoomChange(this.value)"/>
+        <button class="crop-reset-btn" onclick="resetPhotoCrop()">Reset</button>
+      </div>
     </div>
 
     <div style="margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
@@ -442,9 +454,12 @@ function buildContactCardHtml(d){
     '<div class="cc-rule"></div>'+
     '<div class="cc-actions">'+actionsHtml+'</div>'+
     '</div>'+
-    '<div class="cc-photo">'+(d.agent_photo?'<img src="'+esc(d.agent_photo)+'"/>':'<div class="cc-photo-fallback">'+esc(initials||'?')+'</div>')+'</div>'+
+    '<div class="cc-photo" id="'+(d.previewMode?'cc-photo-editable':'')+'">'+(d.agent_photo?'<img src="'+esc(d.agent_photo)+'" style="transform:scale('+(d.photoZoom||d.agent_photo_zoom||1)+') translate('+(d.photoOffsetX||d.agent_photo_offset_x||0)+'%,'+(d.photoOffsetY||d.agent_photo_offset_y||0)+'%)"'+(d.previewMode?' id="cc-photo-img"':'')+'/>':'<div class="cc-photo-fallback">'+esc(initials||'?')+'</div>')+'</div>'+
     '</div>';
 }
+
+var photoCrop={zoom:1,offsetX:0,offsetY:0};
+var cropDragState=null;
 
 function updateCardPreview(){
   var wrap=document.getElementById('business-card-preview-wrap');
@@ -455,9 +470,66 @@ function updateCardPreview(){
     agent_agency:document.getElementById('settings-agent-agency').value,
     agent_phone:document.getElementById('settings-agent-phone').value,
     agent_email:document.getElementById('settings-agent-email').value,
-    agent_photo:document.getElementById('settings-agent-photo').value
+    agent_photo:document.getElementById('settings-agent-photo').value,
+    photoZoom:photoCrop.zoom,
+    photoOffsetX:photoCrop.offsetX,
+    photoOffsetY:photoCrop.offsetY,
+    previewMode:true
   });
+  var slider=document.getElementById('crop-zoom-slider');
+  if(slider)slider.value=photoCrop.zoom;
+  attachCropDragHandlers();
 }
+
+function attachCropDragHandlers(){
+  var el=document.getElementById('cc-photo-editable');
+  if(!el)return;
+  el.addEventListener('pointerdown',function(e){
+    cropDragState={startX:e.clientX,startY:e.clientY,startOffsetX:photoCrop.offsetX,startOffsetY:photoCrop.offsetY,rectW:el.offsetWidth,rectH:el.offsetHeight};
+    el.classList.add('dragging');
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove',function(e){
+    if(!cropDragState)return;
+    var dxPct=(e.clientX-cropDragState.startX)/cropDragState.rectW*100;
+    var dyPct=(e.clientY-cropDragState.startY)/cropDragState.rectH*100;
+    photoCrop.offsetX=clampCropOffset(cropDragState.startOffsetX+dxPct);
+    photoCrop.offsetY=clampCropOffset(cropDragState.startOffsetY+dyPct);
+    var img=document.getElementById('cc-photo-img');
+    if(img)img.style.transform='scale('+photoCrop.zoom+') translate('+photoCrop.offsetX+'%,'+photoCrop.offsetY+'%)';
+  });
+  function endDrag(){
+    if(!cropDragState)return;
+    cropDragState=null;
+    el.classList.remove('dragging');
+    persistPhotoCrop();
+  }
+  el.addEventListener('pointerup',endDrag);
+  el.addEventListener('pointercancel',endDrag);
+}
+function clampCropOffset(v){return Math.max(-35,Math.min(35,v));}
+
+function onCropZoomChange(value){
+  photoCrop.zoom=parseFloat(value);
+  var img=document.getElementById('cc-photo-img');
+  if(img)img.style.transform='scale('+photoCrop.zoom+') translate('+photoCrop.offsetX+'%,'+photoCrop.offsetY+'%)';
+  persistPhotoCrop();
+}
+function resetPhotoCrop(){
+  photoCrop={zoom:1,offsetX:0,offsetY:0};
+  updateCardPreview();
+  persistPhotoCrop();
+}
+function persistPhotoCrop(){
+  try{
+    var existing=loadSettings();
+    existing.photoZoom=photoCrop.zoom;
+    existing.photoOffsetX=photoCrop.offsetX;
+    existing.photoOffsetY=photoCrop.offsetY;
+    localStorage.setItem(SETTINGS_KEY,JSON.stringify(existing));
+  }catch(e){}
+}
+
 function getDomain(url){
   try{ return new URL(url).hostname.replace(/^www\./,''); }catch(e){ return ''; }
 }
@@ -1112,6 +1184,7 @@ function loadSettingsIntoForm(){
   document.getElementById('settings-agent-email').value=s.email||'';
   document.getElementById('settings-agent-photo').value=s.photo||'';
   updateSettingsPhotoPreview(s.photo||'');
+  photoCrop={zoom:s.photoZoom||1,offsetX:s.photoOffsetX||0,offsetY:s.photoOffsetY||0};
   updateCardPreview();
 
   document.getElementById('brand-company-name').value=s.companyName||'';
@@ -1148,7 +1221,10 @@ function saveSettings(sourceId){
       secondaryColor:document.getElementById('brand-secondary-color').value,
       logoPlacement:document.getElementById('brand-placement')?document.getElementById('brand-placement').value:'top-left',
       theme:document.getElementById('brand-theme')?document.getElementById('brand-theme').value:'light',
-      logoInHero:document.getElementById('brand-logo-in-hero').checked
+      logoInHero:document.getElementById('brand-logo-in-hero').checked,
+      photoZoom:photoCrop.zoom,
+      photoOffsetX:photoCrop.offsetX,
+      photoOffsetY:photoCrop.offsetY
     };
     localStorage.setItem(SETTINGS_KEY,JSON.stringify(s));
     status.style.color='#4ade80';
@@ -1177,6 +1253,7 @@ function uploadSettingsPhoto(input){
     var dataUrl=e.target.result;
     document.getElementById('settings-agent-photo').value=dataUrl;
     updateSettingsPhotoPreview(dataUrl);
+    photoCrop={zoom:1,offsetX:0,offsetY:0};
     updateCardPreview();
   };
   reader.readAsDataURL(file);
@@ -1310,6 +1387,9 @@ function publishListing(){
     agent_phone:agentSettings.phone||null,
     agent_email:agentSettings.email||null,
     agent_photo:agentSettings.photo||null,
+    agent_photo_zoom:agentSettings.photoZoom||1,
+    agent_photo_offset_x:agentSettings.photoOffsetX||0,
+    agent_photo_offset_y:agentSettings.photoOffsetY||0,
     brand_company_name:agentSettings.companyName||null,
     brand_logo:agentSettings.logo||null,
     brand_logo_is_white:!!agentSettings.logoIsWhite,
