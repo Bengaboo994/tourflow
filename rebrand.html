@@ -444,6 +444,7 @@ function hideProcessingScreen(){
 }
 
 function runRebrandScrape(){
+ try{
   var url=document.getElementById('rebrand-url').value.trim();
   var portalWarning=document.getElementById('portal-warning');
   var resultsEl=document.getElementById('rebrand-results');
@@ -451,6 +452,10 @@ function runRebrandScrape(){
   var urlField=document.getElementById('rebrand-url');
   if(!url){
     if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Paste a listing URL first.';}
+    return;
+  }
+  if(!/^https?:\/\//i.test(url)){
+    if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Unable to parse listing URL \u2014 make sure it starts with http:// or https://';}
     return;
   }
 
@@ -461,6 +466,7 @@ function runRebrandScrape(){
   urlField.disabled=true;
 
   setTimeout(function(){
+   try{
     // 4–5: Home fades out completely, Processing fades in. They are never
     // visible at the same time.
     var homeWrap=document.getElementById('home-wrap');
@@ -469,6 +475,7 @@ function runRebrandScrape(){
     if(homeNav)homeNav.classList.add('fade-out-home');
 
     setTimeout(function(){
+     try{
       homeWrap.style.display='none';
       if(homeNav)homeNav.style.display='none';
       showProcessingScreen();
@@ -477,18 +484,23 @@ function runRebrandScrape(){
       resultsEl.innerHTML='';
       imagesCollapsed=false;
 
+      function resetToHome(message){
+        stopImportProgressAnimation();
+        hideProcessingScreen();
+        homeWrap.style.display='';
+        if(homeNav)homeNav.style.display='';
+        homeWrap.classList.remove('fade-out-home');
+        if(homeNav)homeNav.classList.remove('fade-out-home');
+        btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
+        if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent=message;}
+      }
+
       fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
         .then(function(r){return r.json();})
         .then(function(data){
           if(data.error){
-            stopImportProgressAnimation();
-            hideProcessingScreen();
-            homeWrap.style.display='';
-            if(homeNav)homeNav.style.display='';
-            homeWrap.classList.remove('fade-out-home');
-            if(homeNav)homeNav.classList.remove('fade-out-home');
-            btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
-            if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Error: '+data.error;}
+            console.error('[Rebrand] Scrape returned an error for', url, ':', data.error);
+            resetToHome('The website rejected the request. Try a different URL, or add the details manually.');
             return null;
           }
           currentData=data;
@@ -518,17 +530,32 @@ function runRebrandScrape(){
           },800);
         })
         .catch(function(e){
-          stopImportProgressAnimation();
-          hideProcessingScreen();
-          homeWrap.style.display='';
-          if(homeNav)homeNav.style.display='';
-          homeWrap.classList.remove('fade-out-home');
-          if(homeNav)homeNav.classList.remove('fade-out-home');
-          btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
-          if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Request failed: '+e.message;}
+          console.error('[Rebrand] Import failed for', url, ':', e);
+          resetToHome('Unable to import that listing. Please check the URL and try again.');
         });
+     }catch(innerErr){
+      console.error('[Rebrand] Unexpected error starting import:', innerErr);
+      var hw=document.getElementById('home-wrap'), hn=document.getElementById('home-nav-bar');
+      if(hw){hw.style.display='';hw.classList.remove('fade-out-home');}
+      if(hn){hn.style.display='';hn.classList.remove('fade-out-home');}
+      hideProcessingScreen();
+      btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
+      if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Something went wrong starting the import. Please try again.';}
+     }
     },300);
+   }catch(midErr){
+    console.error('[Rebrand] Unexpected error during Home\u2192Processing transition:', midErr);
+   }
   },180);
+ }catch(outerErr){
+  console.error('[Rebrand] Unexpected error in runRebrandScrape:', outerErr);
+  var pw=document.getElementById('portal-warning');
+  if(pw){pw.style.display='block';pw.style.color='#fca5a5';pw.textContent='Something went wrong. Please try again.';}
+  var b=document.getElementById('rebrand-scrape-btn');
+  if(b){b.disabled=false;b.textContent='Generate';}
+  var uf=document.getElementById('rebrand-url');
+  if(uf)uf.disabled=false;
+ }
 }
 
 var FRIENDLY_FIELD_NAMES={title:'Title',price:'Price',rooms:'Rooms',bathrooms:'Bathrooms',sqm:'Sqm',plotSize:'Plot',area:'Area',address:'Address',communityFee:'Community Fee',ibi:'IBI',garbageFee:'Garbage Fee',energyClass:'Energy Class',description:'Description',features:'Features'};
