@@ -17,8 +17,8 @@
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#050e1a;color:#fff;min-height:100vh}
   .wrap{max-width:760px;margin:0 auto;padding:32px 20px 60px}
   .back{display:inline-flex;align-items:center;gap:6px;color:rgba(201,161,74,.55);text-decoration:none;font-size:12px;font-weight:500;margin-bottom:20px}
-  body.home-active .back{color:rgba(26,25,23,.4)}
-  body.home-active .settings-nav-btn{color:rgba(26,25,23,.35)!important}
+  body.home-active .back{color:#111111}
+  body.home-active .settings-nav-btn{color:#111111!important}
   h1{font-family:'Georgia',serif;font-weight:400;font-size:28px;margin:0 0 4px;color:#fff}
   .sub{font-size:13px;color:rgba(255,255,255,.4);margin-bottom:28px}
   .card{background:rgba(255,255,255,.02);border:1px solid rgba(201,161,74,.12);border-radius:14px;padding:20px;margin-bottom:20px}
@@ -92,17 +92,24 @@
   .step-nav{display:flex;gap:10px;margin-top:14px}
   .step-nav button{flex:1}
 
-  .import-progress{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:20px;margin-top:14px;text-align:left}
-  .import-progress-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
-  .import-progress-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px}
-  .import-checklist{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
-  .import-check-item{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,.3);transition:color .3s}
-  .import-check-item.done{color:#4ade80}
-  .import-check-item.active{color:#C9A14A}
-  .import-check-icon{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
-  .import-mini-spinner{width:11px;height:11px;border-radius:50%;border:2px solid rgba(201,161,74,.25);border-top-color:#C9A14A;animation:tf-spin .8s linear infinite}
-  .import-progress-bar-track{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
-  .import-progress-bar-fill{height:100%;background:#C9A14A;transition:width .4s ease;border-radius:2px}
+  /* Dedicated Processing screen — fixed, full-screen, never scrolls or grows */
+  #processing-screen{position:fixed;inset:0;background:#0A0A0A;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .3s ease}
+  #processing-screen.visible{display:flex}
+  #processing-screen.faded-in{opacity:1}
+  #processing-logo{height:52px;width:auto;margin-bottom:28px}
+  .processing-heading{font-size:16px;font-weight:600;color:#F5F3EE;margin-bottom:6px}
+  .processing-eta{font-size:12px;color:rgba(245,243,238,.38);margin-bottom:36px}
+  .processing-checklist{display:flex;flex-direction:column;gap:16px;width:100%;max-width:300px;margin-bottom:32px;min-height:170px}
+  .processing-check-item{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(245,243,238,.38);transition:color .35s ease}
+  .processing-check-item.active{color:#C9A15A}
+  .processing-check-item.done{color:#F5F3EE}
+  .processing-check-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;border-radius:50%;border:1.5px solid rgba(245,243,238,.25);transition:border-color .35s ease,background .35s ease}
+  .processing-check-item.active .processing-check-icon{border-color:#C9A15A;animation:tf-pulse 1.4s ease-in-out infinite}
+  .processing-check-item.done .processing-check-icon{border-color:#C9A15A;background:#C9A15A;color:#0A0A0A}
+  @keyframes tf-pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,161,90,.35)}50%{box-shadow:0 0 0 5px rgba(201,161,90,0)}}
+  .processing-bar-track{width:100%;max-width:300px;height:3px;background:rgba(245,243,238,.1);border-radius:2px;overflow:hidden}
+  .processing-bar-fill{height:100%;background:#C9A15A;width:0%;transition:width .5s ease;border-radius:2px}
+  .processing-complete{font-size:14px;font-weight:600;color:#C9A15A;display:flex;align-items:center;gap:8px}
 
   @keyframes tf-step-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
   #rebrand-results>*{animation:tf-step-in .3s ease}
@@ -133,10 +140,6 @@
   #splash.hidden{opacity:0;pointer-events:none}
   #splash img{width:260px;max-width:70vw;opacity:0;transform:scale(.85);animation:tf-splash-in 1.1s cubic-bezier(.16,1,.3,1) forwards;position:relative;z-index:2}
   @keyframes tf-splash-in{to{opacity:1;transform:scale(1)}}
-  .advanced-panel input{background:#fff;border:1.5px solid rgba(7,18,38,.12);color:#1A1917}
-  .advanced-panel .cselect-btn{background:#fff;border:1.5px solid rgba(7,18,38,.12);color:#1A1917}
-  .advanced-panel .cselect-list{background:#fff;border-color:rgba(7,18,38,.15)}
-  .advanced-panel .cselect-opt{color:#1A1917;border-bottom-color:rgba(7,18,38,.06)}
 
   /* Splash screen */
   #splash{position:fixed;inset:0;background:#F5F3EE;z-index:1000;display:flex;align-items:center;justify-content:center;padding-bottom:10vh;opacity:1;transition:opacity .6s ease}
@@ -153,14 +156,15 @@
       #F5F3EE;
     color:#1A1917
   }
-  .home-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16vh 20px 20px}
+  .home-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16vh 20px 20px;transition:opacity .28s ease}
+  #home-nav-bar{transition:opacity .28s ease}
+  .fade-out-home{opacity:0}
   .home-hero{width:100%;max-width:520px;text-align:center}
   .home-hero-logo{height:260px;width:auto;margin:0 auto 10px;display:block;opacity:0}
   .home-hero.animate-in .home-hero-logo{animation:tf-fade-up-home .5s ease forwards}
   .home-hero.animate-in .home-hero-logo{margin-bottom:48px}
   .home-hero.animate-in input#rebrand-url{animation:tf-fade-up-home .5s ease forwards .24s}
   .home-hero.animate-in .home-generate-btn{animation:tf-fade-up-home .5s ease forwards .36s}
-  .home-hero.animate-in .advanced-toggle{animation:tf-fade-up-home .5s ease forwards .48s}
   @keyframes tf-fade-up-home{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   .home-hero input#rebrand-url{width:100%;background:#fff;border:1px solid rgba(7,18,38,.1);box-shadow:none;color:#1A1917;padding:0 18px;font-size:15px;border-radius:100px;height:48px;opacity:0;transition:border-color .15s ease}
   .home-hero input#rebrand-url::placeholder{color:rgba(7,18,38,.32)}
@@ -169,10 +173,6 @@
   .home-generate-btn:hover{background:#000}
   .home-generate-btn:active{background:#000;transform:scale(.97)}
   .home-generate-btn:disabled{background:#111;opacity:.5}
-  .advanced-toggle{background:none;border:none;color:rgba(7,18,38,.32);font-size:11px;font-weight:500;cursor:pointer;padding:0;margin-top:26px;opacity:0}
-  .advanced-panel{text-align:left;margin-top:14px;padding-top:14px;border-top:1px solid rgba(7,18,38,.08)}
-  .advanced-panel label{color:rgba(7,18,38,.5)}
-  .advanced-panel input{background:#fff;border:1.5px solid rgba(7,18,38,.12);color:#1A1917}
 </style>
 </head>
 <body>
@@ -183,9 +183,11 @@
 </div>
 
 <div class="wrap" id="main-content" style="display:none">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:10">
-    <button onclick="startNewListing()" class="back" style="display:inline-flex;background:none;border:none;cursor:pointer;font:inherit"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Home</button>
-    <button onclick="toggleSettings()" title="Settings" class="settings-nav-btn" style="background:none;border:none;color:rgba(201,161,74,.4);cursor:pointer;padding:0;display:inline-flex">
+  <div id="home-nav-bar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:10">
+    <button onclick="startNewListing()" class="back" style="display:inline-flex;align-items:center;background:none;border:none;cursor:pointer;font:inherit">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Home
+    </button>
+    <button onclick="toggleSettings()" title="Settings" class="settings-nav-btn" style="background:none;border:none;cursor:pointer;padding:0;display:inline-flex;align-items:center">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
   </div>
@@ -196,19 +198,26 @@
       <input id="rebrand-url" placeholder="Paste any property URL" oninput="checkPortalWarning(this.value)"/>
       <div id="portal-warning" style="display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:12px 14px;margin-top:10px;font-size:12px;color:#fca5a5;line-height:1.6;text-align:left"></div>
       <button id="rebrand-scrape-btn" class="home-generate-btn" onclick="runRebrandScrape()">Generate</button>
-      <button class="advanced-toggle" onclick="toggleAdvanced()">Advanced options</button>
-      <div class="advanced-panel" id="advanced-panel" style="display:none">
-        <label style="margin-top:0">Output language</label>
-        <div id="lang-select-wrap"></div>
-      </div>
-      <div id="status" style="text-align:left"></div>
     </div>
+  </div>
+
+  <div id="processing-screen">
+    <img id="processing-logo" src="" alt="Rebrand"/>
+    <div class="processing-heading">Importing your listing</div>
+    <div class="processing-eta">This usually takes 10\u201330 seconds</div>
+    <div class="processing-checklist" id="processing-checklist"></div>
+    <div class="processing-bar-track"><div class="processing-bar-fill" id="processing-bar-fill"></div></div>
   </div>
 
   <div id="settings-modal" style="display:none">
     <div id="settings-modal-backdrop" onclick="toggleSettings()"></div>
     <div class="card" id="settings-card">
-    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Your Contact Card <button class="edit-btn" onclick="toggleSettings()" style="font-size:20px;line-height:1">&times;</button></div>
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">Settings <button class="edit-btn" onclick="toggleSettings()" style="font-size:20px;line-height:1">&times;</button></div>
+
+    <label style="margin-top:4px">Output Language</label>
+    <div id="lang-select-wrap"></div>
+
+    <div class="section-label" style="margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">Your Contact Card</div>
     <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px">Saved once, used automatically on every listing you publish.</div>
     <div class="row" style="margin-bottom:8px">
       <input id="settings-agent-name" placeholder="Name"/>
@@ -294,6 +303,7 @@ try{
 
 function showMain(){
   document.getElementById('main-content').style.display='block';
+  var savedLang=loadSettings().outputLanguage||'original';
   document.getElementById('lang-select-wrap').innerHTML=customSelectHtml('output-lang',[
     {value:'original',label:'Keep original language'},
     {value:'English',label:'English'},
@@ -303,13 +313,9 @@ function showMain(){
     {value:'Dutch',label:'Dutch'},
     {value:'French',label:'French'},
     {value:'Russian',label:'Russian'}
-  ],'original');
+  ],savedLang);
 }
 
-function toggleAdvanced(){
-  var panel=document.getElementById('advanced-panel');
-  panel.style.display=panel.style.display==='none'?'block':'none';
-}
 
 function transitionSplashToHome(){
   var splash=document.getElementById('splash');
@@ -351,6 +357,7 @@ function transitionSplashToHome(){
 function init(){
   document.getElementById('splash-logo').src='data:image/png;base64,' + LOGO_B64;
   document.getElementById('home-logo').src='data:image/png;base64,' + LOGO_B64;
+  document.getElementById('processing-logo').src='data:image/png;base64,' + LOGO_B64;
   document.body.classList.add('home-active');
   showMain();
   setTimeout(transitionSplashToHome, 2600);
@@ -389,31 +396,26 @@ function checkPortalWarning(url){
   }
 }
 
-var IMPORT_STAGES=['Importing content','Extracting details','Fetching images','Detecting features','Almost done'];
+var IMPORT_STAGES=['Reading webpage','Extracting details','Fetching images','Detecting features','Finalising'];
 var importProgressTimer=null;
 var importProgressIdx=0;
 
 function renderImportProgress(idx,pct){
-  var status=document.getElementById('status');
-  if(!status)return;
-  status.innerHTML='<div class="import-progress">'+
-    '<div class="import-progress-title">Importing your listing</div>'+
-    '<div class="import-progress-sub">This usually takes 10\u201330 seconds</div>'+
-    '<div class="import-checklist">'+
-    IMPORT_STAGES.map(function(label,i){
-      var cls=i<idx?'done':(i===idx?'active':'');
-      var icon=i<idx?'\u2713':(i===idx?'<span class="import-mini-spinner"></span>':'\u25cb');
-      return '<div class="import-check-item '+cls+'"><span class="import-check-icon">'+icon+'</span>'+label+'</div>';
-    }).join('')+
-    '</div>'+
-    '<div class="import-progress-bar-track"><div class="import-progress-bar-fill" style="width:'+pct+'%"></div></div>'+
-    '</div>';
+  var checklist=document.getElementById('processing-checklist');
+  var fill=document.getElementById('processing-bar-fill');
+  if(!checklist)return;
+  checklist.innerHTML=IMPORT_STAGES.map(function(label,i){
+    var cls=i<idx?'done':(i===idx?'active':'');
+    var icon=i<idx?'\u2713':'';
+    return '<div class="processing-check-item '+cls+'"><span class="processing-check-icon">'+icon+'</span>'+label+'</div>';
+  }).join('');
+  if(fill)fill.style.width=pct+'%';
 }
 
 function startImportProgressAnimation(){
   stopImportProgressAnimation();
   importProgressIdx=0;
-  renderImportProgress(0,12);
+  renderImportProgress(0,10);
   importProgressTimer=setInterval(function(){
     if(importProgressIdx<IMPORT_STAGES.length-1){
       importProgressIdx++;
@@ -426,52 +428,105 @@ function stopImportProgressAnimation(){
   if(importProgressTimer){clearInterval(importProgressTimer);importProgressTimer=null;}
 }
 
+function showProcessingScreen(){
+  var screen=document.getElementById('processing-screen');
+  screen.classList.add('visible');
+  // Force a reflow so the opacity transition actually plays instead of
+  // jumping straight to visible.
+  void screen.offsetWidth;
+  screen.classList.add('faded-in');
+}
+function hideProcessingScreen(){
+  var screen=document.getElementById('processing-screen');
+  screen.classList.remove('faded-in');
+  setTimeout(function(){screen.classList.remove('visible');},300);
+}
+
 function runRebrandScrape(){
   var url=document.getElementById('rebrand-url').value.trim();
-  var status=document.getElementById('status');
+  var portalWarning=document.getElementById('portal-warning');
   var resultsEl=document.getElementById('rebrand-results');
   var btn=document.getElementById('rebrand-scrape-btn');
-  if(!url){status.textContent='Paste a listing URL first.';return;}
-  startImportProgressAnimation();
-  resultsEl.innerHTML='';
-  btn.disabled=true;
-  imagesCollapsed=false;
+  var urlField=document.getElementById('rebrand-url');
+  if(!url){
+    if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Paste a listing URL first.';}
+    return;
+  }
 
-  fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.error){
-        stopImportProgressAnimation();
-        btn.disabled=false;
-        status.innerHTML='<span style="color:#f87171">Error: '+esc(data.error)+'</span>';
-        return null;
-      }
-      currentData=data;
-    })
-    .then(function(){
-      if(!currentData)return;
-      var prevCorrected=correctedData;
-      correctedData=Object.assign({},currentData);
-      if(prevCorrected){
-        Object.keys(lockedFields).forEach(function(field){
-          if(lockedFields[field]) correctedData[field]=prevCorrected[field];
+  // 1–3: lock the Home UI and hold briefly before handing off, so the
+  // person sees a clear "this is happening" moment before Home disappears.
+  btn.disabled=true;
+  btn.textContent='Generating\u2026';
+  urlField.disabled=true;
+
+  setTimeout(function(){
+    // 4–5: Home fades out completely, Processing fades in. They are never
+    // visible at the same time.
+    var homeWrap=document.getElementById('home-wrap');
+    var homeNav=document.getElementById('home-nav-bar');
+    homeWrap.classList.add('fade-out-home');
+    if(homeNav)homeNav.classList.add('fade-out-home');
+
+    setTimeout(function(){
+      homeWrap.style.display='none';
+      if(homeNav)homeNav.style.display='none';
+      showProcessingScreen();
+      startImportProgressAnimation();
+
+      resultsEl.innerHTML='';
+      imagesCollapsed=false;
+
+      fetch('/.netlify/functions/rebrand-scrape?url='+encodeURIComponent(url))
+        .then(function(r){return r.json();})
+        .then(function(data){
+          if(data.error){
+            stopImportProgressAnimation();
+            hideProcessingScreen();
+            homeWrap.style.display='';
+            if(homeNav)homeNav.style.display='';
+            homeWrap.classList.remove('fade-out-home');
+            if(homeNav)homeNav.classList.remove('fade-out-home');
+            btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
+            if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Error: '+data.error;}
+            return null;
+          }
+          currentData=data;
+        })
+        .then(function(){
+          if(!currentData)return;
+          var prevCorrected=correctedData;
+          correctedData=Object.assign({},currentData);
+          if(prevCorrected){
+            Object.keys(lockedFields).forEach(function(field){
+              if(lockedFields[field]) correctedData[field]=prevCorrected[field];
+            });
+          }
+          stopImportProgressAnimation();
+          renderImportProgress(IMPORT_STAGES.length,100);
+          var checklist=document.getElementById('processing-checklist');
+          currentStep='review';
+          setTimeout(function(){
+            if(checklist)checklist.innerHTML='<div class="processing-complete">\u2713 Listing imported</div>';
+          },150);
+          setTimeout(function(){
+            hideProcessingScreen();
+            btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
+            renderResults();
+            window.scrollTo({top:0,behavior:'smooth'});
+          },800);
+        })
+        .catch(function(e){
+          stopImportProgressAnimation();
+          hideProcessingScreen();
+          homeWrap.style.display='';
+          if(homeNav)homeNav.style.display='';
+          homeWrap.classList.remove('fade-out-home');
+          if(homeNav)homeNav.classList.remove('fade-out-home');
+          btn.disabled=false;btn.textContent='Generate';urlField.disabled=false;
+          if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Request failed: '+e.message;}
         });
-      }
-      stopImportProgressAnimation();
-      renderImportProgress(IMPORT_STAGES.length,100);
-      btn.disabled=false;
-      currentStep='review';
-      setTimeout(function(){
-        status.innerHTML='';
-        renderResults();
-        window.scrollTo({top:0,behavior:'smooth'});
-      },500);
-    })
-    .catch(function(e){
-      stopImportProgressAnimation();
-      btn.disabled=false;
-      status.innerHTML='<span style="color:#f87171">Request failed: '+esc(e.message)+'</span>';
-    });
+    },300);
+  },180);
 }
 
 var FRIENDLY_FIELD_NAMES={title:'Title',price:'Price',rooms:'Rooms',bathrooms:'Bathrooms',sqm:'Sqm',plotSize:'Plot',area:'Area',address:'Address',communityFee:'Community Fee',ibi:'IBI',garbageFee:'Garbage Fee',energyClass:'Energy Class',description:'Description',features:'Features'};
@@ -573,6 +628,13 @@ function chooseCSelect(id,value){
   if(hidden)hidden.value=value;
   if(btn&&opt)btn.innerHTML=opt.textContent+' <span style="float:right;color:#C9A14A">\u25be</span>';
   list.style.display='none';
+  if(id==='output-lang'){
+    try{
+      var existing=loadSettings();
+      existing.outputLanguage=value;
+      localStorage.setItem(SETTINGS_KEY,JSON.stringify(existing));
+    }catch(e){}
+  }
 }
 document.addEventListener('click',function(e){
   if(!e.target.closest('.cselect')){
@@ -803,9 +865,11 @@ function renderResults(){
   var resultsEl=document.getElementById('rebrand-results');
   var data=correctedData;
   var homeWrap=document.getElementById('home-wrap');
+  var homeNav=document.getElementById('home-nav-bar');
 
   if(!currentData){
-    if(homeWrap)homeWrap.style.display='';
+    if(homeWrap){homeWrap.style.display='';homeWrap.classList.remove('fade-out-home');}
+    if(homeNav){homeNav.style.display='';homeNav.classList.remove('fade-out-home');}
     document.body.classList.add('home-active');
     resultsEl.innerHTML='';
     return;
@@ -906,7 +970,6 @@ function startNewListing(){
   document.getElementById('rebrand-url').value='';
   var galleryField=document.getElementById('rebrand-gallery-url');
   if(galleryField)galleryField.value='';
-  document.getElementById('status').innerHTML='';
   renderResults();
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -957,6 +1020,7 @@ function saveSettings(sourceId){
   var status=document.getElementById(sourceId==='branding'?'branding-save-status':'settings-save-status');
   try{
     var s={
+      outputLanguage:document.getElementById('output-lang')?document.getElementById('output-lang').value:'original',
       name:document.getElementById('settings-agent-name').value,
       title:document.getElementById('settings-agent-title').value,
       agency:document.getElementById('settings-agent-agency').value,
