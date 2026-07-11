@@ -17,6 +17,11 @@ const TEST_CASES = [
     name: 'is-realestate.com gallery (46 photos, only 4 load eagerly)',
     url: 'https://is-realestate.com/estate_property/ref-391239/',
     minImages: 10
+  },
+  {
+    name: 'el-moncayo.com gallery (returns 403 to plain requests)',
+    url: 'https://www.el-moncayo.com/es/property/29626660/',
+    minImages: 10
   }
 ];
 
