@@ -27,7 +27,7 @@
   /* Premium Contact Card — copied verbatim from p.html so the Settings
      preview is pixel-identical to what clients actually see. */
   .contact-card{background:#fff;border-radius:28px;box-shadow:0 16px 48px rgba(0,0,0,.25);display:flex;overflow:hidden}
-  .cc-info{flex:0 0 45%;padding:24px 18px;display:flex;flex-direction:column;justify-content:center;min-width:0;background:linear-gradient(160deg,#0c1420,#0f1c2c)}
+  .cc-info{flex:0 0 55%;padding:24px 18px;display:flex;flex-direction:column;justify-content:center;min-width:0;background:linear-gradient(160deg,#0c1420,#0f1c2c)}
   .cc-label{font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.14em;margin-bottom:12px;line-height:1.5}
   .cc-name{font-family:Georgia,serif;font-size:21px;color:#fdfbf7;line-height:1.2;margin-bottom:8px;word-break:break-word}
   .cc-company{font-size:12px;color:#C9A14A;font-style:italic;margin-bottom:14px}
@@ -38,7 +38,7 @@
   .cc-action-label{flex:1;min-width:0}
   .cc-action-arrow{color:#C9A14A;font-size:13px;flex-shrink:0;opacity:.8}
   .cc-divider{height:1px;background:rgba(255,255,255,.1)}
-  .cc-photo{flex:0 0 55%;position:relative;min-height:200px;background:#e8e0d0;overflow:hidden}
+  .cc-photo{flex:0 0 45%;position:relative;min-height:200px;background:#e8e0d0;overflow:hidden}
   #cc-photo-editable{cursor:grab;touch-action:none;user-select:none}
   #cc-photo-editable.dragging{cursor:grabbing}
   #cc-photo-editable::after{content:'Drag to reposition';position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:9px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.35);padding:4px 0;pointer-events:none;opacity:0;transition:opacity .2s}
@@ -122,7 +122,6 @@
   #processing-screen{position:fixed;inset:0;background:#0A0A0A;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .3s ease}
   #processing-screen.visible{display:flex}
   #processing-screen.faded-in{opacity:1}
-  #processing-logo{height:52px;width:auto;margin-bottom:28px}
   .processing-heading{font-size:16px;font-weight:600;color:#F5F3EE;margin-bottom:6px}
   .processing-eta{font-size:12px;color:rgba(245,243,238,.38);margin-bottom:36px}
   .processing-checklist{display:flex;flex-direction:column;gap:16px;width:100%;max-width:300px;margin-bottom:32px;min-height:170px}
@@ -210,10 +209,10 @@
 
 <div class="wrap" id="main-content" style="display:none">
   <div id="home-nav-bar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:10">
-    <button onclick="startNewListing()" class="back" style="display:inline-flex;align-items:center;background:none;border:none;cursor:pointer;font:inherit">
+    <button onclick="startNewListing()" class="back" style="display:inline-flex;align-items:center;background:none;border:none;cursor:pointer;font:inherit;margin-bottom:0;padding:4px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Home
     </button>
-    <button onclick="toggleSettings()" title="Settings" class="settings-nav-btn" style="background:none;border:none;cursor:pointer;padding:0;display:inline-flex;align-items:center">
+    <button onclick="toggleSettings()" title="Settings" class="settings-nav-btn" style="background:none;border:none;cursor:pointer;padding:4px;display:inline-flex;align-items:center">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
   </div>
@@ -222,13 +221,13 @@
     <div class="home-hero">
       <img class="home-hero-logo" id="home-logo" src="" alt="Rebrand"/>
       <input id="rebrand-url" placeholder="Paste any property URL" oninput="checkPortalWarning(this.value)"/>
+      <div style="font-size:11px;color:rgba(7,18,38,.35);margin-top:10px;line-height:1.5">For best results, paste the listing URL directly from the agent\u2019s own website rather than a portal like Idealista.</div>
       <div id="portal-warning" style="display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:12px 14px;margin-top:10px;font-size:12px;color:#fca5a5;line-height:1.6;text-align:left"></div>
       <button id="rebrand-scrape-btn" class="home-generate-btn" onclick="runRebrandScrape()">Generate</button>
     </div>
   </div>
 
   <div id="processing-screen">
-    <img id="processing-logo" src="" alt="Rebrand"/>
     <div class="processing-heading">Importing your listing</div>
     <div class="processing-eta">This usually takes 10–30 seconds</div>
     <div class="processing-checklist" id="processing-checklist"></div>
@@ -394,7 +393,6 @@ function transitionSplashToHome(){
 function init(){
   document.getElementById('splash-logo').src='data:image/png;base64,' + LOGO_B64;
   document.getElementById('home-logo').src='data:image/png;base64,' + LOGO_B64;
-  document.getElementById('processing-logo').src='data:image/png;base64,' + LOGO_B64;
   document.body.classList.add('home-active');
   showMain();
   setTimeout(transitionSplashToHome, 2600);
@@ -1146,6 +1144,21 @@ function renderResults(){
 var SETTINGS_KEY='tf_rebrand_agent_settings';
 var BRAND_DEFAULTS={companyName:'',logo:'',logoIsWhite:false,primaryColor:'#C9A14A',secondaryColor:'#071226',logoPlacement:'top-left',theme:'light',logoInHero:true};
 
+function openPresentationLink(link){
+  // Standalone iOS PWAs are notoriously unreliable at breaking out to
+  // Safari via target="_blank" / window.open(), even with correct manifest
+  // scope. The OS share sheet is a separate, native surface that reliably
+  // escapes the PWA's own window — "Open in Safari" is one of its default
+  // options on iOS, so this is the most dependable route we have.
+  if(navigator.share){
+    navigator.share({url:link}).catch(function(){
+      window.open(link,'_blank');
+    });
+  } else {
+    window.open(link,'_blank');
+  }
+}
+
 function startNewListing(){
   currentData=null;
   correctedData=null;
@@ -1411,7 +1424,7 @@ function publishListing(){
     resultEl.innerHTML='<div style="background:rgba(7,18,38,.04);border-radius:8px;padding:12px;font-size:12px;color:#1A1917;word-break:break-all">'+link+'</div>'+
       '<div style="display:flex;gap:8px;margin-top:8px">'+
       '<button class="btn-ghost" onclick="navigator.clipboard.writeText(\''+link+'\');this.textContent=\'Copied!\'">Copy link</button>'+
-      '<button class="btn-ghost" onclick="window.open(\''+link+'\',\'_blank\')" style="display:inline-flex;align-items:center;justify-content:center">Open Link</button>'+
+      '<button class="btn-ghost" onclick="openPresentationLink(\''+link+'\')" style="display:inline-flex;align-items:center;justify-content:center">Open Link</button>'+
       '</div>'+
       '<button onclick="startNewListing()" style="width:100%;margin-top:14px">Start New Listing</button>';
     var nav=document.querySelector('.step-nav');
