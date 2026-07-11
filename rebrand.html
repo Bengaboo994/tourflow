@@ -230,7 +230,7 @@
   <div id="processing-screen">
     <img id="processing-logo" src="" alt="Rebrand"/>
     <div class="processing-heading">Importing your listing</div>
-    <div class="processing-eta">This usually takes 10\u201330 seconds</div>
+    <div class="processing-eta">This usually takes 10–30 seconds</div>
     <div class="processing-checklist" id="processing-checklist"></div>
     <div class="processing-bar-track"><div class="processing-bar-fill" id="processing-bar-fill"></div></div>
   </div>
@@ -268,7 +268,7 @@
 
     <div style="margin-top:22px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">
       <div class="section-label">Business Card Preview</div>
-      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px">Exactly what clients will see \u2014 updates as you type.</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.35);margin-bottom:12px">Exactly what clients will see — updates as you type.</div>
       <div id="business-card-preview-wrap"></div>
       <div class="crop-controls">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -411,6 +411,7 @@ var dragSrcIdx=null;
 var selectedImages={};
 
 function esc(s){return(s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function handleCcPhotoError(img,initials){img.parentElement.innerHTML='<div class="cc-photo-fallback">'+(initials||'?')+'</div>';}
 
 // Shared component: builds the premium contact card. Identical to the copy
 // in p.html so the Settings preview matches what clients actually see —
@@ -454,7 +455,7 @@ function buildContactCardHtml(d){
     '<div class="cc-rule"></div>'+
     '<div class="cc-actions">'+actionsHtml+'</div>'+
     '</div>'+
-    '<div class="cc-photo" id="'+(d.previewMode?'cc-photo-editable':'')+'">'+(d.agent_photo?'<img src="'+esc(d.agent_photo)+'" style="transform:scale('+(d.photoZoom||d.agent_photo_zoom||1)+') translate('+(d.photoOffsetX||d.agent_photo_offset_x||0)+'%,'+(d.photoOffsetY||d.agent_photo_offset_y||0)+'%)"'+(d.previewMode?' id="cc-photo-img"':'')+'/>':'<div class="cc-photo-fallback">'+esc(initials||'?')+'</div>')+'</div>'+
+    '<div class="cc-photo" id="'+(d.previewMode?'cc-photo-editable':'')+'">'+(d.agent_photo?'<img src="'+esc(d.agent_photo)+'" style="transform:scale('+(d.photoZoom||d.agent_photo_zoom||1)+') translate('+(d.photoOffsetX||d.agent_photo_offset_x||0)+'%,'+(d.photoOffsetY||d.agent_photo_offset_y||0)+'%)" onerror="handleCcPhotoError(this,\''+esc(initials||'?')+'\')"'+(d.previewMode?' id="cc-photo-img"':'')+'/>':'<div class="cc-photo-fallback">'+esc(initials||'?')+'</div>')+'</div>'+
     '</div>';
 }
 
