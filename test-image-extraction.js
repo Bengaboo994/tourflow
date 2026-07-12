@@ -22,6 +22,11 @@ const TEST_CASES = [
     name: 'el-moncayo.com gallery (returns 403 to plain requests)',
     url: 'https://www.el-moncayo.com/es/property/29626660/',
     minImages: 10
+  },
+  {
+    name: 'el-moncayo.com gallery via Next.js image optimizer + Inmovilla (25 photos)',
+    url: 'https://www.el-moncayo.com/es/property/29542667/',
+    minImages: 10
   }
 ];
 
