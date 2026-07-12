@@ -184,7 +184,15 @@ exports.handler = async function(event) {
           const p = new URL(u);
           let path = p.pathname.toLowerCase();
           path = path.replace(/[-_](thumb|thumbnail|small|medium|large|xl|xs|sm|md|lg|preview|full|fullsize|original|orig|hires|hi-res|big|\d{2,4}x\d{2,4})(?=\.\w+$)/i, '');
-          path = path.replace(/[-_]\d{2,4}(?=\.\w+$)/, '');
+          // Only strip a trailing "-NNN" as a size hint if it does NOT look
+          // like sequential gallery numbering (e.g. Inmovilla's
+          // ".../30-1.jpg" through ".../30-25.jpg" — a numeric prefix
+          // followed by "-index", where the index is the photo's position
+          // in the gallery, not a resolution). Stripping that would
+          // collapse an entire 25-photo gallery down to one image.
+          if (!/\d+-\d{1,3}\.\w+$/i.test(path)) {
+            path = path.replace(/[-_]\d{2,4}(?=\.\w+$)/, '');
+          }
           return p.hostname + path;
         } catch (e) { return u; }
       }
@@ -198,10 +206,26 @@ exports.handler = async function(event) {
         if (/(thumb|thumbnail|small|preview|xs|sm)(?=[.\-_]|$)/i.test(lower)) score -= 1000;
         return score;
       }
+      // Next.js sites often serve images through an optimizer endpoint like
+      // /_next/image/?q=75&url=<encoded-real-url>&w=3840 — the wrapper
+      // itself doesn't end in .jpg/.png so it fails the "looks like a
+      // photo" check below and gets silently dropped. Unwrap it first so
+      // the real underlying photo URL is what actually gets evaluated.
+      function unwrapNextImageUrl(u) {
+        try {
+          const parsed = new URL(u);
+          if (/\/_next\/image\/?$/i.test(parsed.pathname)) {
+            const inner = parsed.searchParams.get('url');
+            if (inner) return decodeURIComponent(inner);
+          }
+        } catch (e) {}
+        return u;
+      }
       function addImageCandidate(rawSrc) {
         if (!rawSrc || rawSrc.startsWith('data:')) return;
         let src;
         try { src = new URL(rawSrc, url).href; } catch (e) { return; }
+        src = unwrapNextImageUrl(src);
         const lower = src.toLowerCase();
         if (!/\.(jpg|jpeg|png|webp)(\?|$)/i.test(lower)) return;
         if (NON_PROPERTY_IMAGE_RE.test(lower)) return;
@@ -238,8 +262,10 @@ exports.handler = async function(event) {
         // Gallery/lightbox anchors: <a href="full-res.jpg"> wrapping a
         // thumbnail — a very common pattern (PhotoSwipe, Fancybox,
         // Magnific Popup, etc.) that plain <img> scanning misses entirely,
-        // and it usually points at the full, un-cropped image.
-        for (const m of sourceHtml.matchAll(/<a[^>]+href=["']([^"']+\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)["']/gi)) {
+        // and it usually points at the full, un-cropped image. Also catches
+        // Next.js image-optimizer hrefs (/_next/image?url=...), which
+        // addImageCandidate unwraps internally.
+        for (const m of sourceHtml.matchAll(/<a[^>]+href=["']([^"']+(?:\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?|\/_next\/image\/?\?[^"']*))["']/gi)) {
           addImageCandidate(m[1]);
           if (imageMap.size >= IMG_LIMIT) return;
         }
@@ -282,7 +308,23 @@ exports.handler = async function(event) {
         }
       }
 
-      const images = imageOrder.map(k => imageMap.get(k).url);
+      let images = imageOrder.map(k => imageMap.get(k).url);
+
+      // Inmovilla-hosted galleries (fotos*.inmovilla.com/{agencyId}/{propertyId}/{prefix}-{n}.jpg)
+      // number their photos sequentially in the URL itself — if most of
+      // what we found matches that pattern, sort by that number instead of
+      // discovery order, since DOM/script order isn't guaranteed to match
+      // the intended gallery sequence on these sites.
+      const inmovillaRe = /fotos\d*\.inmovilla\.com\/\d+\/\d+\/[a-z0-9]+-(\d+)\.(?:jpg|jpeg|png|webp)/i;
+      const inmovillaMatches = images.filter(u => inmovillaRe.test(u));
+      if (inmovillaMatches.length >= Math.max(3, images.length * 0.5)) {
+        images = images.slice().sort((a, b) => {
+          const ma = a.match(inmovillaRe), mb = b.match(inmovillaRe);
+          const na = ma ? parseInt(ma[1], 10) : 9999;
+          const nb = mb ? parseInt(mb[1], 10) : 9999;
+          return na - nb;
+        });
+      }
 
       return {
         title: ogTitle || null, price, rooms, bathrooms, sqm, plotSize, area, address,
