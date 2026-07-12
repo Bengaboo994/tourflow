@@ -198,6 +198,25 @@
   .home-generate-btn:hover{background:#000}
   .home-generate-btn:active{background:#000;transform:scale(.97)}
   .home-generate-btn:disabled{background:#111;opacity:.5}
+  .home-footer-links{text-align:center;margin-top:28px;font-size:11px;color:rgba(7,18,38,.35)}
+  .home-footer-links a{color:rgba(7,18,38,.4);text-decoration:none}
+  .home-footer-links a:hover{text-decoration:underline}
+
+  /* Consent modal */
+  #consent-modal{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+  #consent-modal-backdrop{position:fixed;inset:0;background:rgba(20,16,8,.45);backdrop-filter:blur(2px)}
+  .consent-card{position:relative;z-index:1;background:#F5F3EE;border-radius:24px;box-shadow:0 24px 64px rgba(0,0,0,.25);max-width:400px;width:100%;padding:28px 26px;color:#1A1917;opacity:0;transform:scale(.96);animation:tf-consent-in .25s ease forwards}
+  @keyframes tf-consent-in{to{opacity:1;transform:scale(1)}}
+  .consent-title{font-family:Georgia,serif;font-size:21px;color:#1A1917;margin-bottom:12px}
+  .consent-text{font-size:13px;color:rgba(26,25,23,.65);line-height:1.6;margin-bottom:18px}
+  .consent-checkbox-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:22px;cursor:pointer}
+  .consent-checkbox-row input{margin-top:2px;width:16px;height:16px;accent-color:#C9A14A;flex-shrink:0;cursor:pointer}
+  .consent-checkbox-row span{font-size:12px;color:rgba(26,25,23,.7);line-height:1.5}
+  .consent-buttons{display:flex;gap:10px}
+  .consent-btn{flex:1;height:46px;border-radius:100px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit}
+  .consent-btn-cancel{background:transparent;color:rgba(26,25,23,.5)}
+  .consent-btn-continue{background:#C9A14A;color:#fff}
+  .consent-btn-continue:disabled{background:rgba(201,161,74,.3);cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -208,11 +227,11 @@
 </div>
 
 <div class="wrap" id="main-content" style="display:none">
-  <div id="home-nav-bar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:relative;z-index:10">
+  <div id="home-nav-bar" style="position:relative;min-height:24px;margin-bottom:14px;padding:0 8px;z-index:10">
     <button onclick="startNewListing()" class="back" style="display:inline-flex;align-items:center;background:none;border:none;cursor:pointer;font:inherit;margin-bottom:0;padding:4px">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Home
     </button>
-    <button onclick="toggleSettings()" title="Settings" class="settings-nav-btn" style="background:none;border:none;cursor:pointer;padding:4px;display:inline-flex;align-items:center">
+    <button onclick="toggleSettings()" title="Settings" class="settings-nav-btn" style="position:absolute;top:0;right:8px;background:none;border:none;cursor:pointer;padding:4px;display:inline-flex;align-items:center">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
   </div>
@@ -221,9 +240,28 @@
     <div class="home-hero">
       <img class="home-hero-logo" id="home-logo" src="" alt="Rebrand"/>
       <input id="rebrand-url" placeholder="Paste any property URL" oninput="checkPortalWarning(this.value)"/>
-      <div style="font-size:11px;color:rgba(7,18,38,.35);margin-top:10px;line-height:1.5">For best results, paste the listing URL directly from the agent\u2019s own website rather than a portal like Idealista.</div>
+      <div style="font-size:11px;color:rgba(7,18,38,.55);margin-top:10px;line-height:1.6">Best results come from the estate agent’s own website rather than property portals.</div>
       <div id="portal-warning" style="display:none;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.3);border-radius:8px;padding:12px 14px;margin-top:10px;font-size:12px;color:#fca5a5;line-height:1.6;text-align:left"></div>
       <button id="rebrand-scrape-btn" class="home-generate-btn" onclick="runRebrandScrape()">Generate</button>
+    </div>
+    <div class="home-footer-links">
+      <a href="#" onclick="return false">FAQ</a>&nbsp;&middot;&nbsp;<a href="#" onclick="return false">Terms</a>&nbsp;&middot;&nbsp;<a href="#" onclick="return false">Privacy</a>
+    </div>
+  </div>
+
+  <div id="consent-modal">
+    <div id="consent-modal-backdrop" onclick="closeConsentModal()"></div>
+    <div class="consent-card">
+      <div class="consent-title">Before you continue</div>
+      <div class="consent-text">Rebrand automatically creates branded presentations from publicly available property listings. Rebrand does not verify ownership, copyright or licensing of submitted content.<br><br>By continuing, you confirm that you have the necessary rights or permission to use the submitted content and agree to our Terms of Service and Privacy Policy.</div>
+      <label class="consent-checkbox-row">
+        <input type="checkbox" id="consent-checkbox" onchange="document.getElementById('consent-continue-btn').disabled=!this.checked"/>
+        <span>I confirm that I have the necessary rights or permission to use the submitted content and agree to the Terms of Service and Privacy Policy.</span>
+      </label>
+      <div class="consent-buttons">
+        <button class="consent-btn consent-btn-cancel" onclick="closeConsentModal()">Cancel</button>
+        <button class="consent-btn consent-btn-continue" id="consent-continue-btn" disabled onclick="acceptConsentAndContinue()">Continue</button>
+      </div>
     </div>
   </div>
 
@@ -597,6 +635,41 @@ function hideProcessingScreen(){
   setTimeout(function(){screen.classList.remove('visible');},300);
 }
 
+var TERMS_VERSION='1.0';
+var TERMS_KEY='tf_rebrand_terms_consent';
+
+function hasAcceptedTerms(){
+  try{
+    var raw=localStorage.getItem(TERMS_KEY);
+    if(!raw)return false;
+    var data=JSON.parse(raw);
+    return data.accepted===true && data.terms_version===TERMS_VERSION;
+  }catch(e){
+    return false;
+  }
+}
+function openConsentModal(){
+  var checkbox=document.getElementById('consent-checkbox');
+  var continueBtn=document.getElementById('consent-continue-btn');
+  if(checkbox)checkbox.checked=false;
+  if(continueBtn)continueBtn.disabled=true;
+  document.getElementById('consent-modal').style.display='flex';
+}
+function closeConsentModal(){
+  document.getElementById('consent-modal').style.display='none';
+}
+function acceptConsentAndContinue(){
+  try{
+    localStorage.setItem(TERMS_KEY,JSON.stringify({
+      accepted:true,
+      accepted_at:new Date().toISOString(),
+      terms_version:TERMS_VERSION
+    }));
+  }catch(e){}
+  closeConsentModal();
+  runRebrandScrape();
+}
+
 function runRebrandScrape(){
  try{
   var url=document.getElementById('rebrand-url').value.trim();
@@ -610,6 +683,11 @@ function runRebrandScrape(){
   }
   if(!/^https?:\/\//i.test(url)){
     if(portalWarning){portalWarning.style.display='block';portalWarning.style.color='#fca5a5';portalWarning.textContent='Unable to parse listing URL \u2014 make sure it starts with http:// or https://';}
+    return;
+  }
+
+  if(!hasAcceptedTerms()){
+    openConsentModal();
     return;
   }
 
