@@ -3258,8 +3258,9 @@ function pgAddProp(){
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL *</label>'+
     '<input class="inp" id="ap-url" placeholder="https://idealista.com/..." oninput="this.value=this.value.trim()"/>'+
-    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">'+
     '<button id="ap-fetch-btn" onclick="fetchOg(document.getElementById(&quot;ap-url&quot;).value,&quot;ap&quot;)" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
+    '<button id="ap-enhance-btn" onclick="fetchTourflowEnhance(document.getElementById(&quot;ap-url&quot;).value,&quot;ap&quot;)" style="padding:8px 16px;background:#fff;color:#1A1917;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✨ Enhance</button>'+
     '<span id="ap-fetch-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div>'+
     '<div style="font-size:11px;color:#5a5754;margin-top:6px">Paste listing URL and tap Auto fetch</div></div>'+
@@ -3392,14 +3393,88 @@ function _applyMapsCoords(lat, lng, prefix, dayId, propId){
   }
   var statusEl = document.getElementById(prefix + '-pin-status');
   if(statusEl) statusEl.textContent = lat.toFixed(4) + ', ' + lng.toFixed(4);
-}function fetchOg(url, formPrefix) {
+}function fetchTourflowEnhance(url, formPrefix) {
+  if (!url) return;
+  formPrefix = formPrefix || 'ap';
+  var btnId = formPrefix + '-enhance-btn';
+  var btn = document.getElementById(btnId);
+  if (btn) { btn.disabled = true; btn.innerHTML = '✨ Reading listing…'; }
+
+  fetch("/.netlify/functions/tourflow-vision?url=" + encodeURIComponent(url))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (btn) { btn.disabled = false; btn.innerHTML = '✨ Enhance'; }
+      if (data.error) {
+        var statusEl = document.getElementById(formPrefix + '-fetch-status');
+        if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;font-size:11px">Enhance failed — try again</span>';
+        return;
+      }
+      var filled = [];
+      function fill(id, val) {
+        if (!val) return;
+        var el = document.getElementById(id);
+        if (el && !el.value) { el.value = val; filled.push(id); }
+      }
+      var p = formPrefix + '-';
+      fill(p + 'title', data.title);
+      fill(p + (formPrefix === 'alp' ? 'area' : 'area2'), data.area);
+      fill(p + 'addr', data.address);
+      fill(p + 'price', data.price);
+      fill(p + 'rooms', data.rooms);
+      fill(p + 'bath', data.bathrooms);
+      fill(p + 'sqm', data.sqm);
+      fill(p + 'plotsize', data.plotSize);
+      fill(p + 'yearbuilt', data.yearBuilt);
+      fill(p + 'orientation', data.orientation);
+      fill(p + 'pool', data.pool);
+      fill(p + 'garage', data.garage);
+      fill(p + 'furnished', data.furnished);
+      fill(p + 'community', data.communityFee);
+      fill(p + 'ibi', data.ibi);
+      fill(p + 'basura', data.basura);
+      fill(p + 'energy', data.energyCert);
+      fill(p + 'cont', data.listingAgentName);
+      fill(p + 'cph', data.listingAgentPhone);
+      fill(p + 'firm', data.listingAgentFirm);
+
+      // Highlights — merge with anything already selected rather than
+      // replacing, since the person may have already ticked some by hand.
+      if (data.highlights && data.highlights.length) {
+        var existingKey = formPrefix === 'ep' ? '_editHighlights' : (formPrefix === 'alp' ? '_libNewHighlights' : '_newHighlights');
+        var existing = window[existingKey] || [];
+        var merged = existing.slice();
+        data.highlights.forEach(function(h){ if (merged.indexOf(h) === -1) merged.push(h); });
+        window[existingKey] = merged;
+        var wrapId = formPrefix === 'ep' ? 'ep-hl-wrap' : (formPrefix === 'alp' ? 'alp-hl-wrap' : 'ap-hl-wrap');
+        var dayIdArg = formPrefix === 'ep' ? '__edit__' : (formPrefix === 'alp' ? '__lib__' : '__new__');
+        var propIdArg = formPrefix === 'ep' ? S.epid : (formPrefix === 'alp' ? '__lib__' : '__new__');
+        var wrap = document.getElementById(wrapId);
+        if (wrap) wrap.innerHTML = hlPickerHtml(dayIdArg, propIdArg, merged);
+        filled.push('highlights');
+      }
+
+      var statusEl = document.getElementById(formPrefix + '-fetch-status');
+      if (statusEl) {
+        statusEl.innerHTML = filled.length > 0
+          ? '<span style="color:#059669;font-size:11px;font-weight:500">✓ Enhanced ' + filled.length + ' fields</span>'
+          : '<span style="color:#5a5754;font-size:11px">Nothing new to add</span>';
+      }
+    })
+    .catch(function(){
+      if (btn) { btn.disabled = false; btn.innerHTML = '✨ Enhance'; }
+      var statusEl = document.getElementById(formPrefix + '-fetch-status');
+      if (statusEl) statusEl.innerHTML = '<span style="color:#dc2626;font-size:11px">Could not enhance — try again</span>';
+    });
+}
+
+function fetchOg(url, formPrefix) {
   if (!url) return;
   formPrefix = formPrefix || 'ap';
   var btnId = formPrefix + '-fetch-btn';
   var btn = document.getElementById(btnId);
   if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Fetching...'; }
 
-  fetch("/.netlify/functions/og?url=" + encodeURIComponent(url))
+  fetch("/.netlify/functions/tourflow-scrape?url=" + encodeURIComponent(url))
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (btn) { btn.disabled = false; btn.innerHTML = '✦ Auto fetch'; }
@@ -3450,6 +3525,13 @@ function _applyMapsCoords(lat, lng, prefix, dayId, propId){
       fill(p + 'energy', data.energyCert || '');
       fill(p + 'dbeach', data.distanceToBeach || '');
       fill(p + 'dgolf', data.distanceToGolf || '');
+      // Listing agent contact — the pasted URL is almost always the
+      // collaborating agent's own site, so this fills the internal
+      // "Agent Info" section (Contact person / Contact phone / Their firm).
+      // Only present on ap-/ep- forms; harmlessly no-ops elsewhere.
+      fill(p + 'cont', data.listingAgentName || '');
+      fill(p + 'cph', data.listingAgentPhone || '');
+      fill(p + 'firm', data.listingAgentFirm || '');
 
       // Auto-save lat/lng if returned from XML
       if(data.lat && data.lng){
@@ -3606,8 +3688,9 @@ function pgEditProp(){
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL</label>'+
     '<input class="inp" id="ep-url" '+v(p.url||'')+' placeholder="https://idealista.com/..."/>'+
-    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">'+
     '<button id="ep-fetch-btn" onclick="fetchOg(document.getElementById(\'ep-url\').value,\'ep\')" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
+    '<button id="ep-enhance-btn" onclick="fetchTourflowEnhance(document.getElementById(\'ep-url\').value,\'ep\')" style="padding:8px 16px;background:#fff;color:#1A1917;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✨ Enhance</button>'+
     '<span id="ep-fetch-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div>'+
     '</div>'+
@@ -4497,8 +4580,9 @@ function pgAddLibraryProp(){
     '<div class="card" style="margin-bottom:14px">'+
     '<label class="lbl">Listing URL</label>'+
     '<input class="inp" id="alp-url" placeholder="https://idealista.com/..."/>'+
-    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px">'+
+    '<div style="display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap">'+
     '<button id="alp-fetch-btn" onclick="fetchOg(document.getElementById(\'alp-url\').value,\'alp\')" style="padding:8px 16px;background:#071226;color:#C9A14A;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✦ Auto fetch</button>'+
+    '<button id="alp-enhance-btn" onclick="fetchTourflowEnhance(document.getElementById(\'alp-url\').value,\'alp\')" style="padding:8px 16px;background:#fff;color:#1A1917;border:1.5px solid #edeae4;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px">✨ Enhance</button>'+
     '<span id="alp-fetch-status" style="font-size:11px;color:#5a5754"></span>'+
     '</div>'+
     '</div>'+
@@ -4553,6 +4637,14 @@ function pgAddLibraryProp(){
     '</div>'+
     '</div>'+
 
+    '<div class="card" style="margin-bottom:14px">'+
+    '<div style="border-left:2px solid #C9A14A;padding-left:12px;margin-bottom:14px">'+
+    '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em">Agent Info</div></div>'+
+    [["Commission","alp-comm","Commission"],["Contact person","alp-cont","Contact name"],["Contact phone","alp-cph","Contact phone"],["Their firm","alp-firm","Company name"],["Exact location/access","alp-loc","Access details"],["Internal notes","alp-note","Notes"]].map(function(f){
+      return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';
+    }).join('')+
+    '</div>'+
+
     '<button class="btn" id="alp-save-btn" onclick="saveLibraryProp()">Save to library</button>'+
     '</div>';
 }
@@ -4599,6 +4691,12 @@ function saveLibraryProp(){
     basura:document.getElementById('alp-basura')?document.getElementById('alp-basura').value.trim():'',
     distanceToBeach:document.getElementById('alp-dbeach')?document.getElementById('alp-dbeach').value.trim():'',
     distanceToGolf:document.getElementById('alp-dgolf')?document.getElementById('alp-dgolf').value.trim():'',
+    commission:document.getElementById('alp-comm')?document.getElementById('alp-comm').value.trim():'',
+    contact:document.getElementById('alp-cont')?document.getElementById('alp-cont').value.trim():'',
+    contactPhone:document.getElementById('alp-cph')?document.getElementById('alp-cph').value.trim():'',
+    firm:document.getElementById('alp-firm')?document.getElementById('alp-firm').value.trim():'',
+    location:document.getElementById('alp-loc')?document.getElementById('alp-loc').value.trim():'',
+    note:document.getElementById('alp-note')?document.getElementById('alp-note').value.trim():'',
     lat:window._pendingPinLat||null,
     lng:window._pendingPinLng||null,
     sold:false,
