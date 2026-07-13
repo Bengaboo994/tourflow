@@ -2701,7 +2701,7 @@ function pgAddClient(){
     '<div class="card">'+
     '<div style="margin-bottom:13px"><label class="lbl">Name *</label><input class="inp" id="ac-name" placeholder="Full name"/></div>'+
     '<div class="g2" style="margin-bottom:13px">'+
-      '<div><label class="lbl">Phone</label><input class="inp" id="ac-phone" placeholder="Phone number"/><div style="font-size:10px;color:#5a5754;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
+      '<div><label class="lbl">Phone</label><input class="inp" id="ac-phone" type="tel" placeholder="Phone number"/><div style="font-size:10px;color:#5a5754;margin-top:4px">Must start with country code (e.g. +46)</div></div>'+
       '<div><label class="lbl">Email</label><input class="inp" id="ac-email" placeholder="Email address"/></div>'+
     '</div>'+
     '<div class="g2" style="margin-bottom:13px">'+
@@ -3247,7 +3247,8 @@ function pgAddProp(){
   }).join("");
 
   var iffHtml=iff.map(function(f){
-    return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';
+    var inputType=/cph$/.test(f[1])?' type="tel"':'';
+    return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+inputType+' placeholder="'+f[2]+'"/></div>';
   }).join("");
 
   return '<div class="wrap" style="background:#FCFBF7">'+
@@ -3667,7 +3668,8 @@ function pgEditProp(){
 
   var iffHtml=iff.map(function(f){
     var key={'ep-comm':'commission','ep-cont':'contact','ep-cph':'contactPhone','ep-firm':'firm','ep-loc':'location','ep-note':'note'}[f[1]]||'';
-    return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" '+v(p[key]||'')+' placeholder="'+f[2]+'"/></div>';
+    var inputType=/cph$/.test(f[1])?' type="tel"':'';
+    return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+inputType+' '+v(p[key]||'')+' placeholder="'+f[2]+'"/></div>';
   }).join('');
 
   var imgPreview=p.ogImage||p.img
@@ -4641,7 +4643,8 @@ function pgAddLibraryProp(){
     '<div style="border-left:2px solid #C9A14A;padding-left:12px;margin-bottom:14px">'+
     '<div style="font-size:10px;font-weight:700;color:#C9A14A;text-transform:uppercase;letter-spacing:.12em">Agent Info</div></div>'+
     [["Commission","alp-comm","Commission"],["Contact person","alp-cont","Contact name"],["Contact phone","alp-cph","Contact phone"],["Their firm","alp-firm","Company name"],["Exact location/access","alp-loc","Access details"],["Internal notes","alp-note","Notes"]].map(function(f){
-      return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'" placeholder="'+f[2]+'"/></div>';
+      var inputType=/cph$/.test(f[1])?' type="tel"':'';
+      return '<div style="margin-bottom:11px"><label class="lbl">'+f[0]+'</label><input class="inp" id="'+f[1]+'"'+inputType+' placeholder="'+f[2]+'"/></div>';
     }).join('')+
     '</div>'+
 
@@ -5013,8 +5016,9 @@ function pgSettings(){
     ["Phone","phone","Phone number"],
     ["Email","email","Email address"]
   ].map(function(f){
+    var inputType=f[1]==='phone'?' type="tel"':(f[1]==='email'?' type="email"':'');
     return '<div style="margin-bottom:14px"><label class="lbl">'+f[0]+'</label>'+
-      '<input class="inp" id="sf-'+f[1]+'" value="'+esc(cfg[f[1]]||'')+'" placeholder="'+f[2]+'"/></div>';
+      '<input class="inp" id="sf-'+f[1]+'"'+inputType+' value="'+esc(cfg[f[1]]||'')+'" placeholder="'+f[2]+'"/></div>';
   }).join("");
   setTimeout(function(){
     ["agency","agent","phone","email"].forEach(function(k){
