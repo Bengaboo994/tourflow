@@ -245,7 +245,7 @@
       <button id="rebrand-scrape-btn" class="home-generate-btn" onclick="runRebrandScrape()">Generate</button>
     </div>
     <div class="home-footer-links">
-      <a href="#" onclick="return false">FAQ</a>&nbsp;&middot;&nbsp;<a href="#" onclick="return false">Terms</a>&nbsp;&middot;&nbsp;<a href="#" onclick="return false">Privacy</a>
+      <a href="/faq.html">FAQ</a>&nbsp;&middot;&nbsp;<a href="/terms.html">Terms</a>&nbsp;&middot;&nbsp;<a href="/privacy.html">Privacy</a>
     </div>
   </div>
 
@@ -253,10 +253,10 @@
     <div id="consent-modal-backdrop" onclick="closeConsentModal()"></div>
     <div class="consent-card">
       <div class="consent-title">Before you continue</div>
-      <div class="consent-text">Rebrand automatically creates branded presentations from publicly available property listings. Rebrand does not verify ownership, copyright or licensing of submitted content.<br><br>By continuing, you confirm that you have the necessary rights or permission to use the submitted content and agree to our Terms of Service and Privacy Policy.</div>
+      <div class="consent-text">Rebrand automatically creates branded presentations from publicly available property listings. Rebrand does not verify ownership, copyright or licensing of submitted content.<br><br>By continuing, you confirm that you have the necessary rights or permission to use the submitted content and agree to our <a href="/terms.html" target="_blank" style="color:#9c7a2e">Terms of Service</a> and <a href="/privacy.html" target="_blank" style="color:#9c7a2e">Privacy Policy</a>.</div>
       <label class="consent-checkbox-row">
         <input type="checkbox" id="consent-checkbox" onchange="document.getElementById('consent-continue-btn').disabled=!this.checked"/>
-        <span>I confirm that I have the necessary rights or permission to use the submitted content and agree to the Terms of Service and Privacy Policy.</span>
+        <span>I confirm that I have the necessary rights or permission to use the submitted content and agree to the <a href="/terms.html" target="_blank" onclick="event.stopPropagation()" style="color:#9c7a2e">Terms of Service</a> and <a href="/privacy.html" target="_blank" onclick="event.stopPropagation()" style="color:#9c7a2e">Privacy Policy</a>.</span>
       </label>
       <div class="consent-buttons">
         <button class="consent-btn consent-btn-cancel" onclick="closeConsentModal()">Cancel</button>
