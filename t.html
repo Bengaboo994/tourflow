@@ -74,7 +74,27 @@ function render(tour){
   var evs=tour.events||[];
 
   var firstTime=props.length?props[0].time:'';
-  var lastTime=props.length>1?props[props.length-1].time:'';
+  // End time: use a manually-added "Tour Complete" schedule item's time if
+  // present, otherwise estimate the last viewing runs about an hour and
+  // default to last start + 60 min. Matches computeTourEndTime() in
+  // index.html — previously this just showed the last property's START
+  // time as if it were the end time, which was misleading.
+  function addMinutesToTime(hhmm,mins){
+    if(!hhmm||hhmm.indexOf(':')<0)return'';
+    var parts=hhmm.split(':');
+    var h=parseInt(parts[0],10),m=parseInt(parts[1],10);
+    if(isNaN(h)||isNaN(m))return'';
+    var total=h*60+m+mins;
+    total=((total%1440)+1440)%1440;
+    var nh=Math.floor(total/60),nm=total%60;
+    return (nh<10?'0':'')+nh+':'+(nm<10?'0':'')+nm;
+  }
+  var completeEv=evs.find(function(e){return e.type==='tourcomplete';});
+  var lastTime='';
+  if(props.length>1){
+    if(completeEv&&completeEv.time) lastTime=completeEv.time;
+    else { var lastStart=props[props.length-1].time; lastTime=lastStart?addMinutesToTime(lastStart,60):''; }
+  }
   var pLen=props.length;
   var lunchIncluded=evs.some(function(ev){return ev.type==='lunch';});
   var hasTopPick=props.some(function(p){return p.topPick;});
@@ -222,17 +242,7 @@ function render(tour){
     }
   }).join('');
 
-  var endRow=
-    "<div style='display:flex;align-items:center;gap:14px;padding:20px 0 6px'>"+
-    "<div style='flex-shrink:0;width:22px;display:flex;flex-direction:column;align-items:center;gap:2px'>"+
-    "<div style='width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(201,161,74,.25);background:transparent;flex-shrink:0'></div>"+
-    (lastTime?"<div style='font-size:10px;color:#9e9a94;white-space:nowrap'>"+esc(lastTime)+"</div>":"")+
-    "</div>"+
-    "<div style='flex-shrink:0;width:44px;height:44px;border-radius:50%;background:rgba(201,161,74,.06);border:1px solid rgba(201,161,74,.15);display:flex;align-items:center;justify-content:center'>"+endIconSvg+"</div>"+
-    "<div style='flex:1'>"+
-    "<div style='font-size:9px;font-weight:700;color:#9e9a94;text-transform:uppercase;letter-spacing:.18em;margin-bottom:3px'>Tour Complete</div>"+
-    (lastTime?"<div style='font-family:Cormorant Garamond,serif;font-size:15px;color:#9e9a94;font-style:italic'>Estimated finish "+esc(lastTime)+"</div>":"")+
-    "</div></div>";
+  var endRow='';
 
   var journeyCard=
     "<div style='background:#fff;border-radius:18px;border:1px solid #edeae4;padding:0 18px 4px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.04)'>"+
