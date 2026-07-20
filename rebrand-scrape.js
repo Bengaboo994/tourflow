@@ -134,6 +134,22 @@ exports.handler = async function(event) {
       ]);
       if (plotMatch) { const n = parseInt(plotMatch, 10); if (n >= 30 && n <= 100000) plotSize = String(n); }
 
+      let livingArea = null;
+      const livingAreaMatch = firstMatch([
+        /"livingArea"\s*:\s*(\d+)/i,
+        /(?:living\s*area|boarea|superficie\s*útil)[^0-9]{0,20}(\d{2,4})\s*m[²2]/i,
+        /(\d{2,4})\s*m[²2][^0-9]{0,20}(?:living\s*area|boarea)/i
+      ]);
+      if (livingAreaMatch) { const n = parseInt(livingAreaMatch, 10); if (n >= 15 && n <= 2000) livingArea = String(n); }
+
+      let terraceSize = null;
+      const terraceMatch = firstMatch([
+        /"terraceArea"\s*:\s*(\d+)/i,
+        /(?:terrace|terrass|terraza)[^0-9]{0,20}(\d{1,4})\s*m[²2]/i,
+        /(\d{1,4})\s*m[²2][^0-9]{0,20}(?:terrace|terrass|terraza)/i
+      ]);
+      if (terraceMatch) { const n = parseInt(terraceMatch, 10); if (n >= 2 && n <= 1000) terraceSize = String(n); }
+
       const communityFee = cleanCost(firstMatch([
         /(?:cuota\s*comunitaria|community\s*fee|gastos?\s*de\s*comunidad|hoa\s*fee)[^0-9]{0,20}([\d\.,]+)/i
       ]));
@@ -165,6 +181,22 @@ exports.handler = async function(event) {
 
       let description = og('description') || meta('description') || null;
       if (description) description = description.slice(0, 4000);
+
+      // Best-effort listing agent contact — useful beyond Rebrand itself
+      // (e.g. TourFlow's "Agent Info" section uses this too), so it lives
+      // here rather than being reimplemented per-consumer. Structured data
+      // (schema.org RealEstateAgent/Person) is the most reliable source
+      // when present; plain label/phone patterns are the fallback.
+      let listingAgentName = null, listingAgentPhone = null, listingAgentFirm = null;
+      const agentNameMatch = html.match(/"@type"\s*:\s*"(?:RealEstateAgent|Person)"[^}]*?"name"\s*:\s*"([^"]+)"/i)
+                          || html.match(/(?:agente|listing agent|agent)[^:>]{0,10}:?\s*<[^>]+>\s*([A-Z][a-z]+\s+[A-Z][a-z]+)/i);
+      if (agentNameMatch) listingAgentName = decodeHtmlEntities(agentNameMatch[1].trim()).slice(0, 60);
+      const agentPhoneMatch = html.match(/"telephone"\s*:\s*"([+\d][\d\s\-()]{6,20})"/i)
+                           || html.match(/(?:tel|phone|tel[eé]fono)[^:>]{0,10}:?\s*<[^>]*>?\s*(\+?\d[\d\s\-()]{6,18}\d)/i);
+      if (agentPhoneMatch) listingAgentPhone = agentPhoneMatch[1].trim();
+      const agentFirmMatch = og('site_name')
+        || (html.match(/"@type"\s*:\s*"RealEstateAgent"[^}]*?"worksFor"\s*:\s*\{[^}]*?"name"\s*:\s*"([^"]+)"/i) || [])[1];
+      if (agentFirmMatch) listingAgentFirm = decodeHtmlEntities(String(agentFirmMatch).trim()).slice(0, 60);
 
       // ── IMAGE GALLERY ──────────────────────────────────────────────────
       // Exclude icons, logos, flags, staff headshots, and content that
@@ -327,8 +359,9 @@ exports.handler = async function(event) {
       }
 
       return {
-        title: ogTitle || null, price, rooms, bathrooms, sqm, plotSize, area, address,
+        title: ogTitle || null, price, rooms, bathrooms, sqm, plotSize, livingArea, terraceSize, area, address,
         communityFee, ibi, garbageFee, description,
+        listingAgentName, listingAgentPhone, listingAgentFirm,
         images: images, imageCount: images.length
       };
     }
