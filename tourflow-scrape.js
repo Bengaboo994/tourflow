@@ -128,6 +128,22 @@ exports.handler = async function(event) {
       ]);
       if (plotMatch) { const n = parseInt(plotMatch, 10); if (n >= 30 && n <= 100000) plotSize = String(n); }
 
+      let livingArea = null;
+      const livingAreaMatch = firstMatch([
+        /"livingArea"\s*:\s*(\d+)/i,
+        /(?:living\s*area|boarea|superficie\s*\u00fatil)[^0-9]{0,20}(\d{2,4})\s*m[\u00b22]/i,
+        /(\d{2,4})\s*m[\u00b22][^0-9]{0,20}(?:living\s*area|boarea)/i
+      ]);
+      if (livingAreaMatch) { const n = parseInt(livingAreaMatch, 10); if (n >= 15 && n <= 2000) livingArea = String(n); }
+
+      let terraceSize = null;
+      const terraceMatch = firstMatch([
+        /"terraceArea"\s*:\s*(\d+)/i,
+        /(?:terrace|terrass|terraza)[^0-9]{0,20}(\d{1,4})\s*m[\u00b22]/i,
+        /(\d{1,4})\s*m[\u00b22][^0-9]{0,20}(?:terrace|terrass|terraza)/i
+      ]);
+      if (terraceMatch) { const n = parseInt(terraceMatch, 10); if (n >= 2 && n <= 1000) terraceSize = String(n); }
+
       const communityFee = cleanCost(firstMatch([
         /(?:cuota\s*comunitaria|community\s*fee|gastos?\s*de\s*comunidad|hoa\s*fee)[^0-9]{0,20}([\d\.,]+)/i
       ]));
@@ -197,7 +213,7 @@ exports.handler = async function(event) {
       }
 
       return {
-        title: ogTitle || null, price, rooms, bathrooms, sqm, plotSize, area, address,
+        title: ogTitle || null, price, rooms, bathrooms, sqm, plotSize, livingArea, terraceSize, area, address,
         communityFee, ibi, basura, description, image,
         listingAgentName, listingAgentPhone, listingAgentFirm
       };
